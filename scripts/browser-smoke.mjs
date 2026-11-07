@@ -29,6 +29,14 @@ try {
   await check(async()=>await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute("content").then(c=>c.includes("script-src 'self'")&&c.includes("object-src 'none'")),"CSP restrictive activée");
   await check(async()=>await page.evaluate(async()=>{const manifest=await(await fetch("./manifest.json")).json();return manifest.icons?.length>0&&manifest.icons[0].src==="./icon.svg";}),"Icône PWA déclarée dans le manifeste");
   await check(async()=>await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Aucun débordement horizontal mobile");
+  // Largeurs Android compact, standard, tablette et ordinateur : aucune
+  // coupe horizontale des champs, onglets ou commandes de l'application.
+  for(const width of [320,360,768,1024]){
+    await page.setViewportSize({width,height:844});
+    await check(async()=>await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),
+      "Mise en page sans débordement à "+width+" px");
+  }
+  await page.setViewportSize({width:390,height:844});
   await page.locator("#start").click();
   await check(async()=>await page.locator("#quiz").isVisible(),"Quiz démarré");
   await page.locator("#unknownButton").click();
