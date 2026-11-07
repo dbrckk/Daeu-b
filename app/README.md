@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://drifting-neon-d3tt6t6.shipstatic.com
+**Site public :** https://ghostly-void-w99dhwc.shipstatic.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -21,6 +21,22 @@ Cette application complète les cours Markdown du dépôt. Elle contient **95 ex
 - Une erreur remet le compteur à zéro et rend la question révisable.
 - Les réussites **avec indice** ne valident pas la maîtrise et remettent à zéro la série. Pour les modèles à valeurs variables, le nouvel énoncé doit être différent de celui du rappel précédent.
 - Les réponses à choix multiples ne prouvent pas une maîtrise complète : résoudre aussi les exercices des cours et les examens blancs.
+
+## Réponses acceptées
+
+## Examens blancs interactifs (v3)
+
+Depuis la version actuelle, la page comprend **deux sujets originaux** sous « Examens blancs interactifs ». Chacun comporte **4 exercices représentant 5 points chacun**, soit une note automatisée sur 20.
+
+- Sélectionner le sujet A ou B, puis « Commencer l'examen (3 h) ».
+- Le chronomètre démarre immédiatement, **continue même si la page est fermée** et s'arrête définitivement après trois heures. L'application rend alors la copie et calcule le bilan dès que l'onglet est rouvert.
+- Chaque exercice contient des questions numériques ou des QCM **et un champ libre pour rédiger les justifications**. Les réponses, la rédaction et l'exercice courant sont sauvegardés dans le navigateur à chaque modification.
+- Les solutions et le barème obtenu ne sont affichés **qu'après** le clic « Rendre ma copie » ou la fin du temps. La correction se consulte par exercice et indique les chapitres à revoir.
+- **Important :** la note automatique valide uniquement les réponses numériques/QCM, pas les démonstrations, la rigueur ni la méthode. **Ce n'est pas une notation officielle du DAEU B.**
+- « Historique des copies » conserve les 12 derniers examens, avec commentaires de rédaction. Les données restent locales.
+- La sauvegarde JSON exportée depuis la nouvelle version comprend la progression **et les examens**. Les fichiers JSON de l'ancienne version (suivi v2 seul) sont toujours importables.
+
+**Tolérance des approximations :** 1e-6 × max(1, |réponse|) ; pour les valeurs irrationnelles, fournir au moins 6 décimales (par ex. ln 3 ≈ 1,098612).
 
 ## Réponses acceptées
 
@@ -56,14 +72,21 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La nouvelle version publiée le 7 novembre 2026 est : https://drifting-neon-d3tt6t6.shipstatic.com.
+La version actuelle est : https://ghostly-void-w99dhwc.shipstatic.com.
 
-Le précédent site `https://clear-glyph-3u8hr78.shipstatic.com` conserve **sa propre mémoire locale**, car le stockage est lié à l'adresse du site. Il n'existe pas de transfert automatique de données entre ces deux adresses.
+Anciennes adresses possibles :
+- `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
+- `https://drifting-neon-d3tt6t6.shipstatic.com` (deuxième version).
+
+L'hébergeur a signalé **une limite de domaines permanents atteinte**, et un alias stable n'a pas pu être réservé. Le lien du README de ce dépôt reste le point d'entrée pour trouver la dernière adresse.
+
+Chaque ancien site conserve **sa propre mémoire locale**, car le stockage est lié à l'adresse du site. Il n'existe pas de transfert automatique de données entre ces deux adresses.
 
 1. Ouvrir **l'ancien site**, puis **Exporter mes résultats**.
 2. Ouvrir **la nouvelle adresse** ci-dessus.
 3. Cliquer **Importer une sauvegarde JSON**, choisir le fichier exporté puis confirmer.
-4. Vérifier le nombre de questions travaillées. Les 32 modèles variables sont nouveaux ; ils n'effacent pas le suivi des 95 questions d'origine.
+4. Vérifier le nombre de questions travaillées. Les 95 questions d'origine et les 32 modèles variables conservent leurs identifiants et leur progression si le fichier provient de la version précédente.
+5. Les fichiers exportés depuis cette version comprennent également les examens et copies ; les anciens fichiers n'en contiennent pas.
 
 Si la précédente adresse est inaccessible ou si son stockage a été effacé, la progression qui n'a jamais été exportée ne peut pas être reconstituée.
 
@@ -72,3 +95,11 @@ Si la précédente adresse est inaccessible ou si son stockage a été effacé, 
 - **32 modèles paramétriques** couvrant les 20 jalons non facultatifs, en plus des 95 questions fixes.
 - Vérifications automatisées : **2 560 instances de variantes** comparées à une formule de référence, ainsi que les contrôles de notation, d'espacement et de sauvegardes.
 - La publication a été confirmée comme `success` par l'hébergeur ; cela ne vaut pas audit manuel complet dans Chrome Android.
+
+
+## Notes de validation — simulateur d'examen
+- Deux examens originaux indépendants, chacun /20 en 4 exercices.
+- Chronomètre réel 3 h, reprise locale, fin automatique à échéance, notation numérique/choix multiple, copies et rédaction locales.
+- Les justifications manuscrites/texte **ne sont pas évaluées automatiquement**.
+- Vérifications du moteur et des cas d'importation par `node --test app/engine.test.mjs app/exam-engine.test.mjs` ; contrôle GitHub Actions vert avant publication.
+- Le test de compatibilité sur un appareil Android réel n'a pas été réalisé ; une réussite CI et un hébergement « success » n'en tiennent pas lieu.

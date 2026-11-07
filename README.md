@@ -6,15 +6,17 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 ## Application interactive gratuite
 
-**[Ouvrir l'Atelier de maths — site mobile et PC](https://drifting-neon-d3tt6t6.shipstatic.com)**
+**[Ouvrir l'Atelier de maths — site mobile et PC](https://ghostly-void-w99dhwc.shipstatic.com)**
 
 - **95 questions fixes + 32 modèles paramétriques (127 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **32 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
 - Suivi enregistré **dans le navigateur**, sans compte ni transmission au serveur ; exporter régulièrement la progression JSON pour changer d'appareil.
 - Site hébergé gratuitement sur ShipStatic (publication connectée, **sans date d'expiration définie**) ; le contenu source reste dans [app/](app/).
+- **[Deux examens blancs interactifs](https://ghostly-void-w99dhwc.shipstatic.com)** : 4 problèmes indépendants, durée de 3 h, barème /20, sauvegarde de la copie et corrections après remise.
+- [Guide des examens chronométrés et limites de la correction automatique](examens/guide-interactif.md).
 - [Notice de fonctionnement et limites](app/README.md).
-- **Ancien site :** pour retrouver ton suivi sur la nouvelle adresse, [exporte puis importe ta progression JSON](app/README.md#changer-dadresse-ou-de-téléphone).
+- **Progression :** si tu utilises une ancienne adresse, [exporte puis importe ton suivi JSON](app/README.md#changer-dadresse-ou-de-téléphone). Les copies d'examen sont désormais incluses dans les nouvelles sauvegardes.
 
 > La réussite à un QCM n'est pas la preuve d'une maîtrise. Les démonstrations, problèmes et examens sur papier restent indispensables.
 

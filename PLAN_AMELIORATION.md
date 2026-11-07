@@ -16,7 +16,7 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 - [x] Créer une application web mobile **sans inscription ni API**, appuyée sur un corpus de questions corrigées, avec réponses numériques et choix multiples, erreurs expliquées.
 - [x] Ajouter un test de cohérence du corpus (IDs, jalons, réponses, liens de cours).
 - [x] Ajouter des vérifications d'exécution du moteur pédagogique (notation, planification, données de progression).
-- [x] Publier une interface statique gratuite : https://drifting-neon-d3tt6t6.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
+- [x] Publier une interface statique gratuite : https://ghostly-void-w99dhwc.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
 
 **Critère de sortie A :** application qui fonctionne sans clés, qui note les réponses et dont les tests automatisés réussissent. Le nombre d'exercices doit être vérifié par le script, jamais affirmé à la main.
 
@@ -34,8 +34,9 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 **Critère de sortie B :** une compétence est acquise uniquement après deux réussites **à des dates différentes** ; la notation sur QCM n'est qu'un indice, jamais une preuve suffisante.
 
 ## Phase C — Préparation d'examen (priorité P1 / P2)
-- [ ] Ajouter de véritables **épreuves interactives chronométrées** en quatre exercices regroupant plusieurs questions avec notation sur 20.
-- [ ] Mettre en place une grille de suivi des points perdus et recommandations ciblées par compétence.
+- [x] Ajouter **2 examens blancs interactifs de 3 h**, chacun structuré en 4 exercices et noté /20 automatiquement pour les réponses objectives ; rédaction conservée mais non notée.
+- [x] Ajouter un bilan par exercice (points perdus, correction, compétence et chapitres de remédiation).
+- [ ] Analyser la maîtrise à partir de plusieurs copies successives, avec nouveaux sujets non mémorisés.
 - [ ] Confronter les exercices originaux à des annales **autorisées**, sans reproduction non autorisée.
 - [ ] Réaliser un audit de correction méthodique par chapitre et des sujets blancs.
 - [ ] Proposer un mode sans connexion vérifié sur Android réel (le service worker est déjà prévu, mais doit être validé en conditions réelles).
@@ -52,7 +53,7 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 Le suivi local disparaît si l'utilisateur efface les données du navigateur ou change de téléphone sans exporter sa progression. Les exercices dans l'app sont un **complément** : les démonstrations longues doivent être rédigées sur papier et corrigées avec le cours. Une CI verte prouve les contrôles automatisés, **pas** la maîtrise personnelle ni l'exactitude universelle de tous les contenus. L'université reste seule habilitée à délivrer le diplôme.
 
 ## Livraison contrôlée (07/11/2026)
-- Site : https://drifting-neon-d3tt6t6.shipstatic.com
+- Site : https://ghostly-void-w99dhwc.shipstatic.com
 - **95 questions**, **13 domaines**, **20 jalons principaux**.
 - GitHub Actions : contrôle des liens, syntaxe JS, cohérence du corpus, réponses sur échantillons, échéances, sauvegardes.
 - Exécution automatique validée : https://github.com/dbrckk/Daeu-b/actions/runs/42385148907
@@ -66,10 +67,20 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 
 
 ## Livraison v2 — 7 novembre 2026
-- Adresse de production actuelle : https://drifting-neon-d3tt6t6.shipstatic.com
+- Adresse de production actuelle : https://ghostly-void-w99dhwc.shipstatic.com
 - 95 questions fixes + 32 modèles de variantes = **127 éléments suivis** dans l'application.
 - 20 jalons principaux couverts par les modèles variables ; les 3 facultatifs restent dans les cours.
 - Validation plus stricte : seules les réponses sans indice et à des dates différentes confirment la maîtrise. Une variante doit changer l'énoncé précédent.
 - Contrôle CI : 2 560 instances comparées à des calculs de référence, tests de générateur, des échéances et de la sauvegarde.
 - Ancien site : https://clear-glyph-3u8hr78.shipstatic.com (export JSON nécessaire pour reprendre le suivi sur la nouvelle adresse).
 - Déploiement nouveau déclaré `success` ; test d'interface complet en situation Android encore non réalisé.
+
+
+## Livraison v3 — 7 novembre 2026
+- Adresse publiée : https://ghostly-void-w99dhwc.shipstatic.com
+- Deux examens originaux de 20 points, quatre exercices de 5 points, 3 heures par sujet ; chaque exercice comporte 3 à 4 étapes liées.
+- Conservation de la réponse et du raisonnement libre par exercice avec sauvegarde locale ; reprise après fermeture, échéance réelle et remise automatique.
+- Bilans par exercice, note indicative et liens de remédiation ; résultats exportables/importables dans une sauvegarde unifiée.
+- Tests automatisés des barèmes, du chronomètre, de l'import et de la correction ; vérification CI : https://github.com/dbrckk/Daeu-b/actions/runs/42389729798
+- Déploiement confirmé « success » ; alias pérenne ShipStatic indisponible (limite du plan), utiliser ce README comme point d'entrée stable.
+- À poursuivre : exercices de rédaction évaluables avec grille, audit mathématique indépendant, essais réels sur Android.
