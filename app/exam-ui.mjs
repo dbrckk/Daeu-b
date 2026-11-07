@@ -1,7 +1,8 @@
 import {EXAMS} from "./exams.mjs";
-import {getRubric,countChecks} from "./reasoning.mjs";
+import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
+import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
-import {startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
+import {findExam,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 
 const EXAM_LESSONS={
   "a-analyse":[["Second degré","04-second-degre.md"],["Dérivation","06-derivation.md"]],
@@ -11,7 +12,11 @@ const EXAM_LESSONS={
   "b-fonction":[["Fonctions","05-fonctions.md"],["Dérivation","06-derivation.md"],["Limites","07-limites-asymptotes.md"]],
   "b-systeme":[["Équations et systèmes","03-equations-inequations-systemes.md"]],
   "b-stats":[["Statistiques","11-statistiques.md"]],
-  "b-expo":[["Continuité et TVI","08-continuite-tvi.md"],["Exponentielle","09-exponentielle-logarithme.md"]]
+  "b-expo":[["Continuité et TVI","08-continuite-tvi.md"],["Exponentielle","09-exponentielle-logarithme.md"]],
+  "c-optimisation":[["Second degré","04-second-degre.md"],["Dérivation","06-derivation.md"]],
+  "c-suites":[["Suites","10-suites.md"],["Logarithmes","09-exponentielle-logarithme.md"]],
+  "c-probabilites":[["Probabilités","12-probabilites.md"]],
+  "c-integrales":[["Calcul intégral","15-primitives-integrales.md"]]
 };
 const KEY="daeu-b-exams-v1";
 const byId=id=>document.getElementById(id);
@@ -106,7 +111,7 @@ function renderHistory(){
 function renderExamSection(){
   const session=store.active;
   if(!session)return;
-  const exam=EXAMS.find(e=>e.id===session.examId);
+  const exam=findExam(session.examId,session.seed??null);
   const section=exam.sections[session.sectionIndex];
   byId("examPosition").textContent="Exercice "+(session.sectionIndex+1)+" sur 4 · 5 points";
   byId("examSectionTitle").textContent=section.title;
@@ -176,7 +181,7 @@ function renderActive(){
   setVisible("examActive",active);
   setVisible("examIntro",!active);
   if(active){
-    byId("examActiveTitle").textContent=EXAMS.find(e=>e.id===store.active.examId).title;
+    byId("examActiveTitle").textContent=findExam(store.active.examId,store.active.seed??null).title;
     setVisible("examResult",false);
     setTimer();renderExamSection();
   }else if(timer!==null){clearInterval(timer);timer=null;}
@@ -189,10 +194,10 @@ function showResult(result){
   const summary=result.reason==="timeout"?"Temps écoulé : la copie a été rendue automatiquement.":"Copie rendue. La notation automatique est terminée.";
   byId("examSummary").textContent=summary+" Les justifications rédigées ne sont pas évaluées : "+result.score+"/20 est une note indicative.";
   const selfStatus=byId("examReasoningStatus");
-  const checks=countChecks(result);
+  const exam=findExam(result.examId,result.seed??null);
+  const checks=countChecks(result,exam);
   selfStatus.textContent="Étapes rédigées déclarées : "+checks.checked+"/"+checks.total+" (auto-évaluation, hors note /20)";
   const review=byId("examReview");review.replaceChildren();
-  const exam=EXAMS.find(e=>e.id===result.examId);
   for(const section of result.sections){
     const src=exam.sections.find(s=>s.id===section.id);
     const details=element("details","exam-review-group");
@@ -214,7 +219,7 @@ function showResult(result){
       details.append(noteLabel,note);
     }
 
-    const rubric=getRubric(section.id);
+    const rubric=rubricForSection(src);
     if(rubric){
       const guide=element("details","exam-reasoning-guide");
       guide.append(element("summary","","Correction guidée du raisonnement · "+rubric.steps.length+" étapes"));
@@ -233,7 +238,7 @@ function showResult(result){
             const updated=store.history.find(x=>x.examId===result.examId&&x.startedAt===result.startedAt);
             if(updated){
               result.selfChecks=updated.selfChecks;
-              const tally=countChecks(updated);
+              const tally=countChecks(updated,exam);
               selfStatus.textContent="Étapes rédigées déclarées : "+tally.checked+"/"+tally.total+" (auto-évaluation, hors note /20)";
             }
           }catch(error){input.checked=!input.checked;alertExam("La copie n'a pas pu être modifiée.");}
@@ -269,10 +274,23 @@ function finalize(reason){
   showResult(result);
   alertExam("");
 }
+function createNewSeed(){
+  // Graine non secrète ; Web Crypto minimise les collisions entre nouvelles copies.
+  const existing=new Set(store.history.filter(x=>x.examId===GENERATED_EXAM_ID).map(x=>x.seed));
+  for(let i=0;i<20;i++){
+    let seed;
+    if(typeof crypto!=="undefined" && crypto.getRandomValues){
+      const bytes=new Uint32Array(1);crypto.getRandomValues(bytes);seed=bytes[0];
+    }else seed=Math.floor(Math.random()*4294967296);
+    if(!existing.has(seed))return seed;
+  }
+  throw new Error("Impossible de produire une graine différente pour ce sujet");
+}
 function start(){
   if(store.active){renderActive();return;}
   const examId=byId("examSelect").value;
-  store={...store,active:startExam(examId)};lastResult=null;persist();
+  const seed=examId===GENERATED_EXAM_ID?createNewSeed():null;
+  store={...store,active:startExam(examId,Date.now(),seed)};lastResult=null;persist();
   alertExam("");renderActive();
 }
 export function getExamBackup(){return store;}
@@ -289,11 +307,13 @@ export function initExams(){
   initialized=true;load();
   const select=byId("examSelect");
   for(const exam of EXAMS){const opt=element("option","",exam.title);opt.value=exam.id;select.append(opt);}
+  const generated=element("option","","Examen C — NOUVEAU sujet généré à chaque tentative");
+  generated.value=GENERATED_EXAM_ID;select.prepend(generated);
   byId("examStart").addEventListener("click",start);
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
   byId("examNext").addEventListener("click",()=>moveTo(Math.min(3,store.active.sectionIndex+1)));
   byId("examSubmit").addEventListener("click",()=>{
-    const exam=EXAMS.find(x=>x.id===store.active?.examId);
+    const exam=findExam(store.active?.examId,store.active?.seed??null);
     if(!exam)return;
     const total=exam.sections.reduce((n,s)=>n+s.questions.length,0);
     const filled=Object.values(store.active.answers).filter(x=>x.trim()).length;
