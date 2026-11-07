@@ -9,6 +9,9 @@ const browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
 const temp=await mkdtemp(join(tmpdir(),"daeu-smoke-"));
 const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,acceptDownloads:true,locale:"fr-FR"});
 const page=await context.newPage(),errors=[];
+page.setDefaultTimeout(15000);
+page.setDefaultNavigationTimeout(15000);
+const watchdog=setTimeout(()=>{console.error("ÉCHEC : délai global du test navigateur dépassé");process.exit(2);},120000);
 page.on("pageerror",e=>errors.push("JS : "+e.message));
 page.on("response",r=>{if(r.url().startsWith(BASE)&&r.status()>=400)errors.push(r.status()+" "+r.url());});
 page.on("dialog",dialog=>dialog.accept());
@@ -100,6 +103,7 @@ try {
   await page.screenshot({path:join(temp,"echec.png"),fullPage:true}).catch(()=>{});
   process.exitCode=1;
 } finally {
+  clearTimeout(watchdog);
   await context.close();await browser.close();
   if(process.exitCode!==1)await rm(temp,{recursive:true,force:true});
 }
