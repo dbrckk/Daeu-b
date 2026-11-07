@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v9 sur adresse permanente (7 novembre 2026)
+## État actuel — livraison v10 sur adresse permanente (7 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -193,3 +193,18 @@ La v7 est exploitable et contrôlée automatiquement ; elle ne peut pas encore �
 - [ ] Étudier une protection stricte contre les écritures parfaitement simultanées sur deux onglets, avec Web Locks API en repli sécurisé selon navigateur.
 
 Le site de préparation reste indépendant de l'université et ne délivre pas le diplôme ; le bon résultat des tests techniques ne prouve pas la qualité pédagogique exhaustive.
+
+
+## Livraison v10 — fiabiliser la reprise et la validation de bout en bout (07/11/2026)
+
+- [x] Identifier dans les journaux CI la cause précise de la régression de la v9 : contamination du test principal par le scénario « quota localStorage saturé ».
+- [x] Exécuter ce scénario dans un **contexte navigateur séparé** ; vérifier qu'il ne laisse pas d'examen actif dans le parcours principal.
+- [x] Afficher « Reprendre ma copie en cours » lors de la consultation d'une ancienne correction pendant un examen non terminé.
+- [x] Contrôler que la consultation d'une ancienne correction ne modifie ni l'énoncé ni la graine de l'examen actif, même hors ligne.
+- [x] Valider l'absence de débordement horizontal à **320, 360, 390, 768 et 1024 px**.
+- [x] Obtenir les deux suites GitHub Actions au vert : contrôle mathématique et scénario Chromium mobile complet.
+- [ ] Essai matériel sur Android et navigateur secondaire ; impossible à certifier à partir de l'émulation Chromium seule.
+- [ ] Validation pédagogique indépendante et plus grande variété de sujets d'examen.
+- [ ] Concurrence strictement simultanée : évaluer Web Locks ou sérialisation explicite, tout en conservant les anciens navigateurs.
+
+**Site de production permanent :** https://daeu-b-maths-dbrckk.onrender.com

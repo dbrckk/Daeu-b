@@ -199,3 +199,12 @@ Tests : [contenu, sauvegardes et mathématiques](https://github.com/dbrckk/Daeu-
 - La page limite l'exécution de scripts au domaine applicatif via une politique CSP et n'emploie aucun script de suivi publicitaire.
 - La disponibilité des principales ressources est vérifiée chaque jour par GitHub Actions ; un échec de contrôle ne modifie pas la progression locale.
 - Render propose une offre d'hébergement statique gratuite avec des limites mensuelles de bande passante et de minutes de compilation.
+
+
+## Correctif v10 — navigation et petits écrans
+
+Le simulateur distingue désormais une **ancienne correction consultée** et la **copie active à reprendre**. La navigation de retour préserve les réponses et les paramètres du sujet courant, sans lui substituer l'ancien examen. La correction d'un scénario de test isolant un quota localStorage plein a supprimé une collision artificielle entre les sessions simulées.
+
+Le parcours Chromium couvre 320/360/390/768/1024 pixels, la sauvegarde atomique, l'import/export JSON, les corrections de l'examen C, et le redémarrage hors connexion. Ce contrôle ne remplace pas la manipulation sur un téléphone Android physique.
+
+**Dernier parcours complet validé :** https://github.com/dbrckk/Daeu-b/actions/runs/42416336635

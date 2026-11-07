@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v9, domaine permanent Render (07/11/2026)**  
+**État : candidat public stable v10, domaine permanent Render (07/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -91,3 +91,13 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Tests de navigation sur Chromium mobile, cache hors ligne et contrôles pédagogiques exécutés sur GitHub Actions avant publication.
 - Contrôle quotidien de l'URL publique et de ses ressources essentielles ; faux échecs évités grâce à une courte attente lors des commits (le déploiement Render dure parfois plus longtemps que le déclenchement GitHub Actions).
 - Des essais sur Android physique et une relecture universitaire du contenu demeurent nécessaires.
+
+
+## v10 — correction de régression et validation responsive
+
+- Le parcours Chromium de la v9 a révélé un **faux échec dû au test** : le scénario de stockage saturé partageait l'origine de la page principale et y créait un examen actif. Un contexte navigateur indépendant isole maintenant cette simulation ; le parcours hors ligne est à nouveau entièrement validé.
+- L'application distingue « Retour aux examens » d'**« Reprendre ma copie en cours »** lorsqu'un ancien corrigé est consulté pendant une épreuve encore active. Cette copie reprend avec le même énoncé.
+- Un test couvre explicitement le changement entre **l'examen actif, l'historique et le retour à la copie**, y compris hors ligne et après rechargement.
+- Le contrôle responsive couvre désormais les largeurs **320, 360, 390, 768 et 1024 px**, sans débordement horizontal détecté par Chromium.
+- Tests de référence : [contrôle pédagogique vert](https://github.com/dbrckk/Daeu-b/actions/runs/42416220427) ; [parcours mobile, quotas et hors ligne vert](https://github.com/dbrckk/Daeu-b/actions/runs/42416336635).
+- Le déploiement reste sur https://daeu-b-maths-dbrckk.onrender.com ; la compatibilité Android physique et l'exactitude académique exhaustive demeurent à valider séparément.
