@@ -1,0 +1,97 @@
+import assert from "node:assert/strict";
+import {mkdtemp,readFile,rm} from "node:fs/promises";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
+import {chromium} from "playwright";
+
+const BASE=process.env.TEST_BASE_URL||"http://127.0.0.1:8000";
+const browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
+const temp=await mkdtemp(join(tmpdir(),"daeu-smoke-"));
+const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true,acceptDownloads:true,locale:"fr-FR"});
+const page=await context.newPage(),errors=[];
+page.on("pageerror",e=>errors.push("JS : "+e.message));
+page.on("response",r=>{if(r.url().startsWith(BASE)&&r.status()>=400)errors.push(r.status()+" "+r.url());});
+page.on("dialog",dialog=>dialog.accept());
+const check=async (fn,label)=>{
+  assert.ok(await fn(),label);
+  console.log("OK "+label);
+};
+
+try {
+  await page.goto(BASE,{waitUntil:"networkidle",timeout:30000});
+  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="127"),"127 questions chargées");
+  await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
+  await check(async()=>await page.locator("#examSelect option").count()===3,"Examens A/B/C disponibles");
+  await check(async()=>await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Aucun débordement horizontal mobile");
+  await page.locator("#start").click();
+  await check(async()=>await page.locator("#quiz").isVisible(),"Quiz démarré");
+  await page.locator("#unknownButton").click();
+  await check(async()=>await page.locator("#feedback").isVisible(),"Correction après réponse");
+  await page.locator("#next").click();
+  await check(async()=>await page.locator("#quizCount").textContent().then(t=>t.includes("2 / 10")),"Passage à la seconde question");
+  assert.equal(Number((await page.locator("#attempted").textContent()).trim()),1);
+
+  await page.locator("#examSelect").selectOption("blanc-c");
+  await page.locator("#examStart").click();
+  await check(async()=>await page.locator("#examActive").isVisible(),"Examen C lancé");
+  const contextText=await page.locator("#examContext").textContent();
+  assert.ok(contextText.includes("B(x)="),"Énoncé complet");
+  await check(async()=>await page.locator("#examQuestions fieldset").count()===4,"4 questions au premier exercice");
+  await page.locator("#examQuestions .exam-input").first().fill("8");
+  await page.locator("#examNext").click();
+  await page.locator("#examNotes").fill("Raisonnement géométrique rédigé dans la copie.");
+  await page.locator("#examPrev").click();
+  await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="8"),"Réponse conservée à la navigation");
+  await page.reload({waitUntil:"networkidle"});
+  await check(async()=>await page.locator("#examActive").isVisible(),"Copie récupérée au rechargement");
+  await check(async()=>await page.locator("#examContext").textContent().then(x=>x===contextText),"Sujet inchangé au rechargement");
+  await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="8"),"Réponse conservée au rechargement");
+  await page.locator("#examNext").click();
+  await check(async()=>await page.locator("#examNotes").inputValue().then(x=>x.includes("géométrique")),"Rédaction récupérée");
+
+  await page.locator("#examSubmit").click();
+  await check(async()=>await page.locator("#examResult").isVisible(),"Note et corrigé révélés");
+  await check(async()=>await page.locator("#examScore").textContent().then(x=>/^\d+ \/ 20$/.test(x.trim())),"Barème sur 20");
+  await check(async()=>await page.locator("#examReview details.exam-review-group").count()===4,"4 corrigés présents");
+  await page.locator("#examReview details.exam-review-group").first().locator("summary").first().click();
+  await page.locator("#examReview details.exam-review-group").first().locator(".exam-reasoning-guide > summary").click();
+  await check(async()=>await page.locator("#examReview .exam-reasoning-step").count()===16,"16 critères de rédaction présents");
+  await page.locator("#examReview .exam-reasoning-step input[type=checkbox]").first().check();
+  await check(async()=>await page.locator("#examReasoningStatus").textContent().then(x=>x.includes("1/16")),"Auto-évaluation indépendante de la note");
+  await page.reload({waitUntil:"networkidle"});
+  await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Historique rechargé");
+  await page.locator("#examHistory button").first().click();
+  await check(async()=>await page.locator("#examReasoningStatus").textContent().then(x=>x.includes("1/16")),"Grille sauvegardée");
+
+  const promise=page.waitForEvent("download");
+  await page.locator("#export").click();
+  const download=await promise;
+  assert.match(download.suggestedFilename(),/daeu-b-progression-\d{4}-\d{2}-\d{2}\.json/);
+  const filename=join(temp,"backup.json");await download.saveAs(filename);
+  const backup=JSON.parse(await readFile(filename,"utf8"));
+  assert.equal(backup.exams.history[0].examId,"blanc-c");
+  await page.locator("#reset").click();
+  await check(async()=>await page.locator("#attempted").textContent().then(t=>t.trim()==="0"),"Remise à zéro du suivi");
+  await check(async()=>await page.locator("#examHistory .exam-history-row").count()===0,"Remise à zéro des copies");
+  await page.locator("#importFile").setInputFiles(filename);
+  await check(async()=>await page.locator("#attempted").textContent().then(t=>Number(t.trim())>=1),"Import de la progression");
+  await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Import des copies");
+
+  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
+  await page.reload({waitUntil:"networkidle"});
+  await context.setOffline(true);
+  await page.reload({waitUntil:"domcontentloaded",timeout:12000});
+  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="127"),"Application chargée hors ligne");
+  await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Copies accessibles hors ligne");
+  await context.setOffline(false);
+  assert.deepEqual(errors,[],"Aucune requête locale en erreur");
+  console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");
+} catch(error) {
+  console.error("ÉCHEC DU PARCOURS NAVIGATEUR :",error);
+  if(errors.length)console.error(errors);
+  await page.screenshot({path:join(temp,"echec.png"),fullPage:true}).catch(()=>{});
+  process.exitCode=1;
+} finally {
+  await context.close();await browser.close();
+  if(process.exitCode!==1)await rm(temp,{recursive:true,force:true});
+}

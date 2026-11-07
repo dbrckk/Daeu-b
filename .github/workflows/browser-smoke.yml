@@ -1,0 +1,34 @@
+name: Validation fonctionnelle Chromium Android
+on:
+  push:
+    paths:
+      - 'app/**'
+      - 'scripts/browser-smoke.mjs'
+      - '.github/workflows/browser-smoke.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'scripts/browser-smoke.mjs'
+      - '.github/workflows/browser-smoke.yml'
+permissions:
+  contents: read
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installer Chromium (dépendance CI uniquement)
+        run: |
+          npm install --no-save --ignore-scripts --no-audit --no-fund playwright@1.65.0
+          npx playwright install --with-deps chromium
+      - name: Tester le parcours réel et le hors ligne
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory app > /tmp/daeu-http.log 2>&1 &
+          node scripts/browser-smoke.mjs
