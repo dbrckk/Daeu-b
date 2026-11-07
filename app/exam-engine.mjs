@@ -1,5 +1,6 @@
 import {gradeAnswer} from "./engine.mjs";
 import {EXAMS} from "./exams.mjs";
+import {sanitizeSelfChecks,validReviewKeys} from "./reasoning.mjs";
 
 export const EXAM_DURATION_MS=3*60*60*1000;
 export const EXAM_STORE_VERSION=1;
@@ -65,7 +66,7 @@ export function finishExam(session,now=Date.now(),reason="submitted"){
     });
     return {id:s.id,title:s.title,earned:questions.reduce((a,q)=>a+q.earned,0),points:5,questions};
   });
-  return {examId:exam.id,title:exam.title,startedAt:session.startedAt,finishedAt:now,reason,answers:{...session.answers},notes:{...session.notes},sections,score:sections.reduce((a,s)=>a+s.earned,0),maxScore:20};
+  return {examId:exam.id,title:exam.title,startedAt:session.startedAt,finishedAt:now,reason,answers:{...session.answers},notes:{...session.notes},sections,score:sections.reduce((a,s)=>a+s.earned,0),maxScore:20,selfChecks:{}};
 }
 export function emptyExamStore(){return {version:EXAM_STORE_VERSION,active:null,history:[]};}
 function cleanSession(raw){
@@ -91,10 +92,31 @@ export function sanitizeExamStore(raw){
     if(!exam||!validMs(h.startedAt)||!validMs(h.finishedAt)||h.finishedAt<h.startedAt||!["submitted","timeout"].includes(h.reason))continue;
     const session=cleanSession({...h,deadlineAt:h.startedAt+EXAM_DURATION_MS,sectionIndex:0});
     if(!session)continue;
-    history.push(finishExam(session,h.finishedAt,h.reason));
+    const restored=finishExam(session,h.finishedAt,h.reason);
+    restored.selfChecks=sanitizeSelfChecks(h.selfChecks,exam);
+    history.push(restored);
   }
   return {version:EXAM_STORE_VERSION,active,history};
 }
 export function addHistory(store,result){
   return {...store,active:null,history:[...store.history,result].slice(-12)};
+}
+
+
+/** Enregistre une étape de rédaction déclarée acquise, sans changer la note. */
+export function updateReviewCheck(store,examId,startedAt,key,checked){
+  const exam=findExam(examId);
+  if(!exam||!Number.isSafeInteger(startedAt)||!validReviewKeys(exam).has(key)||typeof checked!=="boolean")
+    throw new Error("Étape de raisonnement inconnue");
+  let found=false;
+  const history=store.history.map(result=>{
+    if(result.examId!==examId||result.startedAt!==startedAt)return result;
+    found=true;
+    const next={...result.selfChecks};
+    if(checked)next[key]=true;
+    else delete next[key];
+    return {...result,selfChecks:next};
+  });
+  if(!found)throw new Error("Copie introuvable");
+  return {...store,history};
 }
