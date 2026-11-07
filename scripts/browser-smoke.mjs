@@ -88,6 +88,29 @@ try {
   }
   await check(async()=>await page.locator("#attempted").textContent().then(t=>Number(t.trim())>=1),"Import de la progression");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Import des copies");
+  await check(async()=>await page.evaluate(()=>{
+    const bundle=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+    return bundle.version===1&&bundle.practice.version===2&&bundle.exams.version===1&&bundle.exams.history.length===1
+      &&localStorage.getItem("daeu-b-exams-v1")===null
+      &&localStorage.getItem("daeu-b-maths-progress-v2")===null;
+  }),"Sauvegarde transactionnelle unique et anciennes clés migrées");
+
+  // Une modification dans un autre onglet doit neutraliser les saisies de
+  // l'onglet obsolète, au lieu d'écraser silencieusement la nouvelle copie.
+  const other=await context.newPage();
+  await other.goto(BASE,{waitUntil:"networkidle"});
+  await other.locator("#start").click();
+  await other.locator("#unknownButton").click();
+  await check(async()=>await page.locator("#syncWarning").isVisible(),"Conflit multi-onglets signalé");
+  await check(async()=>await page.evaluate(()=>document.getElementById("main").inert===true),
+    "Écran obsolète rendu non modifiable");
+  await check(async()=>await page.locator("#syncReload").isVisible(),"Action de synchronisation accessible");
+  await page.locator("#syncReload").click();
+  await page.waitForLoadState("networkidle");
+  await check(async()=>!(await page.locator("#syncWarning").isVisible()),"Synchronisation après recharge");
+  await check(async()=>await page.evaluate(()=>document.getElementById("main").inert===false),
+    "Saisie réactivée après recharge");
+  await other.close();
 
   await page.evaluate(async()=>{await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error("Service Worker non activé après 10s")),10000))]);});
   await page.reload({waitUntil:"networkidle"});
