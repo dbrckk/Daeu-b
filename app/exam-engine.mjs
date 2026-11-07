@@ -1,5 +1,6 @@
 import {gradeAnswer} from "./engine.mjs";
 import {EXAMS} from "./exams.mjs";
+import {GENERATED_EXAM_ID,createGeneratedExam,isSeed} from "./exam-generator.mjs";
 import {sanitizeSelfChecks,validReviewKeys} from "./reasoning.mjs";
 
 export const EXAM_DURATION_MS=3*60*60*1000;
@@ -7,7 +8,12 @@ export const EXAM_STORE_VERSION=1;
 const validMs=x=>Number.isSafeInteger(x)&&x>=0&&x<=9e15;
 const validText=(x,max)=>typeof x==="string"&&x.length<=max;
 const allQuestions=exam=>exam.sections.flatMap(s=>s.questions);
-export const findExam=id=>EXAMS.find(e=>e.id===id);
+export const findExam=(id,seed=null)=>{
+  if(id===GENERATED_EXAM_ID)return isSeed(seed)?createGeneratedExam(seed):undefined;
+  if(seed!==null && seed!==undefined)return undefined;
+  return EXAMS.find(e=>e.id===id);
+};
+const examFor=record=>findExam(record?.examId,record?.seed??null);
 
 export function validateExamBank(bank=EXAMS){
   const errors=[],seen=new Set();
@@ -38,25 +44,27 @@ export function validateExamBank(bank=EXAMS){
   return errors;
 }
 
-export function startExam(examId,now=Date.now()){
-  if(!findExam(examId)||!validMs(now)) throw new Error("Examen ou date invalide");
-  return {examId,startedAt:now,deadlineAt:now+EXAM_DURATION_MS,sectionIndex:0,answers:{},notes:{}};
+export function startExam(examId,now=Date.now(),seed=null){
+  if(!findExam(examId,seed)||!validMs(now)||!validMs(now+EXAM_DURATION_MS))throw new Error("Examen, graine ou date invalide");
+  const session={examId,startedAt:now,deadlineAt:now+EXAM_DURATION_MS,sectionIndex:0,answers:{},notes:{}};
+  if(examId===GENERATED_EXAM_ID)session.seed=seed;
+  return session;
 }
 export function hasExpired(session,now=Date.now()){
   return !!session&&now>=session.deadlineAt;
 }
 export function updateExamAnswer(session,questionId,text){
-  const exam=findExam(session.examId);
+  const exam=examFor(session);
   if(!exam||!allQuestions(exam).some(q=>q.id===questionId)||!validText(text,200)) throw new Error("Réponse invalide");
   return {...session,answers:{...session.answers,[questionId]:text}};
 }
 export function updateExamNotes(session,sectionId,text){
-  const exam=findExam(session.examId);
+  const exam=examFor(session);
   if(!exam||!exam.sections.some(s=>s.id===sectionId)||!validText(text,3500)) throw new Error("Note invalide");
   return {...session,notes:{...session.notes,[sectionId]:text}};
 }
 export function finishExam(session,now=Date.now(),reason="submitted"){
-  const exam=findExam(session.examId);
+  const exam=examFor(session);
   if(!exam||!validMs(now)||!["submitted","timeout"].includes(reason))throw new Error("Session invalide");
   const sections=exam.sections.map(s=>{
     const questions=s.questions.map(q=>{
@@ -66,12 +74,12 @@ export function finishExam(session,now=Date.now(),reason="submitted"){
     });
     return {id:s.id,title:s.title,earned:questions.reduce((a,q)=>a+q.earned,0),points:5,questions};
   });
-  return {examId:exam.id,title:exam.title,startedAt:session.startedAt,finishedAt:now,reason,answers:{...session.answers},notes:{...session.notes},sections,score:sections.reduce((a,s)=>a+s.earned,0),maxScore:20,selfChecks:{}};
+  return {examId:exam.id,...(exam.id===GENERATED_EXAM_ID?{seed:session.seed}:{}),title:exam.title,startedAt:session.startedAt,finishedAt:now,reason,answers:{...session.answers},notes:{...session.notes},sections,score:sections.reduce((a,s)=>a+s.earned,0),maxScore:20,selfChecks:{}};
 }
 export function emptyExamStore(){return {version:EXAM_STORE_VERSION,active:null,history:[]};}
 function cleanSession(raw){
-  if(!raw||typeof raw!=="object"||!findExam(raw.examId)||!validMs(raw.startedAt)||!validMs(raw.deadlineAt)||raw.deadlineAt!==raw.startedAt+EXAM_DURATION_MS)return null;
-  const exam=findExam(raw.examId);
+  if(!raw||typeof raw!=="object"||!examFor(raw)||!validMs(raw.startedAt)||!validMs(raw.deadlineAt)||raw.deadlineAt!==raw.startedAt+EXAM_DURATION_MS)return null;
+  const exam=examFor(raw);
   if(!Number.isSafeInteger(raw.sectionIndex)||raw.sectionIndex<0||raw.sectionIndex>3)return null;
   const answers={},notes={};
   for(const q of allQuestions(exam)){
@@ -80,7 +88,7 @@ function cleanSession(raw){
   for(const s of exam.sections){
     const note=raw.notes?.[s.id];if(validText(note,3500))notes[s.id]=note;
   }
-  return {examId:raw.examId,startedAt:raw.startedAt,deadlineAt:raw.deadlineAt,sectionIndex:raw.sectionIndex,answers,notes};
+  return {examId:raw.examId,...(raw.examId===GENERATED_EXAM_ID?{seed:raw.seed}:{}),startedAt:raw.startedAt,deadlineAt:raw.deadlineAt,sectionIndex:raw.sectionIndex,answers,notes};
 }
 export function sanitizeExamStore(raw){
   if(!raw||raw.version!==EXAM_STORE_VERSION||!Array.isArray(raw.history))throw new Error("Sauvegarde d'examen incompatible");
@@ -88,7 +96,7 @@ export function sanitizeExamStore(raw){
   if(raw.active!==null&&!active)throw new Error("Session d'examen invalide");
   const history=[];
   for(const h of raw.history.slice(-12)){
-    const exam=findExam(h?.examId);
+    const exam=examFor(h);
     if(!exam||!validMs(h.startedAt)||!validMs(h.finishedAt)||h.finishedAt<h.startedAt||!["submitted","timeout"].includes(h.reason))continue;
     const session=cleanSession({...h,deadlineAt:h.startedAt+EXAM_DURATION_MS,sectionIndex:0});
     if(!session)continue;
@@ -105,7 +113,9 @@ export function addHistory(store,result){
 
 /** Enregistre une étape de rédaction déclarée acquise, sans changer la note. */
 export function updateReviewCheck(store,examId,startedAt,key,checked){
-  const exam=findExam(examId);
+  const matching=store.history.filter(result=>result.examId===examId&&result.startedAt===startedAt);
+  if(matching.length!==1)throw new Error("Copie introuvable ou ambiguë");
+  const exam=examFor(matching[0]);
   if(!exam||!Number.isSafeInteger(startedAt)||!validReviewKeys(exam).has(key)||typeof checked!=="boolean")
     throw new Error("Étape de raisonnement inconnue");
   let found=false;
