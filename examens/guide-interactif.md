@@ -3,7 +3,7 @@
 ## Objectif
 S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les deux sujets intégrés à l'application sont **entièrement originaux**, et distincts des sujets Markdown existants ; ce ne sont pas des annales officielles.
 
-**Application actuelle :** https://ghostly-void-w99dhwc.shipstatic.com
+**Application actuelle :** https://visceral-link-ng9xj73.shipstatic.com
 
 ## Se préparer
 - Réviser les modules 01–12 et 15, notamment domaines, dérivées, limites, suites, probabilités et primitives.
@@ -33,3 +33,14 @@ Les copies et résultats sont conservés dans le navigateur sur le domaine du si
 
 ## Limites
 Le simulateur ne délivre pas de diplôme, ne remplace pas l'enseignement officiel, n'utilise aucune IA de correction de textes et n'envoie aucune réponse à un serveur. Sa protection contre le changement manuel de l'horloge du téléphone n'est pas garantie. Les tests automatiques et la publication ont été réalisés, mais une validation visuelle sur Android réel reste nécessaire.
+
+
+## Auto-correction guidée de la rédaction
+
+Après remise de la copie, chaque exercice dispose d'un corrigé en **4 étapes** (8 exercices au total) : ce qu'il fallait poser, justifier, calculer et interpréter. Compare cette démarche à tes propres justifications, puis coche uniquement les étapes réellement présentes dans ta rédaction.
+
+La grille est conservée avec la copie et apparaît dans les sauvegardes exportées. **Les coches ne changent pas la note automatique /20**, qui reste fondée uniquement sur les réponses numériques et les choix multiples.
+
+Le tableau « Mon diagnostic après les examens » hiérarchise les compétences ayant coûté le plus de points sur les copies enregistrées, avec des liens vers les cours. Une répétition du même sujet est explicitement signalée : une meilleure note après avoir déjà vu le corrigé n'est pas une preuve de maîtrise.
+
+Complète cet entraînement par les [8 problèmes progressifs et 37 sous-questions](../problemes/README.md), dont les corrigés sont dans un fichier séparé.

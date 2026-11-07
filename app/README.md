@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://ghostly-void-w99dhwc.shipstatic.com
+**Site public :** https://visceral-link-ng9xj73.shipstatic.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -72,11 +72,12 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La version actuelle est : https://ghostly-void-w99dhwc.shipstatic.com.
+La version actuelle est : https://visceral-link-ng9xj73.shipstatic.com.
 
 Anciennes adresses possibles :
 - `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
 - `https://drifting-neon-d3tt6t6.shipstatic.com` (deuxième version).
+- `https://ghostly-void-w99dhwc.shipstatic.com` (version avec examens sans auto-correction guidée).
 
 L'hébergeur a signalé **une limite de domaines permanents atteinte**, et un alias stable n'a pas pu être réservé. Le lien du README de ce dépôt reste le point d'entrée pour trouver la dernière adresse.
 
@@ -103,3 +104,16 @@ Si la précédente adresse est inaccessible ou si son stockage a été effacé, 
 - Les justifications manuscrites/texte **ne sont pas évaluées automatiquement**.
 - Vérifications du moteur et des cas d'importation par `node --test app/engine.test.mjs app/exam-engine.test.mjs` ; contrôle GitHub Actions vert avant publication.
 - Le test de compatibilité sur un appareil Android réel n'a pas été réalisé ; une réussite CI et un hébergement « success » n'en tiennent pas lieu.
+
+
+## Correction guidée du raisonnement — v4
+
+À la **fin d'un examen** (jamais pendant), ouvre chaque exercice du corrigé, puis « Correction guidée du raisonnement ». Quatre étapes structurées sont proposées : hypothèses/domaine, méthode, calculs et conclusion selon le problème. Compare-les à la rédaction sauvegardée de ta propre copie. Coche seulement les étapes **réellement démontrées**.
+
+Il y a **8 grilles / 32 étapes** pour les deux examens actuels. Les cases cochées sont sauvegardées dans chaque copie et dans l'export JSON. Elles **ne modifient pas la note sur 20** : c'est une déclaration personnelle, pas une correction automatique de la rédaction ou un contrôle anti-triche.
+
+« Mon diagnostic après les examens » présente les points perdus par compétence sur les **12 dernières copies** et les liens vers les cours associés. Les mêmes sujets peuvent être refaits, mais cela ne prouve pas la maîtrise sur un sujet inédit.
+
+Pour s'entraîner à des démonstrations qui ne reposent pas sur les QCM, utiliser également les [8 problèmes progressifs et leurs 37 questions](../problemes/README.md).
+
+**Migration :** si tu utilisais l'une des anciennes adresses ci-dessus, exporte la progression à cette ancienne adresse puis importe le fichier dans le nouveau site. Les résultats sont séparés par nom de domaine.

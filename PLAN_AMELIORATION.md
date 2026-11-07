@@ -16,7 +16,7 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 - [x] Créer une application web mobile **sans inscription ni API**, appuyée sur un corpus de questions corrigées, avec réponses numériques et choix multiples, erreurs expliquées.
 - [x] Ajouter un test de cohérence du corpus (IDs, jalons, réponses, liens de cours).
 - [x] Ajouter des vérifications d'exécution du moteur pédagogique (notation, planification, données de progression).
-- [x] Publier une interface statique gratuite : https://ghostly-void-w99dhwc.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
+- [x] Publier une interface statique gratuite : https://visceral-link-ng9xj73.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
 
 **Critère de sortie A :** application qui fonctionne sans clés, qui note les réponses et dont les tests automatisés réussissent. Le nombre d'exercices doit être vérifié par le script, jamais affirmé à la main.
 
@@ -56,7 +56,8 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 Le suivi local disparaît si l'utilisateur efface les données du navigateur ou change de téléphone sans exporter sa progression. Les exercices dans l'app sont un **complément** : les démonstrations longues doivent être rédigées sur papier et corrigées avec le cours. Une CI verte prouve les contrôles automatisés, **pas** la maîtrise personnelle ni l'exactitude universelle de tous les contenus. L'université reste seule habilitée à délivrer le diplôme.
 
 ## Livraison contrôlée (07/11/2026)
-- Site : https://ghostly-void-w99dhwc.shipstatic.com
+
+- Site (v2, historique) : https://drifting-neon-d3tt6t6.shipstatic.com
 - **95 questions**, **13 domaines**, **20 jalons principaux**.
 - GitHub Actions : contrôle des liens, syntaxe JS, cohérence du corpus, réponses sur échantillons, échéances, sauvegardes.
 - Exécution automatique validée : https://github.com/dbrckk/Daeu-b/actions/runs/42385148907
@@ -95,4 +96,6 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 - Diagnostic des lacunes fondé sur les points perdus par compétence sur les 12 derniers examens ; priorisation de 5 cours et avertissement contre les répétitions d’un même sujet.
 - Huit problèmes progressifs (37 sous-questions) et solutions séparées, accessibles par [problèmes](problemes/README.md).
 - Tests des sauvegardes historiques et des notes inchangées, et couverture des compétences.
+- Déploiement actuel : https://visceral-link-ng9xj73.shipstatic.com (confirmation « success » ; 15 fichiers servis, aucune expiration annoncée).
+- Contrôles : https://github.com/dbrckk/Daeu-b/actions/runs/42393012325
 - Prochain jalon : sujets nouveaux paramétriques de niveau examen et vérification visuelle de l’application sur Android.
