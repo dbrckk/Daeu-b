@@ -28,3 +28,5 @@
 .exam-history h3{font-size:1.02rem}.exam-history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--stroke);padding:11px 0}
 .exam-history-row span{font-size:.86rem}
 @media(max-width:700px){.exam-area{padding:16px}.exam-active{padding:14px}.exam-intro-controls{grid-template-columns:1fr}.exam-history-row{align-items:flex-start;flex-direction:column}.exam-time-wrap strong{font-size:1.4rem}}
+
+.exam-remediation{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:13px 0}.exam-remediation a{font-size:.85rem}

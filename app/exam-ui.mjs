@@ -1,6 +1,16 @@
 import {EXAMS} from "./exams.mjs";
 import {startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory} from "./exam-engine.mjs";
 
+const EXAM_LESSONS={
+  "a-analyse":[["Second degré","04-second-degre.md"],["Dérivation","06-derivation.md"]],
+  "a-suites":[["Suites","10-suites.md"],["Logarithmes","09-exponentielle-logarithme.md"]],
+  "a-probas":[["Probabilités","12-probabilites.md"]],
+  "a-integrales":[["Primitives et intégrales","15-primitives-integrales.md"],["Logarithmes","09-exponentielle-logarithme.md"]],
+  "b-fonction":[["Fonctions","05-fonctions.md"],["Dérivation","06-derivation.md"],["Limites","07-limites-asymptotes.md"]],
+  "b-systeme":[["Équations et systèmes","03-equations-inequations-systemes.md"]],
+  "b-stats":[["Statistiques","11-statistiques.md"]],
+  "b-expo":[["Continuité et TVI","08-continuite-tvi.md"],["Exponentielle","09-exponentielle-logarithme.md"]]
+};
 const KEY="daeu-b-exams-v1";
 const byId=id=>document.getElementById(id);
 let store=emptyExamStore(),timer=null,lastResult=null;
@@ -164,6 +174,17 @@ function showResult(result){
       details.append(noteLabel,note);
     }
     details.append(element("p","exam-method","Critères de rédaction : "+src.method));
+    if(section.earned<5){
+      const suggestions=element("div","exam-remediation");
+      suggestions.append(element("strong","","À retravailler : "));
+      for(const [label,path] of EXAM_LESSONS[section.id]||[]){
+        const link=element("a","",label);
+        link.href="https://github.com/dbrckk/Daeu-b/blob/main/maths/"+path;
+        link.target="_blank";link.rel="noopener noreferrer";
+        suggestions.append(link);
+      }
+      details.append(suggestions);
+    }
     review.append(details);
   }
   renderHistory();
@@ -203,7 +224,8 @@ export function initExams(){
     if(!exam)return;
     const total=exam.sections.reduce((n,s)=>n+s.questions.length,0);
     const filled=Object.values(store.active.answers).filter(x=>x.trim()).length;
-    if(confirm("Rendre définitivement la copie ("+filled+"/"+total+" réponses) ? Le corrigé et la note seront affichés."))finalize("submitted");
+    if(hasExpired(store.active)){finalize("timeout");return;}
+    if(confirm("Rendre définitivement la copie ("+filled+"/"+total+" réponses) ? Le corrigé et la note seront affichés."))finalize(hasExpired(store.active)?"timeout":"submitted");
   });
   byId("examNew").addEventListener("click",()=>{lastResult=null;setVisible("examResult",false);renderActive();byId("exam-title").scrollIntoView({behavior:"smooth",block:"start"});});
   window.addEventListener("pageshow",tick);
