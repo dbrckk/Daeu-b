@@ -35,6 +35,15 @@ function persist(){
     return false;
   }
 }
+// N'appliquer une modification en mémoire que si son écriture a réussi.
+// Sinon, restaurer la copie enregistrée et afficher son contenu exact.
+function commitExam(next){
+  const previous=store;
+  store=next;
+  if(persist())return true;
+  store=previous;
+  return false;
+}
 function load(){
   store=adapter.snapshot().exams;
 }
@@ -130,8 +139,7 @@ function renderExamSection(){
       input.setAttribute("aria-label",q.prompt);
       input.addEventListener("input",()=>{
         if(hasExpired(store.active)){tick();return;}
-        store.active=updateExamAnswer(store.active,q.id,input.value);
-        persist();
+        if(!commitExam({...store,active:updateExamAnswer(store.active,q.id,input.value)}))input.value=store.active.answers[q.id]||"";
       });
       field.append(input);
     }else{
@@ -142,7 +150,7 @@ function renderExamSection(){
         radio.checked=session.answers[q.id]===option;radio.id=q.id+"-"+index;
         radio.addEventListener("change",()=>{
           if(hasExpired(store.active)){tick();return;}
-          store.active=updateExamAnswer(store.active,q.id,radio.value);persist();
+          if(!commitExam({...store,active:updateExamAnswer(store.active,q.id,radio.value)}))renderExamSection();
         });
         choice.append(radio,element("span","",option));options.append(choice);
       }
@@ -156,7 +164,7 @@ function renderExamSection(){
   notes.maxLength=3500;
   notes.oninput=()=>{
     if(hasExpired(store.active)){tick();return;}
-    store.active=updateExamNotes(store.active,section.id,notes.value);persist();
+    if(!commitExam({...store,active:updateExamNotes(store.active,section.id,notes.value)}))notes.value=store.active.notes[section.id]||"";
   };
   byId("examPrev").disabled=session.sectionIndex===0;
   byId("examNext").disabled=session.sectionIndex===3;
@@ -173,7 +181,7 @@ function renderExamSection(){
 function moveTo(i){
   if(!store.active)return;
   if(hasExpired(store.active)){tick();return;}
-  store.active={...store.active,sectionIndex:i};persist();
+  if(!commitExam({...store,active:{...store.active,sectionIndex:i}}))return;
   renderExamSection();byId("examPosition").scrollIntoView({block:"start"});
 }
 function renderActive(){
@@ -233,8 +241,7 @@ function showResult(result){
         label.append(input,element("span","","J'ai réellement justifié cette étape dans ma copie"));
         input.addEventListener("change",()=>{
           try{
-            store=updateReviewCheck(store,result.examId,result.startedAt,key,input.checked);
-            if(!persist())throw new Error("Persistance impossible");
+            if(!commitExam(updateReviewCheck(store,result.examId,result.startedAt,key,input.checked)))throw new Error("Persistance impossible");
             const updated=store.history.find(x=>x.examId===result.examId&&x.startedAt===result.startedAt);
             if(updated){
               result.selfChecks=updated.selfChecks;
