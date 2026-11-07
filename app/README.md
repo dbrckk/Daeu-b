@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://encoded-nova-5agr5eq.shipstatic.com
+**Site public :** https://daeu-b-maths-dbrckk.onrender.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -72,7 +72,7 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La version actuelle est : https://encoded-nova-5agr5eq.shipstatic.com.
+La version actuelle est : https://daeu-b-maths-dbrckk.onrender.com.
 
 Anciennes adresses possibles :
 - `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
@@ -174,7 +174,7 @@ Limite : les tests Chromium émulent le format mobile ; ils ne remplacent pas un
 
 ## Fiabilisation v8 — stockage unifié et onglets concurrents
 
-**Site public v8 :** https://encoded-nova-5agr5eq.shipstatic.com
+**Site public v8 :** https://daeu-b-maths-dbrckk.onrender.com
 
 - Le suivi (127 questions/modèles) et toutes les copies des examens A/B/C sont écrits dans **une unique clé** locale, sous un document versionné. Une seule écriture remplace le tout : l'import et la remise à zéro sont **atomiques**, sans demi-import.
 - Lors de la première utilisation de v8, les anciennes clés de progression et d'examens sont lues automatiquement si aucune sauvegarde unifiée n'existe. Elles ne sont effacées **qu'après** une première écriture unifiée réussie. Les anciens exports JSON restent importables.
@@ -186,4 +186,16 @@ Limite : les tests Chromium émulent le format mobile ; ils ne remplacent pas un
 
 Tests : [contenu, sauvegardes et mathématiques](https://github.com/dbrckk/Daeu-b/actions/runs/42403528001) ; [parcours Chromium mobile, hors ligne et multi-onglets](https://github.com/dbrckk/Daeu-b/actions/runs/42403528047).
 
-**Pour une URL stable** : le workflow GitHub Pages est prêt, mais GitHub Pages requiert son activation initiale dans le dépôt, via **Settings → Pages → Source : GitHub Actions**, puis l'exécution de **Actions → Site stable GitHub Pages → Run workflow**. Ne pas annoncer l'URL Pages comme active avant le déploiement vert.
+**Adresse stable désormais active :** https://daeu-b-maths-dbrckk.onrender.com. Le site statique Render est relié au dépôt GitHub et conserve ce sous-domaine lors des prochaines mises à jour. L'ancien workflow GitHub Pages demeure une alternative facultative ; **aucune activation manuelle n'est nécessaire** pour utiliser le site Render.
+
+
+## Adresse permanente, PWA et confidentialité — v9
+
+- URL de référence, à conserver dans les favoris : **https://daeu-b-maths-dbrckk.onrender.com**.
+- Toutes les nouvelles versions utilisent ce même domaine ; la progression locale ne change plus d'origine à chaque déploiement.
+- **Migration initiale uniquement** : depuis la dernière URL ShipStatic utilisée, télécharger le JSON de progression ; sur le site Render, choisir « Importer une sauvegarde JSON ». Éviter d'utiliser simultanément les anciennes et nouvelles adresses.
+- Après une première visite avec Internet, l'application et les exercices préchargés sont utilisables hors ligne. Les liens vers les cours GitHub restent externes et nécessitent Internet.
+- Le manifeste PWA utilise maintenant le fichier `manifest.json` pour être correctement interprété par les hébergeurs statiques.
+- La page limite l'exécution de scripts au domaine applicatif via une politique CSP et n'emploie aucun script de suivi publicitaire.
+- La disponibilité des principales ressources est vérifiée chaque jour par GitHub Actions ; un échec de contrôle ne modifie pas la progression locale.
+- Render propose une offre d'hébergement statique gratuite avec des limites mensuelles de bande passante et de minutes de compilation.

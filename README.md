@@ -6,18 +6,19 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 ## Application interactive gratuite
 
-**[Ouvrir l'Atelier de maths — site mobile et PC](https://encoded-nova-5agr5eq.shipstatic.com)**
+**[Ouvrir l'Atelier de maths — site mobile et PC](https://daeu-b-maths-dbrckk.onrender.com)**
 
 - **95 questions fixes + 32 modèles paramétriques (127 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **32 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
 - Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte ni serveur de données ; exporter régulièrement un JSON.
-- Site statique gratuit et léger (**environ 146 Ko de fichiers source, sans dépendances à l'exécution**). Déploiement ShipStatic confirmé sans expiration prévue ; le contenu source reste dans [app/](app/).
-- **[Trois modes d'examen blanc interactif](https://encoded-nova-5agr5eq.shipstatic.com)** : A et B fixes, **C généré avec des valeurs renouvelées** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **16 étapes guidées de raisonnement par sujet**, auto-évaluation et diagnostic des points perdus.
+- Site statique gratuit et léger (**sans dépendances à l'exécution**), hébergé sur **Render avec URL permanente**, déploiement automatique depuis `main` et vérification Node.js bloquante avant publication ; le code reste dans [app/](app/).
+- **[Trois modes d'examen blanc interactif](https://daeu-b-maths-dbrckk.onrender.com)** : A et B fixes, **C généré avec des valeurs renouvelées** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **16 étapes guidées de raisonnement par sujet**, auto-évaluation et diagnostic des points perdus.
 - [Guide des examens chronométrés, sujets variables et limites de la correction automatique](examens/guide-interactif.md).
 - [Notice de fonctionnement et limites](app/README.md).
-- [Rapport de stabilisation, tests réels Chromium et procédure d'installation](RELEASE.md).
-- **Progression :** si tu utilises une ancienne adresse, [exporte puis importe ton suivi JSON](app/README.md#changer-dadresse-ou-de-téléphone). Les copies d'examen sont désormais incluses dans les nouvelles sauvegardes.
+- [Rapport de stabilisation, tests Chromium mobile et procédure d'installation](RELEASE.md).
+- [Contrôle automatique quotidien de disponibilité](.github/workflows/live-health.yml) de l'URL permanente, du manifeste PWA et des ressources principales.
+- **Progression :** si tu arrives d'une ancienne adresse ShipStatic, [exporte puis importe ton suivi JSON](app/README.md#changer-dadresse-ou-de-téléphone). Ensuite, toutes les prochaines mises à jour Render conservent **le même domaine** et donc le même stockage local. Les copies d'examen sont incluses.
 
 > La réussite à un QCM n'est pas la preuve d'une maîtrise. Les démonstrations, problèmes et examens sur papier restent indispensables.
 

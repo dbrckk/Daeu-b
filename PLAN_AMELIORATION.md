@@ -1,8 +1,8 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v6 stabilisée (7 novembre 2026)
+## État actuel — livraison v9 sur adresse permanente (7 novembre 2026)
 
-**Application publique actuelle : https://encoded-nova-5agr5eq.shipstatic.com**
+**Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
 - [x] Contrôle de bout en bout réel dans Chromium avec dimensions mobiles : entraînement, examen C, copie, rédaction, bilan et restauration JSON.
 - [x] Vérifier un rechargement complet sans réseau après installation du Service Worker.
@@ -11,7 +11,7 @@
 - [x] Corriger le focus clavier du bouton d'import JSON et proposer le stockage persistant quand le navigateur le permet.
 - [x] Conserver un site statique léger sans API, base de données, service tiers à l'exécution ou abonnement.
 - [x] Préparer le workflow GitHub Pages sur URL stable (déclenchement manuel uniquement pour ne pas accumuler d'échecs).
-- [ ] **Activer GitHub Pages une première fois** via Settings → Pages → Source = GitHub Actions, puis lancer le workflow « Site stable GitHub Pages ».
+- [x] **Obtenir un domaine stable sans configuration manuelle** : site Render `daeu-b-maths-dbrckk.onrender.com` créé et déployé dans l'espace `studycall12/My Workspace`. GitHub Pages reste une alternative non nécessaire.
 - [ ] Vérifier la PWA sur au moins un téléphone Android physique et un navigateur secondaire.
 - [ ] Vérifier plusieurs sujets et rédactions par une relecture pédagogique externe.
 - [ ] Améliorer la profondeur des cours, et élargir les familles d'examen C au-delà de quatre structures.
@@ -171,9 +171,25 @@ La v7 est exploitable et contrôlée automatiquement ; elle ne peut pas encore �
 - [x] Vérifier en Chromium mobile le flux complet export/import/révision/examen C, le hors ligne **et deux onglets concurrents**.
 - [x] Publication : https://encoded-nova-5agr5eq.shipstatic.com, hébergeur success, 18 fichiers, 145 909 octets, expiration non annoncée.
 - [x] CI contenu : https://github.com/dbrckk/Daeu-b/actions/runs/42403528001 et navigateur : https://github.com/dbrckk/Daeu-b/actions/runs/42403528047
-- [ ] Obtenir une URL définitive par activation initiale de GitHub Pages (workflow déjà prêt) ou un autre espace Render explicitement choisi.
+- [x] Obtenir une URL stable sur Render avec déploiement depuis GitHub, sans modifier les autres sites du compte : https://daeu-b-maths-dbrckk.onrender.com.
 - [ ] Essai sur smartphone Android physique, en particulier avec reprise après fermeture forcée, navigateur privé et stockage presque plein.
 - [ ] Renforcer le verrouillage inter-onglets pour les écritures exactement simultanées (localStorage n'offre pas de transaction compare-and-swap).
 - [ ] Audit académique indépendant des corrections, puis diversification des familles de problèmes d'examen.
 
 **Statut** : application publique stable vérifiée automatiquement, mais pas encore certifiée compatible avec tous les appareils physiques ni dotée d'une URL permanente.
+
+
+## Livraison v9 — adresse permanente, sécurité et supervision (07/11/2026)
+
+- [x] Créer un site statique Render relié à `dbrckk/Daeu-b`, `main`, dans le workspace `studycall12/My Workspace` ; URL définitive pour les mises à jour : **https://daeu-b-maths-dbrckk.onrender.com**.
+- [x] Activer l'auto-déploiement depuis `main` avec les tests Node.js du projet comme garde-fou de build.
+- [x] Ajouter une politique de sécurité CSP pour restreindre l'exécution des scripts et ressources externes.
+- [x] Publier les informations SEO du site permanent : balise canonique, Open Graph, `robots.txt`, `sitemap.xml`.
+- [x] Corriger l'extension du manifeste PWA pour compatibilité avec les types MIME de Render (`manifest.json`).
+- [x] Mettre en place un healthcheck quotidien et manuel depuis GitHub Actions, sans service de monitoring payant.
+- [x] Conserver la compatibilité des exports JSON historiques ; **un seul transfert manuel** est nécessaire depuis ShipStatic vers Render.
+- [ ] Test de l'installation PWA sur un véritable smartphone Android et essai du parcours hors ligne sur ce matériel.
+- [ ] Évaluation indépendante des corrigés mathématiques ; davantage de familles de problèmes, au-delà des variantes numériques de quatre structures.
+- [ ] Étudier une protection stricte contre les écritures parfaitement simultanées sur deux onglets, avec Web Locks API en repli sécurisé selon navigateur.
+
+Le site de préparation reste indépendant de l'université et ne délivre pas le diplôme ; le bon résultat des tests techniques ne prouve pas la qualité pédagogique exhaustive.
