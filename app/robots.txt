@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://daeu-b-maths-dbrckk.onrender.com/sitemap.xml

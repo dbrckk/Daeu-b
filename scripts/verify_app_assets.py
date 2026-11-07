@@ -50,6 +50,16 @@ for module in ("app.mjs","exam-ui.mjs"):
     for requested in re.findall(r'\b(?:el|byId)\("([^"]+)"\)',text):
         if requested not in element_ids: error(f"ID absent du HTML : {module} -> {requested}")
 
+# Vérifie également les fichiers SEO rattachés à l'hôte permanent.
+robots=(APP/"robots.txt").read_text(encoding="utf-8")
+sitemap=(APP/"sitemap.xml").read_text(encoding="utf-8")
+if "https://daeu-b-maths-dbrckk.onrender.com/sitemap.xml" not in robots:
+    error("Lien robots.txt vers sitemap permanent absent")
+if "https://daeu-b-maths-dbrckk.onrender.com/" not in sitemap:
+    error("URL canonique absente du sitemap")
+if 'rel="canonical" href="https://daeu-b-maths-dbrckk.onrender.com/"' not in html:
+    error("Lien canonique absent du HTML")
+
 worker=(APP/"sw.js").read_text(encoding="utf-8")
 asset_match=re.search(r"const ASSETS\s*=\s*\[([^\]]+)\]",worker)
 if not asset_match:
