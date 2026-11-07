@@ -130,7 +130,7 @@ export const VARIANTS=[
   }),
   v("v29","probas",[20],r=>{
     const n=pick(r,2,12),p=pick(r,1,9)/10;
-    return num("X suit une loi binomiale B("+n+" ; "+fmt(p)+"). Quelle est son espérance ?",n*p,"E(X)=n×p.","E(X)="+n+"×"+fmt(p)+"="+fmt(n*p)+".",{n,p,kind:"binomial_mean"});
+    return num("X suit une loi binomiale B("+n+" ; "+fmt(p)+"). Quelle est son espérance ?",n*p,"E(X)=n×p.","Pour une loi binomiale, E(X)=n×p. Ici E(X)="+n+"×"+fmt(p)+"="+fmt(n*p)+".",{n,p,kind:"binomial_mean"});
   }),
   v("v30","probas",[19,20],r=>{
     const n=pick(r,2,6),p=pick(r,1,8)/10;
