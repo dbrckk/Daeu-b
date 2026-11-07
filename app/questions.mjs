@@ -42,26 +42,26 @@ export const TOPICS=[
  c("s06","Nombre de racines réelles de 2x²+2x+5 ?",["0","1","2"],"0","Calcule Δ.","Δ=2²−4×2×5=−36<0, aucune racine réelle.")
 ]},
 {slug:"statistiques",title:"Statistiques descriptives",lesson:"11-statistiques.md",jalons:[9],questions:[
- n("st01","Moyenne des notes 2, 4, 6 ?",4,"Somme divisée par l'effectif.","(2+4+6)/3=4."),
+ n("st01","Moyenne des notes 2, 4, 6 ?",4,"Somme divisée par l'effectif.","(2+4+6)/3=4. La somme vaut 12, puis on la divise par les 3 observations."),
  n("st02","Médiane de 1, 3, 5, 7, 9 ?",5,"Prends la valeur centrale triée.","Cinquième série triée de 5 valeurs : le troisième élément est 5."),
  n("st03","Moyenne pondérée : 10 (coefficient 2), 16 (coefficient 1) ?",12,"Divise par la somme des coefficients.","(10×2+16×1)/(2+1)=36/3=12."),
- n("st04","Étendue des valeurs 3, 8, 2, 12 ?",10,"Maximum moins minimum.","12−2=10."),
+ n("st04","Étendue des valeurs 3, 8, 2, 12 ?",10,"Maximum moins minimum.","12−2=10. L'étendue mesure l'intervalle entre la plus grande et la plus petite valeur."),
  n("st05","Variance population de 1, 2, 3 ?",2/3,"Moyenne 2 puis somme des carrés des écarts divisée par 3.","[(1−2)² + (2−2)² + (3−2)²] /3 = 2/3."),
  c("st06","Deux séries ont la même moyenne. Laquelle est la moins dispersée ?",["celle avec l'écart-type le plus faible","celle avec le plus grand maximum","impossible à déterminer avec les écarts-types"],"celle avec l'écart-type le plus faible","L'écart-type mesure la dispersion.","À moyenne égale, un écart-type plus faible indique une dispersion plus faible.")
 ]},
 {slug:"fonctions",title:"Fonctions et domaines",lesson:"05-fonctions.md",jalons:[10],questions:[
- n("f01","Pour f(x)=x²−3, calculer f(4).",13,"Remplace x par 4.","4²−3=16−3=13."),
+ n("f01","Pour f(x)=x²−3, calculer f(4).",13,"Remplace x par 4.","4²−3=16−3=13. Une image se calcule en substituant la valeur de x dans l'expression."),
  c("f02","Domaine de f(x)=1/(x−3) ?",["x ≠ 3","x ≥ 3","tous les réels"],"x ≠ 3","Le dénominateur ne peut être nul.","x−3≠0 donc x≠3."),
  c("f03","Domaine de √(x−2) ?",["x≥2","x>2","x≤2"],"x≥2","Le radicande doit être positif ou nul.","x−2≥0 donc x≥2."),
- n("f04","La droite passe par (0,2) et (2,6). Quelle est sa pente ?",2,"Pente Δy/Δx.","(6−2)/(2−0)=2."),
- n("f05","Pour f(x)=2x+1, antécédent de 9 ?",4,"Résous 2x+1=9.","2x=8 donc x=4."),
+ n("f04","La droite passe par (0,2) et (2,6). Quelle est sa pente ?",2,"Pente Δy/Δx.","(6−2)/(2−0)=2. La pente donne le changement vertical par unité de changement horizontal."),
+ n("f05","Pour f(x)=2x+1, antécédent de 9 ?",4,"Résous 2x+1=9.","2x=8 donc x=4. L'antécédent est la valeur de x qui produit l'image demandée."),
  c("f06","Pour f(x)=x², combien 9 possède-t-il d'antécédents réels ?",["2","1","0"],"2","Résous x²=9.","Deux antécédents : −3 et 3."),
  c("f07","f(x)=−(x−1)²+4 a pour maximum ?",["4 en x=1","1 en x=4","pas de maximum"],"4 en x=1","Un carré est toujours positif.","−(x−1)²≤0, donc f(x)≤4 ; égalité en x=1.")
 ]},
 {slug:"derivation",title:"Dérivées et variations",lesson:"06-derivation.md",jalons:[12],questions:[
- n("d01","Si f(x)=x³−4x, combien vaut f′(2) ?",8,"f′(x)=3x²−4.","f′(2)=3×4−4=8."),
+ n("d01","Si f(x)=x³−4x, combien vaut f′(2) ?",8,"f′(x)=3x²−4.","f′(2)=3×4−4=8. La règle (x³)′=3x² s'applique, tandis que (−4x)′=−4."),
  c("d02","Dérivée de (2x+1)³ ?",["6(2x+1)²","3(2x+1)²","6(2x+1)"],"6(2x+1)²","Applique la règle de la chaîne.","3(2x+1)²×2=6(2x+1)²."),
- n("d03","Pente de la tangente à f(x)=x² en x=3 ?",6,"Dérive : f′(x)=2x.","f′(3)=2×3=6."),
+ n("d03","Pente de la tangente à f(x)=x² en x=3 ?",6,"Dérive : f′(x)=2x.","f′(3)=2×3=6. La dérivée en un point est le coefficient directeur de la tangente."),
  c("d04","Si f′ est strictement négative sur I, f est…",["strictement décroissante","strictement croissante","constante"],"strictement décroissante","Relie le signe de f′ et la variation.","Une dérivée négative signifie une fonction strictement décroissante."),
  n("d05","Minimum de f(x)=x²−6x+8 ?",-1,"Sommet de parabole ou dérivée nulle.","f=(x−3)²−1, minimum −1 en x=3."),
  c("d06","Dérivée de u(x)v(x) ?",["u′v+uv′","u′v′","uv"],"u′v+uv′","Règle du produit.","Le produit demande u′v + uv′."),
@@ -80,34 +80,34 @@ export const TOPICS=[
 {slug:"continuite",title:"Continuité et TVI",lesson:"08-continuite-tvi.md",jalons:[14],questions:[
  c("t01","f continue sur [0;2], f(0)=−1 et f(2)=4 : le TVI garantit…",["au moins un zéro","exactement un zéro","aucun zéro"],"au moins un zéro","Le signe change entre les deux bornes.","Par continuité et changement de signe, f s'annule au moins une fois."),
  c("t02","Pour montrer qu'une racine est unique après le TVI, on utilise…",["la stricte monotonie","seulement un dessin","l'existence du domaine"],"la stricte monotonie","Une fonction strictement monotone ne prend chaque valeur qu'une fois.","Le TVI donne l'existence ; la stricte monotonie donne l'unicité."),
- n("t03","f(x)=x³−2. Combien vaut f(1) ?",-1,"Remplace x par 1.","1³−2=−1."),
- n("t04","f(x)=x³−2. Combien vaut f(2) ?",6,"Remplace x par 2.","2³−2=6."),
+ n("t03","f(x)=x³−2. Combien vaut f(1) ?",-1,"Remplace x par 1.","1³−2=−1. Cette valeur est négative à l'extrémité gauche de l'intervalle."),
+ n("t04","f(x)=x³−2. Combien vaut f(2) ?",6,"Remplace x par 2.","2³−2=6. Cette valeur est positive à l'extrémité droite de l'intervalle."),
  c("t05","Le TVI s'applique directement si f est…",["continue sur [a;b]","seulement dérivable en a","non définie en a"],"continue sur [a;b]","Relis ses hypothèses.","L'hypothèse centrale est la continuité sur tout l'intervalle fermé."),
  n("t06","Largeur d'un intervalle de départ 1 après 4 étapes de dichotomie ?",1/16,"Chaque étape divise la largeur par 2.","Largeur = 1/2⁴ = 1/16.")
 ]},
 {slug:"suites",title:"Suites numériques",lesson:"10-suites.md",jalons:[15],questions:[
- n("u01","Suite arithmétique u₀=3, raison 4 : u₅ ?",23,"uₙ = u₀ + nr.","3+5×4=23."),
- n("u02","Suite géométrique v₀=2, raison 3 : v₃ ?",54,"vₙ = v₀ qⁿ.","2×3³=54."),
- n("u03","Somme 1+2+⋯+10 ?",55,"n(n+1)/2.","10×11/2=55."),
+ n("u01","Suite arithmétique u₀=3, raison 4 : u₅ ?",23,"uₙ = u₀ + nr.","3+5×4=23. On part du terme de rang zéro et on ajoute cinq fois la raison."),
+ n("u02","Suite géométrique v₀=2, raison 3 : v₃ ?",54,"vₙ = v₀ qⁿ.","2×3³=54. Une suite géométrique multiplie par sa raison à chaque nouveau rang."),
+ n("u03","Somme 1+2+⋯+10 ?",55,"n(n+1)/2.","10×11/2=55. C'est la formule de la somme des n premiers entiers naturels."),
  c("u04","Si |q|<1, la limite de qⁿ vaut…",["0","+∞","q"],"0","Puissances d'un nombre de module inférieur à un.","qⁿ tend vers 0 lorsque n→∞."),
  n("u05","u₀=0, uₙ₊₁=0,5uₙ+2 : point fixe L ?",4,"Résous L=0,5L+2.","0,5L=2, donc L=4."),
  n("u06","Suite u₀=5, raison −2 : u₄ ?",-3,"Quatre fois soustraire 2.","u₄=5+4×(−2)=−3."),
  c("u07","uₙ=2(−1)ⁿ converge-t-elle ?",["non, elle oscille","oui vers 0","oui vers 2"],"non, elle oscille","Regarde les termes pairs et impairs.","Elle alterne entre 2 et −2 : pas de limite.")
 ]},
 {slug:"explog",title:"Logarithme et exponentielle",lesson:"09-exponentielle-logarithme.md",jalons:[16,17],questions:[
- n("x01","Résoudre e^(2x)=e^6. Valeur de x ?",3,"L'exponentielle est injective.","2x=6 donc x=3."),
+ n("x01","Résoudre e^(2x)=e^6. Valeur de x ?",3,"L'exponentielle est injective.","2x=6 donc x=3. L'égalité des exponentielles impose l'égalité de leurs exposants réels."),
  c("x02","Domaine de ln(x−2) ?",["x>2","x≥2","tous les réels"],"x>2","Argument du logarithme strictement positif.","ln(x−2) impose x−2>0."),
  n("x03","Résoudre ln(x)=0. Valeur de x ?",1,"ln(1)=0.","x=1 car ln(1)=0."),
  c("x04","Dérivée de e^(3x) ?",["3e^(3x)","e^(3x)","3e^x"],"3e^(3x)","Règle de la chaîne.","(e^u)′=u′e^u ; ici u′=3."),
  c("x05","Dérivée de ln(2x+1) ?",["2/(2x+1)","1/(2x+1)","2ln(2x+1)"],"2/(2x+1)","(ln u)′=u′/u.","La dérivée est 2/(2x+1) pour x>−1/2."),
  c("x06","ln(ab) vaut, si a,b>0…",["ln(a)+ln(b)","ln(a)+b","ln(a+b)"],"ln(a)+ln(b)","Logarithme d'un produit.","ln(ab)=ln(a)+ln(b), mais pas ln(a+b)."),
- n("x07","Combien vaut ln(e²) ?",2,"ln et exp sont réciproques.","ln(e²)=2."),
+ n("x07","Combien vaut ln(e²) ?",2,"ln et exp sont réciproques.","ln(e²)=2. Le logarithme népérien et la fonction exponentielle sont réciproques."),
  c("x08","Signe de e^x pour tout réel x ?",["strictement positif","peut être négatif","nul si x<0"],"strictement positif","La courbe approche 0 sans l'atteindre.","e^x>0 sur tous les réels."),
  n("x09","Résoudre ln(x−1)=ln(4). Valeur de x ?",5,"Égalité des ln => égalité des arguments positifs.","x−1=4 ⇒ x=5, ce qui satisfait x>1.")
 ]},
 {slug:"integrales",title:"Primitives et intégrales",lesson:"15-primitives-integrales.md",jalons:[18],questions:[
- n("i01","Calculer ∫ de 0 à 2 de 3x² dx.",8,"Primitive de 3x² : x³.","[x³]₀²=8."),
- n("i02","Calculer ∫ de 0 à 1 de 2x dx.",1,"Primitive de 2x : x².","[x²]₀¹=1."),
+ n("i01","Calculer ∫ de 0 à 2 de 3x² dx.",8,"Primitive de 3x² : x³.","[x³]₀²=8. On applique le théorème fondamental du calcul intégral aux bornes."),
+ n("i02","Calculer ∫ de 0 à 1 de 2x dx.",1,"Primitive de 2x : x².","[x²]₀¹=1. La primitive de 2x est x² et l'évaluation se fait entre 0 et 1."),
  c("i03","Une primitive de 6x+1 est…",["3x²+x","6x²+x","3x+1"],"3x²+x","Dérive chacune des propositions.","La dérivée de 3x²+x est 6x+1. Ajouter une constante pour toutes les primitives."),
  n("i04","Calculer ∫ de 0 à 1 de (x−1) dx.",-0.5,"Une intégrale peut être négative.","[x²/2−x]₀¹=1/2−1=−1/2."),
  c("i05","Aire entre y=x−1 et l'axe, sur [0;2] ?",["1","0","−1"],"1","Sépare aux points où la courbe traverse l'axe.","Aire = ∫₀¹(1−x)dx + ∫₁²(x−1)dx = 1."),
@@ -119,11 +119,11 @@ export const TOPICS=[
  n("p01","Une urne a 3 rouges et 2 bleues. P(rouge) en un tirage ?",0.6,"Issues favorables divisées par total.","3/(3+2) = 3/5 = 0,6."),
  n("p02","Pièce équilibrée, deux lancers. P(exactement une face) ?",0.5,"Énumère FF, FP, PF, PP.","Deux cas favorables sur quatre : 1/2."),
  n("p03","X~Bin(3;0,5). P(X=2) ?",0.375,"Combinaisons : C(3,2)×0,5³.","3×(1/2)³=3/8=0,375."),
- n("p04","X~Bin(4;0,25). Quelle est E(X) ?",1,"Espérance binomiale np.","4×0,25=1."),
- n("p05","P(A)=0,4, P(B)=0,5 et A,B indépendants. P(A∩B) ?",0.2,"Multiplier pour deux événements indépendants.","0,4×0,5=0,2."),
- n("p06","P(A∩B)=0,12 et P(B)=0,3. P(A|B) ?",0.4,"Définition de la conditionnelle.","0,12/0,3=0,4."),
+ n("p04","X~Bin(4;0,25). Quelle est E(X) ?",1,"Espérance binomiale np.","4×0,25=1. Pour une loi binomiale l'espérance est toujours le produit n×p."),
+ n("p05","P(A)=0,4, P(B)=0,5 et A,B indépendants. P(A∩B) ?",0.2,"Multiplier pour deux événements indépendants.","0,4×0,5=0,2. C'est précisément la propriété de deux événements indépendants."),
+ n("p06","P(A∩B)=0,12 et P(B)=0,3. P(A|B) ?",0.4,"Définition de la conditionnelle.","0,12/0,3=0,4. La conditionnelle est le quotient de l'intersection par la probabilité de l'événement conditionnant."),
  n("p07","P(X=1)=0,2, P(X=3)=0,8. Quelle est E(X) ?",2.6,"Somme des valeurs pondérées.","1×0,2+3×0,8=2,6."),
- n("p08","P(A)=0,2. Quelle est P(non A) ?",0.8,"Événement contraire.","1−0,2=0,8."),
+ n("p08","P(A)=0,2. Quelle est P(non A) ?",0.8,"Événement contraire.","1−0,2=0,8. Un événement et son contraire constituent une partition de probabilité totale 1."),
  n("p09","X~Bin(2;0,2). P(X≥1) ?",0.36,"Utilise l'événement contraire X=0.","1−P(X=0)=1−0,8²=0,36.")
 ]}
 ];
