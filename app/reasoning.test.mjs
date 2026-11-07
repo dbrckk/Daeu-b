@@ -75,10 +75,10 @@ test("diagnostic des pertes de points, priorité et absence de faux certificat",
   assert.equal(report.attempts,2);
   assert.equal(report.distinctSubjects,2);
   assert.equal(report.latestScore,1);
-  assert.equal(report.average,2);
-  assert.equal(report.change,-2);
+  assert.equal(report.average,1.5);
+  assert.equal(report.change,-1);
   assert.equal(report.repeatedSubjects,false);
-  assert.equal(report.earnedPoints,4);
+  assert.equal(report.earnedPoints,3);
   assert.equal(report.possiblePoints,40);
   assert.ok(report.weaknesses.some(r=>r.skill==="loi binomiale"&&r.lost>0));
   assert.ok(report.weaknesses.every(x=>x.lost>0&&x.lesson));

@@ -56,7 +56,7 @@ export const RUBRICS={
     intro:"Prends soin de distinguer moyenne, médiane, variance et étendue.",
     steps:[
       {id:"order",prompt:"Ai-je trié les observations et indiqué l'effectif ?",model:"La série ordonnée est 4,6,6,8,11, effectif N=5. La troisième valeur est la médiane, soit 6.",lesson:"11-statistiques.md"},
-      {id:"mean",prompt:"Ai-je calculé la moyenne avec le bon dénominateur ?",model:"Somme 4+6+6+8+11=35. Moyenne 35/5=7.",lesson:"11-statistiques.md"},
+      {id:"mean",prompt:"Ai-je calculé la moyenne avec le bon dénominateur ?",model:"Le total des cinq valeurs est 4+6+6+8+11=35 ; comme il y a cinq observations, la moyenne est 35/5=7. On vérifie que 7 est bien comprise entre le minimum 4 et le maximum 11.",lesson:"11-statistiques.md"},
       {id:"variance",prompt:"Ai-je montré les écarts à la moyenne et leur mise au carré ?",model:"Écarts à 7 : −3,−1,−1,1,4. Carrés : 9,1,1,1,16, somme 28. Variance de population =28/5=5,6 (on divise par N, pas par N−1).",lesson:"11-statistiques.md"},
       {id:"spread",prompt:"Ai-je interprété l'étendue et vérifié la cohérence des mesures ?",model:"L'étendue est max−min=11−4=7. La variance est positive et mesure une dispersion quadratique ; elle n'a pas la même unité que la moyenne.",lesson:"11-statistiques.md"}
     ]},
