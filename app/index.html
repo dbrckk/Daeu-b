@@ -61,7 +61,7 @@
 
       <section class="exam-area" aria-labelledby="exam-title">
         <div class="section-header"><div><p class="eyebrow">PRÉPARATION À L'ÉPREUVE</p><h2 id="exam-title">Examens blancs interactifs</h2></div><span class="exam-pill">4 exercices · 3 h · /20</span></div>
-        <p class="helper">Deux sujets originaux avec notation automatique des réponses courtes. Rédige aussi ton raisonnement : la preuve écrite ne peut pas être évaluée automatiquement et la note affichée n'est pas une note officielle.</p>
+        <p class="helper">Deux sujets originaux avec notation automatique des réponses courtes. Après la remise, compare ton raisonnement à une correction guidée détaillée. La preuve écrite ne peut pas être évaluée automatiquement et la note affichée n'est pas une note officielle.</p>
         <div id="examNotice" class="notice" role="status" aria-live="polite" hidden></div>
         <div id="examIntro" class="exam-intro">
           <div class="controls exam-intro-controls">
@@ -82,11 +82,12 @@
         </div>
         <div id="examResult" class="exam-result" hidden>
           <p class="eyebrow">BILAN AUTOMATIQUE</p><h3 id="examScore">— / 20</h3>
-          <p id="examSummary"></p>
+          <p id="examSummary"></p><p id="examReasoningStatus" class="exam-reasoning-status"></p>
           <div id="examReview"></div>
           <button id="examNew" class="primary" type="button">Retour aux examens</button>
         </div>
         <div class="exam-history"><h3>Historique des copies</h3><div id="examHistory"></div></div>
+        <section class="exam-analytics" aria-labelledby="examAnalyticsTitle"><h3 id="examAnalyticsTitle">Mon diagnostic après les examens</h3><div id="examAnalytics"></div></section>
       </section>
       <section class="catalog" aria-labelledby="catalog-title">
         <div class="section-header"><div><p class="eyebrow">COURS ET COMPÉTENCES</p><h2 id="catalog-title">Les domaines à maîtriser</h2></div></div>
