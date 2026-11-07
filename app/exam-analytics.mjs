@@ -33,7 +33,7 @@ export function analyzeExamHistory(history,limit=12){
   const weaknesses=[...keys.values()].filter(k=>k.lost>0).sort((a,b)=>b.lost-a.lost || b.errors-a.errors || a.skill.localeCompare(b.skill,"fr"));
   const last=reports.at(-1);
   const previous=reports.length>1?reports.at(-2):null;
-  const distinct=new Set(reports.map(r=>r.examId)).size;
+  const distinct=new Set(reports.map(r=>r.examId+(r.examId==="blanc-c"?"#"+r.seed:""))).size;
   return {
     attempts:reports.length,distinctSubjects:distinct,
     average:reports.length?Number((earnedPoints/reports.length).toFixed(1)):null,

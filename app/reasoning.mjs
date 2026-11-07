@@ -70,6 +70,7 @@ export const RUBRICS={
     ]}
 };
 export const getRubric=id=>RUBRICS[id]||null;
+export const rubricForSection=section=>section?.rubric||getRubric(section?.id)||null;
 export function validateRubrics(exams){
   const problems=[];
   const ids=new Set();
@@ -77,7 +78,7 @@ export function validateRubrics(exams){
   const validPaths=/^\d{2}-[a-z0-9-]+\.md$/;
   const required=new Set(sections.map(s=>s.id));
   for(const section of sections){
-    const rubric=getRubric(section.id);
+    const rubric=rubricForSection(section);
     if(!rubric||rubric.steps.length<3||rubric.steps.length>6) {
       problems.push("Rubrique manquante ou taille incorrecte : "+section.id);continue;
     }
@@ -90,11 +91,11 @@ export function validateRubrics(exams){
         problems.push("Étape pédagogique incomplète : "+combined);
     }
   }
-  for(const id of Object.keys(RUBRICS))if(!required.has(id))problems.push("Rubrique orpheline : "+id);
+  for(const id of Object.keys(RUBRICS))if(!required.has(id)&&exams.some(e=>e.id==="blanc-1"||e.id==="blanc-2"))problems.push("Rubrique orpheline : "+id);
   return problems;
 }
 export function validReviewKeys(exam){
-  return new Set(exam.sections.flatMap(s=>(getRubric(s.id)?.steps||[]).map(step=>s.id+":"+step.id)));
+  return new Set(exam.sections.flatMap(s=>(rubricForSection(s)?.steps||[]).map(step=>s.id+":"+step.id)));
 }
 export function sanitizeSelfChecks(raw,exam){
   const valid=validReviewKeys(exam);
@@ -103,14 +104,18 @@ export function sanitizeSelfChecks(raw,exam){
   for(const [key,value] of Object.entries(raw))if(valid.has(key)&&value===true)clean[key]=true;
   return clean;
 }
-export function countChecks(result){
-  const examId=result?.examId;
+export function countChecks(result,exam=null){
   let total=0,checked=0;
-  for(const [sectionId,rubric] of Object.entries(RUBRICS)){
-    if(!sectionId.startsWith(examId==="blanc-1"?"a-":"b-"))continue;
+  const sections=exam?.sections || (
+    result?.examId==="blanc-1" ? Object.keys(RUBRICS).filter(k=>k.startsWith("a-")).map(id=>({id})) :
+    result?.examId==="blanc-2" ? Object.keys(RUBRICS).filter(k=>k.startsWith("b-")).map(id=>({id})) : []
+  );
+  for(const section of sections){
+    const rubric=rubricForSection(section);
+    if(!rubric)continue;
     for(const step of rubric.steps){
       total++;
-      if(result.selfChecks?.[sectionId+":"+step.id]===true)checked++;
+      if(result.selfChecks?.[section.id+":"+step.id]===true)checked++;
     }
   }
   return {checked,total};
