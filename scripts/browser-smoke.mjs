@@ -114,6 +114,27 @@ try {
     "Saisie réactivée après recharge");
   await other.close();
 
+  // Simuler un quota plein : la saisie ne doit pas apparaître sauvegardée
+  // alors que localStorage a refusé l'écriture.
+  const quotaPage=await context.newPage();
+  await quotaPage.goto(BASE,{waitUntil:"networkidle"});
+  await quotaPage.locator("#examSelect").selectOption("blanc-c");
+  await quotaPage.locator("#examStart").click();
+  const beforeQuota=await quotaPage.locator("#examQuestions .exam-input").first().inputValue();
+  await quotaPage.evaluate(()=>{
+    const original=Storage.prototype.setItem;
+    Storage.prototype.setItem=function(key,value){
+      if(key==="daeu-b-data-v1")throw new DOMException("Quota exceeded","QuotaExceededError");
+      return original.call(this,key,value);
+    };
+  });
+  await quotaPage.locator("#examQuestions .exam-input").first().fill("777");
+  await check(async()=>await quotaPage.locator("#examQuestions .exam-input").first().inputValue().then(v=>v===beforeQuota),
+    "Réponse d'examen restaurée après échec de sauvegarde");
+  await check(async()=>await quotaPage.locator("#examNotice").textContent().then(v=>v.includes("Impossible d'enregistrer")),
+    "Échec du stockage signalé clairement");
+  await quotaPage.close();
+
   await page.evaluate(async()=>{await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error("Service Worker non activé après 10s")),10000))]);});
   await page.reload({waitUntil:"networkidle"});
   await context.setOffline(true);
