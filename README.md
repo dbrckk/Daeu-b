@@ -6,14 +6,14 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 ## Application interactive gratuite
 
-**[Ouvrir l'Atelier de maths — site mobile et PC](https://dim-monolith-4m8zee2.shipstatic.com)**
+**[Ouvrir l'Atelier de maths — site mobile et PC](https://noisy-prism-63q74n2.shipstatic.com)**
 
 - **95 questions fixes + 32 modèles paramétriques (127 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **32 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
 - Suivi enregistré **dans le navigateur**, sans compte ni transmission au serveur ; exporter régulièrement la progression JSON pour changer d'appareil.
 - Site statique gratuit et léger (**environ 137 Ko de fichiers source, sans dépendances à l'exécution**). Déploiement ShipStatic confirmé sans expiration prévue ; le contenu source reste dans [app/](app/).
-- **[Trois modes d'examen blanc interactif](https://dim-monolith-4m8zee2.shipstatic.com)** : A et B fixes, **C généré avec des valeurs renouvelées** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **16 étapes guidées de raisonnement par sujet**, auto-évaluation et diagnostic des points perdus.
+- **[Trois modes d'examen blanc interactif](https://noisy-prism-63q74n2.shipstatic.com)** : A et B fixes, **C généré avec des valeurs renouvelées** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **16 étapes guidées de raisonnement par sujet**, auto-évaluation et diagnostic des points perdus.
 - [Guide des examens chronométrés, sujets variables et limites de la correction automatique](examens/guide-interactif.md).
 - [Notice de fonctionnement et limites](app/README.md).
 - [Rapport de stabilisation, tests réels Chromium et procédure d'installation](RELEASE.md).

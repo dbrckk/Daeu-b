@@ -3,7 +3,7 @@
 ## Objectif
 S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les examens fixes A/B et les variantes de l'examen C sont **originaux** et distincts des sujets Markdown existants : ce ne sont pas des annales officielles.
 
-**Application actuelle :** https://dim-monolith-4m8zee2.shipstatic.com
+**Application actuelle :** https://noisy-prism-63q74n2.shipstatic.com
 
 ## Se préparer
 - Réviser les modules 01–12 et 15, notamment domaines, dérivées, limites, suites, probabilités et primitives.

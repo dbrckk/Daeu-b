@@ -145,3 +145,17 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 - Publication permanente GitHub Pages **préparée mais pas activée** : le dépôt n'a pas encore de site Pages. La configuration nécessite un choix initial dans Settings. Pour éviter de conserver une CI rouge, le workflow Pages a été placé en mode manuel. Aucune modification d'un domaine existant n'a été effectuée.
 - La structure des données (sauvegarde `backupVersion:1`, `practice.version:2`, `exams.version:1`) reste compatible avec les exports antérieurs.
 - Application statique sans dépendance npm en production ; Playwright est installé uniquement par les runners GitHub pour le test.
+
+
+## Livraison v7 — robustesse et usage mobile (07/11/2026)
+
+- [x] Cache des ressources installé de façon atomique, évitant les mélanges de scripts entre versions.
+- [x] Cache hors ligne des modules nécessaires au simulateur C après première visite en ligne.
+- [x] Parcours Chromium mobile étendu : corrections, raisonnement, nouvel examen C et conservation du sujet après recharge hors connexion.
+- [x] Déploiement statique : https://noisy-prism-63q74n2.shipstatic.com ; hébergeur confirmé en statut success, 17 fichiers, sans expiration définie.
+- [ ] Vérifier l'expérience sur un Android réel : clavier, téléchargements, cache et fermeture forcée.
+- [ ] Mettre en place un domaine permanent pour éviter le transfert manuel du stockage à chaque nouvelle adresse.
+- [ ] Renforcer la gestion des quotas de stockage et des conflits entre onglets.
+- [ ] Étendre le générateur au-delà de quatre familles de problèmes et demander une validation mathématique indépendante.
+
+La v7 est exploitable et contrôlée automatiquement ; elle ne peut pas encore être qualifiée de totalement finalisée sans vérification physique Android et adresse stable.

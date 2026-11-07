@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://dim-monolith-4m8zee2.shipstatic.com
+**Site public :** https://noisy-prism-63q74n2.shipstatic.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -72,7 +72,7 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La version actuelle est : https://dim-monolith-4m8zee2.shipstatic.com.
+La version actuelle est : https://noisy-prism-63q74n2.shipstatic.com.
 
 Anciennes adresses possibles :
 - `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
@@ -142,7 +142,7 @@ Les examens fixes A/B, leurs copies, les grilles déjà cochées et les 127 él�
 
 ## Stabilisation v6 — application installable et tests navigateur
 
-**URL validée :** https://dim-monolith-4m8zee2.shipstatic.com
+**URL validée :** https://noisy-prism-63q74n2.shipstatic.com
 
 - La version actuelle comporte une icône SVG vectorielle, un manifeste PWA, un Service Worker avec cache local, et peut être ajoutée à l'écran d'accueil depuis le navigateur quand celui-ci le permet.
 - La page est utilisable hors ligne **après une première visite avec connexion et mise en cache des fichiers**. Les liens vers les cours GitHub nécessitent toujours Internet.
@@ -156,3 +156,17 @@ Les examens fixes A/B, leurs copies, les grilles déjà cochées et les 127 él�
 **Adresse stable à finaliser :** une action utilisateur dans GitHub (Settings → Pages → Build and deployment → Source = GitHub Actions) permet d'activer le [workflow de publication déjà préparé](../.github/workflows/pages.yml). Après cette première activation, le workflow peut publier l'application sans hébergeur tiers ni changement d'URL. Tant que ce réglage n'est pas effectué, utiliser l'adresse ShipStatic ci-dessus, sans expiration prévue mais propre à cette publication.
 
 **Tests non réalisés :** téléphone Android physique, multiples navigateurs, audit WCAG professionnel et revue pédagogique indépendante.
+
+
+## Stabilisation v7 — cache hors ligne et non-régression
+
+- Service worker à cache de version atomique : modules et CSS cohérents, sans mélange de fichiers entre deux versions.
+- Installation annulée si une ressource obligatoire manque ; ancien cache conservé tant que la nouvelle version n'est pas installée.
+- Les requêtes externes vers GitHub ne sont ni interceptées ni conservées.
+- Tests Chromium mobile étendus aux corrigés de l'examen C et au rechargement hors ligne d'une nouvelle épreuve C.
+- Données utilisateur conservées dans le navigateur, et non dans le service worker. Export JSON recommandé pour changer d'appareil.
+- Un navigateur peut garder l'ancienne interface jusqu'à activation du nouveau service worker : fermer puis rouvrir en ligne si nécessaire.
+
+Site public v7 : https://noisy-prism-63q74n2.shipstatic.com
+
+Limite : les tests Chromium émulent le format mobile ; ils ne remplacent pas un essai sur un téléphone Android physique.
