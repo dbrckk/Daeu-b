@@ -1,6 +1,6 @@
 # 16 — Nombres complexes et approfondissements locaux
 
-**Statut :** demandés par certaines universités (notamment Sorbonne et Orléans), **non explicitement listés dans les 19 jalons SONATE**. À prioriser seulement si ton centre d'examen les prévoit. Préreq. : 04, 13 et 14. Durée : 5–8 h.
+**Statut :** jalons 22 et 23 **facultatifs** dans le syllabus SONATE Côte d'Azur 2026-2027 ; demandés dans certaines autres universités, notamment Sorbonne et Orléans. À prioriser selon ton centre d'examen. Préreq. : 04, 13 et 14. Durée : 5–8 h.
 
 ## 1. Pourquoi les nombres complexes ?
 Dans les réels, $x^2+1=0$ n'a pas de solution. On introduit $i$ tel que $i^2=-1$ ; un complexe est $z=a+ib$, $a,b\in\mathbb R$. Partie réelle $\operatorname{Re}(z)=a$, imaginaire $\operatorname{Im}(z)=b$.
@@ -34,6 +34,37 @@ Exemple $z^2+2z+5=0$ : $\Delta=4-20=-16$, donc $\boxed{z=-1\pm2i}$.
 
 ## 6. Interprétation géométrique
 Le complexe $z_B-z_A$ représente le vecteur de $A$ vers $B$ dans le plan complexe. Sa norme $|z_B-z_A|$ est la distance $AB$. Le module mesure une longueur et l'argument une direction.
+
+## 7. Géométrie complexe : transformations et angles (jalon 23 facultatif)
+Pour des points $A,B$ d'affixes $z_A,z_B$, l'affixe du vecteur $\overrightarrow{AB}$ est $z_B-z_A$. La distance $AB=|z_B-z_A|$. Pour deux vecteurs non nuls $\overrightarrow{AB}$ et $\overrightarrow{AC}$ :
+$\frac{z_C-z_A}{z_B-z_A}$
+est réel si les deux vecteurs sont colinéaires ; il est imaginaire pur si leurs directions sont orthogonales. Son argument donne l'**angle orienté** de $\overrightarrow{AB}$ vers $\overrightarrow{AC}$, modulo $2\pi$.
+
+**Rotation** de centre d'affixe $c$ et angle $\theta$ :
+$z'=c+e^{i\theta}(z-c).$
+**Homothétie** de centre $c$ et rapport réel $k$ : $z'=c+k(z-c)$. Pour $c=0$, une rotation de $90^\circ$ dans le sens direct s'écrit simplement $z'=iz$.
+
+**Exemple guidé :** $A$ a pour affixe $1$, $B$ a pour affixe $2+i$, $C$ a pour affixe $1+2i$. Les vecteurs d'origine $A$ valent $z_B-z_A=1+i$ et $z_C-z_A=2i$. Le rapport
+$\frac{2i}{1+i}=\frac{2i(1-i)}2=1+i$
+a pour argument $\pi/4$. Donc l'angle orienté $\widehat{(AB,AC)}=\pi/4$.
+
+### Exercices de géométrie complexe
+A. Pour $z_A=2+i$ et $z_B=5+5i$, donner l'affixe de $\overrightarrow{AB}$ et la distance $AB$.
+B. Image de $z=1+i$ par la rotation de centre $0$ et d'angle $\pi/2$ ?
+C. Image de $z=3$ par l'homothétie de centre $1$ et de rapport $2$ ?
+D. Les points d'affixes $0$, $1+i$, $2+2i$ sont-ils alignés ?
+E. Les vecteurs d'affixes $1+i$ et $1-i$ sont-ils orthogonaux ?
+F. Rotation de centre $c=1$ et d'angle $\pi$ : image de $z=2+i$ ?
+G. Pour $z_A=0$, $z_B=1$, $z_C=i$, angle orienté de $\overrightarrow{AB}$ vers $\overrightarrow{AC}$ ?
+
+### Corrigés de géométrie complexe
+A. $z_B-z_A=3+4i$ et $AB=|3+4i|=\boxed5$.
+B. Multiplier par $i$ : $i(1+i)=\boxed{-1+i}$.
+C. $1+2(3-1)=\boxed5$.
+D. $(2+2i)/(1+i)=2\in\mathbb R$ ; $\boxed{\text{oui}}$.
+E. Produit scalaire $(1;1)\cdot(1;-1)=0$, ou quotient $(1-i)/(1+i)=-i$, imaginaire pur ; $\boxed{\text{oui}}$.
+F. $z'=1+e^{i\pi}(z-1)=1-(1+i)=\boxed{-i}$.
+G. $(z_C-z_A)/(z_B-z_A)=i$ a pour argument $\boxed{\pi/2}$.
 
 ## Exercices
 1. Calculer $(3-2i)+(1+5i)$.

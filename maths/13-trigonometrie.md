@@ -1,6 +1,6 @@
 # 13 — Trigonométrie : cercle, radians, sinus et cosinus
 
-**Statut : complément demandé par plusieurs universités, notamment UGA et Rennes ; pas un jalon autonome dans le synopsis SONATE.** Préreq. : 01, 03, 05. Durée : 5–8 h.
+**Statut : jalon 21 facultatif dans le syllabus SONATE Côte d'Azur 2026-2027 ; demandé dans les programmes d'autres universités, notamment UGA et Rennes.** Préreq. : 01, 03, 05. Durée : 5–8 h.
 
 ## 1. Triangle rectangle et cercle trigonométrique
 Dans un triangle rectangle, pour un angle aigu $\theta$ :

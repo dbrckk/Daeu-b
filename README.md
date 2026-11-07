@@ -59,7 +59,7 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 - [Examen blanc 03 — compléments universitaires](examens/blanc-03-complements-sujet.md) / [correction](examens/blanc-03-complements-corrige.md).
 - [Fiche des formules](fiches/formulaire.md) et [25 erreurs fréquentes](fiches/erreurs-frequentes.md).
 
-La structure et les liens des cours sont vérifiés automatiquement lors de chaque mise à jour via GitHub Actions, avec `scripts/check_content.py`.
+La structure et les liens internes des cours sont vérifiés automatiquement lors de chaque mise à jour via GitHub Actions, avec `scripts/check_content.py`. Ce contrôle technique **ne garantit pas l'exactitude de chaque corrigé mathématique**, qui doit aussi être relu et confronté à des sujets réels.
 
 ## Extension future
 
