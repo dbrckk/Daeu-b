@@ -1,10 +1,7 @@
 name: Site stable GitHub Pages
+# Activation manuelle après Settings > Pages > Source : GitHub Actions.
+# Aucun échec récurrent tant que GitHub Pages n'est pas activé.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'app/**'
-      - '.github/workflows/pages.yml'
   workflow_dispatch:
 permissions:
   contents: read
