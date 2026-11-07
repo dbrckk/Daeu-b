@@ -1,5 +1,7 @@
 import {EXAMS} from "./exams.mjs";
-import {startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory} from "./exam-engine.mjs";
+import {getRubric,countChecks} from "./reasoning.mjs";
+import {analyzeExamHistory} from "./exam-analytics.mjs";
+import {startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 
 const EXAM_LESSONS={
   "a-analyse":[["Second degré","04-second-degre.md"],["Dérivation","06-derivation.md"]],
@@ -53,10 +55,44 @@ function tick(){
   const s=(seconds%60).toString().padStart(2,"0");
   byId("examTimer").textContent=h+":"+m+":"+s;
 }
+
+function renderAnalytics(){
+  const container=byId("examAnalytics");container.replaceChildren();
+  const report=analyzeExamHistory(store.history);
+  if(!report.attempts){
+    container.append(element("p","helper","Le diagnostic par compétence apparaîtra après un premier examen terminé."));
+    return;
+  }
+  container.append(element("p","exam-analytics-intro",report.attempts+" copie(s) · moyenne "+String(report.average).replace(".",",")+"/20 · dernière note "+report.latestScore+"/20"));
+  if(report.change!==null){
+    const message=report.change===0?"Même note que sur la copie précédente.":"Écart avec la copie précédente : "+(report.change>0?"+":"")+report.change+" point(s).";
+    container.append(element("p","helper",message));
+  }
+  if(report.repeatedSubjects)container.append(element("p","exam-warning","Certains sujets ont été refaits. Une note plus élevée peut provenir de la mémorisation des solutions : il faut aussi réussir des problèmes inédits."));
+  if(!report.weaknesses.length){
+    container.append(element("p","helper","Aucune erreur objective dans les questions corrigées. Contrôle néanmoins les démonstrations écrites."));
+    return;
+  }
+  container.append(element("h4","","Notions à consolider d'abord"));
+  const list=element("ol","exam-weakness-list");
+  for(const item of report.weaknesses.slice(0,5)){
+    const li=element("li");
+    li.append(element("strong","",item.skill+" : "+item.lost+"/"+item.points+" point(s) perdu(s)"));
+    if(item.lesson){
+      const link=element("a","","Revoir le cours ↗");
+      link.href="https://github.com/dbrckk/Daeu-b/blob/main/maths/"+item.lesson;
+      link.target="_blank";link.rel="noopener noreferrer";
+      li.append(link);
+    }
+    list.append(li);
+  }
+  container.append(list,element("p","helper","Diagnostic des réponses objectives des 12 dernières copies au maximum, distinct de l'évaluation de la rédaction."));
+}
+
 function renderHistory(){
   const container=byId("examHistory");
   container.replaceChildren();
-  if(!store.history.length){container.append(element("p","helper","Aucun examen terminé pour le moment."));return;}
+  if(!store.history.length){container.append(element("p","helper","Aucun examen terminé pour le moment."));renderAnalytics();return;}
   for(const result of [...store.history].reverse()){
     const row=element("div","exam-history-row");
     const label=element("span","",result.title+" · "+new Date(result.finishedAt).toLocaleDateString("fr-FR")+" · "+result.score+"/20");
@@ -65,6 +101,7 @@ function renderHistory(){
     open.addEventListener("click",()=>{lastResult=result;showResult(result);byId("exam-title").scrollIntoView({behavior:"smooth",block:"start"});});
     row.append(label,open);container.append(row);
   }
+  renderAnalytics();
 }
 function renderExamSection(){
   const session=store.active;
@@ -151,6 +188,9 @@ function showResult(result){
   byId("examScore").textContent=result.score+" / "+result.maxScore;
   const summary=result.reason==="timeout"?"Temps écoulé : la copie a été rendue automatiquement.":"Copie rendue. La notation automatique est terminée.";
   byId("examSummary").textContent=summary+" Les justifications rédigées ne sont pas évaluées : "+result.score+"/20 est une note indicative.";
+  const selfStatus=byId("examReasoningStatus");
+  const checks=countChecks(result);
+  selfStatus.textContent="Étapes rédigées déclarées : "+checks.checked+"/"+checks.total+" (auto-évaluation, hors note /20)";
   const review=byId("examReview");review.replaceChildren();
   const exam=EXAMS.find(e=>e.id===result.examId);
   for(const section of result.sections){
@@ -172,6 +212,39 @@ function showResult(result){
       const noteLabel=element("strong","","Ta rédaction (non évaluée automatiquement)");
       const note=element("p","exam-user-notes",handwritten);
       details.append(noteLabel,note);
+    }
+
+    const rubric=getRubric(section.id);
+    if(rubric){
+      const guide=element("details","exam-reasoning-guide");
+      guide.append(element("summary","","Correction guidée du raisonnement · "+rubric.steps.length+" étapes"));
+      guide.append(element("p","helper",rubric.intro));
+      for(let i=0;i<rubric.steps.length;i++){
+        const step=rubric.steps[i],key=section.id+":"+step.id;
+        const wrap=element("div","exam-reasoning-step");
+        wrap.append(element("h4","","Étape "+(i+1)+" — "+step.prompt),element("p","",step.model));
+        const label=element("label","exam-check-label");
+        const input=element("input");input.type="checkbox";input.checked=!!result.selfChecks?.[key];
+        label.append(input,element("span","","J'ai réellement justifié cette étape dans ma copie"));
+        input.addEventListener("change",()=>{
+          try{
+            store=updateReviewCheck(store,result.examId,result.startedAt,key,input.checked);
+            persist();
+            const updated=store.history.find(x=>x.examId===result.examId&&x.startedAt===result.startedAt);
+            if(updated){
+              result.selfChecks=updated.selfChecks;
+              const tally=countChecks(updated);
+              selfStatus.textContent="Étapes rédigées déclarées : "+tally.checked+"/"+tally.total+" (auto-évaluation, hors note /20)";
+            }
+          }catch(error){input.checked=!input.checked;alertExam("La copie n'a pas pu être modifiée.");}
+        });
+        wrap.append(label);
+        const link=element("a","","Approfondir ce chapitre ↗");
+        link.href="https://github.com/dbrckk/Daeu-b/blob/main/maths/"+step.lesson;
+        link.target="_blank";link.rel="noopener noreferrer";wrap.append(link);
+        guide.append(wrap);
+      }
+      details.append(guide);
     }
     details.append(element("p","exam-method","Critères de rédaction : "+src.method));
     if(section.earned<5){
