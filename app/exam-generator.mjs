@@ -16,8 +16,26 @@ function randomGenerator(seed){
 const integer=(r,min,max)=>min+Math.floor(r()*(max-min+1));
 const pick=(r,values)=>values[integer(r,0,values.length-1)];
 const fmt=n=>Number.isInteger(n)?String(n):Number(n.toFixed(8)).toString().replace(".",",");
-const N=(id,prompt,answer,points,solution,skill)=>({id,prompt,answer,points,solution,skill,type:"number"});
-const C=(id,prompt,options,answer,points,solution,skill)=>({id,prompt,options,answer,points,solution,skill,type:"choice"});
+const EXPLAIN={
+  "dérivation":"Écris d'abord la dérivée générale, puis remplace la variable par la valeur demandée. La dérivée mesure une pente, pas une image.",
+  "optimisation":"Justifie le sommet avec le signe de la dérivée ou la forme canonique ; distingue l'abscisse du maximum de la valeur maximale.",
+  "second degré":"Utilise la forme canonique pour lire le sommet et déterminer les racines. Une inégalité stricte exclut toujours les racines.",
+  "suites":"Commence par identifier le premier rang et la raison géométrique. Pour uₙ, utilise u₀×qⁿ et ne décale pas l'indice.",
+  "logarithmes":"Vérifie q>1 avant de diviser par ln(q). Un seuil de période demande un entier : comparer les deux rangs voisins.",
+  "somme de suites":"Écris les termes à additionner en conservant toutes les décimales intermédiaires avant d'arrondir la somme finale.",
+  "probabilités":"Définis l'événement considéré et calcule le rapport des issues favorables aux issues possibles avant d'utiliser les probabilités.",
+  "loi binomiale":"Justifie indépendance, nombre d'essais et probabilité constante. Le coefficient binomial compte les positions possibles du succès.",
+  "complémentaire":"L'événement « au moins un succès » est le contraire d'« aucun succès ». Calculer le second est souvent plus simple.",
+  "espérance":"Pour une loi binomiale, E(X)=n×p. Ce résultat est une moyenne théorique sur des expériences répétées, pas une issue certaine.",
+  "primitives":"Dérive ta proposition pour retrouver la fonction d'origine. Une primitive générale comprend une constante arbitraire.",
+  "intégrales":"Présente la primitive, les bornes puis la différence F(b)−F(a). Pour une valeur moyenne, divise par la longueur b−a."
+};
+const explanation=(solution,skill)=>{
+  if(!EXPLAIN[skill])throw new Error("Compétence sans méthode : "+skill);
+  return solution+"\n\nMéthode de justification : "+EXPLAIN[skill];
+};
+const N=(id,prompt,answer,points,solution,skill)=>({id,prompt,answer,points,solution:explanation(solution,skill),skill,type:"number"});
+const C=(id,prompt,options,answer,points,solution,skill)=>({id,prompt,options,answer,points,solution:explanation(solution,skill),skill,type:"choice"});
 const step=(id,prompt,model,lesson)=>({id,prompt,model,lesson});
 const section=(id,title,context,questions,method,intro,steps)=>({id,title,context,questions,method,rubric:{intro,steps}});
 export function createGeneratedExam(seed){
