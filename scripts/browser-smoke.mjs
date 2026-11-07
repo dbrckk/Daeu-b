@@ -74,6 +74,14 @@ try {
   await check(async()=>await page.locator("#attempted").textContent().then(t=>t.trim()==="0"),"Remise à zéro du suivi");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===0,"Remise à zéro des copies");
   await page.locator("#importFile").setInputFiles(filename);
+  try {
+    await page.waitForFunction(()=>Number(document.querySelector("#attempted")?.textContent.trim())>=1,null,{timeout:8000});
+    await page.waitForFunction(()=>document.querySelectorAll("#examHistory .exam-history-row").length===1,null,{timeout:8000});
+  } catch(error) {
+    console.error("État import JSON : ",await page.locator("#notification").textContent());
+    console.error("État copies : ",await page.locator("#examNotice").textContent());
+    throw error;
+  }
   await check(async()=>await page.locator("#attempted").textContent().then(t=>Number(t.trim())>=1),"Import de la progression");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Import des copies");
 
