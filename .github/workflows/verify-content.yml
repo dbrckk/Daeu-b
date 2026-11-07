@@ -26,6 +26,7 @@ jobs:
           node --check app/app.mjs
           node --check app/engine.mjs
           node --check app/questions.mjs
+          node --check app/variants.mjs
           node --check app/sw.js
       - name: Vérifier notation, jalons, révisions et sauvegardes
         run: node --test app/engine.test.mjs

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {TOPICS} from "./questions.mjs";
+import {VARIANTS,injectVariants,materializeVariant,validateVariants} from "./variants.mjs";
 import {flatten,validateTopics,parseNumber,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound,DAY_MS} from "./engine.mjs";
 
 const questions=flatten(TOPICS);
@@ -32,10 +33,10 @@ test("révision espacée et acquisition après deux dates distinctes",()=>{
   assert.equal(s.items.n01.dueAt,t+DAY_MS);
   s=recordAnswer(s,"n01",true,t+1000);
   assert.equal(s.items.n01.confirmed,false,"deux succès le même jour ne suffisent pas");
-  assert.equal(s.items.n01.dueAt,t+1000+3*DAY_MS);
+  assert.equal(s.items.n01.dueAt,t+1000+DAY_MS);
   s=recordAnswer(s,"n01",true,t+DAY_MS);
   assert.equal(s.items.n01.confirmed,true);
-  assert.equal(s.items.n01.dueAt,t+DAY_MS+7*DAY_MS);
+  assert.equal(s.items.n01.dueAt,t+DAY_MS+3*DAY_MS);
   s=recordAnswer(s,"n01",false,t+2*DAY_MS);
   assert.equal(s.items.n01.confirmed,false);
   assert.equal(s.items.n01.streak,0);
@@ -72,4 +73,48 @@ test("échantillons de calcul issus de chapitres différents",()=>{
   const map=new Map(questions.map(q=>[q.id,q]));
   const examples=[["n01","1/4"],["a02","(x−4)(x+4)"],["e01","6"],["s01","1"],["st05","2/3"],["f04","2"],["d01","8"],["l02","4"],["t06","1/16"],["u02","54"],["x03","1"],["i04","-1/2"],["p09","0,36"]];
   for(const [id,answer] of examples) assert.equal(gradeAnswer(map.get(id),answer).correct,true,id);
+});
+
+test("banque paramétrique: IDs uniques, 20 jalons, 32 modèles",()=>{
+  assert.deepEqual(validateVariants(TOPICS,100),[]);
+  assert.equal(VARIANTS.length,32);
+  const merged=flatten(injectVariants(TOPICS));
+  assert.equal(merged.length,questions.length+VARIANTS.length);
+  assert.equal(new Set(merged.map(q=>q.id)).size,merged.length);
+});
+test("une nouvelle variation après rappel, sans exposer la réponse",()=>{
+  for (const template of VARIANTS){
+    const first=materializeVariant(template,{random:()=>0.11});
+    const second=materializeVariant(template,{random:()=>0.11,previousPrompt:first.prompt});
+    assert.notEqual(first.prompt,second.prompt,template.id);
+    assert.equal(first.id,template.id);
+    assert.equal(gradeAnswer(first,String(first.answer)).correct,true,template.id);
+    assert.equal(gradeAnswer(second,String(second.answer)).correct,true,template.id);
+  }
+});
+test("réussite assistée ou même énoncé : pas d'acquis artificiel",()=>{
+  const t=Date.UTC(2026,10,7,9);
+  let s=recordAnswer(emptyState(),"v01",true,t,{signature:"énoncé 1",hinted:true});
+  assert.equal(s.items.v01.confirmed,false);assert.equal(s.items.v01.streak,0);
+  s=recordAnswer(s,"v01",true,t+DAY_MS,{signature:"énoncé 1"});
+  assert.equal(s.items.v01.streak,1);assert.equal(s.items.v01.confirmed,false);
+  s=recordAnswer(s,"v01",true,t+2*DAY_MS,{signature:"énoncé 1"});
+  assert.equal(s.items.v01.confirmed,false);
+  s=recordAnswer(s,"v01",true,t+3*DAY_MS,{signature:"énoncé 2"});
+  assert.equal(s.items.v01.confirmed,true);
+  s=recordAnswer(s,"v01",false,t+4*DAY_MS,{signature:"énoncé 3"});
+  assert.equal(s.items.v01.confirmed,false);
+});
+test("validation complète de plusieurs valeurs et équations",()=>{
+  for (const template of VARIANTS) {
+    for(let k=0;k<150;k++){
+      let seed=k;
+      const random=()=>((seed= (Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
+      const q=materializeVariant(template,{random});
+      assert.equal(typeof q.prompt,"string");assert.ok(q.explanation.length>15);
+      assert.ok(Number.isFinite(q.answer),template.id);
+      assert.equal(gradeAnswer(q,String(q.answer)).correct,true,template.id);
+      assert.equal(gradeAnswer(q,"not a number").valid,false,template.id);
+    }
+  }
 });

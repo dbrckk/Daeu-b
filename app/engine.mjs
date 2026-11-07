@@ -64,19 +64,30 @@ export function gradeAnswer(question, raw) {
 export function emptyState() {return {version:STORAGE_VERSION, items:{}};}
 const dayKey = ms => new Date(ms).toISOString().slice(0,10);
 
-/** Une question n'est maîtrisée qu'après deux succès consécutifs à des dates distinctes. */
-export function recordAnswer(state, id, correct, now=Date.now()) {
-  const prev = state.items?.[id] || {};
-  const streak = correct ? (prev.streak || 0) + 1 : 0;
-  const currentDay = dayKey(now);
-  const confirmed = Boolean(correct && streak >= 2 && (prev.confirmed || (prev.lastCorrectDay && prev.lastCorrectDay !== currentDay)));
-  const intervalDays = correct ? INTERVALS[Math.min(streak-1,INTERVALS.length-1)] : 0;
-  const row = {
-    attempts:(prev.attempts || 0)+1,
-    correct:(prev.correct || 0)+(correct ? 1:0),
-    wrong:(prev.wrong || 0)+(correct ? 0:1),
-    streak, confirmed, dueAt:correct ? now+intervalDays*DAY_MS : now,
-    lastAt:now, lastCorrectDay:correct ? currentDay : (prev.lastCorrectDay || null)
+/**
+ * Maîtrise seulement après deux réussites consécutives, sans indice,
+ * sur des jours calendaires distincts. Pour un modèle paramétrique,
+ * les deux énoncés doivent en outre être différents.
+ */
+export function recordAnswer(state, id, correct, now=Date.now(), {signature=null, hinted=false}={}) {
+  const prev=state.items?.[id] || {};
+  const today=dayKey(now);
+  const eligible=Boolean(correct && !hinted);
+  const wasIndependent=Boolean(prev.streak>0 && prev.lastCorrectDay && prev.lastCorrectDay!==today);
+  const novel=!signature || !prev.lastPrompt || signature!==prev.lastPrompt;
+  const streak=eligible ? (prev.lastCorrectDay===today ? Math.max(1,prev.streak||0) : (novel ? (prev.streak||0)+1 : 1)) : 0;
+  const confirmed=Boolean(eligible && (prev.confirmed || (wasIndependent && novel && streak>=2)));
+  const intervalDays=eligible ? INTERVALS[Math.min(Math.max(0,streak-1),INTERVALS.length-1)] : 0;
+  const row={
+    attempts:(prev.attempts||0)+1,
+    correct:(prev.correct||0)+(correct?1:0),
+    wrong:(prev.wrong||0)+(correct?0:1),
+    assisted:(prev.assisted||0)+(correct&&hinted?1:0),
+    streak, confirmed,
+    dueAt:eligible ? now+intervalDays*DAY_MS : now,
+    lastAt:now,
+    lastCorrectDay:eligible?today:null,
+    lastPrompt:signature||null
   };
   return {version:STORAGE_VERSION,items:{...state.items,[id]:row}};
 }
@@ -118,8 +129,10 @@ export function sanitizeState(raw,knownIds) {
     const fields=["attempts","correct","wrong","streak","dueAt","lastAt"];
     if(fields.some(k=>!Number.isSafeInteger(v[k]) || v[k]<0 || v[k]>1e15)) continue;
     if(v.correct+v.wrong!==v.attempts || v.streak>v.correct || typeof v.confirmed!=="boolean") continue;
-    if(v.lastCorrectDay!==null && (typeof v.lastCorrectDay!=="string"|| !/^\d{4}-\d{2}-\d{2}$/.test(v.lastCorrectDay))) continue;
-    items[id]={attempts:v.attempts,correct:v.correct,wrong:v.wrong,streak:v.streak,confirmed:v.confirmed,dueAt:v.dueAt,lastAt:v.lastAt,lastCorrectDay:v.lastCorrectDay};
+    if(v.lastCorrectDay!=null && (typeof v.lastCorrectDay!=="string"|| !/^\d{4}-\d{2}-\d{2}$/.test(v.lastCorrectDay))) continue;
+    if(v.lastPrompt!=null && (typeof v.lastPrompt!=="string" || v.lastPrompt.length>500)) continue;
+    if(v.assisted!=null && (!Number.isSafeInteger(v.assisted)||v.assisted<0||v.assisted>v.correct)) continue;
+    items[id]={attempts:v.attempts,correct:v.correct,wrong:v.wrong,assisted:v.assisted||0,streak:v.streak,confirmed:v.confirmed,dueAt:v.dueAt,lastAt:v.lastAt,lastCorrectDay:v.lastCorrectDay||null,lastPrompt:v.lastPrompt||null};
   }
   return {version:STORAGE_VERSION,items};
 }

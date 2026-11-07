@@ -1,15 +1,17 @@
 import {TOPICS} from "./questions.mjs";
+import {VARIANTS,injectVariants,materializeVariant,validateVariants} from "./variants.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 
 const STORAGE_KEY="daeu-b-maths-progress-v2";
 const LESSONS="https://github.com/dbrckk/Daeu-b/blob/main/maths/";
-const questions=flatten(TOPICS);
+const fullTopics=injectVariants(TOPICS);
+const questions=flatten(fullTopics);
 const knownIds=new Set(questions.map(q=>q.id));
-const errors=validateTopics(TOPICS);
+const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS)];
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
-let state=emptyState(),session=[],index=0,score=0,done=false;
+let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false;
 let storageWorks=true;
 
 function notification(message) {
@@ -43,7 +45,7 @@ function refreshOverview() {
 
 function renderCatalog() {
   const container=el("topicCards"); container.replaceChildren();
-  for(const topic of TOPICS){
+  for(const topic of fullTopics){
     const card=document.createElement("article");card.className="topic-card";
     const count=topic.questions.length;
     const completed=topic.questions.filter(q=>Boolean(state.items?.[q.id]?.confirmed)).length;
@@ -65,14 +67,14 @@ function renderCatalog() {
 }
 
 function buildTopicSelector() {
-  for(const topic of TOPICS) {
+  for(const topic of fullTopics) {
     const option=document.createElement("option");option.value=topic.slug;option.textContent=topic.title;
     el("topic").appendChild(option);
   }
 }
 
 function startSession() {
-  session=selectRound(state,questions,{topic:el("topic").value,mode:el("mode").value,limit:10});
+  session=selectRound(state,questions,{topic:el("topic").value,mode:el("mode").value,limit:10}).map(q=>q.type==="variant"?materializeVariant(q,{previousPrompt:state.items?.[q.id]?.lastPrompt||""}):q);
   index=0;score=0;done=false;
   el("results").hidden=true;
   el("quiz").hidden=true;
@@ -87,13 +89,13 @@ function startSession() {
 
 function renderQuestion() {
   const q=session[index]; if(!q) return finish();
-  done=false;
+  done=false;hintUsed=false;
   el("quizCount").textContent="Question "+(index+1)+" / "+session.length;
   el("quizTopic").textContent=q.topicTitle;
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
-  el("questionHelp").textContent="Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
+  el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
   el("feedback").hidden=true;el("hint").hidden=true;
   el("hint").textContent="";
   el("answerForm").hidden=false;el("submit").disabled=false;
@@ -115,7 +117,7 @@ function renderQuestion() {
 function showFeedback(correct,wasUnknown=false) {
   const q=session[index];
   el("feedback").hidden=false;el("feedback").dataset.result=correct?"correct":"wrong";
-  el("feedbackTitle").textContent=correct?"Bonne réponse":"À retravailler";
+  el("feedbackTitle").textContent=correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
   const expected=q.type==="number"?fmt(q.answer):q.answer;
   el("feedbackText").textContent=(correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\n\n")+q.explanation;
   el("lessonLink").href=LESSONS+encodeURIComponent(q.lesson);
@@ -131,7 +133,7 @@ function submit(raw,unknown=false) {
   if(!grade.valid){notification(grade.message);return;}
   done=true;notification("");
   if(grade.correct)score++;
-  state=recordAnswer(state,q.id,grade.correct);
+  state=recordAnswer(state,q.id,grade.correct,Date.now(),{signature:q.isVariant?q.prompt:null,hinted:hintUsed});
   persist();refreshOverview();
   showFeedback(grade.correct,unknown);
 }
@@ -139,7 +141,7 @@ function submit(raw,unknown=false) {
 function finish(){
   el("quiz").hidden=true;
   el("results").hidden=false;
-  el("resultsText").textContent="Tu as réussi "+score+" réponse"+(score>1?"s":"")+" sur "+session.length+". Les réponses incorrectes sont enregistrées pour la révision. Pour confirmer un acquis, réponds juste à nouveau un autre jour.";
+  el("resultsText").textContent="Tu as réussi "+score+" réponse"+(score>1?"s":"")+" sur "+session.length+". Les rappels à valeurs variables et sans indice consolident les acquis. Une aide n’augmente pas la maîtrise.";
   el("restart").focus();
   refreshOverview();
 }
@@ -179,7 +181,7 @@ el("answerForm").addEventListener("submit",evt=>{
 });
 el("unknownButton").addEventListener("click",()=>submit(null,true));
 el("hintButton").addEventListener("click",()=>{
-  if(done)return;el("hint").hidden=false;el("hint").textContent=session[index].hint;
+  if(done)return;hintUsed=true;el("hint").hidden=false;el("hint").textContent=session[index].hint;
 });
 el("next").addEventListener("click",()=>{index++;renderQuestion();});
 el("export").addEventListener("click",exportProgress);
