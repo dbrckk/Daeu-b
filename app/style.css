@@ -47,3 +47,5 @@
 .exam-warning{color:var(--orange);border-left:3px solid var(--orange);padding:9px 11px;background:#4a39231a}
 .exam-weakness-list{padding-left:25px}.exam-weakness-list li{padding:6px 0}
 .exam-weakness-list a{display:block;font-size:.85rem;margin-top:2px}
+
+.problems-callout{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:34px 0 40px;border:1px solid var(--stroke);border-radius:18px;padding:22px;background:var(--panel2)}.problems-callout h2{margin:5px 0 8px;font-size:1.4rem}.problems-callout p:not(.eyebrow){margin:0;color:var(--muted);max-width:650px}.problems-link{display:inline-flex;align-items:center;text-decoration:none;white-space:nowrap}@media(max-width:670px){.problems-callout{flex-direction:column;align-items:stretch}.problems-link{justify-content:center}}

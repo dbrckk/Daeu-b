@@ -1,6 +1,6 @@
 # Problèmes progressifs — maîtrise du DAEU B (mathématiques)
 
-**8 problèmes originaux, 3 niveaux et 35 questions.** Ils complètent les réponses courtes de l'application et les deux examens blancs interactifs. Chaque problème exige **un raisonnement écrit** avec hypothèses, méthode, calculs et conclusion. Pas de prérequis payant, pas de compte.
+**8 problèmes originaux, 3 niveaux et 37 questions.** Ils complètent les réponses courtes de l'application et les deux examens blancs interactifs. Chaque problème exige **un raisonnement écrit** avec hypothèses, méthode, calculs et conclusion. Pas de prérequis payant, pas de compte.
 
 ## Ordre de travail
 | Niveau | Problème | Jalon associé | Cours |

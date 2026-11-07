@@ -36,8 +36,11 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 ## Phase C — Préparation d'examen (priorité P1 / P2)
 - [x] Ajouter **2 examens blancs interactifs de 3 h**, chacun structuré en 4 exercices et noté /20 automatiquement pour les réponses objectives ; rédaction conservée mais non notée.
 - [x] Ajouter un bilan par exercice (points perdus, correction, compétence et chapitres de remédiation).
-- [ ] Analyser la maîtrise à partir de plusieurs copies successives, avec nouveaux sujets non mémorisés.
+- [x] Analyser les pertes de points par compétence sur les 12 dernières copies et proposer des cours ciblés, avec avertissement lorsque le même sujet est répété.
+- [ ] Mesurer la progression sur plusieurs **sujets inédits**, sans apprentissage par cœur.
 - [ ] Confronter les exercices originaux à des annales **autorisées**, sans reproduction non autorisée.
+- [x] Ajouter une **auto-correction guidée des 8 problèmes d’examen** : 32 critères argumentés, comparés aux réponses rédigées après la remise, sans modifier la note /20.
+- [x] Ajouter **8 problèmes inédits progressifs** (37 questions) avec solutions démontrées en fichiers séparés.
 - [ ] Réaliser un audit de correction méthodique par chapitre et des sujets blancs.
 - [ ] Proposer un mode sans connexion vérifié sur Android réel (le service worker est déjà prévu, mais doit être validé en conditions réelles).
 - [ ] Ajouter des visualisations interactives des fonctions et des statistiques, sans dépendances distantes.
@@ -84,3 +87,12 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 - Tests automatisés des barèmes, du chronomètre, de l'import et de la correction ; vérification CI : https://github.com/dbrckk/Daeu-b/actions/runs/42389729798
 - Déploiement confirmé « success » ; alias pérenne ShipStatic indisponible (limite du plan), utiliser ce README comme point d'entrée stable.
 - À poursuivre : exercices de rédaction évaluables avec grille, audit mathématique indépendant, essais réels sur Android.
+
+
+## Livraison v4 — correction raisonnée et diagnostic (07/11/2026)
+- 8 grilles de raisonnement, avec 32 critères et exemples de rédaction, consultables **seulement après la remise**.
+- Auto-évaluation conservée dans la copie, sans noter automatiquement le texte libre.
+- Diagnostic des lacunes fondé sur les points perdus par compétence sur les 12 derniers examens ; priorisation de 5 cours et avertissement contre les répétitions d’un même sujet.
+- Huit problèmes progressifs (37 sous-questions) et solutions séparées, accessibles par [problèmes](problemes/README.md).
+- Tests des sauvegardes historiques et des notes inchangées, et couverture des compétences.
+- Prochain jalon : sujets nouveaux paramétriques de niveau examen et vérification visuelle de l’application sur Android.
