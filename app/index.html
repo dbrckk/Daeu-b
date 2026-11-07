@@ -58,6 +58,36 @@
         </section>
         <section id="results" class="results" aria-live="polite" hidden><h3>Séance terminée</h3><p id="resultsText"></p><button type="button" id="restart" class="primary">Nouvelle séance</button></section>
       </section>
+
+      <section class="exam-area" aria-labelledby="exam-title">
+        <div class="section-header"><div><p class="eyebrow">PRÉPARATION À L'ÉPREUVE</p><h2 id="exam-title">Examens blancs interactifs</h2></div><span class="exam-pill">4 exercices · 3 h · /20</span></div>
+        <p class="helper">Deux sujets originaux avec notation automatique des réponses courtes. Rédige aussi ton raisonnement : la preuve écrite ne peut pas être évaluée automatiquement et la note affichée n'est pas une note officielle.</p>
+        <div id="examNotice" class="notice" role="status" aria-live="polite" hidden></div>
+        <div id="examIntro" class="exam-intro">
+          <div class="controls exam-intro-controls">
+            <div class="field"><label for="examSelect">Choisir un examen blanc</label><select id="examSelect"></select></div>
+            <button type="button" id="examStart" class="primary">Commencer l'examen (3 h)</button>
+          </div>
+          <p class="helper">Chronomètre réel avec sauvegarde sur cet appareil. Tu peux reprendre après avoir fermé l'onglet, tant que le délai n'est pas dépassé. Les solutions restent cachées jusqu'à la remise de la copie ou la fin du temps.</p>
+        </div>
+        <div id="examActive" class="exam-active" hidden>
+          <div class="exam-status"><div><span class="eyebrow">COPIE EN COURS</span><h3 id="examActiveTitle">Examen</h3></div><div class="exam-time-wrap"><span>Temps restant</span><strong id="examTimer" role="timer" aria-label="Temps restant">03:00:00</strong></div></div>
+          <div id="examNav" class="exam-nav" role="group" aria-label="Navigation entre les quatre exercices"></div>
+          <p id="examPosition" class="eyebrow"></p>
+          <h3 id="examSectionTitle"></h3>
+          <p id="examContext" class="exam-context"></p>
+          <div id="examQuestions"></div>
+          <div class="exam-notes"><label for="examNotes">Mon raisonnement et mes justifications (non corrigés automatiquement)</label><textarea id="examNotes" rows="5" maxlength="3500" spellcheck="true"></textarea></div>
+          <div class="exam-actions"><button id="examPrev" type="button" class="subtle">Exercice précédent</button><button id="examNext" type="button" class="subtle">Exercice suivant</button><button id="examSubmit" type="button" class="primary">Rendre ma copie</button></div>
+        </div>
+        <div id="examResult" class="exam-result" hidden>
+          <p class="eyebrow">BILAN AUTOMATIQUE</p><h3 id="examScore">— / 20</h3>
+          <p id="examSummary"></p>
+          <div id="examReview"></div>
+          <button id="examNew" class="primary" type="button">Retour aux examens</button>
+        </div>
+        <div class="exam-history"><h3>Historique des copies</h3><div id="examHistory"></div></div>
+      </section>
       <section class="catalog" aria-labelledby="catalog-title">
         <div class="section-header"><div><p class="eyebrow">COURS ET COMPÉTENCES</p><h2 id="catalog-title">Les domaines à maîtriser</h2></div></div>
         <div id="topicCards" class="topic-grid"></div>

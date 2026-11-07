@@ -1,4 +1,6 @@
 import {TOPICS} from "./questions.mjs";
+import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
+import {sanitizeExamStore} from "./exam-engine.mjs";
 import {VARIANTS,injectVariants,materializeVariant,validateVariants} from "./variants.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 
@@ -147,7 +149,8 @@ function finish(){
 }
 
 function exportProgress(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const backup={backupVersion:1,practice:state,exams:getExamBackup()};
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
   link.href=url;link.download="daeu-b-progression-"+new Date().toISOString().slice(0,10)+".json";
@@ -161,16 +164,20 @@ async function importProgress(file) {
   if(file.size>500_000){notification("Sauvegarde refusée : fichier trop volumineux.");return;}
   try {
     const raw=JSON.parse(await file.text());
-    const imported=sanitizeState(raw,knownIds);
+    const bundled=raw?.backupVersion===1;
+    const imported=sanitizeState(bundled?raw.practice:raw,knownIds);
+    const importedExams=bundled?sanitizeExamStore(raw.exams):null;
     const importedCount=Object.keys(imported.items).length;
     if(!confirm("Importer "+importedCount+" résultat(s) ? Cela remplace la progression de cet appareil.")) return;
     state=imported; persist(); refreshOverview();
+    if(importedExams)restoreExamBackup(importedExams);
     notification("Sauvegarde importée : "+importedCount+" résultat(s) reconnus.");
   }catch(err){notification("Import impossible : fichier JSON non compatible avec cette version du suivi.");}
 }
 
 buildTopicSelector();
 refreshOverview();
+initExams();
 el("start").addEventListener("click",startSession);
 el("restart").addEventListener("click",startSession);
 el("answerForm").addEventListener("submit",evt=>{
@@ -190,7 +197,7 @@ el("importFile").addEventListener("change",async event=>{
 });
 el("reset").addEventListener("click",()=>{
   if(!confirm("Effacer tous les résultats enregistrés sur cet appareil ? Pense à exporter d'abord."))return;
-  state=emptyState();persist();refreshOverview();session=[];el("quiz").hidden=true;el("results").hidden=true;
+  state=emptyState();clearExamProgress();persist();refreshOverview();session=[];el("quiz").hidden=true;el("results").hidden=true;
   notification("Progression remise à zéro.");
 });
 if("serviceWorker" in navigator&&location.protocol==="https:"){

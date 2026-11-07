@@ -1,6 +1,6 @@
 /* Cache local de l'interface ; les cours GitHub ne sont pas mis en cache. */
-const CACHE = "daeu-b-maths-v3";
-const ASSETS = ["./", "./index.html", "./style.css", "./app.mjs", "./engine.mjs", "./questions.mjs", "./variants.mjs", "./manifest.webmanifest"];
+const CACHE = "daeu-b-maths-v4";
+const ASSETS = ["./", "./index.html", "./style.css", "./app.mjs", "./engine.mjs", "./questions.mjs", "./variants.mjs", "./exams.mjs", "./exam-engine.mjs", "./exam-ui.mjs", "./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
