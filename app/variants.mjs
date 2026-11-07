@@ -74,7 +74,7 @@ export const VARIANTS=[
   }),
   v("v15","fonctions",[10],r=>{
     const a=pick(r,1,8),x=pick(r,-6,6),image=x*x+a;
-    return num("f(x)=x²+"+a+". Calculer f("+x+").",image,"Calcule le carré avant d'ajouter la constante.","("+x+")² + "+a+" = "+image+".",{a,x,kind:"quadratic_image"});
+    return num("f(x)=x²+"+a+". Calculer f("+x+").",image,"Calcule le carré avant d'ajouter la constante.","Pour obtenir l’image, on remplace x par "+x+" : ("+x+")² + "+a+" = "+image+".",{a,x,kind:"quadratic_image"});
   }),
   v("v16","limites",[11],r=>{
     const a=pick(r,1,12),b=pick(r,1,12);
@@ -94,7 +94,7 @@ export const VARIANTS=[
   }),
   v("v20","continuite",[14],r=>{
     const a=pick(r,1,10),b=pick(r,1,10),power=pick(r,1,5);
-    return num("f(x)=x³−"+(power**3)+". Calculer f("+power+") pour vérifier la racine candidate.",0,"Substitue la valeur de l'argument.","f("+power+")="+(power**3)+"−"+(power**3)+"=0. La continuité et la stricte croissance de x³ assurent l'unicité de cette racine.",{a,b,power,kind:"tvi_root"});
+    return num("Sur ["+(power-1)+";"+(power+1)+"], f(x)=x³−"+(power**3)+" est continue et strictement croissante. Quelle est son unique racine ?",power,"Recherche la valeur dont le cube vaut "+(power**3)+".","f("+power+")="+(power**3)+"−"+(power**3)+"=0 ; la continuité garantit l’existence d’une solution, et la stricte croissance de x³ assure son unicité.",{a,b,power,kind:"tvi_root"});
   }),
   v("v21","continuite",[14],r=>{
     const n=pick(r,2,8),start=pick(r,1,10);
@@ -106,7 +106,7 @@ export const VARIANTS=[
   }),
   v("v23","suites",[15],r=>{
     const start=pick(r,1,9),rate=pick(r,2,4),index=pick(r,2,5);
-    return num("Suite géométrique v₀="+start+" et raison "+rate+". Calculer v"+index+".",start*rate**index,"vₙ = v₀×qⁿ.","v"+index+"="+start+"×"+rate+"^"+index+" = "+(start*rate**index)+".",{start,rate,index,kind:"geometric"});
+    return num("Suite géométrique v₀="+start+" et raison "+rate+". Calculer v"+index+".",start*rate**index,"vₙ = v₀×qⁿ.","Pour une suite géométrique, vₙ=v₀×qⁿ. Ainsi v"+index+"="+start+"×"+rate+"^"+index+" = "+(start*rate**index)+".",{start,rate,index,kind:"geometric"});
   }),
   v("v24","explog",[16],r=>{
     const shift=pick(r,-6,6),target=pick(r,2,15);
@@ -155,8 +155,9 @@ export function injectVariants(topics) {
 export function materializeVariant(template,{random=Math.random,previousPrompt=""}={}) {
   if(template.type!=="variant"||typeof template.make!=="function") throw new Error("Générateur absent");
   let exercise, seed;
+  const initialSeed=Math.floor(random()*4294967296)>>>0;
   for(let attempt=0;attempt<30;attempt++){
-    seed=Math.floor(random()*4294967296)>>>0;
+    seed=(initialSeed+Math.imul(attempt,0x9e3779b9))>>>0;
     exercise=template.make(rng(seed));
     if(exercise.prompt!==previousPrompt) break;
   }
