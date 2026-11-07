@@ -152,8 +152,9 @@ function submit(raw,unknown=false) {
   const grade=unknown?{valid:true,correct:false}:gradeAnswer(q,raw);
   if(!grade.valid){notification(grade.message);return;}
   const next=recordAnswer(state,q.id,grade.correct,Date.now(),{signature:q.isVariant?q.prompt:null,hinted:hintUsed});
+  const previous=state;
   state=next;
-  if(!persist())return;
+  if(!persist()){state=previous;return;}
   done=true;notification("");
   if(grade.correct)score++;
   refreshOverview();
