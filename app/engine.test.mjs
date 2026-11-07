@@ -111,7 +111,7 @@ test("validation complète de plusieurs valeurs et équations",()=>{
       let seed=k;
       const random=()=>((seed= (Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
       const q=materializeVariant(template,{random});
-      assert.equal(typeof q.prompt,"string");assert.ok(q.explanation.length>15);
+      assert.equal(typeof q.prompt,"string");assert.ok(q.explanation.length>15,template.id+" seed "+k+" : "+q.explanation);
       assert.ok(Number.isFinite(q.answer),template.id);
       assert.equal(gradeAnswer(q,String(q.answer)).correct,true,template.id);
       assert.equal(gradeAnswer(q,"not a number").valid,false,template.id);

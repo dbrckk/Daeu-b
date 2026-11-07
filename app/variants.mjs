@@ -102,7 +102,7 @@ export const VARIANTS=[
   }),
   v("v22","suites",[15],r=>{
     const start=pick(r,-8,12),rate=pick(r,-5,8),index=pick(r,4,12);
-    return num("Suite arithmétique u₀="+start+" et raison "+rate+". Calculer u"+index+".",start+index*rate,"uₙ = u₀ + n×r.","u"+index+"="+start+"+"+index+"×("+rate+")="+(start+index*rate)+".",{start,rate,index,kind:"arithmetic"});
+    return num("Suite arithmétique u₀="+start+" et raison "+rate+". Calculer u"+index+".",start+index*rate,"uₙ = u₀ + n×r.","On utilise uₙ=u₀+n×r. Donc u"+index+"="+start+"+"+index+"×("+rate+")="+(start+index*rate)+".",{start,rate,index,kind:"arithmetic"});
   }),
   v("v23","suites",[15],r=>{
     const start=pick(r,1,9),rate=pick(r,2,4),index=pick(r,2,5);
