@@ -2,7 +2,7 @@
 
 ## État actuel — livraison v6 stabilisée (7 novembre 2026)
 
-**Application publique : https://dim-monolith-4m8zee2.shipstatic.com**
+**Application publique actuelle : https://encoded-nova-5agr5eq.shipstatic.com**
 
 - [x] Contrôle de bout en bout réel dans Chromium avec dimensions mobiles : entraînement, examen C, copie, rédaction, bilan et restauration JSON.
 - [x] Vérifier un rechargement complet sans réseau après installation du Service Worker.
@@ -159,3 +159,21 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 - [ ] Étendre le générateur au-delà de quatre familles de problèmes et demander une validation mathématique indépendante.
 
 La v7 est exploitable et contrôlée automatiquement ; elle ne peut pas encore être qualifiée de totalement finalisée sans vérification physique Android et adresse stable.
+
+
+## Livraison v8 — transaction locale, concurrence et migration (07/11/2026)
+
+- [x] **Remplacer deux clés persistantes distinctes par un état unique versionné** pour les révisions et les examens. Une écriture atomique par changement : import et reset ne peuvent plus être validés en deux temps.
+- [x] **Migrer automatiquement les anciennes clés** lors du premier enregistrement réussi ; données antérieures préservées si l'opération est refusée (quota ou permission).
+- [x] Détecter les modifications externes et avertir un onglet obsolète, sans remplacer silencieusement une copie récente.
+- [x] Gérer les conflits au moment d'écrire les réponses et les auto-évaluations, avec message visible.
+- [x] Vérifier la transaction avec simulations de quota saturé, sauvegardes anciennes/corrompues et deux accès concurrents.
+- [x] Vérifier en Chromium mobile le flux complet export/import/révision/examen C, le hors ligne **et deux onglets concurrents**.
+- [x] Publication : https://encoded-nova-5agr5eq.shipstatic.com, hébergeur success, 18 fichiers, 145 909 octets, expiration non annoncée.
+- [x] CI contenu : https://github.com/dbrckk/Daeu-b/actions/runs/42403528001 et navigateur : https://github.com/dbrckk/Daeu-b/actions/runs/42403528047
+- [ ] Obtenir une URL définitive par activation initiale de GitHub Pages (workflow déjà prêt) ou un autre espace Render explicitement choisi.
+- [ ] Essai sur smartphone Android physique, en particulier avec reprise après fermeture forcée, navigateur privé et stockage presque plein.
+- [ ] Renforcer le verrouillage inter-onglets pour les écritures exactement simultanées (localStorage n'offre pas de transaction compare-and-swap).
+- [ ] Audit académique indépendant des corrections, puis diversification des familles de problèmes d'examen.
+
+**Statut** : application publique stable vérifiée automatiquement, mais pas encore certifiée compatible avec tous les appareils physiques ni dotée d'une URL permanente.

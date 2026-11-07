@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://noisy-prism-63q74n2.shipstatic.com
+**Site public :** https://encoded-nova-5agr5eq.shipstatic.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -72,7 +72,7 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La version actuelle est : https://noisy-prism-63q74n2.shipstatic.com.
+La version actuelle est : https://encoded-nova-5agr5eq.shipstatic.com.
 
 Anciennes adresses possibles :
 - `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
@@ -170,3 +170,20 @@ Les examens fixes A/B, leurs copies, les grilles déjà cochées et les 127 él�
 Site public v7 : https://noisy-prism-63q74n2.shipstatic.com
 
 Limite : les tests Chromium émulent le format mobile ; ils ne remplacent pas un essai sur un téléphone Android physique.
+
+
+## Fiabilisation v8 — stockage unifié et onglets concurrents
+
+**Site public v8 :** https://encoded-nova-5agr5eq.shipstatic.com
+
+- Le suivi (127 questions/modèles) et toutes les copies des examens A/B/C sont écrits dans **une unique clé** locale, sous un document versionné. Une seule écriture remplace le tout : l'import et la remise à zéro sont **atomiques**, sans demi-import.
+- Lors de la première utilisation de v8, les anciennes clés de progression et d'examens sont lues automatiquement si aucune sauvegarde unifiée n'existe. Elles ne sont effacées **qu'après** une première écriture unifiée réussie. Les anciens exports JSON restent importables.
+- Un import illisible, incompatible ou impossible faute d'espace disponible ne remplace pas les données valides. Ne jamais effacer manuellement le stockage pour « réparer » une importation échouée sans avoir d'abord exporté la progression.
+- Si une autre page du **même domaine** modifie la sauvegarde, l'onglet obsolète affiche un avertissement et suspend les saisies jusqu'à rechargement. Les saisies obsolètes ne doivent pas écraser silencieusement les nouvelles données.
+- Cette protection ne remplace pas une synchronisation serveur : des écritures exactement simultanées ne peuvent pas être intégralement sérialisées par localStorage. Utiliser **un seul onglet** pendant un examen reste préférable.
+- L'export JSON demeure indispensable avant tout changement de domaine, perte d'appareil ou suppression des données du navigateur ; le nouveau format d'export reste **backupVersion:1** pour la compatibilité.
+- Le stockage local n'est ni chiffré ni synchronisé entre les appareils. Éviter l'utilisation sur un téléphone partagé.
+
+Tests : [contenu, sauvegardes et mathématiques](https://github.com/dbrckk/Daeu-b/actions/runs/42403528001) ; [parcours Chromium mobile, hors ligne et multi-onglets](https://github.com/dbrckk/Daeu-b/actions/runs/42403528047).
+
+**Pour une URL stable** : le workflow GitHub Pages est prêt, mais GitHub Pages requiert son activation initiale dans le dépôt, via **Settings → Pages → Source : GitHub Actions**, puis l'exécution de **Actions → Site stable GitHub Pages → Run workflow**. Ne pas annoncer l'URL Pages comme active avant le déploiement vert.

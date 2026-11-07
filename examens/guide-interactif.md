@@ -3,7 +3,7 @@
 ## Objectif
 S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les examens fixes A/B et les variantes de l'examen C sont **originaux** et distincts des sujets Markdown existants : ce ne sont pas des annales officielles.
 
-**Application actuelle :** https://noisy-prism-63q74n2.shipstatic.com
+**Application actuelle :** https://encoded-nova-5agr5eq.shipstatic.com
 
 ## Se préparer
 - Réviser les modules 01–12 et 15, notamment domaines, dérivées, limites, suites, probabilités et primitives.
@@ -55,3 +55,10 @@ La graine est sauvegardée dans la session. Elle permet de reconstruire **à l'i
 Une nouvelle tentative fournit en principe de nouvelles valeurs et donc des réponses différentes, mais les *quatre familles de problèmes* restent stables. Pour la véritable maîtrise, compléter avec les [huit problèmes progressifs](../problemes/README.md) et de nouveaux sujets d'origine universitaire autorisée.
 
 Le diagnostic considère deux versions C de graines différentes comme deux sujets distincts ; deux copies de même graine sont signalées comme une répétition. Ceci n'est qu'un indice de variété, pas une certification de niveau.
+
+
+## Sauvegarde sûre des examens — v8
+
+Les réponses, les justifications et les grilles cochées sont enregistrées en même temps que la progression générale, dans **une sauvegarde unifiée**. Un export JSON transporte toujours ces deux volets. En cas d'import impossible, aucune des deux parties ne doit être remplacée.
+
+Si la progression a changé dans un autre onglet du même navigateur, un avertissement suspend les modifications : cliquer **« Recharger la progression »** pour reprendre les dernières données. Pendant un examen chronométré, privilégier un **onglet unique**. Le chronomètre continue pendant une fermeture ou une recharge.
