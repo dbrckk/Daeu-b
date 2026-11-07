@@ -21,6 +21,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Vérifier structure et liens de cours
         run: python3 scripts/check_content.py
+      - name: Vérifier problèmes, navigation et cache
+        run: python3 scripts/verify_app_assets.py
       - name: Vérifier syntaxe JS (sans dépendances npm)
         run: |
           node --check app/app.mjs
