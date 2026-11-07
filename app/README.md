@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://visceral-link-ng9xj73.shipstatic.com
+**Site public :** https://streamy-field-k44v8kv.shipstatic.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -26,9 +26,9 @@ Cette application complète les cours Markdown du dépôt. Elle contient **95 ex
 
 ## Examens blancs interactifs (v3)
 
-Depuis la version actuelle, la page comprend **deux sujets originaux** sous « Examens blancs interactifs ». Chacun comporte **4 exercices représentant 5 points chacun**, soit une note automatisée sur 20.
+Depuis cette version, la page comprend **deux sujets fixes originaux A et B et un sujet C généré** sous « Examens blancs interactifs ». Chacun comporte **4 exercices représentant 5 points chacun**, soit une note automatisée sur 20.
 
-- Sélectionner le sujet A ou B, puis « Commencer l'examen (3 h) ».
+- Sélectionner le sujet A, B ou C (avec nouvelles valeurs à chaque tentative), puis « Commencer l'examen (3 h) ».
 - Le chronomètre démarre immédiatement, **continue même si la page est fermée** et s'arrête définitivement après trois heures. L'application rend alors la copie et calcule le bilan dès que l'onglet est rouvert.
 - Chaque exercice contient des questions numériques ou des QCM **et un champ libre pour rédiger les justifications**. Les réponses, la rédaction et l'exercice courant sont sauvegardés dans le navigateur à chaque modification.
 - Les solutions et le barème obtenu ne sont affichés **qu'après** le clic « Rendre ma copie » ou la fin du temps. La correction se consulte par exercice et indique les chapitres à revoir.
@@ -72,12 +72,13 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La version actuelle est : https://visceral-link-ng9xj73.shipstatic.com.
+La version actuelle est : https://streamy-field-k44v8kv.shipstatic.com.
 
 Anciennes adresses possibles :
 - `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
 - `https://drifting-neon-d3tt6t6.shipstatic.com` (deuxième version).
 - `https://ghostly-void-w99dhwc.shipstatic.com` (version avec examens sans auto-correction guidée).
+- `https://visceral-link-ng9xj73.shipstatic.com` (version v4 avec correction guidée).
 
 L'hébergeur a signalé **une limite de domaines permanents atteinte**, et un alias stable n'a pas pu être réservé. Le lien du README de ce dépôt reste le point d'entrée pour trouver la dernière adresse.
 
@@ -110,10 +111,29 @@ Si la précédente adresse est inaccessible ou si son stockage a été effacé, 
 
 À la **fin d'un examen** (jamais pendant), ouvre chaque exercice du corrigé, puis « Correction guidée du raisonnement ». Quatre étapes structurées sont proposées : hypothèses/domaine, méthode, calculs et conclusion selon le problème. Compare-les à la rédaction sauvegardée de ta propre copie. Coche seulement les étapes **réellement démontrées**.
 
-Il y a **8 grilles / 32 étapes** pour les deux examens actuels. Les cases cochées sont sauvegardées dans chaque copie et dans l'export JSON. Elles **ne modifient pas la note sur 20** : c'est une déclaration personnelle, pas une correction automatique de la rédaction ou un contrôle anti-triche.
+Les examens A et B comprennent **8 grilles / 32 étapes**. Le nouvel examen C possède **4 grilles générées / 16 étapes** supplémentaires par sujet : le total est **12 grilles / 48 étapes** réparties entre les trois formats. Les cases cochées sont sauvegardées dans chaque copie et dans l'export JSON. Elles **ne modifient pas la note sur 20** : c'est une déclaration personnelle, pas une correction automatique de la rédaction ou un contrôle anti-triche.
 
 « Mon diagnostic après les examens » présente les points perdus par compétence sur les **12 dernières copies** et les liens vers les cours associés. Les mêmes sujets peuvent être refaits, mais cela ne prouve pas la maîtrise sur un sujet inédit.
 
 Pour s'entraîner à des démonstrations qui ne reposent pas sur les QCM, utiliser également les [8 problèmes progressifs et leurs 37 questions](../problemes/README.md).
 
 **Migration :** si tu utilisais l'une des anciennes adresses ci-dessus, exporte la progression à cette ancienne adresse puis importe le fichier dans le nouveau site. Les résultats sont séparés par nom de domaine.
+
+
+## Examen C paramétrique — v5
+
+Le troisième sujet d'examen est un **générateur local** de quatre problèmes originaux (16 sous-questions, 20 points, trois heures) portant sur :
+1. Optimisation, dérivée et inéquation du second degré
+2. Suite géométrique, seuil et logarithme
+3. Tirages avec remise, loi binomiale et espérance
+4. Primitive, intégrale définie et valeur moyenne
+
+**Une graine de génération est conservée dans la copie.** Ainsi le sujet ne change pas pendant l'épreuve, après un rechargement ou après export/import JSON. Un nouveau départ génère une nouvelle graine. Les identifiants des sous-questions restent stables à l'intérieur d'un examen, mais les valeurs, les réponses et les explications sont recalculées à partir de sa graine.
+
+Les examens fixes A/B, leurs copies, les grilles déjà cochées et les 127 éléments de pratique existants sont conservés : aucun nouveau compte n'est nécessaire.
+
+**Contrôles de fiabilité :** 1 000 jeux de quatre problèmes vérifiés (barème, 16 sous-questions, rubriques) ; 250 sujets avec calculs contrôlés par des formules indépendantes ; reprise, import et correction des copies vérifiés. Les tests ne remplacent pas la validation d'interface Android ni une relecture professorale.
+
+**Pour la progression :** privilégier le sujet C pour mesurer la capacité à résoudre un problème **sans mémoriser** un ancien corrigé. Les mêmes *types* de problème restent présents : la variabilité des données ne remplace pas une diversité plus large d'annales et de raisonnements.
+
+**Attention aux anciennes adresses :** le stockage local est lié au nom de domaine. Exporter sa progression JSON depuis l'ancienne version avant de l'importer ici. Les liens externes vers GitHub nécessitent une connexion.

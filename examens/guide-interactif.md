@@ -1,9 +1,9 @@
 # Guide — examens blancs interactifs du DAEU B
 
 ## Objectif
-S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les deux sujets intégrés à l'application sont **entièrement originaux**, et distincts des sujets Markdown existants ; ce ne sont pas des annales officielles.
+S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les examens fixes A/B et les variantes de l'examen C sont **originaux** et distincts des sujets Markdown existants : ce ne sont pas des annales officielles.
 
-**Application actuelle :** https://visceral-link-ng9xj73.shipstatic.com
+**Application actuelle :** https://streamy-field-k44v8kv.shipstatic.com
 
 ## Se préparer
 - Réviser les modules 01–12 et 15, notamment domaines, dérivées, limites, suites, probabilités et primitives.
@@ -12,7 +12,7 @@ S'entraîner sur **quatre problèmes indépendants en trois heures**, conformém
 
 ## Déroulement
 1. Ouvrir l'application puis « Examens blancs interactifs ».
-2. Choisir A ou B et démarrer : le temps commence immédiatement, même si la page est ensuite fermée.
+2. Choisir A ou B (sujets fixes) ou **C (nouvelles valeurs générées)** et démarrer : le temps commence immédiatement, même si la page est ensuite fermée.
 3. Pour chaque exercice, répondre aux questions numériques et QCM, **et écrire sa démonstration** dans « Mon raisonnement » : domaines, théorèmes, transformations, conclusion.
 4. Changer d'exercice librement ; les champs sont automatiquement enregistrés dans le navigateur.
 5. Rendre la copie ou attendre la fin du temps. Les réponses sont alors corrigées, avec une note objective /20 et les méthodes rédigées.
@@ -44,3 +44,14 @@ La grille est conservée avec la copie et apparaît dans les sauvegardes export�
 Le tableau « Mon diagnostic après les examens » hiérarchise les compétences ayant coûté le plus de points sur les copies enregistrées, avec des liens vers les cours. Une répétition du même sujet est explicitement signalée : une meilleure note après avoir déjà vu le corrigé n'est pas une preuve de maîtrise.
 
 Complète cet entraînement par les [8 problèmes progressifs et 37 sous-questions](../problemes/README.md), dont les corrigés sont dans un fichier séparé.
+
+
+## Nouveauté : examen C à valeurs variables
+
+Le sujet C produit **quatre problèmes et 16 sous-questions** à partir d'une graine unique. Il garde exactement les mêmes caractéristiques que les blancs A/B : **3 heures, 4 exercices de 5 points, /20 indicatif**.
+
+La graine est sauvegardée dans la session. Elle permet de reconstruire **à l'identique** les nombres, l'énoncé et le corrigé après fermeture et import de la copie. La réponse de l'examen en cours reste masquée jusqu'à la remise de celle-ci.
+
+Une nouvelle tentative fournit en principe de nouvelles valeurs et donc des réponses différentes, mais les *quatre familles de problèmes* restent stables. Pour la véritable maîtrise, compléter avec les [huit problèmes progressifs](../problemes/README.md) et de nouveaux sujets d'origine universitaire autorisée.
+
+Le diagnostic considère deux versions C de graines différentes comme deux sujets distincts ; deux copies de même graine sont signalées comme une répétition. Ceci n'est qu'un indice de variété, pas une certification de niveau.

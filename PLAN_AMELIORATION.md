@@ -16,7 +16,7 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 - [x] Créer une application web mobile **sans inscription ni API**, appuyée sur un corpus de questions corrigées, avec réponses numériques et choix multiples, erreurs expliquées.
 - [x] Ajouter un test de cohérence du corpus (IDs, jalons, réponses, liens de cours).
 - [x] Ajouter des vérifications d'exécution du moteur pédagogique (notation, planification, données de progression).
-- [x] Publier une interface statique gratuite : https://visceral-link-ng9xj73.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
+- [x] Publier une interface statique gratuite : https://streamy-field-k44v8kv.shipstatic.com — déploiement confirmé, sans date d'expiration définie. Lien public à mettre à jour dans ce README à chaque publication tant qu'aucun domaine permanent n'est disponible.
 
 **Critère de sortie A :** application qui fonctionne sans clés, qui note les réponses et dont les tests automatisés réussissent. Le nombre d'exercices doit être vérifié par le script, jamais affirmé à la main.
 
@@ -99,3 +99,22 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 - Déploiement actuel : https://visceral-link-ng9xj73.shipstatic.com (confirmation « success » ; 15 fichiers servis, aucune expiration annoncée).
 - Contrôles : https://github.com/dbrckk/Daeu-b/actions/runs/42393012325
 - Prochain jalon : sujets nouveaux paramétriques de niveau examen et vérification visuelle de l’application sur Android.
+
+
+## Livraison v5 — examen C généré (07/11/2026)
+
+**Publication actuelle :** https://streamy-field-k44v8kv.shipstatic.com
+
+- [x] **Générer un nouveau sujet complet à chaque session C** : quatre problèmes cohérents de cinq points, 16 sous-questions, sujets originaux à valeurs paramétriques.
+- [x] **Corrigés et grilles numériques variables** : coefficients, seuils, probabilités, primitives, moyennes et explications issus de la même graine déterministe.
+- [x] **Reprise sûre** : graine stockée dans la copie, import/export JSON compatible avec les copies A/B, résultats recalculés à l'import depuis le contenu autorisé.
+- [x] **Historique de sujets distincts** : le diagnostic n'assimile plus deux copies C de graines différentes à un même énoncé.
+- [x] **Vérification mathématique indépendante** : 1 000 sujets contrôlés structurellement et 250 soumis à des formules de référence (dont optimisation, seuil logarithmique, probabilité binomiale, moyenne intégrale).
+- [x] **CI GitHub verte** après corrections pédagogiques et techniques.
+- [ ] **Élargir les familles de problèmes** au-delà des quatre modèles C : fonctions rationnelles, statistiques, continuité/TVI, conditionnelles, logarithmes avancés.
+- [ ] **Construire une notation de rédaction avec supervision** (grilles de preuves, cohérence des hypothèses et alternatives valides), sans présenter une auto-déclaration comme une évaluation externe.
+- [ ] **Effectuer un test réel de navigation sur Android** : cache PWA, clavier, formulaires, reprises et exports.
+- [ ] Rechercher une **adresse stable gratuite** sans toucher aux autres applications existantes.
+- [ ] Vérifier l'alignement des sujets par un audit mathématique externe et des annales publiées avec autorisation.
+
+**Limite** : l'examen C crée des *variantes numériques* sur quatre familles ; il ne fournit pas encore des sujets structurellement nouveaux à l'infini. L'épreuve et l'évaluation officielle relèvent exclusivement de l'université.
