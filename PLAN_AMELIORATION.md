@@ -16,7 +16,7 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 - [x] Créer une application web mobile **sans inscription ni API**, appuyée sur un corpus de questions corrigées, avec réponses numériques et choix multiples, erreurs expliquées.
 - [x] Ajouter un test de cohérence du corpus (IDs, jalons, réponses, liens de cours).
 - [x] Ajouter des vérifications d'exécution du moteur pédagogique (notation, planification, données de progression).
-- [x] Publier une interface statique gratuite : https://clear-glyph-3u8hr78.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
+- [x] Publier une interface statique gratuite : https://drifting-neon-d3tt6t6.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
 
 **Critère de sortie A :** application qui fonctionne sans clés, qui note les réponses et dont les tests automatisés réussissent. Le nombre d'exercices doit être vérifié par le script, jamais affirmé à la main.
 
@@ -25,8 +25,10 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 - [x] Enregistrer localement les résultats, sans transmettre de données personnelles.
 - [x] Révision espacée J+1/J+3/J+7/J+14/J+30, remise à zéro de la série après erreur.
 - [x] Exporter/importer sa progression en JSON pour sauvegarde manuelle Android.
-- [ ] Générer plusieurs variantes paramétriques de chaque exercice pour éviter l'apprentissage par cœur de réponses fixes.
+- [x] Ajouter **32 générateurs paramétriques** avec des valeurs et corrigés renouvelés couvrant les 20 jalons obligatoires.
+- [ ] Transformer progressivement les autres exercices fixes en variantes quand c'est pédagogiquement adapté ; approfondir les exercices non réductibles à un seul nombre.
 - [ ] Couvrir chaque jalon à plusieurs degrés de difficulté (calcul, preuve, problème appliqué).
+- [x] Rendre les corrections des nouveaux modèles dépendantes des paramètres et vérifiables par calcul.
 - [ ] Ajouter des explications par étapes plus longues pour chaque sous-compétence fragile.
 
 **Critère de sortie B :** une compétence est acquise uniquement après deux réussites **à des dates différentes** ; la notation sur QCM n'est qu'un indice, jamais une preuve suffisante.
@@ -50,14 +52,24 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 Le suivi local disparaît si l'utilisateur efface les données du navigateur ou change de téléphone sans exporter sa progression. Les exercices dans l'app sont un **complément** : les démonstrations longues doivent être rédigées sur papier et corrigées avec le cours. Une CI verte prouve les contrôles automatisés, **pas** la maîtrise personnelle ni l'exactitude universelle de tous les contenus. L'université reste seule habilitée à délivrer le diplôme.
 
 ## Livraison contrôlée (07/11/2026)
-- Site : https://clear-glyph-3u8hr78.shipstatic.com
+- Site : https://drifting-neon-d3tt6t6.shipstatic.com
 - **95 questions**, **13 domaines**, **20 jalons principaux**.
 - GitHub Actions : contrôle des liens, syntaxe JS, cohérence du corpus, réponses sur échantillons, échéances, sauvegardes.
 - Exécution automatique validée : https://github.com/dbrckk/Daeu-b/actions/runs/42385148907
 - Déploiement confirmé « success » côté hébergeur. **Test manuel Android réel non effectué** ; fonctionnement hors ligne prévu par service worker, mais encore à vérifier.
 
 ## Prochain bloc prioritaire
-1. Ajouter des variantes inédites pour chacune des compétences obligatoires.
+1. Convertir une partie des **95 questions fixes** en variantes conçues pour la compréhension ; étendre les difficultés des 32 modèles.
 2. Créer des problèmes longs avec grille de correction et justification.
 3. Enrichir les cours par niveaux, prérequis, méthode et difficulté d'examen.
 4. Ajouter des épreuves interactives de 3 h / 4 exercices après audit mathématique.
+
+
+## Livraison v2 — 7 novembre 2026
+- Adresse de production actuelle : https://drifting-neon-d3tt6t6.shipstatic.com
+- 95 questions fixes + 32 modèles de variantes = **127 éléments suivis** dans l'application.
+- 20 jalons principaux couverts par les modèles variables ; les 3 facultatifs restent dans les cours.
+- Validation plus stricte : seules les réponses sans indice et à des dates différentes confirment la maîtrise. Une variante doit changer l'énoncé précédent.
+- Contrôle CI : 2 560 instances comparées à des calculs de référence, tests de générateur, des échéances et de la sauvegarde.
+- Ancien site : https://clear-glyph-3u8hr78.shipstatic.com (export JSON nécessaire pour reprendre le suivi sur la nouvelle adresse).
+- Déploiement nouveau déclaré `success` ; test d'interface complet en situation Android encore non réalisé.
