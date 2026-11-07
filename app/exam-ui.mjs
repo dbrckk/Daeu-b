@@ -201,6 +201,9 @@ function showResult(result){
   byId("examScore").textContent=result.score+" / "+result.maxScore;
   const summary=result.reason==="timeout"?"Temps écoulé : la copie a été rendue automatiquement.":"Copie rendue. La notation automatique est terminée.";
   byId("examSummary").textContent=summary+" Les justifications rédigées ne sont pas évaluées : "+result.score+"/20 est une note indicative.";
+  // L'historique est consultable même durant un autre examen :
+  // le bouton doit reprendre la copie actuelle, sans suggérer un nouveau départ.
+  byId("examNew").textContent=store.active?"Reprendre ma copie en cours":"Retour aux examens";
   const selfStatus=byId("examReasoningStatus");
   const exam=findExam(result.examId,result.seed??null);
   const checks=countChecks(result,exam);

@@ -116,7 +116,12 @@ try {
 
   // Simuler un quota plein : la saisie ne doit pas apparaître sauvegardée
   // alors que localStorage a refusé l'écriture.
-  const quotaPage=await context.newPage();
+  // Contexte isolé : la simulation ne doit pas créer une copie active
+  // dans le stockage du scénario principal, testé ensuite hors ligne.
+  const quotaContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  const quotaPage=await quotaContext.newPage();
   await quotaPage.goto(BASE,{waitUntil:"networkidle"});
   await quotaPage.locator("#examSelect").selectOption("blanc-c");
   await quotaPage.locator("#examStart").click();
@@ -133,7 +138,9 @@ try {
     "Réponse d'examen restaurée après échec de sauvegarde");
   await check(async()=>await quotaPage.locator("#examNotice").textContent().then(v=>v.includes("Impossible d'enregistrer")),
     "Échec du stockage signalé clairement");
-  await quotaPage.close();
+  await quotaContext.close();
+  await check(async()=>await page.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).exams.active===null),
+    "Simulation quota isolée : aucune copie active créée dans le scénario principal");
 
   await page.evaluate(async()=>{await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error("Service Worker non activé après 10s")),10000))]);});
   await page.reload({waitUntil:"networkidle"});
@@ -155,6 +162,15 @@ try {
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
   await check(async()=>await page.locator("#examContext").textContent().then(x=>x===offlineContext),
     "Graine et énoncé conservés après recharge hors ligne");
+  // Ouvrir une ancienne correction ne doit pas supprimer la copie courante.
+  await page.locator("#examHistory button").first().click();
+  await check(async()=>await page.locator("#examNew").textContent().then(x=>x.includes("Reprendre ma copie")),
+    "Historique : retour vers la copie active clairement indiqué");
+  await page.locator("#examNew").click();
+  await check(async()=>await page.locator("#examActive").isVisible(),
+    "Copie en cours préservée en consultant une ancienne correction");
+  await check(async()=>await page.locator("#examContext").textContent().then(x=>x===offlineContext),
+    "Énoncé courant préservé à travers l'historique");
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");
