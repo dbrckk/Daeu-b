@@ -95,6 +95,20 @@ try {
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="127"),"Application chargée hors ligne");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Copies accessibles hors ligne");
+  // La PWA doit aussi conserver les modules des examens et les nouvelles
+  // variantes hors ligne, sans tenter de charger les cours GitHub.
+  await page.locator("#examHistory button").first().click();
+  await check(async()=>await page.locator("#examReview details.exam-review-group").count()===4,
+    "Correction C accessible hors ligne");
+  await page.locator("#examNew").click();
+  await page.locator("#examSelect").selectOption("blanc-c");
+  await page.locator("#examStart").click();
+  await check(async()=>await page.locator("#examActive").isVisible(),
+    "Nouvel examen C démarré hors ligne");
+  const offlineContext=await page.locator("#examContext").textContent();
+  await page.reload({waitUntil:"domcontentloaded",timeout:12000});
+  await check(async()=>await page.locator("#examContext").textContent().then(x=>x===offlineContext),
+    "Graine et énoncé conservés après recharge hors ligne");
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");
