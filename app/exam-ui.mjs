@@ -3,6 +3,7 @@ import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
 import {findExam,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
+import {StaleDataError} from "./persistence.mjs";
 
 const EXAM_LESSONS={
   "a-analyse":[["Second degré","04-second-degre.md"],["Dérivation","06-derivation.md"]],
@@ -18,25 +19,24 @@ const EXAM_LESSONS={
   "c-probabilites":[["Probabilités","12-probabilites.md"]],
   "c-integrales":[["Calcul intégral","15-primitives-integrales.md"]]
 };
-const KEY="daeu-b-exams-v1";
 const byId=id=>document.getElementById(id);
 let store=emptyExamStore(),timer=null,lastResult=null;
-let initialized=false;
+let initialized=false,adapter=null,onStale=()=>{};
 function alertExam(message){
   const node=byId("examNotice");node.textContent=message;node.hidden=!message;
 }
 function persist(){
-  try{localStorage.setItem(KEY,JSON.stringify(store));}
-  catch(error){alertExam("Sauvegarde automatique indisponible : les réponses peuvent être perdues au rechargement. Vérifie les réglages du navigateur.");}
+  try{
+    store=adapter.updateExams(store).exams;
+    return true;
+  }catch(error){
+    if(error instanceof StaleDataError)onStale();
+    else alertExam("Impossible d'enregistrer la copie : quota saturé ou accès au stockage refusé. Aucune ancienne copie écrasée.");
+    return false;
+  }
 }
 function load(){
-  try{
-    const raw=localStorage.getItem(KEY);
-    if(raw)store=sanitizeExamStore(JSON.parse(raw));
-  }catch(error){
-    store=emptyExamStore();
-    alertExam("Anciennes données d'examens incompatibles ou stockage indisponible. Aucun résultat n'a pu être repris.");
-  }
+  store=adapter.snapshot().exams;
 }
 function element(tag,cls,content){
   const node=document.createElement(tag);
@@ -234,7 +234,7 @@ function showResult(result){
         input.addEventListener("change",()=>{
           try{
             store=updateReviewCheck(store,result.examId,result.startedAt,key,input.checked);
-            persist();
+            if(!persist())throw new Error("Persistance impossible");
             const updated=store.history.find(x=>x.examId===result.examId&&x.startedAt===result.startedAt);
             if(updated){
               result.selfChecks=updated.selfChecks;
@@ -270,7 +270,10 @@ function showResult(result){
 function finalize(reason){
   if(!store.active)return;
   const result=finishExam(store.active,Date.now(),reason);
-  store=addHistory(store,result);persist();lastResult=result;
+  const prior=store;
+  store=addHistory(store,result);
+  if(!persist()){store=prior;return;}
+  lastResult=result;
   showResult(result);
   alertExam("");
 }
@@ -290,21 +293,26 @@ function start(){
   if(store.active){renderActive();return;}
   const examId=byId("examSelect").value;
   const seed=examId===GENERATED_EXAM_ID?createNewSeed():null;
-  store={...store,active:startExam(examId,Date.now(),seed)};lastResult=null;persist();
+  const prior=store;
+  store={...store,active:startExam(examId,Date.now(),seed)};
+  if(!persist()){store=prior;return;}
+  lastResult=null;
   alertExam("");renderActive();
 }
 export function getExamBackup(){return store;}
 export function restoreExamBackup(raw){
-  store=sanitizeExamStore(raw);persist();
+  // Les données sont déjà validées et écrites atomiquement par le module
+  // principal ; ne pas créer une seconde écriture susceptible d'échouer.
+  store=sanitizeExamStore(raw);
   if(initialized){lastResult=null;setVisible("examResult",false);renderActive();if(store.active&&hasExpired(store.active))finalize("timeout");}
 }
 export function clearExamProgress(){
-  store=emptyExamStore();lastResult=null;persist();
+  store=emptyExamStore();lastResult=null;
   if(initialized){setVisible("examResult",false);renderActive();}
 }
-export function initExams(){
+export function initExams(storageAdapter,staleCallback=()=>{}){
   if(initialized)return;
-  initialized=true;load();
+  initialized=true;adapter=storageAdapter;onStale=staleCallback;load();
   const select=byId("examSelect");
   for(const exam of EXAMS){const opt=element("option","",exam.title);opt.value=exam.id;select.append(opt);}
   const generated=element("option","","Examen C — NOUVEAU sujet généré à chaque tentative");
