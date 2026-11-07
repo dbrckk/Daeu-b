@@ -88,7 +88,7 @@ try {
   await check(async()=>await page.locator("#attempted").textContent().then(t=>Number(t.trim())>=1),"Import de la progression");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Import des copies");
 
-  await page.evaluate(async()=>{await navigator.serviceWorker.ready;});
+  await page.evaluate(async()=>{await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error("Service Worker non activé après 10s")),10000))]);});
   await page.reload({waitUntil:"networkidle"});
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
