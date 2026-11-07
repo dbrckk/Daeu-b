@@ -1,6 +1,6 @@
 # Atelier de maths — application web
 
-**Site public :** https://streamy-field-k44v8kv.shipstatic.com
+**Site public :** https://dim-monolith-4m8zee2.shipstatic.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
@@ -72,13 +72,14 @@ Le dépôt prépare au DAEU B, il ne délivre pas le diplôme.
 
 ## Changer d'adresse ou de téléphone
 
-La version actuelle est : https://streamy-field-k44v8kv.shipstatic.com.
+La version actuelle est : https://dim-monolith-4m8zee2.shipstatic.com.
 
 Anciennes adresses possibles :
 - `https://clear-glyph-3u8hr78.shipstatic.com` (première version).
 - `https://drifting-neon-d3tt6t6.shipstatic.com` (deuxième version).
 - `https://ghostly-void-w99dhwc.shipstatic.com` (version avec examens sans auto-correction guidée).
 - `https://visceral-link-ng9xj73.shipstatic.com` (version v4 avec correction guidée).
+- `https://streamy-field-k44v8kv.shipstatic.com` (version v5 avec examen C).
 
 L'hébergeur a signalé **une limite de domaines permanents atteinte**, et un alias stable n'a pas pu être réservé. Le lien du README de ce dépôt reste le point d'entrée pour trouver la dernière adresse.
 
@@ -137,3 +138,21 @@ Les examens fixes A/B, leurs copies, les grilles déjà cochées et les 127 él�
 **Pour la progression :** privilégier le sujet C pour mesurer la capacité à résoudre un problème **sans mémoriser** un ancien corrigé. Les mêmes *types* de problème restent présents : la variabilité des données ne remplace pas une diversité plus large d'annales et de raisonnements.
 
 **Attention aux anciennes adresses :** le stockage local est lié au nom de domaine. Exporter sa progression JSON depuis l'ancienne version avant de l'importer ici. Les liens externes vers GitHub nécessitent une connexion.
+
+
+## Stabilisation v6 — application installable et tests navigateur
+
+**URL validée :** https://dim-monolith-4m8zee2.shipstatic.com
+
+- La version actuelle comporte une icône SVG vectorielle, un manifeste PWA, un Service Worker avec cache local, et peut être ajoutée à l'écran d'accueil depuis le navigateur quand celui-ci le permet.
+- La page est utilisable hors ligne **après une première visite avec connexion et mise en cache des fichiers**. Les liens vers les cours GitHub nécessitent toujours Internet.
+- Dans « Sauvegarde et confidentialité », l'option **« Protéger le stockage local »** demande une persistance au navigateur via `navigator.storage.persist()`. Si elle est refusée, l'application continue normalement. Même accordée, elle ne remplace **jamais** la sauvegarde JSON en cas de changement d'adresse, d'appareil ou de nettoyage volontaire.
+- L'import JSON est maintenant accessible au clavier avec un indicateur de focus visible.
+- Le test automatique Chromium mobile exécute une session, un examen C, la reprise et la sauvegarde de la copie, le téléchargement JSON, l'effacement volontaire, la restauration et un rechargement hors ligne. Il a réussi lors de la stabilisation.
+- Les tests sont locaux au dépôt dans GitHub Actions ; aucune bibliothèque de navigateur ne doit être chargée par les utilisateurs.
+
+**Version de test :** https://github.com/dbrckk/Daeu-b/actions/runs/42398972721
+
+**Adresse stable à finaliser :** une action utilisateur dans GitHub (Settings → Pages → Build and deployment → Source = GitHub Actions) permet d'activer le [workflow de publication déjà préparé](../.github/workflows/pages.yml). Après cette première activation, le workflow peut publier l'application sans hébergeur tiers ni changement d'URL. Tant que ce réglage n'est pas effectué, utiliser l'adresse ShipStatic ci-dessus, sans expiration prévue mais propre à cette publication.
+
+**Tests non réalisés :** téléphone Android physique, multiples navigateurs, audit WCAG professionnel et revue pédagogique indépendante.

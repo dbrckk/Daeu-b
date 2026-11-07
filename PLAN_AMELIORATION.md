@@ -1,5 +1,23 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
+## État actuel — livraison v6 stabilisée (7 novembre 2026)
+
+**Application publique : https://dim-monolith-4m8zee2.shipstatic.com**
+
+- [x] Contrôle de bout en bout réel dans Chromium avec dimensions mobiles : entraînement, examen C, copie, rédaction, bilan et restauration JSON.
+- [x] Vérifier un rechargement complet sans réseau après installation du Service Worker.
+- [x] Corriger l'initialisation du Service Worker sur `localhost` et `127.0.0.1` pour la validation.
+- [x] Icône SVG pour l'écran d'accueil et manifeste PWA cohérent, indépendant du domaine de déploiement.
+- [x] Corriger le focus clavier du bouton d'import JSON et proposer le stockage persistant quand le navigateur le permet.
+- [x] Conserver un site statique léger sans API, base de données, service tiers à l'exécution ou abonnement.
+- [x] Préparer le workflow GitHub Pages sur URL stable (déclenchement manuel uniquement pour ne pas accumuler d'échecs).
+- [ ] **Activer GitHub Pages une première fois** via Settings → Pages → Source = GitHub Actions, puis lancer le workflow « Site stable GitHub Pages ».
+- [ ] Vérifier la PWA sur au moins un téléphone Android physique et un navigateur secondaire.
+- [ ] Vérifier plusieurs sujets et rédactions par une relecture pédagogique externe.
+- [ ] Améliorer la profondeur des cours, et élargir les familles d'examen C au-delà de quatre structures.
+
+Le rapport [RELEASE.md](RELEASE.md) précise exactement les tests exécutés et leurs limites.
+
 ## Vision produit
 Préparer **réellement et gratuitement** les maths du DAEU B à partir du syllabus universitaire SONATE Côte d'Azur 2026-2027, avec une progression mesurable, des solutions démontrées et une utilisation pratique sur Android/PC.
 
@@ -103,7 +121,7 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 
 ## Livraison v5 — examen C généré (07/11/2026)
 
-**Publication actuelle :** https://streamy-field-k44v8kv.shipstatic.com
+**Publication de la v5 (historique) :** https://streamy-field-k44v8kv.shipstatic.com
 
 - [x] **Générer un nouveau sujet complet à chaque session C** : quatre problèmes cohérents de cinq points, 16 sous-questions, sujets originaux à valeurs paramétriques.
 - [x] **Corrigés et grilles numériques variables** : coefficients, seuils, probabilités, primitives, moyennes et explications issus de la même graine déterministe.
@@ -118,3 +136,12 @@ Le suivi local disparaît si l'utilisateur efface les données du navigateur ou 
 - [ ] Vérifier l'alignement des sujets par un audit mathématique externe et des annales publiées avec autorisation.
 
 **Limite** : l'examen C crée des *variantes numériques* sur quatre familles ; il ne fournit pas encore des sujets structurellement nouveaux à l'infini. L'épreuve et l'évaluation officielle relèvent exclusivement de l'université.
+
+
+## Déploiement stabilisé v6 — 07/11/2026
+- Site public : https://dim-monolith-4m8zee2.shipstatic.com — hébergeur : statut `success`, **17 fichiers, 136 534 octets, expires:null**.
+- GitHub Actions pour la validation de contenu : https://github.com/dbrckk/Daeu-b/actions/runs/42398972750
+- GitHub Actions pour la validation fonctionnelle mobile et hors ligne : https://github.com/dbrckk/Daeu-b/actions/runs/42398972721
+- Publication permanente GitHub Pages **préparée mais pas activée** : le dépôt n'a pas encore de site Pages. La configuration nécessite un choix initial dans Settings. Pour éviter de conserver une CI rouge, le workflow Pages a été placé en mode manuel. Aucune modification d'un domaine existant n'a été effectuée.
+- La structure des données (sauvegarde `backupVersion:1`, `practice.version:2`, `exams.version:1`) reste compatible avec les exports antérieurs.
+- Application statique sans dépendance npm en production ; Playwright est installé uniquement par les runners GitHub pour le test.
