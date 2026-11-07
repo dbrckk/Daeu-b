@@ -30,16 +30,16 @@
 1. $u_{n+1}=1,12u_n$, suite **géométrique** de premier terme $u_0=500$, raison $q=1,12$.
 2. $\boxed{u_n=500(1,12)^n}$. $u_3=500\times(1,12)^3=500\times1,404928=\boxed{702,464}$.
 3. $500(1,12)^n\ge800\iff(1,12)^n\ge1,6$. Comme $\ln(1,12)>0$, le sens de l'inégalité est conservé :
-$
+$$
 n\ge\frac{\ln(1,6)}{\ln(1,12)}\approx4,147.
-$
+$$
 Le premier entier admissible est $\boxed{n=5}$. Contrôle : $u_4=500(1,12)^4=786,75968<800$ et $u_5=500(1,12)^5\approx881,17\ge800$.
 4. Somme géométrique de 4 termes :
-$
+$$
 S=500\frac{(1,12)^4-1}{1,12-1}
 =500\frac{1,57351936-1}{0,12}
 =\boxed{2389,664}.
-$
+$$
 Les termes ne sont pas arrondis avant la somme.
 
 **À retenir :** le temps demandé est un rang **entier**, à vérifier avec les termes voisins.
@@ -47,21 +47,21 @@ Les termes ne sont pas arrondis avant la somme.
 ## P5 — Contrôle qualité (niveau 2)
 1. $P(D)=0,04$, $P(\bar D)=0,96$, $P(T\mid D)=0,90$, $P(T\mid\bar D)=0,10$. Donc $P(D\cap T)=0,04\times0,90=\boxed{0,036}$.
 2. Par la formule des probabilités totales :
-$
+$$
 P(T)=P(D)P(T\mid D)+P(\bar D)P(T\mid\bar D)
 =0,04\times0,9+0,96\times0,1
 =\boxed{0,132}.
-$
+$$
 3. Par Bayes,
-$
+$$
 P(D\mid T)=\frac{0,036}{0,132}=\boxed{\frac3{11}\approx27,27\%}.
-$
+$$
 C'est la probabilité qu'une pièce soit défectueuse **sachant que son test est positif**, distincte de la probabilité qu'une pièce défectueuse obtienne un test positif (90 %).
 4. En supposant trois pièces indépendantes et le même taux de défaut $p=0,04$, $X\sim\mathcal B(3;0,04)$.
-$
+$$
 P(X\ge1)=1-P(X=0)=1-(0,96)^3
 =\boxed{0,115264\approx11,53\%}.
-$
+$$
 
 **À retenir :** décrire la population initiale, les branches de l'arbre et l'événement conditionnant.
 
@@ -71,9 +71,9 @@ $
 3. La stricte décroissance de $f$ sur $[0;1]$ interdit deux zéros distincts. Ainsi $\alpha$ est **unique**.
 4. $f(0,3)=0,027-0,9+1=\boxed{0,127>0}$. $f(0,4)=0,064-1,2+1=\boxed{-0,136<0}$. Par continuité et décroissance, $\boxed{0,3<\alpha<0,4}$.
 5. $f'(0)=-3$ et $f(0)=1$. Tangente en zéro :
-$
+$$
 y=f'(0)(x-0)+f(0)=\boxed{-3x+1}.
-$
+$$
 
 **À retenir :** le TVI montre l'existence, la monotonie prouve l'unicité.
 
@@ -92,9 +92,9 @@ $
 2. $H(1)=\int_0^1 2te^{t^2}dt=[e^{t^2}]_0^1=\boxed{e-1}$.
 3. Par le même calcul à borne variable, $\boxed{H(x)=e^{x^2}-1}$ pour tout réel $x$.
 4. Pour $x\ge0$,
-$
+$$
 H(x)=e^4-1 \iff e^{x^2}=e^4 \iff x^2=4 \iff \boxed{x=2}
-$
+$$
 (puisque $x\ge0$, on élimine $x=-2$).
 5. Par le théorème fondamental du calcul, $H'(x)=h(x)=2xe^{x^2}$. Pour $x>0$, $H'(x)>0$ ; $H$ est strictement croissante sur $[0;+\infty[$, ce qui rend la solution unique.
 6. $\int_0^1(3x^2+2x)dx=[x^3+x^2]_0^1=\boxed{2}$.
