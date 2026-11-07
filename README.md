@@ -4,6 +4,19 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 > **Important :** ce dépôt prépare aux épreuves, il ne délivre pas le diplôme. Le programme précis et les modalités d'examen dépendent de l'université d'inscription. Le socle est aligné sur les 23 jalons listés dans le syllabus SONATE Côte d'Azur 2026-2027 (dont trois facultatifs) ; les compléments couvrent des programmes d'autres universités.
 
+## Application interactive gratuite
+
+**[Ouvrir l'Atelier de maths — site mobile et PC](https://clear-glyph-3u8hr78.shipstatic.com)**
+
+- **95 questions corrigées** réparties entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
+- Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate.
+- Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; validation seulement après des bonnes réponses à des dates distinctes.
+- Suivi enregistré **dans le navigateur**, sans compte ni transmission au serveur ; exporter régulièrement la progression JSON pour changer d'appareil.
+- Site hébergé gratuitement sur ShipStatic (publication connectée, **sans date d'expiration définie**) ; le contenu source reste dans [app/](app/).
+- [Notice de fonctionnement et limites](app/README.md).
+
+> La réussite à un QCM n'est pas la preuve d'une maîtrise. Les démonstrations, problèmes et examens sur papier restent indispensables.
+
 ## Démarrer ici
 
 1. [Programme vérifié, sources et correspondance avec les universités](PROGRAMME.md)

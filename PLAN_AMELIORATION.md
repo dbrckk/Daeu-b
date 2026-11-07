@@ -16,7 +16,7 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 - [x] Créer une application web mobile **sans inscription ni API**, appuyée sur un corpus de questions corrigées, avec réponses numériques et choix multiples, erreurs expliquées.
 - [x] Ajouter un test de cohérence du corpus (IDs, jalons, réponses, liens de cours).
 - [x] Ajouter des vérifications d'exécution du moteur pédagogique (notation, planification, données de progression).
-- [x] Publier une interface statique gratuite si un service de déploiement disponible l'autorise ; indiquer son caractère temporaire le cas échéant.
+- [x] Publier une interface statique gratuite : https://clear-glyph-3u8hr78.shipstatic.com — déploiement confirmé, sans date d'expiration définie.
 
 **Critère de sortie A :** application qui fonctionne sans clés, qui note les réponses et dont les tests automatisés réussissent. Le nombre d'exercices doit être vérifié par le script, jamais affirmé à la main.
 
@@ -48,3 +48,16 @@ Préparer **réellement et gratuitement** les maths du DAEU B à partir du sylla
 
 ## Limites actuelles
 Le suivi local disparaît si l'utilisateur efface les données du navigateur ou change de téléphone sans exporter sa progression. Les exercices dans l'app sont un **complément** : les démonstrations longues doivent être rédigées sur papier et corrigées avec le cours. Une CI verte prouve les contrôles automatisés, **pas** la maîtrise personnelle ni l'exactitude universelle de tous les contenus. L'université reste seule habilitée à délivrer le diplôme.
+
+## Livraison contrôlée (07/11/2026)
+- Site : https://clear-glyph-3u8hr78.shipstatic.com
+- **95 questions**, **13 domaines**, **20 jalons principaux**.
+- GitHub Actions : contrôle des liens, syntaxe JS, cohérence du corpus, réponses sur échantillons, échéances, sauvegardes.
+- Exécution automatique validée : https://github.com/dbrckk/Daeu-b/actions/runs/42385148907
+- Déploiement confirmé « success » côté hébergeur. **Test manuel Android réel non effectué** ; fonctionnement hors ligne prévu par service worker, mais encore à vérifier.
+
+## Prochain bloc prioritaire
+1. Ajouter des variantes inédites pour chacune des compétences obligatoires.
+2. Créer des problèmes longs avec grille de correction et justification.
+3. Enrichir les cours par niveaux, prérequis, méthode et difficulté d'examen.
+4. Ajouter des épreuves interactives de 3 h / 4 exercices après audit mathématique.
