@@ -2,7 +2,7 @@
 
 Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Documents originaux en français, conçus pour maîtriser les mathématiques du **DAEU B** et non uniquement apprendre des formules. Aucun prérequis informatique, compte ni logiciel payant.
 
-> **Important :** ce dépôt prépare aux épreuves, il ne délivre pas le diplôme. Le programme précis et les modalités d'examen dépendent de l'université d'inscription. Le socle est aligné sur les 19 jalons DAEU B SONATE ; les compléments couvrent des programmes d'autres universités.
+> **Important :** ce dépôt prépare aux épreuves, il ne délivre pas le diplôme. Le programme précis et les modalités d'examen dépendent de l'université d'inscription. Le socle est aligné sur les 23 jalons listés dans le syllabus SONATE Côte d'Azur 2026-2027 (dont trois facultatifs) ; les compléments couvrent des programmes d'autres universités.
 
 ## Démarrer ici
 
@@ -30,7 +30,7 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 | 12 | Probabilités, conditionnement et loi binomiale | [Cours](maths/12-probabilites.md) |
 | 13 | Trigonométrie | [Cours](maths/13-trigonometrie.md) |
 | 14 | Géométrie analytique, vecteurs, produit scalaire | [Cours](maths/14-geometrie-vectorielle.md) |
-| 15 | Primitives, intégrales, équations différentielles | [Cours](maths/15-primitives-integrales.md) |
+| 15 | **Calcul intégral (au programme SONATE 2026-2027)**, primitives et équations différentielles | [Cours](maths/15-primitives-integrales.md) |
 | 16 | Nombres complexes et approfondissements locaux | [Cours](maths/16-complexes-complements.md) |
 | 17 | Raisonnement, modélisation et méthode d'examen | [Cours](maths/17-raisonnement-modelisation.md) |
 
@@ -46,15 +46,16 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 - [GeoGebra](https://www.geogebra.org/graphing) pour vérifier graphiquement, **après** avoir calculé.
 - [Khan Academy France](https://fr.khanacademy.org/math) pour pratiquer les prérequis.
-- [Mathématiques DAEU SONATE](https://daeu-sonate.fr/cours/mathematiques/) — référentiel prioritaire.
+- [Syllabus universitaire SONATE 2026-2027](https://univ-cotedazur.fr/medias/fichier/syllabus-daeu-b-sonate-26-27_1776078074188-pdf) — référentiel prioritaire : 23 jalons, examen de 4 exercices.
+- [Mathématiques DAEU SONATE](https://daeu-sonate.fr/cours/mathematiques/) — ancienne présentation générique (19 jalons), à comparer au syllabus récent.
 - [Programme UGA DAEU B](https://dlst.univ-grenoble-alpes.fr/medias/fichier/daeu-programme-maths_1680268166678-pdf?ID_FICHE=102717&INLINE=FALSE) — compléments possibles.
 
 ## Entraînements supplémentaires et examens
 
 - [Série de 24 questions de calcul/algèbre](entrainement/01-algebre-sujet.md) et son [corrigé](entrainement/01-algebre-corrige.md).
 - [Série de 24 questions d'analyse/probabilités](entrainement/02-analyse-probas-sujet.md) et son [corrigé](entrainement/02-analyse-probas-corrige.md).
-- [Examen blanc 01 — tronc commun](examens/blanc-01-sujet.md) / [correction](examens/blanc-01-corrige.md).
-- [Examen blanc 02 — tronc commun](examens/blanc-02-sujet.md) / [correction](examens/blanc-02-corrige.md).
+- [Examen blanc 01 — 4 exercices, format SONATE 2026-2027](examens/blanc-01-sujet.md) / [correction](examens/blanc-01-corrige.md).
+- [Examen blanc 02 — 4 exercices, format SONATE 2026-2027](examens/blanc-02-sujet.md) / [correction](examens/blanc-02-corrige.md).
 - [Examen blanc 03 — compléments universitaires](examens/blanc-03-complements-sujet.md) / [correction](examens/blanc-03-complements-corrige.md).
 - [Fiche des formules](fiches/formulaire.md) et [25 erreurs fréquentes](fiches/erreurs-frequentes.md).
 

@@ -1,6 +1,6 @@
 # 15 — Primitives, intégrales et équations différentielles
 
-**Statut : complément universitaire important : Rennes, UGA, Paris-Saclay.** Préreq. : 05–09. Durée : 8–12 h.
+**Statut : calcul intégral inscrit au jalon 18 SONATE Côte d'Azur 2026-2027 ; approfondissements IPP/équations différentielles demandés selon les universités (Paris-Saclay notamment).** Préreq. : 05–09. Durée : 8–12 h.
 
 ## 1. Primitives : remonter d'une dérivée
 Une **primitive** de $f$ sur un intervalle $I$ est une fonction $F$ dérivable avec $F'=f$ sur $I$ ; toutes les primitives diffèrent d'une constante sur cet intervalle.

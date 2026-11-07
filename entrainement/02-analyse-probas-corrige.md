@@ -23,7 +23,7 @@
 19. $0{,}12/0{,}3=\boxed{0{,}4}$.
 20. Moyenne $\boxed5$, médiane $(5+5)/2=\boxed5$, variance $[(3-5)^2+0+0+(7-5)^2]/4=\boxed2$.
 21. Troisième quadrant, angle associé $\pi/6$ : $\boxed{-1/2}$.
-22. $2(-3)+3(2)=-6+6=\boxed0}$ : orthogonalité.
+22. $2(-3)+3(2)=-6+6=\boxed{0}$ : orthogonalité.
 23. $[x^2/2]_0^2=4/2=\boxed2$.
 24. $1+2i+i^2=\boxed{2i}$.
 

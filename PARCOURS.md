@@ -22,7 +22,7 @@
 | 7 | 09 logarithme, 10 suites | problèmes corrigés |
 | 8 | 11 statistiques, 12 probabilités | arbres et binomiale |
 | 9 | 13 trigonométrie, 14 vecteurs (si demandés) | contrôle |
-| 10 | 15 intégrales, 16 complexes (si demandés) | contrôle |
+| 10 | 15 intégrales (au programme SONATE 2026-2027), 16 complexes (facultatifs à Nice) | contrôle |
 | 11 | 17 méthode, examen blanc 1 | copie notée |
 | 12 | correction ciblée, examen blanc 2 | ≥ 16/20 |
 
@@ -39,11 +39,11 @@
 - Une semaine après, réussir encore ≥ 80 % sur un nouveau mélange de questions.
 - Savoir expliquer « pourquoi » et reconnaître quand une formule ne s'applique pas.
 
-## Stratégie examen (3 h type SONATE, à confirmer)
+## Stratégie examen (3 h et 4 exercices à Nice SONATE 2026-2027 ; autres centres à confirmer)
 1. 10 min : lire, repérer les points faciles et les questions indépendantes.
-2. ~50 min par exercice sur trois, garder 20 min de vérification.
+2. ~38–40 min par exercice sur quatre, garder 20 min de vérification (format Côte d'Azur SONATE 2026-2027).
 3. Écrire l'ensemble de définition, les étapes, les conclusions et unités ; ne pas laisser une question bloquante prendre tout le temps.
-4. Une calculatrice/feuille autorisée dépend des consignes locales. Préparer aussi une version sans calculatrice.
+4. Le syllabus Côte d'Azur SONATE 2026-2027 autorise une calculatrice autonome et fournit un formulaire ; dans d'autres centres, consulter leurs consignes. Préparer aussi une version sans calculatrice.
 
 ## Préparation sur smartphone
 Les fichiers Markdown sont consultables directement sur GitHub Android ou dans un navigateur. Pour les maths, utiliser cahier/papier pour poser les calculs ; GeoGebra aide à **contrôler** un graphique, pas à contourner le raisonnement.

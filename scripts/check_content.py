@@ -39,9 +39,6 @@ for path in markdown_files:
         if not target.exists():
             errors.append(f"{path.relative_to(ROOT)} : lien brisé {dest}")
 
-for key in ("examen-","blanc-"):
-    pass
-
 for base in ("01", "02", "03"):
     glob_expr = f"blanc-{base}*sujet.md"
     if len(list((ROOT / "examens").glob(glob_expr))) != 1:
