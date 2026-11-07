@@ -118,3 +118,54 @@ test("validation complète de plusieurs valeurs et équations",()=>{
     }
   }
 });
+
+
+test("contrôle indépendant des 32 familles de calculs sur 2 560 énoncés",()=>{
+  const reference={
+    priority:m=>m.a+m.b*m.c,
+    fractions:m=>(m.a+m.b)/m.d,
+    powers:m=>Math.pow(m.base,m.a-m.b),
+    sqrt:m=>Math.sqrt(m.base*m.base*m.mult*m.mult),
+    evaluate:m=>m.a*Math.pow(m.x,2)+m.b*m.x+m.c,
+    expand:m=>m.a+m.b,
+    linear:m=>(m.c-m.b)/m.a,
+    system:m=>(m.a+m.b)/3,
+    inequality:m=>Math.floor((m.c-m.b)/m.a),
+    discriminant:m=>m.b*m.b-4*m.a*m.c,
+    minimum:m=>m.shift,
+    mean:m=>(m.a+m.b+m.c+m.d)/4,
+    weighted:m=>(m.a+2*m.b+3*m.c)/6,
+    affine:m=>m.a*m.x+m.b,
+    quadratic_image:m=>Math.pow(m.x,2)+m.a,
+    rational_limit:m=>m.a/m.b,
+    derivative:m=>2*m.a*m.x+m.b,
+    cubic_derivative:m=>3*m.a*m.x*m.x,
+    vertical_asymptote:m=>m.a/m.b,
+    tvi_root:m=>Math.cbrt(m.power**3),
+    bisection:m=>m.start/(2**m.n),
+    arithmetic:m=>m.start+m.index*m.rate,
+    geometric:m=>m.start*(m.rate**m.index),
+    log_equation:m=>m.shift+m.target,
+    exp_equation:m=>m.target,
+    linear_integral:m=>m.a*m.x*m.x/2+m.b*m.x,
+    polynomial_integral:m=>m.a*m.end*m.end*m.end,
+    urn:m=>m.red/(m.red+m.blue),
+    binomial_mean:m=>m.n*m.p,
+    at_least_one:m=>1-Math.pow(1-m.p,m.n),
+    conditional:m=>m.favorable*m.conditional/m.total,
+    discount:m=>m.price-m.price*m.percent/100
+  };
+  assert.equal(Object.keys(reference).length,VARIANTS.length);
+  for(const t of VARIANTS){
+    for(let seed=0;seed<80;seed++){
+      const q=t.make((()=>{
+        let x=(seed+Math.imul(2654435761,seed+1))>>>0;
+        return ()=>{x=(Math.imul(x,1664525)+1013904223)>>>0;return x/4294967296;};
+      })());
+      const fn=reference[q.meta.kind];
+      assert.ok(fn,"Formule de référence manquante : "+q.meta.kind);
+      const expected=fn(q.meta);
+      assert.ok(Math.abs(expected-q.answer)<=1e-10*Math.max(1,Math.abs(expected)),t.id+" seed "+seed+" attendu "+expected+" reçu "+q.answer);
+    }
+  }
+});
