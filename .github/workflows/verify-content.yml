@@ -4,18 +4,28 @@ on:
     paths:
       - '**/*.md'
       - 'scripts/check_content.py'
+      - 'app/**'
       - '.github/workflows/verify-content.yml'
   pull_request:
     paths:
       - '**/*.md'
       - 'scripts/check_content.py'
+      - 'app/**'
       - '.github/workflows/verify-content.yml'
 permissions:
   contents: read
 jobs:
-  verify:
+  verify-content:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Vérifier liens et documents (Python sans dépendances)
+      - name: Vérifier structure et liens de cours
         run: python3 scripts/check_content.py
+      - name: Vérifier syntaxe JS (sans dépendances npm)
+        run: |
+          node --check app/app.mjs
+          node --check app/engine.mjs
+          node --check app/questions.mjs
+          node --check app/sw.js
+      - name: Vérifier notation, jalons, révisions et sauvegardes
+        run: node --test app/engine.test.mjs
