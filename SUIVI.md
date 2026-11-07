@@ -31,6 +31,9 @@ Copier ce fichier dans ses notes ou le modifier directement dans GitHub : rempla
 | — | Diagnostic | — | — | — | — |
 | — | Blanc 01 | — | — | — | — |
 | — | Blanc 02 | — | — | — | — |
+| — | Blanc 03 (compléments) | — | — | — | — |
+| — | Série algèbre /24 | — | — | — | — |
+| — | Série analyse /24 | — | — | — | — |
 
 ## Journal d'erreurs (exemple)
 | Date | Type d'erreur | Cause | Exercice de reprise à J+2/J+7 |

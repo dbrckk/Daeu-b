@@ -49,6 +49,17 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 - [Mathématiques DAEU SONATE](https://daeu-sonate.fr/cours/mathematiques/) — référentiel prioritaire.
 - [Programme UGA DAEU B](https://dlst.univ-grenoble-alpes.fr/medias/fichier/daeu-programme-maths_1680268166678-pdf?ID_FICHE=102717&INLINE=FALSE) — compléments possibles.
 
+## Entraînements supplémentaires et examens
+
+- [Série de 24 questions de calcul/algèbre](entrainement/01-algebre-sujet.md) et son [corrigé](entrainement/01-algebre-corrige.md).
+- [Série de 24 questions d'analyse/probabilités](entrainement/02-analyse-probas-sujet.md) et son [corrigé](entrainement/02-analyse-probas-corrige.md).
+- [Examen blanc 01 — tronc commun](examens/blanc-01-sujet.md) / [correction](examens/blanc-01-corrige.md).
+- [Examen blanc 02 — tronc commun](examens/blanc-02-sujet.md) / [correction](examens/blanc-02-corrige.md).
+- [Examen blanc 03 — compléments universitaires](examens/blanc-03-complements-sujet.md) / [correction](examens/blanc-03-complements-corrige.md).
+- [Fiche des formules](fiches/formulaire.md) et [25 erreurs fréquentes](fiches/erreurs-frequentes.md).
+
+La structure et les liens des cours sont vérifiés automatiquement lors de chaque mise à jour via GitHub Actions, avec `scripts/check_content.py`.
+
 ## Extension future
 
 Des répertoires `francais/`, `physique/`, `chimie/` pourront être ajoutés sans modifier l'organisation des mathématiques. Ne pas confondre le matériel de préparation de ce dépôt avec les cours officiels d'une université.

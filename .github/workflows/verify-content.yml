@@ -1,0 +1,21 @@
+name: Vérifier le parcours pédagogique
+on:
+  push:
+    paths:
+      - '**/*.md'
+      - 'scripts/check_content.py'
+      - '.github/workflows/verify-content.yml'
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'scripts/check_content.py'
+      - '.github/workflows/verify-content.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier liens et documents (Python sans dépendances)
+        run: python3 scripts/check_content.py
