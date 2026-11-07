@@ -25,6 +25,7 @@ try {
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="127"),"127 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===3,"Examens A/B/C disponibles");
+  await check(async()=>await page.evaluate(async()=>{const manifest=await(await fetch("./manifest.webmanifest")).json();return manifest.icons?.length>0&&manifest.icons[0].src==="./icon.svg";}),"Icône PWA déclarée dans le manifeste");
   await check(async()=>await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Aucun débordement horizontal mobile");
   await page.locator("#start").click();
   await check(async()=>await page.locator("#quiz").isVisible(),"Quiz démarré");

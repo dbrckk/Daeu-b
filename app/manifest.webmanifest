@@ -6,5 +6,15 @@
   "background_color": "#0c1427",
   "theme_color": "#101b33",
   "lang": "fr",
-  "description": "Révisions interactives gratuites et locales pour les mathématiques DAEU B."
+  "description": "Révisions interactives gratuites et locales pour les mathématiques DAEU B.",
+  "id": "./",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

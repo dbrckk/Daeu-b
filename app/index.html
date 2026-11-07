@@ -7,6 +7,7 @@
   <meta name="description" content="Entraînement gratuit DAEU B mathématiques : questions, solutions et révisions espacées, sans compte ni frais.">
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <title>DAEU B · Atelier de maths</title>
 </head>
 <body>
@@ -100,8 +101,8 @@
       </section>
       <section class="backup" aria-labelledby="backup-title">
         <h2 id="backup-title">Sauvegarde et confidentialité</h2>
-        <p>Les réponses et le suivi restent dans le navigateur (stockage local). Aucune donnée n’est envoyée vers un serveur. En cas de changement de téléphone ou d’effacement du navigateur, importe une sauvegarde.</p>
-        <div class="backup-actions"><input id="importFile" type="file" accept="application/json,.json"><label class="file-button" for="importFile">Importer une sauvegarde JSON</label><button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
+        <p>Les réponses et le suivi restent dans le navigateur (stockage local). Aucune donnée n’est envoyée vers un serveur. En cas de changement de téléphone ou d’effacement du navigateur, importe une sauvegarde. Tu peux demander au navigateur de préserver le stockage local, mais seule une exportation JSON protège la progression lors d’un changement de domaine ou d’appareil.</p>
+        <div class="backup-actions"><input id="importFile" type="file" accept="application/json,.json"><label class="file-button" for="importFile">Importer une sauvegarde JSON</label><button type="button" id="persistStorage" class="subtle">Protéger le stockage local</button><button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
     <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p></footer>

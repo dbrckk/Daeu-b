@@ -195,6 +195,20 @@ el("export").addEventListener("click",exportProgress);
 el("importFile").addEventListener("change",async event=>{
   const file=event.target.files?.[0];await importProgress(file);event.target.value="";
 });
+el("persistStorage").addEventListener("click",async()=>{
+  if(!navigator.storage?.persist){
+    notification("Ton navigateur ne propose pas le stockage persistant. Exporte régulièrement ta sauvegarde JSON.");
+    return;
+  }
+  try{
+    const granted=await navigator.storage.persist();
+    notification(granted
+      ? "Le navigateur a accordé la persistance du stockage local. Cela ne protège pas contre un changement de domaine, une suppression volontaire ou une perte du téléphone : exporte aussi le JSON."
+      : "Le navigateur n’a pas accordé la persistance. Les révisions restent utilisables, mais exporte régulièrement une sauvegarde JSON.");
+  }catch(error){
+    notification("La demande de persistance n’a pas abouti. Tu peux continuer et exporter les résultats en JSON.");
+  }
+});
 el("reset").addEventListener("click",()=>{
   if(!confirm("Effacer tous les résultats enregistrés sur cet appareil ? Pense à exporter d'abord."))return;
   state=emptyState();clearExamProgress();persist();refreshOverview();session=[];el("quiz").hidden=true;el("results").hidden=true;
