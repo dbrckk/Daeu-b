@@ -15,7 +15,7 @@ FILES = (
     ("/", "text/html", b"DAEU B"),
     ("/app.mjs", "javascript", b'import {TOPICS}'),
     ("/sw.js", "javascript", b"daeu-b-maths-v"),
-    ("/manifest.webmanifest", "json", b"DAEU"),
+    ("/manifest.json", "json", b"DAEU"),
     ("/robots.txt", "text/plain", b"Sitemap:"),
     ("/sitemap.xml", "xml", ORIGIN.encode()),
 )
@@ -69,7 +69,7 @@ def main():
         raise RuntimeError("Le site ne publie pas l'URL canonique permanente")
     if "Content-Security-Policy" not in home or "script-src 'self'" not in home:
         raise RuntimeError("Protection CSP absente du HTML public")
-    manifest = json.loads(payloads["/manifest.webmanifest"])
+    manifest = json.loads(payloads["/manifest.json"])
     if manifest.get("start_url") != "./index.html" or manifest.get("display") != "standalone":
         raise RuntimeError("Manifeste PWA incompatible")
     if (ORIGIN + "/sitemap.xml").encode() not in payloads["/robots.txt"]:
