@@ -58,7 +58,7 @@ else:
     for asset in re.findall(r'"(\./[^"]+)"',asset_match.group(1)):
         if asset=="./": continue
         if not (APP/asset[2:]).is_file():error(f"Cache hors ligne : fichier manquant {asset}")
-    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs"):
+    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","persistence.mjs"):
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : module manquant {name}")
 
 if ERRORS:

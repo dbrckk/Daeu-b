@@ -3,9 +3,9 @@
  * Aucune requête extérieure n'est mise en cache. Les données d'étude restent
  * exclusivement dans localStorage et ne passent jamais dans le service worker.
  */
-const CACHE="daeu-b-maths-v8";
+const CACHE="daeu-b-maths-v9";
 const PREFIX="daeu-b-maths-";
-const ASSETS=["./","./index.html","./style.css","./app.mjs","./engine.mjs","./questions.mjs","./variants.mjs","./exams.mjs","./exam-engine.mjs","./exam-ui.mjs","./exam-generator.mjs","./reasoning.mjs","./exam-analytics.mjs","./manifest.webmanifest","./icon.svg"];
+const ASSETS=["./","./index.html","./style.css","./app.mjs","./engine.mjs","./questions.mjs","./variants.mjs","./exams.mjs","./exam-engine.mjs","./exam-ui.mjs","./exam-generator.mjs","./reasoning.mjs","./exam-analytics.mjs","./persistence.mjs","./manifest.webmanifest","./icon.svg"];
 const SCOPE=new URL(self.registration.scope);
 const allowed=new Set(ASSETS.map(asset=>new URL(asset,SCOPE).pathname));
 const shell=new URL("./index.html",SCOPE).pathname;
