@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b33">
+  <meta name="description" content="Entraînement gratuit DAEU B mathématiques : questions, solutions et révisions espacées, sans compte ni frais.">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <title>DAEU B · Atelier de maths</title>
+</head>
+<body>
+  <a class="skip" href="#main">Aller au contenu</a>
+  <div class="layout">
+    <header class="site-head">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">∑</div><div><span class="brand-small">DAEU B · MATHÉMATIQUES</span><strong>Atelier de maîtrise</strong></div></div>
+      <a class="source-link" href="https://github.com/dbrckk/Daeu-b" target="_blank" rel="noopener noreferrer">Cours et sources ↗</a>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">PROGRAMME SONATE 2026–2027</p>
+        <h1 id="hero-title">Comprendre. S’entraîner.<br><span>Retenir durablement.</span></h1>
+        <p>Des exercices corrigés, un chapitre à la fois. Gratuit, sans compte, sans publicité. Ton progrès reste sur cet appareil.</p>
+        <div class="hero-tags"><span>20 jalons principaux</span><span>Corrections expliquées</span><span>Révisions espacées</span></div>
+      </section>
+      <section aria-labelledby="overview-title" class="overview">
+        <div class="section-header"><div><p class="eyebrow">TABLEAU DE BORD</p><h2 id="overview-title">Ma progression</h2></div><button type="button" class="subtle small" id="export">Exporter mes résultats</button></div>
+        <div class="metrics">
+          <div class="metric"><span class="metric-label">Questions dans la banque</span><strong id="totalQuestions">—</strong></div>
+          <div class="metric"><span class="metric-label">Questions travaillées</span><strong id="attempted">0</strong></div>
+          <div class="metric"><span class="metric-label">Acquises après rappel</span><strong id="mastered">0</strong></div>
+          <div class="metric"><span class="metric-label">Révisions à faire</span><strong id="due">0</strong></div>
+        </div>
+        <div class="meter-label"><span>Acquis confirmés</span><span id="percentage">0 %</span></div>
+        <progress id="masteryProgress" max="100" value="0" aria-label="Pourcentage de questions acquises"></progress>
+      </section>
+      <section class="workshop" aria-labelledby="practice-title">
+        <div class="section-header"><div><p class="eyebrow">ENTRAÎNEMENT</p><h2 id="practice-title">Choisir une séance</h2></div><a href="https://github.com/dbrckk/Daeu-b/blob/main/maths/00-positionnement.md" target="_blank" rel="noopener noreferrer">Test initial ↗</a></div>
+        <div class="controls">
+          <div class="field"><label for="topic">Chapitre</label><select id="topic"><option value="all">Tous les chapitres</option></select></div>
+          <div class="field"><label for="mode">Mode</label><select id="mode"><option value="all">Découverte et consolidation</option><option value="due">Révisions à effectuer</option><option value="wrong">Mes erreurs</option></select></div>
+          <button type="button" id="start" class="primary">Démarrer · 10 questions</button>
+        </div>
+        <p class="helper">Une réponse correcte aujourd’hui ne suffit pas : il faut la réussir de nouveau un autre jour pour qu’elle soit considérée comme acquise.</p>
+        <div id="notification" class="notice" role="status" aria-live="polite" hidden></div>
+        <section id="quiz" class="quiz" aria-label="Exercice en cours" hidden>
+          <div class="quiz-top"><span id="quizCount">Question 1/10</span><span id="quizTopic">Chapitre</span></div>
+          <progress id="quizProgress" max="10" value="0" aria-label="Progression dans la séance"></progress>
+          <h3 id="questionText"></h3>
+          <p id="questionHelp" class="helper"></p>
+          <form id="answerForm">
+            <div id="numericAnswer"><label for="answer">Ta réponse (nombre, décimal ou fraction)</label><input id="answer" name="answer" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 3/4 ou 0,75"></div>
+            <fieldset id="choices" hidden><legend>Choisis une réponse</legend><div id="choiceList"></div></fieldset>
+            <div class="quiz-actions"><button type="submit" id="submit" class="primary">Valider ma réponse</button><button type="button" id="hintButton" class="subtle">Un indice</button><button type="button" id="unknownButton" class="subtle">Je ne sais pas</button></div>
+          </form>
+          <div id="hint" class="hint" hidden></div>
+          <div id="feedback" class="feedback" aria-live="polite" hidden><strong id="feedbackTitle"></strong><p id="feedbackText"></p><a id="lessonLink" target="_blank" rel="noopener noreferrer">Revoir le chapitre ↗</a><div><button type="button" id="next" class="primary">Question suivante</button></div></div>
+        </section>
+        <section id="results" class="results" aria-live="polite" hidden><h3>Séance terminée</h3><p id="resultsText"></p><button type="button" id="restart" class="primary">Nouvelle séance</button></section>
+      </section>
+      <section class="catalog" aria-labelledby="catalog-title">
+        <div class="section-header"><div><p class="eyebrow">COURS ET COMPÉTENCES</p><h2 id="catalog-title">Les domaines à maîtriser</h2></div></div>
+        <div id="topicCards" class="topic-grid"></div>
+      </section>
+      <section class="backup" aria-labelledby="backup-title">
+        <h2 id="backup-title">Sauvegarde et confidentialité</h2>
+        <p>Les réponses et le suivi restent dans le navigateur (stockage local). Aucune donnée n’est envoyée vers un serveur. En cas de changement de téléphone ou d’effacement du navigateur, importe une sauvegarde.</p>
+        <div class="backup-actions"><label class="file-button" for="importFile">Importer une sauvegarde JSON</label><input id="importFile" type="file" accept="application/json,.json"><button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
+      </section>
+    </main>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p></footer>
+  </div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
