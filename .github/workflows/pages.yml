@@ -1,0 +1,33 @@
+name: Site stable GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: daeu-pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier l'activation du service Pages
+        uses: actions/configure-pages@v5
+      - name: Publier les fichiers de l'application (sans build npm)
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./app
+      - name: Déployer sur le domaine GitHub Pages stable
+        id: deployment
+        uses: actions/deploy-pages@v4
