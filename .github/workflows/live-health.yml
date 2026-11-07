@@ -1,0 +1,22 @@
+name: Disponibilité du site DAEU B permanent
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 6 * * *'
+  push:
+    paths:
+      - '.github/workflows/live-health.yml'
+      - 'scripts/healthcheck.py'
+permissions:
+  contents: read
+concurrency:
+  group: daeu-b-live-health
+  cancel-in-progress: true
+jobs:
+  public-healthcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier le domaine, les ressources PWA et la sécurité
+        run: python3 scripts/healthcheck.py
