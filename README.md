@@ -85,3 +85,14 @@ La structure et les liens internes des cours sont vérifiés automatiquement lor
 Des répertoires `francais/`, `physique/`, `chimie/` pourront être ajoutés sans modifier l'organisation des mathématiques. Ne pas confondre le matériel de préparation de ce dépôt avec les cours officiels d'une université.
 
 Licence : [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) pour les contenus pédagogiques originaux ; les sources externes sont citées et non recopiées.
+
+## Ateliers de consolidation approfondie — v12
+
+Quatre cours prioritaires ont été enrichis d'une démarche rédigée pas à pas, de contre-exemples et de deux problèmes de transfert corrigés chacun. Ils sont accessibles depuis les cartes de chapitres de l'application ou directement dans le dépôt :
+
+- [Limites, asymptotes et rationalisation](maths/07-limites-asymptotes.md)
+- [TVI, unicité et dichotomie](maths/08-continuite-tvi.md)
+- [Statistiques : quartiles et variance](maths/11-statistiques.md)
+- [Probabilités conditionnelles, Bayes et tirages](maths/12-probabilites.md)
+
+Les cours sont hébergés sur GitHub et nécessitent une connexion Internet ; **seul l'atelier interactif est précaché pour une utilisation hors ligne**. Les exemples sont recalculés par un contrôle CI dédié, sans que cela constitue une validation universitaire exhaustive.

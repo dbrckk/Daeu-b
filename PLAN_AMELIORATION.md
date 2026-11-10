@@ -230,3 +230,13 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Conserver les 127 identifiants existants et la lecture des anciennes sauvegardes.
 - [x] Mettre à jour les tests de correction et le scénario mobile/offline pour les **143 éléments**.
 - [ ] Relecture académique indépendante et essai sur Android physique.
+
+
+### Ateliers de cours v12 — quatre chapitres approfondis
+- [x] Limites/asymptotes : division polynomiale, limites unilatérales, dérivée d'une rationnelle, rationalisation.
+- [x] Continuité/TVI : preuve d'existence et d'unicité, trois itérations de dichotomie, solution exponentielle.
+- [x] Statistiques : moyenne, quartiles par rang, variance de population, comparaison de dispersions.
+- [x] Probabilités : probabilités totales, Bayes, événement contraire, tirages avec ou sans remise.
+- [x] Ajouter huit problèmes de transfert et leurs corrigés guidés, sans modifier les examens et sauvegardes existants.
+- [x] Intégrer une vérification arithmétique et structurelle des nouveaux exemples à la CI.
+- [ ] Appliquer progressivement la même profondeur pédagogique aux autres chapitres de base, et obtenir une relecture humaine indépendante.

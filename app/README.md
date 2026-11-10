@@ -225,3 +225,6 @@ Chaque session D comprend 4 exercices, 16 questions, 16 étapes d'auto-évaluati
 - **+16 questions fixes** pour passer de 127 à **143 éléments** suivis. Elles évaluent les quartiles et la variance, les limites par conjugaison et les asymptotes, le TVI/dichotomie et les probabilités totales, Bayes, sans remise et variance binomiale.
 - Aucun identifiant historique n'est modifié ; une sauvegarde antérieure conserve ses réponses et ses échéances.
 - Les questions et les méthodes avancées sont liées aux cours 07, 08, 11 et 12 ; le score des examens blancs reste distinct.
+
+
+Les cours 07/08/11/12 sont renforcés par des **ateliers guidés et huit problèmes de transfert corrigés**. Ils complètent la banque interactive de 143 items et les quatre examens blancs A/B/C/D. Les fichiers Markdown sont sur GitHub et exigent un accès Internet ; le cache PWA actuel ne contient que l'application et ses corrections internes.

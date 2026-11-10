@@ -30,7 +30,7 @@
 | Test physique Android | **Non réalisé** |
 | Relecture universitaire complète | **Non réalisée** |
 
-La CI utilise Playwright en dépendance de test **uniquement sur GitHub Actions**. L'application servie contient 18 fichiers totalisant **145 909 octets** (valeur fournie par l'hébergeur pour ce déploiement) ; pas de dépendance npm au chargement.
+La CI utilise Playwright en dépendance de test **uniquement sur GitHub Actions**. L'ancien déploiement ShipStatic v8 comportait 18 fichiers totalisant 145 909 octets ; cette mesure historique n'est **pas** la taille garantie du site Render v12. Il n'y a pas de dépendance npm au chargement.
 
 ## Mode d'emploi Android
 1. Ouvrir https://daeu-b-maths-dbrckk.onrender.com dans Chrome.
@@ -119,3 +119,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - La progression antérieure reste inchangée : tous les anciens ID sont conservés, les nouvelles questions partent non acquises.
 - Tests de corrections numériques/fractions/choix multiples et parcours Android/hors ligne actualisé au total de 143 items.
 - [Application](https://daeu-b-maths-dbrckk.onrender.com).
+
+
+### Approfondissements des cours v12
+- Quatre chapitres obligatoires (07, 08, 11 et 12) comportent désormais des ateliers rédigés en plusieurs étapes : étude d'une rationnelle et rationalisation, démonstration TVI/dichotomie, variance et quartiles de population, probabilités conditionnelles/Bayes et indépendance.
+- **Huit problèmes de transfert** (deux par chapitre), accompagnés de corrections détaillées et de distinctions entre erreurs classiques.
+- Un contrôle Python dédié recalcule les résultats numériques fondamentaux et vérifie la présence des exercices, corrections et délimiteurs mathématiques dans les quatre chapitres.
+- Le domaine reste https://daeu-b-maths-dbrckk.onrender.com ; les liens vers les cours GitHub nécessitent Internet.
