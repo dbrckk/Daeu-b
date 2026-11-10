@@ -144,6 +144,8 @@ try {
   const filename=join(temp,"backup.json");await download.saveAs(filename);
   const backup=JSON.parse(await readFile(filename,"utf8"));
   assert.equal(backup.exams.history[0].examId,"blanc-c");
+  assert.equal(backup.round?.completed,1,"Export JSON : rang de la séance conservé");
+  assert.equal(backup.round?.ids.length,10,"Export JSON : dix questions et leurs graines conservées");
   await page.locator("#reset").click();
   await check(async()=>await page.locator("#attempted").textContent().then(t=>t.trim()==="0"),"Remise à zéro du suivi");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===0,"Remise à zéro des copies");
@@ -151,6 +153,8 @@ try {
   try {
     await page.waitForFunction(()=>Number(document.querySelector("#attempted")?.textContent.trim())>=1,null,{timeout:8000});
     await page.waitForFunction(()=>document.querySelectorAll("#examHistory .exam-history-row").length===1,null,{timeout:8000});
+    await check(async()=>await page.locator("#quizCount").textContent().then(t=>t.includes("Question 2 / 10")),
+      "Import JSON : séance interrompue récupérée à la deuxième question");
   } catch(error) {
     console.error("État import JSON : ",await page.locator("#notification").textContent());
     console.error("État copies : ",await page.locator("#examNotice").textContent());

@@ -283,3 +283,6 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Garder les anciens exports JSON compatibles et inclure la séance dans les nouvelles sauvegardes.
 - [x] Étendre les tests purs et Chromium à la reprise sur rechargement.
 - [ ] Essais matériels sur Android (arrêt forcé et reprise PWA) et relecture pédagogique universitaire indépendante.
+
+
+**Tests v16 vérifiés :** [52/52](https://github.com/dbrckk/Daeu-b/actions/runs/42802178510) et [Chromium Android simulé](https://github.com/dbrckk/Daeu-b/actions/runs/42802178596). Le scénario d'export/import vérifie également la restauration de la séance après réimportation.

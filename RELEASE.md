@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v14, domaine permanent Render (10/11/2026)**  
+**État : candidat public stable v16, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -155,6 +155,9 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 
 ## v16 — reprise automatique d'une séance interrompue (10/11/2026)
 - Sauvegarde atomique de la réponse et de l'avancement d'une série de 10 questions.
-- Reprise au bon rang après rechargement, sans doubler les points ; mêmes questions paramétriques reconstruite à partir de leurs graines.
+- Reprise au bon rang après rechargement, sans doubler les points ; mêmes questions paramétriques reconstruites à partir de leurs graines.
 - Intégrité des données : validation stricte des ID, index, scores et graines ; repli sur anciennes sauvegardes JSON sans séance.
 - Tests purs de restitution et d'échec quota, plus scénario Chromium de rechargement à la première et à la deuxième question.
+
+
+**Validation v16 :** [52 tests Node.js réussis](https://github.com/dbrckk/Daeu-b/actions/runs/42802178510), [parcours mobile et hors ligne réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42802178596). Ces tests n'impliquent pas qu'une installation sur téléphone Android physique a été réalisée.
