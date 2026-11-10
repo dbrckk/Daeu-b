@@ -44,6 +44,70 @@ Se méfier des limites en $0^+$ : $\ln x\to-\infty$ et $x\ln x\to0$.
 4. Si indéterminée : factoriser, diviser, rationaliser, ou utiliser les croissances comparées.
 5. Traduire en asymptote seulement si la définition est remplie.
 
+## 7. Atelier guidé — une fonction rationnelle de bout en bout
+
+On étudie sur son domaine la fonction :
+
+\[
+f(x)=\frac{x^2+4}{x-2}.
+\]
+
+**Étape 1 — Définition.** Le dénominateur s'annule uniquement pour \(x=2\). On doit donc écrire \(D_f=\mathbb R\setminus\{2\}\). Cette interdiction reste valable, même si l'on réécrit la fonction.
+
+**Étape 2 — Division et limites.** Comme \(x^2+4=(x-2)(x+2)+8\), on obtient, pour \(x\ne2\) :
+
+\[
+f(x)=x+2+\frac8{x-2}.
+\]
+
+Lorsque \(x\to+\infty\) ou \(x\to-\infty\), la différence \(f(x)-(x+2)=8/(x-2)\) tend vers zéro. **L'asymptote oblique est donc \(y=x+2\)**, avec sa justification par une limite, et non par une simple intuition graphique.
+
+**Étape 3 — Limites unilatérales.** Au voisinage de 2, la partie \(x+2\) tend vers 4. Pour \(x\to2^-\), \(8/(x-2)\to-\infty\) ; pour \(x\to2^+\), \(8/(x-2)\to+\infty\). La droite **\(x=2\)** est une asymptote verticale. Il faut distinguer les deux côtés : on ne peut pas écrire une limite bilatérale infinie unique ici.
+
+**Étape 4 — Dérivée sur le domaine.** Sur chacun des intervalles \(]-\infty;2[\) et \(]2;+\infty[\) :
+
+\[
+f'(x)=1-\frac8{(x-2)^2}.
+\]
+
+Par exemple, \(f'(4)=1-8/4=-1\). Une dérivée négative à un point ne signifie pas que toute la fonction est négative : elle indique seulement une pente locale négative.
+
+**Vérification de méthode :** \(f(4)=(16+4)/(4-2)=10\), et la forme décomposée donne aussi \(4+2+8/2=10\).
+
+## 8. Atelier guidé — rationaliser une forme \(0/0\)
+
+On cherche la limite lorsque \(x\to0\) de :
+
+\[
+g(x)=\frac{\sqrt{x+9}-3}{x},\qquad x\ge-9,\ x\ne0.
+\]
+
+La substitution donne \(0/0\) : ce n'est **pas** la réponse. Pour \(x\ne0\), on multiplie par le conjugué :
+
+\[
+g(x)=\frac{(\sqrt{x+9}-3)(\sqrt{x+9}+3)}{x(\sqrt{x+9}+3)}
+=\frac{(x+9)-9}{x(\sqrt{x+9}+3)}
+=\frac1{\sqrt{x+9}+3}.
+\]
+
+La dernière expression tend vers \(1/(3+3)\), donc \(\boxed{\lim_{x\to0}g(x)=1/6}\). La limite est finie **alors que \(g(0)\) n'existe pas**. On a un trou amovible, pas une asymptote verticale.
+
+### Deux problèmes de transfert (sans regarder les corrigés)
+
+**A.** Étudier \(h(x)=(x^2+3)/(x-1)\) : domaine, asymptote verticale, asymptote oblique et valeur de \(h'(3)\).
+
+**B.** Calculer \(\lim_{x\to0}(\sqrt{x+4}-2)/x\), en justifiant la transformation et le domaine de départ.
+
+### Corrections commentées
+
+**A.** Domaine \(x\ne1\). Division : \(x^2+3=(x-1)(x+1)+4\), donc \(h(x)=x+1+4/(x-1)\). Près de 1, le terme \(4/(x-1)\) diverge, d'où l'asymptote verticale \(x=1\). À l'infini, \(h(x)-(x+1)\to0\), donc asymptote oblique \(y=x+1\). Enfin \(h'(x)=1-4/(x-1)^2\), ainsi \(h'(3)=1-4/4=\boxed0\).
+
+**B.** Domaine : \(x\ge-4\), mais \(x\ne0\). Le conjugué transforme la fraction en \(1/(\sqrt{x+4}+2)\) pour \(x\ne0\). La limite est \(\boxed{1/4}\) ; la valeur en 0 reste interdite dans la fonction initiale.
+
+**Pièges à surveiller :** déduire automatiquement une asymptote de la seule valeur interdite ; oublier que \(+\infty\) et \(-\infty\) ne sont pas des nombres ; confondre signe de \(f'\) et signe de \(f\).
+
+---
+
 ## Exercices
 1. Calculer $\lim_{x\to+\infty}(4x^3-x)/(2x^3+1)$.
 2. Calculer $\lim_{x\to-\infty}(x^3-5x^2)$.

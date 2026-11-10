@@ -38,6 +38,58 @@ $$\left[\hat p-1{,}96\sqrt{\frac{\hat p(1-\hat p)}n}\;;\;\hat p+1{,}96\sqrt{\fra
 à tronquer à $[0;1]$ si nécessaire. Il décrit la performance de la **procédure d'estimation à long terme**, pas une probabilité de 95 % que ce paramètre fixe varie au hasard.
 Exemple $\hat p=0{,}5$, $n=100$ : marge $\approx0{,}098$, intervalle approximatif $[0{,}402;0{,}598]$. Les méthodes exactes ou Wilson sont préférables pour petits échantillons ; suivre celle enseignée par l'établissement.
 
+## 7. Atelier de bout en bout — moyenne, quartiles et variance
+
+On observe la série déjà ordonnée \(2,\ 4,\ 4,\ 7,\ 8,\ 11\), avec **six observations**.
+
+**Étape 1 — Moyenne :**
+
+\[
+\bar x=\frac{2+4+4+7+8+11}{6}=\frac{36}{6}=\boxed6.
+\]
+
+La moyenne utilise **toutes** les observations, y compris les répétitions.
+
+**Étape 2 — Médiane :** comme \(N=6\) est pair, on prend les valeurs des rangs 3 et 4, soit 4 et 7 ; la médiane vaut \(\boxed{(4+7)/2=5{,}5}\). Elle diffère de la moyenne 6, ce qui est possible.
+
+**Étape 3 — Quartiles :** avec la convention française par rang (à vérifier selon l'établissement), \(Q_1\) a le rang \(\lceil 6/4\rceil=2\), soit \(\boxed4\). \(Q_3\) a le rang \(\lceil3\times6/4\rceil=5\), soit \(\boxed8\). L'écart interquartile vaut \(8-4=\boxed4\).
+
+**Étape 4 — Variance de population :** la formule \(V=\overline{x^2}-\bar x^2\) évite six soustractions :
+
+\[
+\overline{x^2}=\frac{2^2+4^2+4^2+7^2+8^2+11^2}{6}
+=\frac{270}{6}=45,
+\quad V=45-6^2=\boxed9.
+\]
+
+L'écart-type de population est \(\sigma=\sqrt9=\boxed3\), dans la même unité que les observations. La variance est en **unité au carré**. L'étendue vaut \(11-2=\boxed9\), numériquement égale à la variance dans cet exemple par coïncidence : les deux notions restent différentes.
+
+### Comparer deux séries sans se laisser tromper par la moyenne
+
+Les séries \(A=(5,5,5,5)\) et \(B=(3,4,6,7)\) ont toutes deux pour moyenne 5. Cependant :
+
+- \(V_A=0\) : toutes les valeurs sont identiques.
+- \(V_B=((3-5)^2+(4-5)^2+(6-5)^2+(7-5)^2)/4=10/4=\boxed{2{,}5}\).
+- \(\sigma_B=\sqrt{2{,}5}\approx1{,}581\) : B est plus dispersée.
+
+Le choix entre **variance de population (division par \(N\))** et **variance d'échantillon corrigée (division par \(N-1\))** dépend de ce qui est demandé. Dans l'examen D, la convention est annoncée et le dénominateur est \(N\).
+
+### Deux problèmes de transfert
+
+**A.** Étudier \(1,\ 2,\ 4,\ 5\) : moyenne, médiane, \(Q_1\), \(Q_3\) et variance de population.
+
+**B.** Pour \(2,\ 2,\ 6,\ 6\), calculer l'écart-type de population. Une variance nulle signifierait-elle que la moyenne vaut zéro ?
+
+### Corrections commentées
+
+**A.** Moyenne \(12/4=\boxed3\) ; médiane \((2+4)/2=\boxed3\). Avec les rangs \(\lceil4/4\rceil=1\) et \(\lceil3\times4/4\rceil=3\), \(Q_1=\boxed1\), \(Q_3=\boxed4\). Carrés des écarts à 3 : \(4,1,1,4\), somme 10 ; variance \(10/4=\boxed{2{,}5}\).
+
+**B.** Moyenne 4, écarts \(-2,-2,+2,+2\), carrés \(4,4,4,4\). Variance \(16/4=4\), écart-type \(\boxed2\). Une variance nulle signifie **toutes les observations égales à la moyenne**, pas « moyenne nulle ».
+
+**Pièges à surveiller :** oublier de trier, calculer les quartiles en interpolant sans préciser la convention, diviser par \(N-1\) alors que l'énoncé demande la population, confondre \(V\) et \(\sqrt V\).
+
+---
+
 ## Exercices
 1. Calculer la moyenne de 5, 7, 9, 11.
 2. Donner médiane et quartiles (convention par rang) de 1,2,3,4,5,6,7,8.

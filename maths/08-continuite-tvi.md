@@ -27,6 +27,51 @@ On cherche les solutions de $x^3+x-1=0$ sur $[0;1]$.
 ## 5. Comment bien rédiger à l'examen
 Dire « la courbe traverse l'axe » ne suffit pas. Écrire explicitement : **continuité sur l'intervalle**, valeurs et signes aux bornes, **application du TVI**, puis **stricte monotonie** si l'on revendique l'unicité. Aucun dessin ne remplace ces justifications.
 
+## 6. Atelier de rédaction — TVI, unicité et trois dichotomies
+
+Considérons \(h(x)=x^3+2x-2\) sur \([0;1]\). Le raisonnement se déroule dans cet ordre :
+
+1. **Continuité :** \(h\) est un polynôme ; elle est continue sur \([0;1]\).
+2. **Signes :** \(h(0)=-2<0\) et \(h(1)=1>0\).
+3. **Existence :** par le théorème des valeurs intermédiaires, il existe **au moins un** zéro \(\alpha\) dans \(]0;1[\).
+4. **Unicité :** \(h'(x)=3x^2+2>0\) sur \(\mathbb R\) ; \(h\) est strictement croissante. Le zéro est donc **unique**.
+5. **Approche numérique :** appliquer la dichotomie en conservant à chaque fois l'intervalle aux signes opposés.
+
+| Itération | Milieu testé | Valeur de \(h\) | Nouvel intervalle |
+|---|---|---|---|
+| 1 | \(0{,}5\) | \(-0{,}875\) | \([0{,}5;1]\) |
+| 2 | \(0{,}75\) | \(-0{,}078125\) | \([0{,}75;1]\) |
+| 3 | \(0{,}875\) | \(0{,}419921875\) | \([0{,}75;0{,}875]\) |
+
+Après trois itérations, la largeur vaut \(1/8=0{,}125\). On n'a pas démontré que le milieu est **exactement** la racine : on a obtenu un encadrement rigoureux.
+
+### Un deuxième exemple : existence et valeur exacte
+
+Sur \([0;1]\), on étudie \(g(x)=e^{2x}-5\).
+
+- \(g\) est continue car l'exponentielle et la fonction affine le sont.
+- \(g(0)=1-5=-4<0\) et \(g(1)=e^2-5>0\) ; il existe un zéro dans \(]0;1[\).
+- \(g'(x)=2e^{2x}>0\) sur \([0;1]\) ; le zéro est unique.
+- L'équation \(e^{2x}=5\) donne \(2x=\ln 5\), soit \(\boxed{x=\ln(5)/2\approx0{,}8047}\), bien dans l'intervalle étudié.
+
+**À retenir :** le TVI seul démontre l'existence. Même si une fonction change de signe, elle peut couper l'axe plusieurs fois. Une **stricte monotonie prouvée** apporte l'unicité.
+
+### Deux problèmes de transfert
+
+**A.** Montrer que \(f(x)=x^2-2\) a un seul zéro sur \([1;2]\) et donner l'intervalle obtenu après une dichotomie.
+
+**B.** On considère \(q(x)=x^3-x\) sur \([-1;1]\). Trouver tous ses zéros et expliquer pourquoi la continuité n'implique pas l'unicité.
+
+### Corrections commentées
+
+**A.** \(f\) est continue sur \([1;2]\), \(f(1)=-1\) et \(f(2)=2\) : existence par le TVI. De plus \(f'(x)=2x>0\) sur cet intervalle : unicité. La racine est \(\sqrt2\). Milieu \(1{,}5\), \(f(1{,}5)=0{,}25>0\) : l'encadrement devient \(\boxed{[1;1{,}5]}\).
+
+**B.** \(q(x)=x(x-1)(x+1)\) : les trois zéros sont \(\boxed{-1,\ 0,\ 1}\). La fonction est continue sur tout \(\mathbb R\), mais n'est pas strictement monotone sur \([-1;1]\). Le TVI ne donne jamais, à lui seul, « exactement une solution ».
+
+**Pièges à surveiller :** appliquer le TVI sur un intervalle contenant une discontinuité, confondre solution approchée et exacte, conclure à l'unicité sans étude des variations.
+
+---
+
 ## Exercices
 1. Démontrer qu'il existe une solution de $x^3-2=0$ dans $]1;2[$.
 2. Cette solution est-elle unique sur $\mathbb R$ ? Justifier.
