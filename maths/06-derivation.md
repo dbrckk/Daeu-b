@@ -49,6 +49,56 @@ Pour $f(x)=x^3$, $f''(x)=6x$ : concave pour $x<0$, convexe pour $x>0$, point d'i
 ## 7. Optimisation
 On maximise $R(x)=-2x^2+12x-5$ sur $[0;5]$. $R'(x)=-4x+12$, nul en 3, positif avant puis négatif après. Maximum en $x=3$ : $R(3)=13$. **Comparer les bords** si le domaine est fermé et si les extremums candidats diffèrent.
 
+## 8. Atelier approfondi — variations, extremums et tangente
+
+Étudions sur \(\mathbb R\) la fonction
+
+\[
+f(x)=x^3-6x^2+9x+1.
+\]
+
+**1. Dérivée et factorisation :**
+
+\[
+f'(x)=3x^2-12x+9=3(x-1)(x-3).
+\]
+
+Les nombres critiques sont \(x=1\) et \(x=3\). Ils sont les **zéros de la dérivée**, pas automatiquement les zéros de \(f\).
+
+**2. Tableau de signe de la dérivée :** pour \(x<1\), les deux facteurs sont négatifs et leur produit est positif ; pour \(1<x<3\), le produit est négatif ; pour \(x>3\), il est positif. En conséquence :
+
+- \(f\) est **croissante** sur \(]-\infty;1]\) ;
+- \(f\) est **décroissante** sur \([1;3]\) ;
+- \(f\) est **croissante** sur \([3;+\infty[\).
+
+On calcule \(f(1)=1-6+9+1=\boxed5\), maximum **local**, et \(f(3)=27-54+27+1=\boxed1\), minimum **local**. Comme \(f(x)\to+\infty\) lorsque \(x\to+\infty\), 5 n'est pas un maximum global sur \(\mathbb R\).
+
+**3. Tangente en \(x=2\).** \(f(2)=8-24+18+1=3\) et \(f'(2)=12-24+9=-3\). La tangente est
+
+\[
+y=f'(2)(x-2)+f(2)=-3(x-2)+3=\boxed{-3x+9}.
+\]
+
+Vérifier qu'elle passe par \((2;3)\) et qu'elle a la pente \(-3\).
+
+**4. Méthode en autonomie :** domaine → dérivée → factorisation → signe → tableau de variations → calculs d'images aux valeurs critiques → conclusion locale ou globale → tangente le cas échéant. Une valeur \(f'(a)=0\) ne suffit **pas** à affirmer un extremum : \(x^3\) a une dérivée nulle en 0 sans maximum ni minimum local.
+
+### Deux problèmes de transfert
+
+**A.** Donner la tangente à \(p(x)=x^2-4x+7\) au point d'abscisse \(3\).
+
+**B.** Étudier le sens de variation et les extremums locaux de \(q(x)=x^3-3x\), en justifiant le signe de \(q'\).
+
+### Corrections commentées
+
+**A.** \(p(3)=9-12+7=4\) et \(p'(x)=2x-4\), donc \(p'(3)=2\). La tangente est \(y=2(x-3)+4=\boxed{2x-2}\), et elle passe bien par \((3;4)\).
+
+**B.** \(q'(x)=3x^2-3=3(x-1)(x+1)\). Elle est positive sur \(]-\infty;-1[\) et \(]1;+\infty[\), négative sur \(]-1;1[\). Donc \(q\) croît, décroît, puis croît : maximum local \(q(-1)=\boxed2\), minimum local \(q(1)=\boxed{-2}\). Ce ne sont pas des extremums globaux sur tout \(\mathbb R\).
+
+**Erreur typique :** calculer correctement la dérivée mais oublier de **justifier son signe** avant d'annoncer les variations.
+
+---
+
 ## Exercices
 1. Dériver $4x^3-5x+7$.
 2. Dériver $(x^2+1)(2x-3)$, sans forcément développer.

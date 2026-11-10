@@ -45,6 +45,62 @@ $|x|$ mesure la distance à zéro. $|x-3|=2$ correspond à $x-3=2$ ou $x-3=-2$, 
 ## 7. Modélisation
 Un rectangle a un périmètre de 30 cm, longueur $L$ de 3 cm supérieure à largeur $l$. $2(L+l)=30$, $L=l+3$, soit $2l+3=15$, $l=6$ et $L=9$ cm. Toujours vérifier les unités et la cohérence.
 
+## 8. Atelier approfondi — système, inéquation rationnelle et vérification
+
+**Situation concrète.** Deux types de billets coûtent respectivement \(x\) et \(y\) euros. Trois billets du premier type et deux du second coûtent 19 €, et le premier coûte 3 € de plus que le second.
+
+**1. Poser le système en précisant le sens des inconnues :**
+
+\[
+\begin{cases}3x+2y=19\\x-y=3.\end{cases}
+\]
+
+**2. Substitution.** La seconde équation donne \(x=y+3\). Dans la première :
+
+\[
+3(y+3)+2y=19\iff5y+9=19\iff y=2,\quad x=5.
+\]
+
+**3. Vérification obligatoire.** \(3\times5+2\times2=19\) et \(5-2=3\). Les deux prix sont positifs. Conclusion : **5 €** pour le premier billet et **2 €** pour le second.
+
+**4. Passer à une inéquation rationnelle.** Résoudre
+
+\[
+\frac{2x-6}{x+1}\le0.
+\]
+
+Le numérateur s'annule en \(3\), le dénominateur en \(-1\). Le domaine est \(\mathbb R\setminus\{-1\}\), même si l'on obtient une égalité dans un autre calcul. En ordonnant les valeurs critiques \(-1<3\) :
+
+| Intervalle | \(2x-6\) | \(x+1\) | Quotient |
+|---|---|---|---|
+| \(]-\infty;-1[\) | \(-\) | \(-\) | \(+\) |
+| \(]-1;3[\) | \(-\) | \(+\) | \(-\) |
+| \(]3;+\infty[\) | \(+\) | \(+\) | \(+\) |
+
+On cherche un résultat négatif **ou nul**. Le quotient vaut zéro en \(x=3\), où le dénominateur n'est pas nul. Il n'est jamais défini en \(x=-1\). On conclut :
+
+\[
+\boxed{S=]-1;3]}.
+\]
+
+Ne jamais « multiplier par \(x+1\) » directement dans une inéquation sans connaître son signe, car cela peut inverser le sens de l'inégalité.
+
+### Deux problèmes de transfert
+
+**A.** Résoudre le système \(2x+3y=17\) et \(x+y=7\), avec vérification dans les deux équations.
+
+**B.** Résoudre \((x-4)/(x+2)\ge0\), en justifiant les valeurs incluses et exclues.
+
+### Corrections commentées
+
+**A.** \(x=7-y\). Donc \(2(7-y)+3y=17\), soit \(14+y=17\), d'où \(y=3\) et \(x=4\). Vérification : \(2\times4+3\times3=17\), et \(4+3=7\). On conclut \(\boxed{(x,y)=(4,3)}\).
+
+**B.** La valeur \(x=-2\) annule le dénominateur : elle est interdite. Le numérateur s'annule en 4 : cette borne est admise pour \(\ge0\). La fraction est positive quand les deux facteurs ont le même signe, soit \(x<-2\) ou \(x>4\). Conclusion : \(\boxed{S=]-\infty;-2[\cup[4;+\infty[}\).
+
+**Erreur typique :** confondre « solution qui annule le numérateur » et « valeur qui annule le dénominateur » ; la seconde n'appartient jamais au domaine.
+
+---
+
 ## Exercices
 1. Résoudre $5(2x-1)-3x=9$.
 2. Résoudre $(x+4)(3x-6)=0$.

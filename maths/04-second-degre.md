@@ -33,6 +33,54 @@ Le maximum est $\boxed{25\,\text{m}^2}$ pour $x=5$ m (carré de côté 5 m). Le 
 ## 6. Méthode d'examen
 Écrire $a,b,c$ → calculer $\Delta$ sans erreur de signe → calculer les racines → tableau de signes si inéquation → conclure par un **ensemble de solutions**. Pour une optimisation : domaine, expression, sommet, conclusion contextualisée.
 
+## 7. Atelier approfondi — les trois formes d'un même trinôme
+
+Considérons, sur le **domaine physique** \(x\in[0;6]\), la fonction de bénéfice :
+
+\[
+B(x)=-2x^2+12x-10.
+\]
+
+**Étape 1 — Forme canonique.** Factoriser le coefficient de \(x^2\), puis compléter le carré :
+
+\[
+B(x)=-2(x^2-6x+5)
+=-2\big((x-3)^2-4\big)
+=\boxed{-2(x-3)^2+8}.
+\]
+
+Comme \((x-3)^2\ge0\) et \(-2<0\), \(B(x)\le8\). Le sommet est \((3;8)\) : **maximum de 8 unités pour \(x=3\)**, qui appartient au domaine.
+
+**Étape 2 — Forme factorisée.** Ici \(\Delta=12^2-4(-2)(-10)=144-80=64\). Les racines sont \(x=1\) et \(x=5\), donc
+
+\[
+B(x)=\boxed{-2(x-1)(x-5)}.
+\]
+
+En développant, on retrouve bien \(-2x^2+12x-10\). Cette vérification évite les erreurs de signe.
+
+**Étape 3 — Signe.** Le coefficient dominant est négatif : \(B(x)>0\) **entre** ses deux racines, soit \(\boxed{1<x<5}\). Les deux bornes sont exclues car \(B=0\) en 1 et 5.
+
+**Étape 4 — Variations par dérivation.** \(B'(x)=-4x+12\), positive pour \(x<3\), nulle en 3, négative pour \(x>3\). Sur \([0;6]\), la fonction croît jusqu'à 3 puis décroît. Aux extrémités : \(B(0)=B(6)=-10\), ce qui confirme que le maximum global est bien celui du sommet.
+
+**En examen :** forme canonique pour l'extremum, forme factorisée pour le signe, forme développée pour calculer une image. Conserver les **unités** et le domaine du contexte dans la conclusion.
+
+### Deux problèmes de transfert
+
+**A.** Étudier \(P(x)=2x^2-8x+6\) : forme canonique, minimum, racines, ensemble des \(x\) tels que \(P(x)\le0\).
+
+**B.** Sur \([0;8]\), le bénéfice \(G(x)=-x^2+8x-7\) est-il positif partout ? Donner son maximum, son lieu et son intervalle de stricte positivité.
+
+### Corrections commentées
+
+**A.** \(P(x)=2((x-2)^2-1)=\boxed{2(x-2)^2-2}\). Le minimum est \(-2\) en \(x=2\). Les racines vérifient \((x-2)^2=1\), soit 1 et 3. Comme le coefficient dominant est positif, \(P\le0\) sur \(\boxed{[1;3]}\), racines incluses.
+
+**B.** \(G(x)=-(x-4)^2+9\). Le maximum est **9** pour \(x=4\). Les racines sont 1 et 7 ; \(G>0\) sur \(]1;7[\), et non sur tout \([0;8]\) : notamment \(G(0)=G(8)=-7\). Le modèle a donc un bénéfice négatif aux deux extrémités.
+
+**Erreur typique :** une inégalité « \(\ge0\) » inclut les racines ; une inégalité « \(>0\) » les exclut.
+
+---
+
 ## Exercices
 1. Résoudre $2x^2-7x+3=0$.
 2. Résoudre $x^2+2x+5=0$ dans $\mathbb R$.
