@@ -37,6 +37,20 @@ for i in range(min(len(source_matches),len(correction_matches))):
     total+=len(numbers)
 if total!=37: error(f"Le nombre de sous-questions est {total}, attendu 37")
 
+# Les 18 cours servis hors ligne doivent reproduire exactement les sources.
+source_courses=sorted((ROOT/"maths").glob("*.md"))
+cached_courses=sorted((APP/"cours").glob("*.md"))
+if len(source_courses)!=18 or len(cached_courses)!=18:
+    error(f"Bibliothèque incomplète : {len(source_courses)} sources, {len(cached_courses)} copies")
+for source in source_courses:
+    target=APP/"cours"/source.name
+    if not target.is_file():error(f"Cours manquant hors ligne : {source.name}")
+    elif target.read_bytes()!=source.read_bytes():error(f"Cours hors ligne obsolète : {source.name}")
+
+for required in ("course.html","course-reader.mjs","course-catalog.mjs",
+                 "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
+    if not (APP/required).is_file():error(f"Lecteur offline absent : {required}")
+
 for module in APP.glob("*.mjs"):
     contents=module.read_text(encoding="utf-8")
     for relative in re.findall(r'''(?:from|import)\s*["'](\./[^"']+)["']''',contents):
@@ -68,7 +82,13 @@ else:
     for asset in re.findall(r'"(\./[^"]+)"',asset_match.group(1)):
         if asset=="./": continue
         if not (APP/asset[2:]).is_file():error(f"Cache hors ligne : fichier manquant {asset}")
-    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","persistence.mjs","round.mjs"):
+    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","persistence.mjs","round.mjs",
+                 "course.html","course-reader.mjs","course-catalog.mjs",
+                 "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
+        if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : ressource manquante {name}")
+    for name in (source.name for source in source_courses):
+        if f'"./cours/{name}"' not in asset_match.group(1):error(f"Cache hors ligne : cours manquant {name}")
+    for name in ():
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : module manquant {name}")
 
 if ERRORS:

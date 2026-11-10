@@ -43,5 +43,7 @@ jobs:
           node --check app/persistence.mjs
           node --check app/round.mjs
           node --check app/sw.js
+          node --check app/course-catalog.mjs
+          node --check app/course-reader.mjs
       - name: Vérifier notation, jalons, révisions et sauvegardes
         run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/persistence.test.mjs app/round.test.mjs

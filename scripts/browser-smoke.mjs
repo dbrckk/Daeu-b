@@ -25,6 +25,22 @@ try {
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="143"),"143 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===4,"Examens A/B/C/D disponibles");
+  await check(async()=>await page.locator("#courseLibrary a").count()===18,
+    "Bibliothèque complète de 18 cours locaux");
+  await check(async()=>await page.locator("#topicCards .topic-card a").first().getAttribute("href").then(h=>h.startsWith("./course.html?course=")),
+    "Cours du catalogue reliés au lecteur local");
+  const courseOnline=await context.newPage();
+  courseOnline.on("pageerror",e=>errors.push("Lecteur cours : "+e.message));
+  await courseOnline.goto(BASE+"/course.html?course=07-limites-asymptotes",{waitUntil:"networkidle"});
+  await check(async()=>await courseOnline.locator("#courseBody h2").count()>=5,
+    "Cours complet HTML converti et structuré");
+  await check(async()=>await courseOnline.locator("#courseBody math").count()>=3,
+    "Formules mathématiques rendues en MathML sans CDN");
+  await check(async()=>await courseOnline.locator("#courseSelector option").count()===18,
+    "Navigation entre les 18 cours");
+  await check(async()=>await courseOnline.locator("#courseStatus").textContent().then(s=>s.includes("Cours 8/18")),
+    "Chapitre choisi depuis le paramètre d'URL");
+  await courseOnline.close();
   await check(async()=>await page.locator('link[rel="canonical"]').getAttribute("href")==="https://daeu-b-maths-dbrckk.onrender.com/","URL canonique permanente");
   await check(async()=>await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute("content").then(c=>c.includes("script-src 'self'")&&c.includes("object-src 'none'")),"CSP restrictive activée");
   await check(async()=>await page.evaluate(async()=>{const manifest=await(await fetch("./manifest.json")).json();return manifest.icons?.length>0&&manifest.icons[0].src==="./icon.svg";}),"Icône PWA déclarée dans le manifeste");
@@ -243,6 +259,21 @@ try {
     "Copie en cours préservée en consultant une ancienne correction");
   await check(async()=>await page.locator("#examContext").textContent().then(x=>x===offlineContext),
     "Énoncé courant préservé à travers l'historique");
+  // Le cache doit fournir les fichiers Markdown, le moteur de math et les styles
+  // même en naviguant directement vers un chapitre avec le réseau coupé.
+  const offlineCourse=await context.newPage();
+  offlineCourse.on("pageerror",e=>errors.push("Cours hors ligne : "+e.message));
+  await offlineCourse.goto(BASE+"/course.html?course=12-probabilites",{waitUntil:"domcontentloaded",timeout:12000});
+  await check(async()=>await offlineCourse.locator("#courseBody h2").count()>=5,
+    "Cours de probabilités accessible par URL directe hors ligne");
+  await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
+    "Équations de probabilités rendues sans connexion");
+  await offlineCourse.locator("#courseSelector").selectOption("13-trigonometrie");
+  await check(async()=>await offlineCourse.locator("#courseBody h1").textContent().then(s=>s.includes("Trigonométrie")),
+    "Changement de cours vers la trigonométrie hors ligne");
+  await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
+    "MathML toujours disponible au changement de chapitre");
+  await offlineCourse.close();
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");
