@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v16 sur adresse permanente (10 novembre 2026)
+## État actuel — livraison v17 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -294,3 +294,15 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Cache PWA versionné pour les deux fichiers, leur lecteur et la navigation directe.
 - [x] Contrôle d'égalité des sources et copies embarquées et tests Chromium en ligne/hors ligne.
 - [ ] Essai sur Android physique et relecture académique indépendante.
+
+
+## Livraison v17 — cours complets dans la PWA (10/11/2026)
+- [x] Ajouter 18 fichiers Markdown au site Render, correspondant exactement aux sources dans `maths/`.
+- [x] Ajouter un lecteur sécurisé, adapté aux mobiles, et un moteur MathML entièrement local.
+- [x] Relier les 13 domaines, les corrections d'entraînement et le diagnostic d'examen à ce lecteur.
+- [x] Précharger les cours et les moteurs de rendu ; servir la bonne page lors de navigation hors connexion.
+- [x] Tester le rendu Markdown et mathématique dans Chromium, puis la navigation dans les cours en mode hors réseau.
+- [x] Vérifier automatiquement la synchronisation des 18 copies et des sources.
+- [ ] Valider sur un Android physique l'installation et la lecture sans réseau après fermeture forcée de la PWA.
+- [ ] Étendre si nécessaire la lecture hors ligne aux documents complémentaires hors programme principal.
+- [ ] Relecture universitaire indépendante des démonstrations et corrigés.

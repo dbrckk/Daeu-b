@@ -88,8 +88,6 @@ else:
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : ressource manquante {name}")
     for name in (source.name for source in source_courses):
         if f'"./cours/{name}"' not in asset_match.group(1):error(f"Cache hors ligne : cours manquant {name}")
-    for name in ():
-        if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : module manquant {name}")
 
 
 # Les problèmes et corrigés embarqués doivent correspondre exactement aux sources.

@@ -105,8 +105,12 @@ Quatorze cours du tronc commun ont été enrichis d'une démarche rédigée pas 
 - [Logarithmes, équations et croissance exponentielle](maths/09-exponentielle-logarithme.md)
 - [Raisonnement, équivalences et rédaction d'examen](maths/17-raisonnement-modelisation.md)
 
-Les cours sont hébergés sur GitHub et nécessitent une connexion Internet ; **seul l'atelier interactif est précaché pour une utilisation hors ligne**. Les exemples sont recalculés par un contrôle CI dédié, sans que cela constitue une validation universitaire exhaustive.
+Les 18 cours sont désormais **consultables dans l'application sans connexion** après installation complète de la PWA. Le dépôt GitHub reste la source éditoriale : des copies contrôlées sont mises en cache localement. Les exemples sont recalculés en CI, sans que cela garantisse une relecture universitaire exhaustive.
 
 
 ## v16 — reprise des séances de révision
 La séance de dix questions en cours est enregistrée dans la même transaction que les réponses et les copies. Après une fermeture ou un rechargement, l'application reprend à la question non terminée, sans réévaluer les réponses déjà validées. Les exercices à valeurs variables retrouvent exactement leurs nombres et leur énoncé. L'export JSON inclut la séance ; les anciens exports restent acceptés.
+
+
+## v17 — Bibliothèque complète hors ligne
+La [bibliothèque de cours](https://daeu-b-maths-dbrckk.onrender.com/course.html) inclut les 18 chapitres 00–17 : explications, équations, tableaux, exercices et corrigés. Le navigateur télécharge les cours, le moteur Markdown et le rendu MathML lors de la mise en cache de la PWA. Les liens des cartes de chapitre, de l'entraînement et des corrections d'examen ouvrent ce lecteur local, sans CDN. Les fichiers sources restent dans `maths/` et les copies déployées dans `app/cours/` sont comparées octet par octet en CI.

@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v16, domaine permanent Render (10/11/2026)**  
+**État : candidat public stable v17, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -37,7 +37,7 @@ La CI utilise Playwright en dépendance de test **uniquement sur GitHub Actions*
 2. Choisir un chapitre, puis « Démarrer · 10 questions » ; consulter le corrigé après chaque réponse.
 3. Dans « Examens blancs », alterner les **sujets C et D** : ils proposent huit familles de problèmes différentes et de nouvelles valeurs à chaque tentative.
 4. En cas de besoin, utiliser le menu du navigateur « Ajouter à l'écran d'accueil » ou « Installer l'application » selon les possibilités du navigateur.
-5. Visiter une première fois le site avec Internet pour le mettre en cache. Les cours publiés sur GitHub restent externes.
+5. Visiter une première fois le site avec Internet pour le mettre en cache. Les 18 cours principaux sont désormais intégrés à la PWA ; les autres annexes sur GitHub restent externes.
 6. Utiliser « Exporter mes résultats » régulièrement. Le stockage persistant, lorsqu'il est accepté par le navigateur, n'élimine pas la nécessité d'une sauvegarde.
 
 ## Adresse permanente Render : active
@@ -62,7 +62,7 @@ Ce réglage ne touche pas au site de montres existant ni aux autres domaines.
 ## Limites à ne pas masquer
 - Pas de correction automatique véritable de la démonstration libre ; seule la réponse objective est notée et les étapes sont auto-évaluées.
 - Les examens C et D proposent **huit structures de problème différentes**, avec données variables ; cela ne couvre pas toute la diversité des sujets universitaires.
-- L'application fonctionne hors ligne pour les écrans et exercices en cache, mais les cours GitHub ne sont pas mis en cache.
+- L'application fonctionne hors ligne pour les exercices, les examens et les 18 cours principaux embarqués dans la PWA.
 - L'usage sur un véritable téléphone Android et les autres navigateurs restent à valider.
 - Il faut **exporter/importer** pour migrer d'un domaine de déploiement à l'autre ; aucune synchronisation cloud n'existe.
 - Cette formation ne délivre pas le DAEU B et n'est pas une plateforme officielle universitaire.
@@ -168,3 +168,12 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Les corrigés restent séparés des énoncés et ne sont accessibles que sur demande ; rendu Markdown sécurisé et formules MathML.
 - Deux fichiers Markdown locaux sont synchronisés octet par octet avec les sources GitHub, vérifiés en CI.
 - Le service worker précache les problèmes et leur lecteur ; navigation hors ligne testée dans Chromium mobile.
+
+
+## v17 — cours de mathématiques consultables hors connexion (10/11/2026)
+- 18 cours Markdown du dépôt copiés à l'identique sous `app/cours/`, avec vérification CI de leur synchronisation.
+- Lecteur intégré sécurisé avec mise en forme Markdown, formules MathML, navigation tactile précédent/suivant et accès direct depuis les questions et les diagnostics d'examen.
+- Bibliothèques libres Showdown, DOMPurify et Temml servies localement avec leurs licences, sans CDN ni jeton.
+- Cache PWA mis à jour pour permettre la navigation directe vers `course.html` sans recharger l'accueil hors connexion.
+- Parcours Chromium mobile vérifié en ligne et sans réseau à la version `f80998b` : [validation réussie](https://github.com/dbrckk/Daeu-b/actions/runs/42804827207).
+- Progression, séances et copies A/B/C/D conservées, aucune migration.

@@ -46,7 +46,7 @@ L'outil accepte pour les questions numériques les écritures 3/4, 0,75, -1/2, 0
 
 - Pas de compte, de publicité, de jeton, de bibliothèque externe ni de télémétrie.
 - Les résultats sont dans le stockage local du navigateur, sans synchronisation.
-- Un service worker précharge les fichiers de l'interface après une première visite en HTTPS ; les liens externes GitHub ne sont **pas** inclus dans le cache.
+- Le service worker précharge l'interface, les 18 cours, le moteur Markdown et le rendu MathML après la première visite HTTPS. Les annexes externes sur GitHub ne sont pas incluses.
 - Si le navigateur efface les données du site, les résultats non exportés sont perdus.
 - Import JSON : version 2, remplacement de la progression existante après confirmation.
 - Les vrais tests sur téléphone Android, la navigation au clavier et le cache hors ligne sont encore à vérifier.
@@ -145,7 +145,7 @@ Les examens fixes A/B, leurs copies, les grilles déjà cochées et les 127 él�
 **URL validée :** https://noisy-prism-63q74n2.shipstatic.com
 
 - La version actuelle comporte une icône SVG vectorielle, un manifeste PWA, un Service Worker avec cache local, et peut être ajoutée à l'écran d'accueil depuis le navigateur quand celui-ci le permet.
-- La page est utilisable hors ligne **après une première visite avec connexion et mise en cache des fichiers**. Les liens vers les cours GitHub nécessitent toujours Internet.
+- La page et les 18 cours principaux sont utilisables hors ligne **après une première visite avec connexion et installation du cache PWA**. Les documents externes complémentaires restent sur GitHub.
 - Dans « Sauvegarde et confidentialité », l'option **« Protéger le stockage local »** demande une persistance au navigateur via `navigator.storage.persist()`. Si elle est refusée, l'application continue normalement. Même accordée, elle ne remplace **jamais** la sauvegarde JSON en cas de changement d'adresse, d'appareil ou de nettoyage volontaire.
 - L'import JSON est maintenant accessible au clavier avec un indicateur de focus visible.
 - Le test automatique Chromium mobile exécute une session, un examen C, la reprise et la sauvegarde de la copie, le téléchargement JSON, l'effacement volontaire, la restauration et un rechargement hors ligne. Il a réussi lors de la stabilisation.
@@ -240,3 +240,7 @@ Les quatre derniers modules approfondis en v14 (02, 05, 09 et 17) complètent la
 
 ## v16 — séance persistante, sans compte ni serveur
 La séance active conserve ses IDs, ses graines de variantes, son nombre de réponses terminées et son score dans le document local `daeu-b-data-v1`. La réponse et l'avancement sont écrits ensemble par `commitPractice()`. Une recharge restaure le même exercice et passe directement à la prochaine question si la précédente a déjà été validée. L'export JSON prend en charge cette séance optionnelle. La réinitialisation efface aussi la séance ; la validation des copies A/B/C/D reste inchangée.
+
+
+## v17 — Bibliothèque locale des 18 cours
+Les fichiers `app/cours/*.md` sont des copies des cours `maths/*.md`, vérifiées par la CI. Les bibliothèques libres `app/vendor/` fonctionnent sans réseau ni API. L'affichage passe par un convertisseur Markdown puis une désinfection HTML (DOMPurify) et un moteur MathML natif (Temml). La navigation et les liens « Lire le cours » pointent vers `course.html?course=…`. Mettre à jour les cours en exécutant `python3 scripts/sync_courses.py` après toute modification du dossier `maths/`.
