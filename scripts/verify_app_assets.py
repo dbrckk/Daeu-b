@@ -47,7 +47,7 @@ for source in source_courses:
     if not target.is_file():error(f"Cours manquant hors ligne : {source.name}")
     elif target.read_bytes()!=source.read_bytes():error(f"Cours hors ligne obsolète : {source.name}")
 
-for required in ("course.html","course-reader.mjs","course-catalog.mjs",
+for required in ("course.html","course-reader.mjs","course-catalog.mjs","problems.html","problems-reader.mjs",
                  "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
     if not (APP/required).is_file():error(f"Lecteur offline absent : {required}")
 
@@ -82,7 +82,7 @@ else:
     for asset in re.findall(r'"(\./[^"]+)"',asset_match.group(1)):
         if asset=="./": continue
         if not (APP/asset[2:]).is_file():error(f"Cache hors ligne : fichier manquant {asset}")
-    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","persistence.mjs","round.mjs",
+    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","persistence.mjs","round.mjs","problems.html","problems-reader.mjs","problemes/sujets.md","problemes/corriges.md",
                  "course.html","course-reader.mjs","course-catalog.mjs",
                  "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : ressource manquante {name}")
@@ -95,3 +95,10 @@ if ERRORS:
     for e in ERRORS: print("ERREUR:",e)
     sys.exit(1)
 print(f"OK : {len(source_matches)} problèmes, {total} questions corrigées, imports, IDs HTML et cache hors ligne cohérents.")
+
+# Les problèmes et corrigés embarqués doivent correspondre exactement aux sources.
+for name in ("sujets.md","corriges.md"):
+    offline=APP/"problemes"/name
+    source=ROOT/"problemes"/name
+    if not offline.is_file() or offline.read_bytes()!=source.read_bytes():
+        error(f"Problèmes hors ligne absents ou obsolètes : {name}")

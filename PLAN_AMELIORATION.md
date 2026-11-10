@@ -286,3 +286,11 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 
 
 **Tests v16 vérifiés :** [52/52](https://github.com/dbrckk/Daeu-b/actions/runs/42802178510) et [Chromium Android simulé](https://github.com/dbrckk/Daeu-b/actions/runs/42802178596). Le scénario d'export/import vérifie également la restauration de la séance après réimportation.
+
+
+## Livraison v18 — problèmes progressifs intégralement hors ligne (10/11/2026)
+- [x] Lecteur local des 8 problèmes et des 37 sous-questions.
+- [x] Corrigés séparés des énoncés, consultables volontairement, y compris hors ligne.
+- [x] Cache PWA versionné pour les deux fichiers, leur lecteur et la navigation directe.
+- [x] Contrôle d'égalité des sources et copies embarquées et tests Chromium en ligne/hors ligne.
+- [ ] Essai sur Android physique et relecture académique indépendante.

@@ -161,3 +161,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 
 
 **Validation v16 :** [52 tests Node.js réussis](https://github.com/dbrckk/Daeu-b/actions/runs/42802178510), [parcours mobile et hors ligne réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42802178596). Ces tests n'impliquent pas qu'une installation sur téléphone Android physique a été réalisée.
+
+
+## v18 — problèmes progressifs et corrigés hors connexion (10/11/2026)
+- Huit problèmes progressifs et 37 questions accessibles dans un lecteur local sans connexion, après installation du cache.
+- Les corrigés restent séparés des énoncés et ne sont accessibles que sur demande ; rendu Markdown sécurisé et formules MathML.
+- Deux fichiers Markdown locaux sont synchronisés octet par octet avec les sources GitHub, vérifiés en CI.
+- Le service worker précache les problèmes et leur lecteur ; navigation hors ligne testée dans Chromium mobile.

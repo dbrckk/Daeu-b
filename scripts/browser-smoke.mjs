@@ -41,6 +41,17 @@ try {
   await check(async()=>await courseOnline.locator("#courseStatus").textContent().then(s=>s.includes("Cours 8/18")),
     "Chapitre choisi depuis le paramètre d'URL");
   await courseOnline.close();
+  const problemsPage=await context.newPage();
+  problemsPage.on("pageerror",e=>errors.push("Problèmes : "+e.message));
+  await problemsPage.goto(BASE+"/problems.html",{waitUntil:"networkidle"});
+  await check(async()=>await problemsPage.locator("#problemBody h3").count()===8,
+    "Huit problèmes locaux affichés sans correction");
+  await check(async()=>await problemsPage.locator("#problemBody math").count()>=5,
+    "Formules des problèmes converties en MathML");
+  await problemsPage.locator("#problemSwitch").click();
+  await check(async()=>await problemsPage.locator("#problemBody h2").count()>=8,
+    "Corrigés locaux accessibles par action explicite");
+  await problemsPage.close();
   await check(async()=>await page.locator('link[rel="canonical"]').getAttribute("href")==="https://daeu-b-maths-dbrckk.onrender.com/","URL canonique permanente");
   await check(async()=>await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute("content").then(c=>c.includes("script-src 'self'")&&c.includes("object-src 'none'")),"CSP restrictive activée");
   await check(async()=>await page.evaluate(async()=>{const manifest=await(await fetch("./manifest.json")).json();return manifest.icons?.length>0&&manifest.icons[0].src==="./icon.svg";}),"Icône PWA déclarée dans le manifeste");
@@ -274,6 +285,14 @@ try {
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
     "MathML toujours disponible au changement de chapitre");
   await offlineCourse.close();
+  const offlineProblems=await context.newPage();
+  await offlineProblems.goto(BASE+"/problems.html",{waitUntil:"domcontentloaded",timeout:12000});
+  await check(async()=>await offlineProblems.locator("#problemBody h3").count()===8,
+    "Huit problèmes disponibles hors connexion");
+  await offlineProblems.locator("#problemSwitch").click();
+  await check(async()=>await offlineProblems.locator("#problemBody h2").count()>=8,
+    "Corrigés complets disponibles hors connexion");
+  await offlineProblems.close();
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");

@@ -3,13 +3,14 @@
  * Aucune requête extérieure n'est mise en cache. Les données d'étude restent
  * exclusivement dans localStorage et ne passent jamais dans le service worker.
  */
-const CACHE="daeu-b-maths-v17";
+const CACHE="daeu-b-maths-v18";
 const PREFIX="daeu-b-maths-";
-const ASSETS=["./","./index.html","./style.css","./app.mjs","./engine.mjs","./questions.mjs","./variants.mjs","./exams.mjs","./exam-engine.mjs","./exam-ui.mjs","./exam-generator.mjs","./exam-alternative.mjs","./reasoning.mjs","./exam-analytics.mjs","./persistence.mjs","./round.mjs","./manifest.json","./icon.svg","./course.html","./course-reader.mjs","./course-catalog.mjs","./vendor/showdown-2.1.0.min.js","./vendor/dompurify.min.js","./vendor/temml.min.js","./cours/00-positionnement.md","./cours/01-calcul-numerique.md","./cours/02-calcul-litteral.md","./cours/03-equations-inequations-systemes.md","./cours/04-second-degre.md","./cours/05-fonctions.md","./cours/06-derivation.md","./cours/07-limites-asymptotes.md","./cours/08-continuite-tvi.md","./cours/09-exponentielle-logarithme.md","./cours/10-suites.md","./cours/11-statistiques.md","./cours/12-probabilites.md","./cours/13-trigonometrie.md","./cours/14-geometrie-vectorielle.md","./cours/15-primitives-integrales.md","./cours/16-complexes-complements.md","./cours/17-raisonnement-modelisation.md"];
+const ASSETS=["./","./index.html","./style.css","./app.mjs","./engine.mjs","./questions.mjs","./variants.mjs","./exams.mjs","./exam-engine.mjs","./exam-ui.mjs","./exam-generator.mjs","./exam-alternative.mjs","./reasoning.mjs","./exam-analytics.mjs","./persistence.mjs","./round.mjs","./manifest.json","./icon.svg","./course.html","./problems.html","./problems-reader.mjs","./problemes/sujets.md","./problemes/corriges.md","./course-reader.mjs","./course-catalog.mjs","./vendor/showdown-2.1.0.min.js","./vendor/dompurify.min.js","./vendor/temml.min.js","./cours/00-positionnement.md","./cours/01-calcul-numerique.md","./cours/02-calcul-litteral.md","./cours/03-equations-inequations-systemes.md","./cours/04-second-degre.md","./cours/05-fonctions.md","./cours/06-derivation.md","./cours/07-limites-asymptotes.md","./cours/08-continuite-tvi.md","./cours/09-exponentielle-logarithme.md","./cours/10-suites.md","./cours/11-statistiques.md","./cours/12-probabilites.md","./cours/13-trigonometrie.md","./cours/14-geometrie-vectorielle.md","./cours/15-primitives-integrales.md","./cours/16-complexes-complements.md","./cours/17-raisonnement-modelisation.md"];
 const SCOPE=new URL(self.registration.scope);
 const allowed=new Set(ASSETS.map(asset=>new URL(asset,SCOPE).pathname));
 const shell=new URL("./index.html",SCOPE).pathname;
 const courseShell=new URL("./course.html",SCOPE).pathname;
+const problemsShell=new URL("./problems.html",SCOPE).pathname;
 
 self.addEventListener("install",event=>{
   event.waitUntil((async()=>{
@@ -52,7 +53,7 @@ self.addEventListener("fetch",event=>{
     }
     // Navigation : prioriser le shell précaché pour le hors-ligne ;
     // une nouvelle version sera récupérée par la mise à jour du SW.
-    const target=url.pathname===courseShell?"./course.html":"./index.html";
+    const target=url.pathname===courseShell?"./course.html":url.pathname===problemsShell?"./problems.html":"./index.html";
     const shellResponse=await cache.match(new URL(target,SCOPE));
     if(shellResponse)return shellResponse;
     try{return await fetch(request);}
