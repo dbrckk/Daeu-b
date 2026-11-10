@@ -24,7 +24,7 @@ try {
   await page.goto(BASE,{waitUntil:"networkidle",timeout:30000});
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="127"),"127 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
-  await check(async()=>await page.locator("#examSelect option").count()===3,"Examens A/B/C disponibles");
+  await check(async()=>await page.locator("#examSelect option").count()===4,"Examens A/B/C/D disponibles");
   await check(async()=>await page.locator('link[rel="canonical"]').getAttribute("href")==="https://daeu-b-maths-dbrckk.onrender.com/","URL canonique permanente");
   await check(async()=>await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute("content").then(c=>c.includes("script-src 'self'")&&c.includes("object-src 'none'")),"CSP restrictive activée");
   await check(async()=>await page.evaluate(async()=>{const manifest=await(await fetch("./manifest.json")).json();return manifest.icons?.length>0&&manifest.icons[0].src==="./icon.svg";}),"Icône PWA déclarée dans le manifeste");
@@ -37,6 +37,42 @@ try {
       "Mise en page sans débordement à "+width+" px");
   }
   await page.setViewportSize({width:390,height:844});
+
+  // Sujet D : valider un parcours complet, isolé de la copie principale.
+  const dContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  const dPage=await dContext.newPage();
+  dPage.on("dialog",dialog=>dialog.accept());
+  await dPage.goto(BASE,{waitUntil:"networkidle"});
+  await dPage.locator("#examSelect").selectOption("blanc-d");
+  await dPage.locator("#examStart").click();
+  await check(async()=>await dPage.locator("#examActive").isVisible(),"Nouvel examen D démarré");
+  const dRational=await dPage.locator("#examContext").textContent();
+  const excluded=dRational.match(/f\(x\)=x\+\d+\+\d+\/\(x−(\d+)\)/)?.[1];
+  assert.ok(excluded,"D : domaine rationnel absent");
+  await check(async()=>await dPage.locator("#examQuestions fieldset").count()===4,
+    "D : quatre sous-questions en première section");
+  await dPage.locator("#examQuestions .exam-input").first().fill(excluded);
+  await dPage.reload({waitUntil:"networkidle"});
+  await check(async()=>await dPage.locator("#examContext").textContent().then(x=>x===dRational),
+    "D : même énoncé après rechargement");
+  await check(async()=>await dPage.locator("#examQuestions .exam-input").first().inputValue().then(x=>x===excluded),
+    "D : réponse numérique conservée après rechargement");
+  await dPage.locator("#examSubmit").click();
+  await check(async()=>await dPage.locator("#examScore").textContent().then(x=>x.trim()==="1 / 20"),
+    "D : barème calculé selon sa propre graine");
+  await check(async()=>await dPage.locator("#examReview details.exam-review-group").count()===4,
+    "D : quatre corrections accessibles");
+  await check(async()=>await dPage.locator("#examReview .exam-reasoning-step").count()===16,
+    "D : seize étapes de raisonnement disponibles");
+  await check(async()=>await dPage.evaluate(()=>{
+    const exams=JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.exams;
+    return exams?.history?.length===1&&exams.history[0].examId==="blanc-d"
+      &&Number.isInteger(exams.history[0].seed);
+  }),"D : copie et graine sauvegardées");
+  await dContext.close();
+
   await page.locator("#start").click();
   await check(async()=>await page.locator("#quiz").isVisible(),"Quiz démarré");
   await page.locator("#unknownButton").click();
