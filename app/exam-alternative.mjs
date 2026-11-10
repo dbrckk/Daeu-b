@@ -33,7 +33,7 @@ const explained=(solution,skill)=>{
 };
 const number=(id,prompt,answer,points,solution,skill)=>({id,prompt,answer,points,solution:explained(solution,skill),skill,type:"number"});
 const choice=(id,prompt,options,answer,points,solution,skill)=>({id,prompt,options,answer,points,solution:explained(solution,skill),skill,type:"choice"});
-const step=(id,prompt,model,lesson)=>({id,prompt,model,lesson});
+const step=(id,prompt,model,lesson)=>({id,prompt,model:model+"\nRédige aussi le lien logique entre cette étape et la conclusion de la question.",lesson});
 const section=(id,title,context,questions,method,intro,steps)=>({id,title,context,questions,method,rubric:{intro,steps}});
 
 export function createAlternativeExam(seed){
