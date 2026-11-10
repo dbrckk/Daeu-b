@@ -106,3 +106,7 @@ Quatorze cours du tronc commun ont été enrichis d'une démarche rédigée pas 
 - [Raisonnement, équivalences et rédaction d'examen](maths/17-raisonnement-modelisation.md)
 
 Les cours sont hébergés sur GitHub et nécessitent une connexion Internet ; **seul l'atelier interactif est précaché pour une utilisation hors ligne**. Les exemples sont recalculés par un contrôle CI dédié, sans que cela constitue une validation universitaire exhaustive.
+
+
+## v16 — reprise des séances de révision
+La séance de dix questions en cours est enregistrée dans la même transaction que les réponses et les copies. Après une fermeture ou un rechargement, l'application reprend à la question non terminée, sans réévaluer les réponses déjà validées. Les exercices à valeurs variables retrouvent exactement leurs nombres et leur énoncé. L'export JSON inclut la séance ; les anciens exports restent acceptés.

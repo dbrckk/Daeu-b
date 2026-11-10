@@ -73,6 +73,30 @@ try {
   }),"D : copie et graine sauvegardées");
   await dContext.close();
 
+  // Séance rétablie après fermeture de l'onglet et reprise du contexte.
+  const roundContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  const roundPage=await roundContext.newPage();
+  await roundPage.goto(BASE,{waitUntil:"networkidle"});
+  await roundPage.locator("#topic").selectOption("nombres");
+  await roundPage.locator("#start").click();
+  const firstPrompt=await roundPage.locator("#questionText").textContent();
+  await roundPage.reload({waitUntil:"networkidle"});
+  await check(async()=>await roundPage.locator("#questionText").textContent().then(t=>t===firstPrompt),
+    "Révision : même question et mêmes valeurs après rechargement");
+  await roundPage.locator("#unknownButton").click();
+  await check(async()=>await roundPage.locator("#feedback").isVisible(),"Réponse évaluée avant rechargement");
+  await roundPage.reload({waitUntil:"networkidle"});
+  await check(async()=>await roundPage.locator("#quizCount").textContent().then(t=>t.includes("Question 2 /")),
+    "Révision : reprise à la question suivante sans double notation");
+  await check(async()=>await roundPage.evaluate(()=>{
+    const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+    return s.round?.completed===1&&s.round?.score===0
+      &&Object.values(s.practice.items).reduce((sum,x)=>sum+x.attempts,0)===1;
+  }),"Réponse et avancement conservés dans une seule transaction");
+  await roundContext.close();
+
   await page.locator("#start").click();
   await check(async()=>await page.locator("#quiz").isVisible(),"Quiz démarré");
   await page.locator("#unknownButton").click();

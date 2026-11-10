@@ -236,3 +236,7 @@ Les chapitres 01 à 12, 15 et 17 ont chacun un exemple de méthode commenté et 
 
 
 Les quatre derniers modules approfondis en v14 (02, 05, 09 et 17) complètent la séquence de base : **14 ateliers et 28 problèmes de transfert corrigés**. Les exemples sont contrôlés par `scripts/verify_worked_cases.py` et restent consultables sur GitHub avec une connexion ; aucun changement dans la PWA ou les sauvegardes.
+
+
+## v16 — séance persistante, sans compte ni serveur
+La séance active conserve ses IDs, ses graines de variantes, son nombre de réponses terminées et son score dans le document local `daeu-b-data-v1`. La réponse et l'avancement sont écrits ensemble par `commitPractice()`. Une recharge restaure le même exercice et passe directement à la prochaine question si la précédente a déjà été validée. L'export JSON prend en charge cette séance optionnelle. La réinitialisation efface aussi la séance ; la validation des copies A/B/C/D reste inchangée.

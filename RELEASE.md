@@ -151,3 +151,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Les chapitres 13 (trigonométrie), 14 (géométrie) et 16 (complexes) comprennent désormais des ateliers guidés et six problèmes de transfert corrigés.
 - **17 ateliers et 34 problèmes de transfert** contrôlés par un script Python de recalcul des invariants.
 - Les jalons 21–23 restent facultatifs selon le syllabus Nice 2026-2027 ; aucune modification des 143 éléments interactifs ni des sauvegardes.
+
+
+## v16 — reprise automatique d'une séance interrompue (10/11/2026)
+- Sauvegarde atomique de la réponse et de l'avancement d'une série de 10 questions.
+- Reprise au bon rang après rechargement, sans doubler les points ; mêmes questions paramétriques reconstruite à partir de leurs graines.
+- Intégrité des données : validation stricte des ID, index, scores et graines ; repli sur anciennes sauvegardes JSON sans séance.
+- Tests purs de restitution et d'échec quota, plus scénario Chromium de rechargement à la première et à la deuxième question.

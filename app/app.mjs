@@ -2,7 +2,8 @@ import {TOPICS} from "./questions.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from "./persistence.mjs";
-import {VARIANTS,injectVariants,materializeVariant,validateVariants} from "./variants.mjs";
+import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
+import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 
 const LESSONS="https://github.com/dbrckk/Daeu-b/blob/main/maths/";
@@ -13,7 +14,7 @@ const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS)];
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
-let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false;
+let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null;
 let dataStore=null;
 let storageWorks=true;
 function conflictWarning(){
@@ -29,7 +30,7 @@ function notification(message) {
 
 try {
   dataStore=createPersistence(localStorage,knownIds);
-  state=dataStore.snapshot().practice;
+  const initial=dataStore.snapshot();state=initial.practice;round=initial.round;
 } catch(err) {
   storageWorks=false;
   // Aucun original corrompu n'est effacé. Le mode dégradé reste utilisable,
@@ -38,9 +39,10 @@ try {
   notification("Ancienne sauvegarde illisible ou stockage inaccessible. Données existantes préservées, mais cette session est temporaire. Exporte tes résultats et vérifie les paramètres du navigateur.");
 }
 
-function persist() {
+function persist(practice,progressRound) {
   try {
-    state=dataStore.updatePractice(state).practice;
+    const saved=dataStore.commitPractice(practice,progressRound);
+    state=saved.practice;round=saved.round;
     storageWorks=true;
     return true;
   }catch(err){
@@ -94,17 +96,40 @@ function buildTopicSelector() {
 }
 
 function startSession() {
-  session=selectRound(state,questions,{topic:el("topic").value,mode:el("mode").value,limit:10}).map(q=>q.type==="variant"?materializeVariant(q,{previousPrompt:state.items?.[q.id]?.lastPrompt||""}):q);
-  index=0;score=0;done=false;
-  el("results").hidden=true;
-  el("quiz").hidden=true;
-  notification("");
-  if(!session.length){
+  const selected=selectRound(state,questions,{topic:el("topic").value,mode:el("mode").value,limit:10});
+  if(!selected.length){
     notification(el("mode").value==="due"?"Aucune question à réviser actuellement dans ce chapitre. Passe en mode découverte ou reviens à la date d'échéance.":"Aucune question correspondante. Essaie un autre domaine ou mode.");
     return;
   }
+  try{
+    const planned=buildRound(selected,state);
+    const saved=dataStore.updateRound(planned.round);
+    round=saved.round;session=planned.questions;
+  }catch(err){
+    if(err instanceof StaleDataError)conflictWarning();
+    else notification("Impossible de sauvegarder la nouvelle séance. Vérifie le stockage du navigateur.");
+    return;
+  }
+  index=0;score=0;done=false;
+  el("results").hidden=true;
   el("quiz").hidden=false;
+  notification("");
   renderQuestion();
+}
+function resumeSession(){
+  if(!round)return;
+  try{
+    session=restoreRound(round,questions);
+    score=round.score;index=round.completed;done=false;
+    if(index>=session.length)finish();
+    else{
+      el("quiz").hidden=false;
+      renderQuestion();
+      notification("Séance restaurée après rechargement : questions et variantes conservées.");
+    }
+  }catch(err){
+    notification("Cette ancienne séance ne peut pas être reconstruite. Démarre une nouvelle séance ; ta progression validée reste intacte.");
+  }
 }
 
 function renderQuestion() {
@@ -152,11 +177,9 @@ function submit(raw,unknown=false) {
   const grade=unknown?{valid:true,correct:false}:gradeAnswer(q,raw);
   if(!grade.valid){notification(grade.message);return;}
   const next=recordAnswer(state,q.id,grade.correct,Date.now(),{signature:q.isVariant?q.prompt:null,hinted:hintUsed});
-  const previous=state;
-  state=next;
-  if(!persist()){state=previous;return;}
+  if(!persist(next,advanceRound(round,grade.correct)))return;
   done=true;notification("");
-  if(grade.correct)score++;
+  score=round.score;
   refreshOverview();
   showFeedback(grade.correct,unknown);
 }
@@ -173,7 +196,7 @@ function exportProgress(){
   let snapshot;
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
-  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams};
+  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
@@ -195,10 +218,11 @@ async function importProgress(file) {
     if(!confirm("Importer "+importedCount+" résultat(s) ? Cela remplace la progression de cet appareil.")) return;
     // Une seule écriture atomique contient les révisions ET les examens.
     const prior=dataStore.snapshot();
-    const updated=dataStore.replaceAll(imported,importedExams??prior.exams);
-    state=updated.practice;
+    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null);
+    state=updated.practice;round=updated.round;
     restoreExamBackup(updated.exams);
-    refreshOverview();
+    el("quiz").hidden=true;el("results").hidden=true;session=[];
+    refreshOverview();resumeSession();
     notification("Sauvegarde importée intégralement : "+importedCount+" résultat(s) reconnus.");
   }catch(err){
     if(err instanceof StaleDataError)conflictWarning();
@@ -209,6 +233,7 @@ async function importProgress(file) {
 buildTopicSelector();
 refreshOverview();
 initExams(dataStore,conflictWarning);
+resumeSession();
 el("start").addEventListener("click",startSession);
 el("restart").addEventListener("click",startSession);
 el("answerForm").addEventListener("submit",evt=>{
@@ -244,7 +269,7 @@ el("reset").addEventListener("click",()=>{
   if(!confirm("Effacer tous les résultats enregistrés sur cet appareil ? Pense à exporter d'abord."))return;
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
-    state=fresh.practice;clearExamProgress();refreshOverview();
+    state=fresh.practice;round=null;clearExamProgress();refreshOverview();
     session=[];el("quiz").hidden=true;el("results").hidden=true;
     notification("Progression et copies remises à zéro.");
   }catch(err){

@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v14 sur adresse permanente (10 novembre 2026)
+## État actuel — livraison v16 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -274,3 +274,12 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Étendre les vérifications à **17 ateliers et 34 problèmes de transfert** ; contrôles mathématiques supplémentaires en CI.
 - [ ] Relecture pédagogique indépendante et test sur Android physique, particulièrement hors ligne.
 - [ ] Vérifier l'adéquation exacte des compléments facultatifs au centre d'inscription ; les jalons 21–23 restent facultatifs à Nice.
+
+
+## Livraison v16 — sessions de révision résistantes aux fermetures (10/11/2026)
+- [x] Conserver la séance active de 10 questions (ordre, variantes, score et rang) dans la sauvegarde locale unifiée.
+- [x] Sauvegarder **réponse et avancement dans la même transaction**, afin d'éviter qu'une fermeture Android ne note deux fois la question.
+- [x] Restaurer les mêmes nombres paramétriques sans les stocker sous une forme manipulable, via une graine uint32.
+- [x] Garder les anciens exports JSON compatibles et inclure la séance dans les nouvelles sauvegardes.
+- [x] Étendre les tests purs et Chromium à la reprise sur rechargement.
+- [ ] Essais matériels sur Android (arrêt forcé et reprise PWA) et relecture pédagogique universitaire indépendante.

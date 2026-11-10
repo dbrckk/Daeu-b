@@ -12,6 +12,7 @@
  */
 import {emptyState,sanitizeState} from "./engine.mjs";
 import {emptyExamStore,sanitizeExamStore} from "./exam-engine.mjs";
+import {sanitizeRound} from "./round.mjs";
 
 export const DATA_KEY="daeu-b-data-v1";
 export const OLD_PRACTICE_KEY="daeu-b-maths-progress-v2";
@@ -33,7 +34,8 @@ function normalizeBundle(raw,knownIds){
     version:DATA_VERSION,
     revision:raw.revision,
     practice:sanitizeState(raw.practice,knownIds),
-    exams:sanitizeExamStore(raw.exams)
+    exams:sanitizeExamStore(raw.exams),
+    round:sanitizeRound(raw.round,knownIds)
   };
 }
 function parse(value,label){
@@ -50,7 +52,8 @@ export function createPersistence(storage,knownIds){
     version:DATA_VERSION,
     revision:0,
     practice:legacyPracticeRaw===null?emptyState():sanitizeState(parse(legacyPracticeRaw,"du suivi"),knownIds),
-    exams:legacyExamsRaw===null?emptyExamStore():sanitizeExamStore(parse(legacyExamsRaw,"des copies"))
+    exams:legacyExamsRaw===null?emptyExamStore():sanitizeExamStore(parse(legacyExamsRaw,"des copies")),
+    round:null
   }:normalizeBundle(parse(startRaw,"unifiées"),knownIds);
   let fingerprint=startRaw;
 
@@ -68,7 +71,8 @@ export function createPersistence(storage,knownIds){
       version:DATA_VERSION,
       revision:current.revision+1,
       practice:updated.practice,
-      exams:updated.exams
+      exams:updated.exams,
+      round:updated.round??null
     };
     if(next.revision>1e12)throw new InvalidStorageError("Le compteur de sauvegarde a atteint sa limite");
     const encoded=JSON.stringify(next);
@@ -103,11 +107,21 @@ export function createPersistence(storage,knownIds){
       if(!exams||exams.version!==emptyExamStore().version)throw new InvalidStorageError("Copies non compatibles");
       return save({...current,exams:sanitizeExamStore(exams)});
     },
-    replaceAll(practice,exams){
-      // La vérification complète précède l'écriture atomique.
+    updateRound(round){
+      return save({...current,round:sanitizeRound(round,knownIds)});
+    },
+    commitPractice(practice,round){
+      // Une seule écriture contient à la fois la réponse et l'avancement.
+      const cleanPractice=sanitizeState(practice,knownIds);
+      const cleanRound=sanitizeRound(round,knownIds);
+      return save({...current,practice:cleanPractice,round:cleanRound});
+    },
+    replaceAll(practice,exams,round=null){
+      // Import et remise à zéro remplacent toutes les données ensemble.
       const cleanPractice=sanitizeState(practice,knownIds);
       const cleanExams=sanitizeExamStore(exams);
-      return save({practice:cleanPractice,exams:cleanExams});
+      const cleanRound=sanitizeRound(round,knownIds);
+      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound});
     },
     storageKey:DATA_KEY
   };
