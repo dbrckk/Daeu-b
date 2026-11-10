@@ -66,6 +66,34 @@ E. Produit scalaire $(1;1)\cdot(1;-1)=0$, ou quotient $(1-i)/(1+i)=-i$, imaginai
 F. $z'=1+e^{i\pi}(z-1)=1-(1+i)=\boxed{-i}$.
 G. $(z_C-z_A)/(z_B-z_A)=i$ a pour argument $\boxed{\pi/2}$.
 
+## 8. Atelier approfondi — algèbre, module et rotation
+
+Considérons \(z=1+2i\) et \(w=2-i\), où \(i^2=-1\).
+
+**Étape 1 — Multiplier.** \(zw=(1+2i)(2-i)=2-i+4i-2i^2=\boxed{4+3i}\). Le produit est un complexe, pas le produit séparé des parties réelles et imaginaires.
+
+**Étape 2 — Vérifier par les modules.** \(|z|=\sqrt5\), \(|w|=\sqrt5\), donc \(|zw|=|z||w|=5\). Avec \(zw=4+3i\), on trouve aussi \(\sqrt{4^2+3^2}=\boxed5\).
+
+**Étape 3 — Diviser.** En multipliant par le conjugué de \(w\) : \(z/w=(1+2i)(2+i)/[(2-i)(2+i)]=(2+i+4i+2i^2)/5=\boxed i\). Contrôle : \(i(2-i)=1+2i=z\).
+
+**Étape 4 — Rotation de centre \(c=1+i\) et d'angle \(\pi/2\).** L'image de \(z=3+i\) vérifie \(z'=c+i(z-c)\). Comme \(z-c=2\), on obtient \(z'=1+i+2i=\boxed{1+3i}\). La distance au centre est conservée : \(|z-c|=2=|z'-c|\).
+
+### Deux problèmes de transfert
+
+**A.** Calculer \((2+i)(1-3i)\), son module, puis le quotient \((2+i)/(1-3i)\) sous forme algébrique.
+
+**B.** On effectue une rotation d'angle \(\pi\) et de centre d'affixe \(c=2\). Quelle est l'image du point d'affixe \(z=3+2i\) ? Vérifier la conservation de la distance au centre.
+
+### Corrections commentées
+
+**A.** \((2+i)(1-3i)=2-6i+i-3i^2=\boxed{5-5i}\). Module \(\sqrt{25+25}=\boxed{5\sqrt2}\). Pour le quotient, on multiplie par \(1+3i\) : \((2+i)(1+3i)/(1+9)=(-1+7i)/10=\boxed{-1/10+7i/10}\).
+
+**B.** Comme \(e^{i\pi}=-1\), \(z'=2-(z-2)=4-z=\boxed{1-2i}\). Les deux distances au centre valent \(|1+2i|=|-1-2i|=\boxed{\sqrt5}\).
+
+**Pièges :** oublier \(i^2=-1\), confondre module et partie réelle, effectuer une rotation autour de l'origine quand le centre est non nul.
+
+---
+
 ## Exercices
 1. Calculer $(3-2i)+(1+5i)$.
 2. Calculer $(2+i)^2$.

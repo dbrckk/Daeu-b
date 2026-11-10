@@ -145,3 +145,9 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - La vérification des méthodes et exemples porte désormais sur les 14 chapitres avec des invariants numériques et algébriques recalculés automatiquement.
 - Aucun changement de format de sauvegarde : 143 questions et modèles interactifs, quatre examens A/B/C/D, domaine Render permanent inchangés.
 - Validation sur Android physique et relecture universitaire externe toujours non réalisées : ces contrôles CI ne se substituent pas à une certification académique.
+
+
+## v15 — compléments facultatifs structurés (10/11/2026)
+- Les chapitres 13 (trigonométrie), 14 (géométrie) et 16 (complexes) comprennent désormais des ateliers guidés et six problèmes de transfert corrigés.
+- **17 ateliers et 34 problèmes de transfert** contrôlés par un script Python de recalcul des invariants.
+- Les jalons 21–23 restent facultatifs selon le syllabus Nice 2026-2027 ; aucune modification des 143 éléments interactifs ni des sauvegardes.

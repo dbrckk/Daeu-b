@@ -41,6 +41,34 @@ Exemple : sur $[0;2\pi[$, $\sin t=1/2$ donne $\boxed{\{\pi/6;5\pi/6\}}$.
 Pour $f(x)=2\sin x+\cos x$ :
 $f'(x)=2\cos x-\sin x$. Pour une représentation graphique ou une étude, garder les valeurs exactes et vérifier l'intervalle demandé. Domaine de $\tan x$ : $x\ne\pi/2+k\pi$.
 
+## 7. Atelier approfondi — angle, cercle et résolution
+
+**Objectif :** distinguer l'angle en degrés et en radians, puis résoudre une équation en donnant toutes les solutions de l'intervalle demandé.
+
+**Étape 1 — Convertir.** Pour \(150^\circ\), la formule \(150\pi/180\) donne \(\boxed{5\pi/6}\). Cet angle est dans le deuxième quadrant : le cosinus est négatif et le sinus positif.
+
+**Étape 2 — Valeurs exactes.** Comme \(5\pi/6=\pi-\pi/6\), on a \(\cos(5\pi/6)=-\sqrt3/2\) et \(\sin(5\pi/6)=1/2\). On vérifie \(\cos^2t+\sin^2t=3/4+1/4=1\).
+
+**Étape 3 — Résoudre sur un tour.** Pour \(\sin x=1/2\) avec \(x\in[0;2\pi[\), les deux solutions sont \(\boxed{x=\pi/6\text{ ou }x=5\pi/6}\). Sur \(\mathbb R\), ajouter \(2k\pi\) à chacune, \(k\in\mathbb Z\). L'intervalle \([0;2\pi[\) exclut \(2\pi\).
+
+**Étape 4 — Dériver.** Pour \(f(x)=2\sin x-\cos x\), \(f'(x)=2\cos x+\sin x\), à condition que \(x\) soit mesuré en radians. En \(x=0\), \(f'(0)=2\).
+
+### Deux problèmes de transfert
+
+**A.** Convertir \(210^\circ\) en radians, puis calculer \(\sin(210^\circ)\) et \(\cos(210^\circ)\) sans calculatrice.
+
+**B.** Résoudre \(\cos x=-1/2\) sur \([0;2\pi[\), puis calculer la dérivée en \(0\) de \(g(x)=3\cos x+4\sin x\).
+
+### Corrections commentées
+
+**A.** \(210^\circ=210\pi/180=\boxed{7\pi/6}\). L'angle est dans le troisième quadrant et son angle de référence est \(\pi/6\), d'où \(\boxed{\sin(7\pi/6)=-1/2}\) et \(\boxed{\cos(7\pi/6)=-\sqrt3/2}\).
+
+**B.** Le cosinus vaut \(-1/2\) aux angles du deuxième et troisième quadrants : \(\boxed{x=2\pi/3\text{ ou }x=4\pi/3}\). Ensuite \(g'(x)=-3\sin x+4\cos x\), donc \(\boxed{g'(0)=4}\).
+
+**Pièges :** oublier une deuxième solution, confondre radians et degrés dans la dérivée, appliquer la tangente quand \(\cos x=0\).
+
+---
+
 ## Exercices
 1. Convertir $150^\circ$ en radians.
 2. Donner $\cos(2\pi/3)$ et $\sin(2\pi/3)$.

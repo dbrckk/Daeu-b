@@ -25,6 +25,9 @@ CASES = {
     "05-fonctions.md": "## 7. Atelier approfondi",
     "09-exponentielle-logarithme.md": "## 7. Atelier approfondi",
     "17-raisonnement-modelisation.md": "## 9. Atelier approfondi",
+    "13-trigonometrie.md": "## 7. Atelier approfondi",
+    "14-geometrie-vectorielle.md": "## 7. Atelier approfondi",
+    "16-complexes-complements.md": "## 8. Atelier approfondi",
 }
 
 def equal(actual, expected, context):
@@ -210,4 +213,42 @@ benefit=lambda n:9*n-(60+4*n)
 equal(benefit(12),0,"seuil strict non franchi")
 equal(benefit(13),5,"premier entier rentable")
 
-print("OK: 14 ateliers, 28 problèmes de transfert corrigés, invariants mathématiques recalculés.")
+# Trigonométrie : valeurs exactes et dérivées.
+from math import sin, cos, pi
+equal(150*pi/180,5*pi/6,"conversion radians")
+equal(sin(5*pi/6),.5,"sinus quadrant II")
+equal(cos(5*pi/6),-sqrt(3)/2,"cosinus quadrant II")
+equal(sin(7*pi/6),-.5,"sinus quadrant III")
+equal(cos(7*pi/6),-sqrt(3)/2,"cosinus quadrant III")
+equal(cos(2*pi/3),-.5,"cosinus équation")
+equal(cos(4*pi/3),-.5,"deuxième solution cosinus")
+equal(-3*sin(0)+4*cos(0),4,"dérivée trigonométrique")
+
+# Géométrie : déterminant, équations, produit scalaire et distances.
+assert 4*4-2*2==12
+assert 1-2*2+3==0 and 5-2*4+3==0
+equal(abs(3-2*6+3)/sqrt(1+4),6/sqrt(5),"distance à AB")
+assert 2-2*5+2 != 0
+assert 2*1+(-1)*2 == 0
+equal(abs(2*3-0-4)/sqrt(4+1),2/sqrt(5),"distance transfert")
+
+# Complexes : multiplication, division et rotation autour d'un centre.
+z,w=1+2j,2-1j
+assert z*w==4+3j
+equal(abs(z*w),5,"module multiplicatif")
+assert abs(z/w-1j)<1e-12
+center=1+1j
+point=3+1j
+image=center+1j*(point-center)
+assert image==1+3j
+equal(abs(point-center),abs(image-center),"isométrie rotation")
+assert (2+1j)*(1-3j)==5-5j
+equal(abs(5-5j),5*sqrt(2),"module transfert")
+assert abs((2+1j)/(1-3j)-(-.1+.7j))<1e-12
+center=2+0j
+point=3+2j
+image=center-(point-center)
+assert image==1-2j
+equal(abs(point-center),abs(image-center),"rotation de pi")
+
+print("OK: 17 ateliers, 34 problèmes de transfert corrigés, invariants mathématiques recalculés.")

@@ -265,3 +265,12 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [ ] Relecture académique indépendante des exemples et corrections, avec vérification des programmes des établissements choisis.
 - [ ] Test sur Android physique, notamment reprise hors ligne et stockage navigateur ; évaluer ensuite l'ergonomie pour de longues séances.
 - [ ] Approfondir séparément les compléments facultatifs selon université : trigonométrie (13), géométrie (14), nombres complexes (16).
+
+
+## Livraison v15 — compléments selon université (10/11/2026)
+- [x] Trigonométrie : radians, quadrants, résolution complète et dérivation, deux problèmes de transfert corrigés.
+- [x] Géométrie vectorielle : déterminant, droite, orthogonalité, distance point-droite, deux problèmes de transfert corrigés.
+- [x] Complexes : calcul algébrique, module, division et rotation de centre non nul, deux problèmes de transfert corrigés.
+- [x] Étendre les vérifications à **17 ateliers et 34 problèmes de transfert** ; contrôles mathématiques supplémentaires en CI.
+- [ ] Relecture pédagogique indépendante et test sur Android physique, particulièrement hors ligne.
+- [ ] Vérifier l'adéquation exacte des compléments facultatifs au centre d'inscription ; les jalons 21–23 restent facultatifs à Nice.

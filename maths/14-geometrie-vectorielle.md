@@ -39,6 +39,34 @@ Le cercle de centre $C(a;b)$ et rayon $R>0$ vérifie :
 $$(x-a)^2+(y-b)^2=R^2.$$
 Exemple centre $(1;-2)$ rayon 3 : $(x-1)^2+(y+2)^2=9$.
 
+## 7. Atelier approfondi — droite, orthogonalité et distance
+
+Dans un repère orthonormé, considérons \(A(1;2)\), \(B(5;4)\) et \(C(3;6)\).
+
+**Étape 1 — Construire les vecteurs.** \(\overrightarrow{AB}=(4;2)\) et \(\overrightarrow{AC}=(2;4)\). Leurs longueurs valent toutes deux \(\sqrt{20}=2\sqrt5\).
+
+**Étape 2 — Vérifier la colinéarité.** Le déterminant de \(\overrightarrow{AB}\) et \(\overrightarrow{AC}\) vaut \(4\times4-2\times2=\boxed{12}\), non nul. Les points \(A,B,C\) ne sont donc pas alignés.
+
+**Étape 3 — Équation de (AB).** La pente est \((4-2)/(5-1)=1/2\). En utilisant \(A\), on obtient \(y-2=(x-1)/2\), soit \(\boxed{x-2y+3=0}\). Le vecteur normal \((1;-2)\) est orthogonal au vecteur directeur \((4;2)\), car \(4-4=0\).
+
+**Étape 4 — Distance de C à la droite (AB).** Dans un repère orthonormé, la distance d'un point \((x_0;y_0)\) à \(ax+by+c=0\) est \(|ax_0+by_0+c|/\sqrt{a^2+b^2}\). Ici : \(|3-12+3|/\sqrt5=\boxed{6/\sqrt5=6\sqrt5/5}\). On peut vérifier que cette distance est positive et inférieure à \(AC=2\sqrt5\).
+
+### Deux problèmes de transfert
+
+**A.** Pour \(P(0;1)\), \(Q(4;3)\) et \(R(2;5)\), déterminer l'équation de \((PQ)\), puis dire si \(R\) appartient à cette droite.
+
+**B.** Les vecteurs \(u=(2;-1)\) et \(v=(1;2)\) sont-ils orthogonaux ? Calculer la distance du point \(S(3;0)\) à la droite \(2x-y-4=0\).
+
+### Corrections commentées
+
+**A.** La pente est \((3-1)/(4-0)=1/2\). Donc \(\boxed{y=x/2+1}\), ou \(x-2y+2=0\). Pour \(R(2;5)\), \(2-10+2=-6\ne0\) : \(\boxed{R\notin(PQ)}\).
+
+**B.** \(u\cdot v=2\times1+(-1)\times2=0\), donc ils sont orthogonaux. La distance est \(|2\times3-0-4|/\sqrt{2^2+(-1)^2}=\boxed{2/\sqrt5=2\sqrt5/5}\).
+
+**Pièges :** confondre vecteur directeur et normal, appliquer la formule de pente à une droite verticale, oublier la valeur absolue dans une distance.
+
+---
+
 ## Exercices
 1. Pour $A(-1;2)$ et $B(3;5)$, calculer $\overrightarrow{AB}$ et $AB$.
 2. Milieu du segment précédent ?
