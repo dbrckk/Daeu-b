@@ -91,10 +91,6 @@ else:
     for name in ():
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : module manquant {name}")
 
-if ERRORS:
-    for e in ERRORS: print("ERREUR:",e)
-    sys.exit(1)
-print(f"OK : {len(source_matches)} problèmes, {total} questions corrigées, imports, IDs HTML et cache hors ligne cohérents.")
 
 # Les problèmes et corrigés embarqués doivent correspondre exactement aux sources.
 for name in ("sujets.md","corriges.md"):
@@ -102,3 +98,8 @@ for name in ("sujets.md","corriges.md"):
     source=ROOT/"problemes"/name
     if not offline.is_file() or offline.read_bytes()!=source.read_bytes():
         error(f"Problèmes hors ligne absents ou obsolètes : {name}")
+
+if ERRORS:
+    for e in ERRORS: print("ERREUR:",e)
+    sys.exit(1)
+print(f"OK : {len(source_matches)} problèmes, {total} questions corrigées, imports, IDs HTML et cache hors ligne cohérents.")
