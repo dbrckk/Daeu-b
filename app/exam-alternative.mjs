@@ -10,8 +10,29 @@ import {isSeed} from "./exam-generator.mjs";
 export const ALTERNATIVE_EXAM_ID="blanc-d";
 const int=(next,min,max)=>min+Math.floor(next()*(max-min+1));
 const fmt=value=>Number(value.toFixed(8)).toString().replace(".",",");
-const number=(id,prompt,answer,points,solution,skill)=>({id,prompt,answer,points,solution,skill,type:"number"});
-const choice=(id,prompt,options,answer,points,solution,skill)=>({id,prompt,options,answer,points,solution,skill,type:"choice"});
+const METHOD={
+  "domaines":"Vérifie toujours où l'expression existe avant d'évaluer ou de dériver la fonction.",
+  "calcul de fonction":"Substitue la valeur demandée dans chaque terme et contrôle le dénominateur.",
+  "dérivation":"Présente la formule de dérivation, son domaine, puis la substitution numérique.",
+  "asymptotes":"Une limite de différence tendant vers zéro justifie l'asymptote oblique.",
+  "probabilités":"Sur un arbre pondéré, multiplie les probabilités le long d'un chemin.",
+  "probabilités totales":"Additionne les chemins incompatibles qui mènent au même événement.",
+  "Bayes":"Le conditionnement inverse nécessite de diviser une intersection par P(B).",
+  "complémentaire":"La somme des probabilités d'un événement et de son contraire est 1.",
+  "moyenne":"Une moyenne arithmétique divise la somme de toutes les valeurs par l'effectif.",
+  "médiane":"Pour un effectif impair, la médiane est la valeur centrale de la série rangée.",
+  "variance":"Utilise ici la variance de population avec division par N, et non par N−1.",
+  "dispersion":"L'étendue, différence maximum moins minimum, ne mesure pas la moyenne.",
+  "exponentielle":"L'exponentielle d'un réel est strictement positive et exp(0)=1.",
+  "logarithmes":"La fonction logarithme réciproque de l'exponentielle permet d'isoler x.",
+  "TVI":"La continuité démontre l'existence ; la stricte monotonie démontre l'unicité."
+};
+const explained=(solution,skill)=>{
+  if(!METHOD[skill])throw new Error("Méthode manquante : "+skill);
+  return solution+"\n\nConseil de méthode : "+METHOD[skill];
+};
+const number=(id,prompt,answer,points,solution,skill)=>({id,prompt,answer,points,solution:explained(solution,skill),skill,type:"number"});
+const choice=(id,prompt,options,answer,points,solution,skill)=>({id,prompt,options,answer,points,solution:explained(solution,skill),skill,type:"choice"});
 const step=(id,prompt,model,lesson)=>({id,prompt,model,lesson});
 const section=(id,title,context,questions,method,intro,steps)=>({id,title,context,questions,method,rubric:{intro,steps}});
 
