@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v11 sur adresse permanente (10 novembre 2026)
+## État actuel — livraison v12 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -223,3 +223,10 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [ ] Effectuer un test physique Android, puis une relecture académique indépendante des corrigés ; le test automatisé n'est pas une certification universitaire.
 
 **Production :** https://daeu-b-maths-dbrckk.onrender.com — Render, publication liée à `main`, sans nouvelle adresse à migrer.
+
+
+## Livraison v12 — exercices avancés et stabilité (10/11/2026)
+- [x] Ajouter 16 nouvelles questions sur 4 chapitres obligatoires avec réponses exactes, indices et correction expliquée.
+- [x] Conserver les 127 identifiants existants et la lecture des anciennes sauvegardes.
+- [x] Mettre à jour les tests de correction et le scénario mobile/offline pour les **143 éléments**.
+- [ ] Relecture académique indépendante et essai sur Android physique.

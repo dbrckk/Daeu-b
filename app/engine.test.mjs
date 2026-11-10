@@ -8,7 +8,7 @@ const questions=flatten(TOPICS);
 const ids=new Set(questions.map(q=>q.id));
 test("couverture 20 jalons obligatoires, banque non triviale et données cohérentes",()=>{
   assert.deepEqual(validateTopics(TOPICS),[]);
-  assert.ok(questions.length>=90, "banque de 90 questions minimum");
+  assert.equal(questions.length,111,"95 questions historiques + 16 nouvelles");
   assert.equal(ids.size,questions.length);
   assert.equal(TOPICS.length,13);
   assert.equal(questions.filter(q=>q.type==="number").length>50,true);
@@ -168,4 +168,27 @@ test("contrôle indépendant des 32 familles de calculs sur 2 560 énoncés",()=
       assert.ok(Math.abs(expected-q.answer)<=1e-10*Math.max(1,Math.abs(expected)),t.id+" seed "+seed+" attendu "+expected+" reçu "+q.answer);
     }
   }
+});
+
+test("16 exercices approfondis : exactitude et compatibilité des données locales",()=>{
+  const byTopic=new Map(TOPICS.map(t=>[t.slug,t.questions.length]));
+  for(const [topic,count] of [["statistiques",10],["limites",12],["continuite",10],["probas",13]])
+    assert.equal(byTopic.get(topic),count,topic);
+  const map=new Map(questions.map(q=>[q.id,q]));
+  const cases=[["st07","6"],["st08","3"],["st09","13"],["st10","4"],
+    ["l09","y=x+3"],["l10","−∞"],["l11","1/4"],["l12","1/4"],
+    ["t07","−3/8"],["t08","11/64"],["t09","0,5 < x < 0,75"],["t10","g′(x)=eˣ>0"],
+    ["p10","0,22"],["p11","7/11"],["p12","3/10"],["p13","1,5"]];
+  assert.equal(cases.length,16);
+  for(const [id,answer] of cases){
+    const q=map.get(id);
+    assert.ok(q,"identifiant absent "+id);
+    assert.equal(gradeAnswer(q,answer).correct,true,"mauvaise correction "+id);
+    assert.ok(q.hint.length>=15&&q.explanation.length>=65,"explication trop brève "+id);
+  }
+  assert.equal(flatten(injectVariants(TOPICS)).length,143);
+  const prev=recordAnswer(emptyState(),"st05",true,Date.UTC(2026,10,9));
+  const compatible=sanitizeState(JSON.parse(JSON.stringify(prev)),new Set(flatten(injectVariants(TOPICS)).map(q=>q.id)));
+  assert.equal(compatible.items.st05.correct,1,"progrès antérieur inchangé");
+  assert.equal(compatible.items.st10,undefined,"nouvelle question non acquise");
 });

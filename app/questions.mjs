@@ -47,7 +47,11 @@ export const TOPICS=[
  n("st03","Moyenne pondérée : 10 (coefficient 2), 16 (coefficient 1) ?",12,"Divise par la somme des coefficients.","(10×2+16×1)/(2+1)=36/3=12."),
  n("st04","Étendue des valeurs 3, 8, 2, 12 ?",10,"Maximum moins minimum.","12−2=10. L'étendue mesure l'intervalle entre la plus grande et la plus petite valeur."),
  n("st05","Variance population de 1, 2, 3 ?",2/3,"Moyenne 2 puis somme des carrés des écarts divisée par 3.","[(1−2)² + (2−2)² + (3−2)²] /3 = 2/3."),
- c("st06","Deux séries ont la même moyenne. Laquelle est la moins dispersée ?",["celle avec l'écart-type le plus faible","celle avec le plus grand maximum","impossible à déterminer avec les écarts-types"],"celle avec l'écart-type le plus faible","L'écart-type mesure la dispersion.","À moyenne égale, un écart-type plus faible indique une dispersion plus faible.")
+ c("st06","Deux séries ont la même moyenne. Laquelle est la moins dispersée ?",["celle avec l'écart-type le plus faible","celle avec le plus grand maximum","impossible à déterminer avec les écarts-types"],"celle avec l'écart-type le plus faible","L'écart-type mesure la dispersion.","À moyenne égale, un écart-type plus faible indique une dispersion plus faible."),
+ n("st07","Médiane de la série ordonnée 2 ; 4 ; 4 ; 8 ; 12 ; 14 ?",6,"Pour six valeurs, moyenne des rangs 3 et 4.","Avec N=6, les deux valeurs centrales sont 4 et 8. La médiane vaut (4+8)/2 = 6, pas la moyenne de toute la série."),
+ n("st08","Premier quartile Q1 (rang arrondi à l’entier supérieur) de 2 ; 3 ; 5 ; 7 ; 11 ; 13 ; 17 ; 19 ?",3,"Q1 est au rang plafond(N/4), avec rangs commençant à 1.","N=8 donc plafond(8/4)=2. La deuxième valeur de la série ordonnée est 3. Convention française du rang, sans interpolation."),
+ n("st09","Troisième quartile Q3 (rang arrondi à l’entier supérieur) de 2 ; 3 ; 5 ; 7 ; 11 ; 13 ; 17 ; 19 ?",13,"Q3 est au rang plafond(3N/4).","N=8 donc plafond(3×8/4)=6. La sixième valeur de la série ordonnée est 13. Ne pas prendre 75 % de la valeur maximale."),
+ n("st10","Variance de population de 1 ; 1 ; 5 ; 5 (diviser par N) ?",4,"Moyenne 3 ; calculer la moyenne des carrés des écarts.","Moyenne =3. Les quatre écarts sont −2, −2, 2 et 2 ; leurs carrés valent tous 4, donc V=(4+4+4+4)/4=4. L’écart-type est 2.")
 ]},
 {slug:"fonctions",title:"Fonctions et domaines",lesson:"05-fonctions.md",jalons:[10],questions:[
  n("f01","Pour f(x)=x²−3, calculer f(4).",13,"Remplace x par 4.","4²−3=16−3=13. Une image se calcule en substituant la valeur de x dans l'expression."),
@@ -75,7 +79,11 @@ export const TOPICS=[
  c("l05","Asymptote horizontale de (2x+1)/(x−1) ?",["y=2","x=1","y=1"],"y=2","Compare les coefficients de plus haut degré.","Le rapport des coefficients dominants est 2 ; y=2 à l'infini."),
  c("l06","Asymptote oblique de (x²+1)/(x−1) ?",["y=x+1","y=x−1","y=1"],"y=x+1","Effectue une division polynomiale.","(x²+1)/(x−1)=x+1+2/(x−1), avec dernier terme→0."),
  n("l07","Limite de 1/x quand x→+∞ ?",0,"Le dénominateur devient grand.","1/x tend vers 0 quand x tend vers +∞."),
- c("l08","Une valeur interdite du domaine entraîne-t-elle toujours une asymptote verticale ?",["non","oui"],"non","Pense à un trou amovible.","(x²−1)/(x−1) n'est pas définie en 1 mais sa limite est 2, pas l'infini.")
+ c("l08","Une valeur interdite du domaine entraîne-t-elle toujours une asymptote verticale ?",["non","oui"],"non","Pense à un trou amovible.","(x²−1)/(x−1) n'est pas définie en 1 mais sa limite est 2, pas l'infini."),
+ c("l09","Asymptote oblique de f(x)=x+3+4/(x−2) quand x→+∞ ?",["y=x+3","y=x−3","y=4","x=2"],"y=x+3","Soustrais la droite et étudie la limite du reste.","f(x)−(x+3)=4/(x−2)→0 à l’infini. Donc y=x+3 est asymptote oblique ; x=2 est une asymptote verticale."),
+ c("l10","Limite de 5/(x−2) quand x tend vers 2 par valeurs inférieures ?",["−∞","+∞","0"],"−∞","Le dénominateur est négatif et tend vers 0.","Pour x<2, x−2<0 et 5>0 ; le quotient devient négatif sans borne en approchant 2 par la gauche."),
+ n("l11","Limite de (√(x+4)−2)/x lorsque x→0 ?",0.25,"Multiplie par le conjugué √(x+4)+2.","Pour x≠0, la fraction vaut 1/(√(x+4)+2). La limite en 0 existe et vaut 1/(2+2)=1/4. La fonction initiale reste non définie en x=0."),
+ n("l12","f(x)=x+2+3/(x−1). Calculer f′(3).",0.25,"Dérivée de 3/(x−1) : −3/(x−1)².","Sur x≠1, f′(x)=1−3/(x−1)². En x=3, f′(3)=1−3/4=1/4 ; toujours vérifier le domaine.")
 ]},
 {slug:"continuite",title:"Continuité et TVI",lesson:"08-continuite-tvi.md",jalons:[14],questions:[
  c("t01","f continue sur [0;2], f(0)=−1 et f(2)=4 : le TVI garantit…",["au moins un zéro","exactement un zéro","aucun zéro"],"au moins un zéro","Le signe change entre les deux bornes.","Par continuité et changement de signe, f s'annule au moins une fois."),
@@ -83,7 +91,11 @@ export const TOPICS=[
  n("t03","f(x)=x³−2. Combien vaut f(1) ?",-1,"Remplace x par 1.","1³−2=−1. Cette valeur est négative à l'extrémité gauche de l'intervalle."),
  n("t04","f(x)=x³−2. Combien vaut f(2) ?",6,"Remplace x par 2.","2³−2=6. Cette valeur est positive à l'extrémité droite de l'intervalle."),
  c("t05","Le TVI s'applique directement si f est…",["continue sur [a;b]","seulement dérivable en a","non définie en a"],"continue sur [a;b]","Relis ses hypothèses.","L'hypothèse centrale est la continuité sur tout l'intervalle fermé."),
- n("t06","Largeur d'un intervalle de départ 1 après 4 étapes de dichotomie ?",1/16,"Chaque étape divise la largeur par 2.","Largeur = 1/2⁴ = 1/16.")
+ n("t06","Largeur d'un intervalle de départ 1 après 4 étapes de dichotomie ?",1/16,"Chaque étape divise la largeur par 2.","Largeur = 1/2⁴ = 1/16."),
+ n("t07","Pour h(x)=x³+x−1, combien vaut h(0,5) ?",-0.375,"Calcule 0,5³+0,5−1.","0,5³=0,125 ; 0,125+0,5−1=−0,375=−3/8. La racine de h est donc à droite de 0,5 si h est croissante."),
+ n("t08","Pour h(x)=x³+x−1, combien vaut h(0,75) ?",0.171875,"Exprime 0,75=3/4 puis calcule le cube.","h(3/4)=27/64+3/4−1=(27+48−64)/64=11/64=0,171875, de signe positif."),
+ c("t09","h(x)=x³+x−1 est continue et strictement croissante. Après les essais h(0,5)<0 et h(0,75)>0, quel intervalle encadre son unique zéro ?",["0,5 < x < 0,75","0 < x < 0,5","0,75 < x < 1"],"0,5 < x < 0,75","Conserve la moitié où les valeurs aux bornes ont des signes opposés.","Par le TVI, la racine est dans ]0,5;0,75[ car la fonction est continue. Sa dérivée h′(x)=3x²+1>0 justifie son unicité."),
+ c("t10","g(x)=eˣ−3 possède un zéro sur [0;2]. Quelle propriété prouve qu’il est unique ?",["g′(x)=eˣ>0","g(0)<0 et g(2)>0 seulement","g est continue seulement"],"g′(x)=eˣ>0","Le TVI garantit l’existence mais pas l’unicité.","La dérivée g′(x)=eˣ est strictement positive sur [0;2]. Donc g est strictement croissante et ne peut s’annuler qu’une fois au plus.")
 ]},
 {slug:"suites",title:"Suites numériques",lesson:"10-suites.md",jalons:[15],questions:[
  n("u01","Suite arithmétique u₀=3, raison 4 : u₅ ?",23,"uₙ = u₀ + nr.","3+5×4=23. On part du terme de rang zéro et on ajoute cinq fois la raison."),
@@ -124,6 +136,10 @@ export const TOPICS=[
  n("p06","P(A∩B)=0,12 et P(B)=0,3. P(A|B) ?",0.4,"Définition de la conditionnelle.","0,12/0,3=0,4. La conditionnelle est le quotient de l'intersection par la probabilité de l'événement conditionnant."),
  n("p07","P(X=1)=0,2, P(X=3)=0,8. Quelle est E(X) ?",2.6,"Somme des valeurs pondérées.","1×0,2+3×0,8=2,6."),
  n("p08","P(A)=0,2. Quelle est P(non A) ?",0.8,"Événement contraire.","1−0,2=0,8. Un événement et son contraire constituent une partition de probabilité totale 1."),
- n("p09","X~Bin(2;0,2). P(X≥1) ?",0.36,"Utilise l'événement contraire X=0.","1−P(X=0)=1−0,8²=0,36.")
+ n("p09","X~Bin(2;0,2). P(X≥1) ?",0.36,"Utilise l'événement contraire X=0.","1−P(X=0)=1−0,8²=0,36."),
+ n("p10","P(A)=0,2, P(B|A)=0,7, P(B|non A)=0,1. Calculer P(B).",0.22,"Additionne les deux chemins A∩B et non A∩B.","Formule des probabilités totales : P(B)=0,2×0,7+0,8×0,1=0,14+0,08=0,22."),
+ n("p11","P(A)=0,2, P(B|A)=0,7, P(B|non A)=0,1. Calculer P(A|B).",0.6363636363636364,"Calcule d’abord P(B), puis utilise Bayes.","P(A∩B)=0,2×0,7=0,14. P(B)=0,14+0,08=0,22 ; donc P(A|B)=0,14/0,22=7/11≈0,63636. Ne pas répondre 0,7."),
+ n("p12","Sac de 3 boules rouges et 2 bleues. On tire deux boules sans remise. P(deux rouges) ?",0.3,"La composition du sac change après le premier tirage rouge.","P(R1∩R2)=(3/5)×(2/4)=6/20=3/10. Sans remise, les tirages ne sont pas indépendants."),
+ n("p13","X suit une loi binomiale B(8;0,25). Quelle est sa variance ?",1.5,"Pour la loi binomiale, V(X)=n×p×(1−p).","V(X)=8×0,25×0,75=1,5. L’espérance vaut 8×0,25=2 : ce sont deux indicateurs différents.")
 ]}
 ];

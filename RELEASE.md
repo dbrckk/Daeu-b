@@ -1,13 +1,13 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v11, domaine permanent Render (10/11/2026)**  
+**État : candidat public stable v12, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
 
 ## Capacités réellement présentes
 - Programme DAEU B SONATE 2026-2027, 20 jalons principaux + 3 facultatifs traités dans les cours.
-- 95 questions fixes et 32 générateurs paramétriques, répartis en 13 domaines, avec corrigés, révisions espacées et suivi local.
+- 111 questions fixes et 32 générateurs paramétriques, répartis en 13 domaines, avec corrigés, révisions espacées et suivi local.
 - Examens **A/B fixes** et **C/D à valeurs variables**, chacun composé de 4 exercices, 3 heures et 20 points de notation objective. Le nouveau D couvre quatre autres familles.
 - Grilles de raisonnement à valider par soi-même et diagnostic de points perdus, sans prétendre noter automatiquement la rédaction.
 - Huit problèmes progressifs indépendants et 37 sous-questions avec fichiers de corrigés séparés.
@@ -111,3 +111,11 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - **1 000 sujets D** vérifiés structurellement et **300 séries de calculs** revérifiées par des formules indépendantes. Historique et diagnostic des lacunes gèrent désormais C et D séparément.
 - Tests : [45 vérifications pédagogiques et techniques, toutes réussies](https://github.com/dbrckk/Daeu-b/actions/runs/42791013222), [parcours Chromium mobile incluant D, réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42791013207).
 - Les examens A, B et C et les sauvegardes existantes ne sont ni remplacés ni réinitialisés.
+
+
+## v12 — consolider les acquis hors des examens blancs (10/11/2026)
+- 16 questions fixes inédites réparties entre limites, TVI, statistiques et probabilités, avec indices et justifications détaillées.
+- 111 questions fixes + 32 modèles variables = **143 items**, sur les mêmes 13 domaines.
+- La progression antérieure reste inchangée : tous les anciens ID sont conservés, les nouvelles questions partent non acquises.
+- Tests de corrections numériques/fractions/choix multiples et parcours Android/hors ligne actualisé au total de 143 items.
+- [Application](https://daeu-b-maths-dbrckk.onrender.com).

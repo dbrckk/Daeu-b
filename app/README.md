@@ -2,7 +2,7 @@
 
 **Site public :** https://daeu-b-maths-dbrckk.onrender.com
 
-Cette application complète les cours Markdown du dépôt. Elle contient **95 exercices fixes et 32 modèles à valeurs variables**, soit 127 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
+Cette application complète les cours Markdown du dépôt. Elle contient **111 exercices fixes et 32 modèles à valeurs variables**, soit 143 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
 
 ## Utilisation sur Android ou PC
 
@@ -176,7 +176,7 @@ Limite : les tests Chromium émulent le format mobile ; ils ne remplacent pas un
 
 **Site public v8 :** https://daeu-b-maths-dbrckk.onrender.com
 
-- Le suivi (127 questions/modèles) et toutes les copies des examens A/B/C/D sont écrits dans **une unique clé** locale, sous un document versionné. Une seule écriture remplace le tout : l'import et la remise à zéro sont **atomiques**, sans demi-import.
+- Le suivi (143 questions/modèles) et toutes les copies des examens A/B/C/D sont écrits dans **une unique clé** locale, sous un document versionné. Une seule écriture remplace le tout : l'import et la remise à zéro sont **atomiques**, sans demi-import.
 - Lors de la première utilisation de v8, les anciennes clés de progression et d'examens sont lues automatiquement si aucune sauvegarde unifiée n'existe. Elles ne sont effacées **qu'après** une première écriture unifiée réussie. Les anciens exports JSON restent importables.
 - Un import illisible, incompatible ou impossible faute d'espace disponible ne remplace pas les données valides. Ne jamais effacer manuellement le stockage pour « réparer » une importation échouée sans avoir d'abord exporté la progression.
 - Si une autre page du **même domaine** modifie la sauvegarde, l'onglet obsolète affiche un avertissement et suspend les saisies jusqu'à rechargement. Les saisies obsolètes ne doivent pas écraser silencieusement les nouvelles données.
@@ -219,3 +219,9 @@ Chaque session D comprend 4 exercices, 16 questions, 16 étapes d'auto-évaluati
 **Compatibilité :** A/B inchangés ; C conserve exactement son générateur et sa notation. L'historique et les exports/imports JSON incluent D. Le diagnostic des notions à revoir dispose de liens vers les chapitres correspondants.
 
 **Preuves :** [45 tests Node.js réussis](https://github.com/dbrckk/Daeu-b/actions/runs/42791013222) et [parcours Chromium mobile réussi, incluant D](https://github.com/dbrckk/Daeu-b/actions/runs/42791013207). La validation sur Android physique reste à faire.
+
+
+## Version v12 — approfondissements ciblés
+- **+16 questions fixes** pour passer de 127 à **143 éléments** suivis. Elles évaluent les quartiles et la variance, les limites par conjugaison et les asymptotes, le TVI/dichotomie et les probabilités totales, Bayes, sans remise et variance binomiale.
+- Aucun identifiant historique n'est modifié ; une sauvegarde antérieure conserve ses réponses et ses échéances.
+- Les questions et les méthodes avancées sont liées aux cours 07, 08, 11 et 12 ; le score des examens blancs reste distinct.

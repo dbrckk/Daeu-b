@@ -8,7 +8,7 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 **[Ouvrir l'Atelier de maths — site mobile et PC](https://daeu-b-maths-dbrckk.onrender.com)**
 
-- **95 questions fixes + 32 modèles paramétriques (127 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
+- **111 questions fixes + 32 modèles paramétriques (143 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **32 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
 - Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte ni serveur de données ; exporter régulièrement un JSON.
