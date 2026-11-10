@@ -169,8 +169,9 @@ equal(exp(1)-exp(0),exp(1)-1,"primitive exponentielle")
 for x in [-5,-2,0,2,4,8]:
     equal((x*x-9)/(x-3)+2/(x+1),
           (x*x+4*x+5)/(x+1),"simplification rationnelle")
-    equal((x*x-4)/(x-2)-1/(x+1),
-          (x*x+3*x+1)/(x+1),"transfert rationalisation")
+    if x != 2:  # valeur interdite par le dénominateur initial
+        equal((x*x-4)/(x-2)-1/(x+1),
+              (x*x+3*x+1)/(x+1),"transfert rationalisation")
 equal((-9)/(-3)+2,5,"évaluation de l'expression")
 for x in [-2,0,1,2,3,5]:
     equal((2*x-3)**2-(x-1)**2,(x-2)*(3*x-4),"différence de carrés")
