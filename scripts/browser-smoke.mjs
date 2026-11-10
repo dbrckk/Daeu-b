@@ -63,6 +63,7 @@ try {
   await check(async()=>await problemsPage.locator("#problemBody math").count()>=5,
     "Formules des problèmes converties en MathML");
   await problemsPage.locator("#problemSwitch").click();
+  await problemsPage.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length>=8,null,{timeout:10000});
   await check(async()=>await problemsPage.locator("#problemBody h2").count()>=8,
     "Corrigés locaux accessibles par action explicite");
   await problemsPage.close();
@@ -332,6 +333,7 @@ try {
   await check(async()=>await offlineProblems.locator("#problemBody h3").count()===8,
     "Huit problèmes disponibles hors connexion");
   await offlineProblems.locator("#problemSwitch").click();
+  await offlineProblems.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length>=8,null,{timeout:10000});
   await check(async()=>await offlineProblems.locator("#problemBody h2").count()>=8,
     "Corrigés complets disponibles hors connexion");
   await offlineProblems.close();
