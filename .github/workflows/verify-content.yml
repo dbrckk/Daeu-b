@@ -33,9 +33,10 @@ jobs:
           node --check app/exam-engine.mjs
           node --check app/exam-ui.mjs
           node --check app/exam-generator.mjs
+          node --check app/exam-alternative.mjs
           node --check app/reasoning.mjs
           node --check app/exam-analytics.mjs
           node --check app/persistence.mjs
           node --check app/sw.js
       - name: Vérifier notation, jalons, révisions et sauvegardes
-        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/persistence.test.mjs
+        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/persistence.test.mjs

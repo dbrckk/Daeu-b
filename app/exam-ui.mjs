@@ -1,8 +1,9 @@
 import {EXAMS} from "./exams.mjs";
 import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
+import {ALTERNATIVE_EXAM_ID} from "./exam-alternative.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
-import {findExam,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
+import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 import {StaleDataError} from "./persistence.mjs";
 
 const EXAM_LESSONS={
@@ -17,7 +18,11 @@ const EXAM_LESSONS={
   "c-optimisation":[["Second degré","04-second-degre.md"],["Dérivation","06-derivation.md"]],
   "c-suites":[["Suites","10-suites.md"],["Logarithmes","09-exponentielle-logarithme.md"]],
   "c-probabilites":[["Probabilités","12-probabilites.md"]],
-  "c-integrales":[["Calcul intégral","15-primitives-integrales.md"]]
+  "c-integrales":[["Calcul intégral","15-primitives-integrales.md"]],
+  "d-rationnelle":[["Fonctions","05-fonctions.md"],["Limites et asymptotes","07-limites-asymptotes.md"],["Dérivation","06-derivation.md"]],
+  "d-conditionnelles":[["Probabilités","12-probabilites.md"]],
+  "d-statistiques":[["Statistiques","11-statistiques.md"]],
+  "d-exponentielle":[["Continuité et TVI","08-continuite-tvi.md"],["Exponentielle et logarithmes","09-exponentielle-logarithme.md"]]
 };
 const byId=id=>document.getElementById(id);
 let store=emptyExamStore(),timer=null,lastResult=null;
@@ -287,9 +292,9 @@ function finalize(reason){
   showResult(result);
   alertExam("");
 }
-function createNewSeed(){
+function createNewSeed(examId){
   // Graine non secrète ; Web Crypto minimise les collisions entre nouvelles copies.
-  const existing=new Set(store.history.filter(x=>x.examId===GENERATED_EXAM_ID).map(x=>x.seed));
+  const existing=new Set(store.history.filter(x=>x.examId===examId).map(x=>x.seed));
   for(let i=0;i<20;i++){
     let seed;
     if(typeof crypto!=="undefined" && crypto.getRandomValues){
@@ -302,7 +307,7 @@ function createNewSeed(){
 function start(){
   if(store.active){renderActive();return;}
   const examId=byId("examSelect").value;
-  const seed=examId===GENERATED_EXAM_ID?createNewSeed():null;
+  const seed=isGeneratedExamId(examId)?createNewSeed(examId):null;
   const prior=store;
   store={...store,active:startExam(examId,Date.now(),seed)};
   if(!persist()){store=prior;return;}
@@ -327,6 +332,8 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
   for(const exam of EXAMS){const opt=element("option","",exam.title);opt.value=exam.id;select.append(opt);}
   const generated=element("option","","Examen C — NOUVEAU sujet généré à chaque tentative");
   generated.value=GENERATED_EXAM_ID;select.prepend(generated);
+  const alternative=element("option","","Examen D — autres problèmes : rationnelles, conditionnelles, statistiques, TVI");
+  alternative.value=ALTERNATIVE_EXAM_ID;select.append(alternative);
   byId("examStart").addEventListener("click",start);
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
   byId("examNext").addEventListener("click",()=>moveTo(Math.min(3,store.active.sectionIndex+1)));
