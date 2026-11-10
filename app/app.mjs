@@ -1,4 +1,5 @@
 import {TOPICS} from "./questions.mjs";
+import {COURSES,courseUrl} from "./course-catalog.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from "./persistence.mjs";
@@ -6,7 +7,7 @@ import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 
-const LESSONS="https://github.com/dbrckk/Daeu-b/blob/main/maths/";
+
 const fullTopics=injectVariants(TOPICS);
 const questions=flatten(fullTopics);
 const knownIds=new Set(questions.map(q=>q.id));
@@ -75,7 +76,7 @@ function renderCatalog() {
     const title=document.createElement("h3");title.textContent=topic.title;
     const body=document.createElement("p");
     body.textContent="Jalon"+(topic.jalons.length>1?"s ":" ")+topic.jalons.join(", ")+" · "+count+" questions";
-    const link=document.createElement("a");link.href=LESSONS+encodeURIComponent(topic.lesson);
+    const link=document.createElement("a");link.href=courseUrl(topic.lesson);
     link.target="_blank";link.rel="noopener noreferrer";link.textContent="Lire le cours ↗";
     const play=document.createElement("button");play.className="subtle small";play.style.marginLeft="10px";play.textContent="Pratiquer";
     play.type="button";play.setAttribute("aria-label","Pratiquer : "+topic.title);
@@ -88,6 +89,16 @@ function renderCatalog() {
   }
 }
 
+function renderCourseLibrary(){
+  const area=el("courseLibrary");area.replaceChildren();
+  for(const [slug,label] of COURSES){
+    const link=document.createElement("a");
+    link.className="course-library-entry";
+    link.href=courseUrl(slug);
+    link.textContent=label;
+    area.append(link);
+  }
+}
 function buildTopicSelector() {
   for(const topic of fullTopics) {
     const option=document.createElement("option");option.value=topic.slug;option.textContent=topic.title;
@@ -165,7 +176,7 @@ function showFeedback(correct,wasUnknown=false) {
   el("feedbackTitle").textContent=correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
   const expected=q.type==="number"?fmt(q.answer):q.answer;
   el("feedbackText").textContent=(correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\n\n")+q.explanation;
-  el("lessonLink").href=LESSONS+encodeURIComponent(q.lesson);
+  el("lessonLink").href=courseUrl(q.lesson);
   el("answerForm").hidden=true;
   el("next").textContent=index===session.length-1?"Terminer la séance":"Question suivante";
   el("next").focus();
@@ -231,6 +242,7 @@ async function importProgress(file) {
 }
 
 buildTopicSelector();
+renderCourseLibrary();
 refreshOverview();
 initExams(dataStore,conflictWarning);
 resumeSession();

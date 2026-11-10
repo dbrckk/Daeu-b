@@ -1,4 +1,5 @@
 import {EXAMS} from "./exams.mjs";
+import {courseUrl} from "./course-catalog.mjs";
 import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
 import {ALTERNATIVE_EXAM_ID} from "./exam-alternative.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
@@ -99,7 +100,7 @@ function renderAnalytics(){
     li.append(element("strong","",item.skill+" : "+item.lost+"/"+item.points+" point(s) perdu(s)"));
     if(item.lesson){
       const link=element("a","","Revoir le cours ↗");
-      link.href="https://github.com/dbrckk/Daeu-b/blob/main/maths/"+item.lesson;
+      link.href=courseUrl(item.lesson);
       link.target="_blank";link.rel="noopener noreferrer";
       li.append(link);
     }
@@ -260,7 +261,7 @@ function showResult(result){
         });
         wrap.append(label);
         const link=element("a","","Approfondir ce chapitre ↗");
-        link.href="https://github.com/dbrckk/Daeu-b/blob/main/maths/"+step.lesson;
+        link.href=courseUrl(step.lesson);
         link.target="_blank";link.rel="noopener noreferrer";wrap.append(link);
         guide.append(wrap);
       }
@@ -272,7 +273,7 @@ function showResult(result){
       suggestions.append(element("strong","","À retravailler : "));
       for(const [label,path] of EXAM_LESSONS[section.id]||[]){
         const link=element("a","",label);
-        link.href="https://github.com/dbrckk/Daeu-b/blob/main/maths/"+path;
+        link.href=courseUrl(path);
         link.target="_blank";link.rel="noopener noreferrer";
         suggestions.append(link);
       }

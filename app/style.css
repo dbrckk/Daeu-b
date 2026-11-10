@@ -55,3 +55,35 @@
 .sync-warning strong{font-weight:800}.sync-warning p{margin:8px 0 0;font-size:.9rem;max-width:680px}
 .sync-warning button{flex-shrink:0}
 @media(max-width:640px){.sync-warning button{width:100%}}
+
+/* Bibliothèque locale et lecture mathématique sans service distant. */
+.course-library{margin:30px 0 35px}
+.course-library-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:7px 20px}
+.course-library-entry{display:block;border:1px solid var(--stroke);border-radius:9px;padding:10px 12px;text-decoration:none}
+.course-library-entry:hover{background:var(--panel2)}
+.course-layout{max-width:920px;margin:0 auto;padding:27px 0 50px}
+.course-navigation{display:flex;align-items:center;flex-wrap:wrap;gap:12px;background:var(--panel);border:1px solid var(--stroke);border-radius:14px;padding:16px 19px;margin-bottom:19px}
+.course-navigation label{font-weight:700}
+.course-navigation select{flex:1 1 320px;max-width:100%;min-height:46px;padding:10px 12px;border:1px solid #607595;border-radius:10px;background:var(--panel2);color:var(--ink)}
+.course-navigation p{flex-basis:100%;margin:0}
+.course-document{background:var(--panel);border:1px solid var(--stroke);border-radius:16px;padding:clamp(18px,4vw,42px);overflow-wrap:anywhere}
+.course-document h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.2;margin:0 0 20px;letter-spacing:-.02em}
+.course-document h2{font-size:clamp(1.22rem,3.5vw,1.65rem);margin:36px 0 13px;color:var(--teal);line-height:1.3}
+.course-document h3{font-size:1.12rem;margin:27px 0 9px}
+.course-document p,.course-document li{line-height:1.8}
+.course-document ul,.course-document ol{padding-left:1.5rem}
+.course-document li{margin-bottom:8px}
+.course-document blockquote{border-left:3px solid var(--teal);padding-left:18px;color:var(--muted);margin-left:0}
+.course-document code{background:var(--panel2);padding:2px 6px;border-radius:5px}
+.course-document pre{overflow:auto;background:var(--panel2);padding:12px;border-radius:8px}
+.course-document table{display:block;overflow-x:auto;border-collapse:collapse;max-width:100%;margin:18px 0 24px;font-size:.92rem}
+.course-document th,.course-document td{border:1px solid var(--stroke);padding:10px 12px;text-align:left;vertical-align:top;min-width:75px}
+.course-document th{background:var(--panel2)}
+.course-document hr{border:0;border-top:1px solid var(--stroke);margin:28px 0}
+.course-math-inline{display:inline-block;max-width:100%;vertical-align:middle}
+.course-math-block{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;text-align:center;margin:18px auto;padding:10px 0}
+.course-math-block math{font-size:1.08rem}
+.course-math-fallback{font-family:monospace;white-space:pre-wrap;color:var(--orange)}
+.course-footer-nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:18px 0}
+.course-footer-nav a{border:1px solid var(--stroke);border-radius:10px;padding:12px 16px;max-width:100%;text-decoration:none}
+@media(max-width:640px){.course-layout{padding-top:16px}.course-document{padding:18px}.course-navigation{padding:12px}.course-document table{font-size:.82rem}}
