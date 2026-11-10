@@ -55,6 +55,63 @@ Exemple moyenne de $f(x)=2x$ sur $[0;2]$ : $(1/2)[x^2]_0^2=\boxed2$.
 Exemple $y'=2y$, $y(0)=3$ → $y(x)=\boxed{3e^{2x}}$.
 Exemple $y'=-y+4$, $y(0)=1$ : solution générale $y=4+Ce^{-x}$ ; $C=-3$ ; $\boxed{y(x)=4-3e^{-x}}$.
 
+## 8. Atelier approfondi — intégrer, contrôler, interpréter
+
+Sur \([0;2]\), on considère la fonction continue
+
+\[
+f(x)=3x^2-4x+1.
+\]
+
+**Étape 1 — Trouver une primitive.** On intègre terme à terme :
+
+\[
+F(x)=x^3-2x^2+x.
+\]
+
+Vérification **obligatoire en dérivant** : \(F'(x)=3x^2-4x+1=f(x)\). Pour la famille complète des primitives, ajouter \(+C\).
+
+**Étape 2 — Appliquer les bornes :**
+
+\[
+\int_0^2f(x)\,dx=F(2)-F(0)
+=(8-8+2)-0=\boxed2.
+\]
+
+La valeur moyenne sur \([0;2]\) est \(2/(2-0)=\boxed1\).
+
+**Étape 3 — Ne pas confondre intégrale et aire.** Le trinôme se factorise en \(f(x)=(3x-1)(x-1)\). Il est positif sur \([0;1/3]\), négatif sur \([1/3;1]\), puis positif sur \([1;2]\). Les zones négatives **sont soustraites** dans l'intégrale signée. Pour une aire géométrique, il faudrait intégrer \(|f(x)|\) et découper aux deux racines.
+
+**Étape 4 — Primitive d'une composition.** Pour \(\int_0^1 2xe^{x^2}\,dx\), on repère \(u(x)=x^2\) et \(u'(x)=2x\). Une primitive est \(e^{x^2}\). D'où
+
+\[
+\int_0^1 2xe^{x^2}\,dx=[e^{x^2}]_0^1=\boxed{e-1}.
+\]
+
+La substitution n'est **pas** une permission de supprimer arbitrairement des facteurs : le facteur \(2x\) correspond exactement à la dérivée de \(x^2\).
+
+### Deux problèmes de transfert
+
+**A.** Calculer l'intégrale signée de \(g(x)=2x-2\) sur \([0;2]\), puis l'**aire** entre sa courbe et l'axe sur ce même intervalle.
+
+**B.** Calculer \(\int_0^1(6x^2+2x)\,dx\), en écrivant une primitive vérifiable par dérivation.
+
+### Corrections commentées
+
+**A.** Une primitive de \(g\) est \(G(x)=x^2-2x\). L'intégrale signée est \(G(2)-G(0)=\boxed0\). La fonction est négative sur \([0;1]\), positive sur \([1;2]\) : l'aire vaut
+
+\[
+\int_0^1(2-2x)\,dx+\int_1^2(2x-2)\,dx=1+1=\boxed2.
+\]
+
+L'aire est positive **même lorsque l'intégrale signée s'annule**.
+
+**B.** Une primitive est \(H(x)=2x^3+x^2\), car \(H'(x)=6x^2+2x\). L'intégrale vaut \(H(1)-H(0)=2+1=\boxed3\).
+
+**Pièges à surveiller :** oublier les bornes, changer le signe entre \(F(b)\) et \(F(a)\), appeler « aire » une intégrale signée, omettre \(+C\) pour une primitive générale.
+
+---
+
 ## Exercices
 1. Trouver toutes les primitives de $4x^3-2x$.
 2. Calculer $\int_1^3 2x\,dx$.

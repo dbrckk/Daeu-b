@@ -38,6 +38,58 @@ Proportionnalité : $y=kx$. Si 3 kg coûtent 7,50 €, $k=2{,}50$ €/kg et 5 kg
 ## 6. Ordres de grandeur et arrondis
 Ne pas arrondir les résultats intermédiaires inutilement. Un résultat doit être compatible avec les unités, positif quand il représente une durée ou une masse, et d'un ordre de grandeur plausible.
 
+## 7. Atelier approfondi — un calcul exact avant les approximations
+
+**Situation.** Un produit vaut 120 €. Son prix augmente de 20 %, puis le nouveau prix baisse de 25 %.
+
+**Étape 1 — Traduire chaque évolution en coefficient.** La hausse de 20 % correspond au facteur \(1+20/100=1{,}20\). La baisse de 25 % correspond à \(1-25/100=0{,}75\).
+
+**Étape 2 — Composer dans le bon ordre :**
+
+\[
+P_f=120\times1{,}20\times0{,}75=\boxed{108\text{ €}}.
+\]
+
+La variation totale est \((108-120)/120=-0{,}10\), soit une **baisse de 10 %**. Même si la somme algébrique des taux vaut \(-5\%\), celle-ci ne représente pas l'évolution réelle du prix.
+
+**Étape 3 — Retrouver un prix antérieur.** Après une remise de 15 %, un autre prix vaut 102 €. Le coefficient de remise étant \(0{,}85\), le prix avant remise \(P\) satisfait \(0{,}85P=102\). Ainsi :
+
+\[
+P=\frac{102}{0{,}85}=\boxed{120\text{ €}}.
+\]
+
+Il faut **diviser** par le coefficient pour revenir au prix initial, pas ajouter arbitrairement 15 % au montant final.
+
+**Étape 4 — Combiner des fractions exactement.** Calculons
+
+\[
+E=\frac{\frac34-\frac23}{\frac56}.
+\]
+
+La différence au numérateur vaut \(9/12-8/12=1/12\). Diviser par \(5/6\) revient à multiplier par son inverse \(6/5\) :
+
+\[
+E=\frac1{12}\times\frac65=\boxed{\frac1{10}}.
+\]
+
+**Contrôle :** \(0{,}75-0{,}666\ldots\) est positif et petit ; le quotient final \(0{,}1\) est plausible. Conserver \(1/12\), et non une approximation \(0{,}08\), évite la perte de précision.
+
+### Deux problèmes de transfert
+
+**A.** Un article coûte 250 €. Il augmente de 12 %, puis baisse de 10 %. Calculer le prix final et la variation totale en pourcentage.
+
+**B.** Simplifier exactement \(\left(\frac56+\frac14\right)\times\frac{12}{13}\) sans passer par des arrondis.
+
+### Corrections commentées
+
+**A.** Les facteurs sont \(1{,}12\) et \(0{,}90\). Le nouveau prix vaut \(250\times1{,}12\times0{,}90=\boxed{252\text{ €}}\). Le coefficient total est \(1{,}008\), soit une **hausse de 0,8 %**. Ajouter les taux \(12-10=2\%\) donnerait une réponse fausse.
+
+**B.** Le dénominateur commun de 6 et 4 est 12. La parenthèse vaut \(10/12+3/12=13/12\). Le produit est \((13/12)(12/13)=\boxed1\), par simplification des **facteurs** communs.
+
+**Pièges à surveiller :** traiter un pourcentage comme un montant fixe, confondre addition et multiplication des coefficients, simplifier à travers une somme sans factoriser, arrondir trop tôt.
+
+---
+
 ## Exercices — sans regarder le corrigé
 1. $7-3(2-5)^2$.
 2. $\frac{3}{4}+\frac{5}{6}-\frac{1}{3}$.

@@ -49,6 +49,54 @@ $u_{n+1}=0{,}5u_n+2$, $u_0=0$. Le point fixe $L$ satisfait $L=0{,}5L+2$, donc $L
 $$v_{n+1}=0{,}5v_n,\quad v_0=-4,\quad u_n=4-4(0{,}5)^n.$$
 La limite est $\boxed4$. Il faut montrer la convergence, pas seulement résoudre l'équation du point fixe.
 
+## 8. Atelier approfondi — croissance géométrique et seuil entier
+
+Un stock commence à \(u_0=160\) unités et augmente de **25 % par période**. On cherche la formule explicite, une somme, puis le premier rang où le stock atteint au moins 400 unités.
+
+**1. Nature et raison.** Une hausse de 25 % multiplie par \(1{,}25\) :
+
+\[
+u_{n+1}=1{,}25u_n,\qquad \boxed{u_n=160(1{,}25)^n}.
+\]
+
+C'est une suite géométrique de raison \(q=1{,}25>1\), donc strictement croissante puisque ses termes sont positifs. Le **premier rang est \(n=0\)**.
+
+**2. Calcul d'une somme de quatre termes.**
+
+\[
+S=u_0+u_1+u_2+u_3=160+200+250+312{,}5=\boxed{922{,}5}.
+\]
+
+On pouvait aussi utiliser la formule des quatre termes \(S=160(1-1{,}25^4)/(1-1{,}25)\). Attention : la somme de \(u_0\) à \(u_3\) contient **quatre** termes.
+
+**3. Premier rang dépassant un seuil.** Pour \(u_n\ge400\) :
+
+\[
+160(1{,}25)^n\ge400
+\iff (1{,}25)^n\ge 2{,}5
+\iff n\ge\frac{\ln(2{,}5)}{\ln(1{,}25)}\approx4{,}106.
+\]
+
+Le premier entier admissible est **\(n=5\)**. Vérification des deux rangs voisins : \(u_4=390{,}625<400\) et \(u_5=488{,}28125\ge400\). Un résultat de calculatrice \(4{,}106\) n'est pas un numéro de période : il faut **prendre l'entier supérieur**.
+
+**4. Suite affine à point fixe.** Pour une récurrence \(v_{n+1}=\frac34v_n+5\), le point fixe \(L\) satisfait \(L=\frac34L+5\), donc \(L=20\). En posant \(w_n=v_n-20\), on a \(w_{n+1}=\frac34w_n\). Comme \(|3/4|<1\), \(w_n\to0\), puis \(v_n\to20\). **Résoudre seulement l'équation du point fixe ne prouve pas la convergence** ; il faut justifier la décroissance de la puissance géométrique.
+
+### Deux problèmes de transfert
+
+**A.** Une suite a \(u_0=80\) et \(u_{n+1}=1{,}5u_n\). Donner \(u_0+u_1+u_2\) et le premier entier \(n\) tel que \(u_n\ge300\).
+
+**B.** \(v_0=4\) et \(v_{n+1}=0{,}75v_n+5\). Donner \(v_2\), la formule explicite de \(v_n\) et sa limite.
+
+### Corrections commentées
+
+**A.** \(u_n=80(1{,}5)^n\). Les trois premiers termes sont 80, 120 et 180, somme \(\boxed{380}\). \(u_3=270<300\) et \(u_4=405\ge300\) ; le premier rang admissible est \(\boxed{n=4}\).
+
+**B.** \(v_1=0{,}75\times4+5=8\) et \(v_2=0{,}75\times8+5=\boxed{11}\). Le point fixe \(L=20\) donne \(v_n=20+(v_0-20)(0{,}75)^n=\boxed{20-16(3/4)^n}\). Puisque \(0<3/4<1\), la limite vaut \(\boxed{20}\).
+
+**Pièges à surveiller :** oublier que \(u_0\) est le premier terme, arrondir le logarithme du seuil au lieu de prendre l'entier admissible, affirmer une limite en calculant uniquement un point fixe.
+
+---
+
 ## Exercices
 1. $u_0=4$, $u_{n+1}=u_n-3$. Calculer $u_5$.
 2. Calculer $\sum_{k=0}^{9}(2k+1)$.
