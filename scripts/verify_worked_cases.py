@@ -127,7 +127,7 @@ equal(f(3),1,"minimum local")
 equal(f(2),3,"point tangence")
 equal(derivative(2),-3,"pente tangente")
 equal(-3*2+9,f(2),"équation tangente")
-equal(2*3-2,2*3**2-4*3+7,"transfert tangente")
+equal(2*3-2,3**2-4*3+7,"transfert tangente")
 equal((-1)**3-3*(-1),2,"transfert maximum")
 equal(1**3-3*1,-2,"transfert minimum")
 
