@@ -5,6 +5,7 @@ Ces contrôles détectent des régressions mais ne remplacent pas une relecture
 universitaire des démonstrations ni une validation humaine sur Android.
 """
 from pathlib import Path
+from fractions import Fraction
 from math import exp, isclose, log, sqrt
 from statistics import mean, median, pvariance
 
@@ -14,6 +15,12 @@ CASES = {
     "08-continuite-tvi.md": "## 6. Atelier de rédaction",
     "11-statistiques.md": "## 7. Atelier de bout en bout",
     "12-probabilites.md": "## 8. Atelier guidé",
+    "01-calcul-numerique.md": "## 7. Atelier approfondi",
+    "03-equations-inequations-systemes.md": "## 8. Atelier approfondi",
+    "04-second-degre.md": "## 7. Atelier approfondi",
+    "06-derivation.md": "## 8. Atelier approfondi",
+    "10-suites.md": "## 8. Atelier approfondi",
+    "15-primitives-integrales.md": "## 8. Atelier approfondi",
 }
 
 def equal(actual, expected, context):
@@ -78,4 +85,80 @@ equal((.3*.9)/different,27/41,"transfert Bayes")
 equal((2/5)*(1/4),1/10,"transfert sans remise")
 equal((2/5)**2,4/25,"transfert avec remise")
 
-print("OK: 4 ateliers, 8 problèmes de transfert corrigés, invariants mathématiques recalculés.")
+# Calcul exact : fractions et compositions de pourcentages.
+equal(120*1.2*.75,108,"hausse puis baisse")
+equal(108/120-1,-.10,"variation totale")
+equal(102/.85,120,"prix avant remise")
+assert (Fraction(3,4)-Fraction(2,3))/Fraction(5,6) == Fraction(1,10)
+equal(250*1.12*.9,252,"transfert de pourcentage")
+equal(1.12*.9-1,.008,"hausse de 0,8 %")
+assert (Fraction(5,6)+Fraction(1,4))*Fraction(12,13)==1
+
+# Systèmes et tableaux de signes, en testant chaque intervalle.
+x,y=5,2
+assert 3*x+2*y==19 and x-y==3
+x,y=4,3
+assert 2*x+3*y==17 and x+y==7
+main_fraction=lambda x:(2*x-6)/(x+1)
+assert main_fraction(-2)>0 and main_fraction(0)<0 and main_fraction(3)==0 and main_fraction(4)>0
+transfer_fraction=lambda x:(x-4)/(x+2)
+assert transfer_fraction(-3)>0 and transfer_fraction(0)<0
+assert transfer_fraction(4)==0 and transfer_fraction(5)>0
+
+# Second degré : formes équivalentes, racines et maxima sur un domaine.
+for x in (-2,0,1,3,5,6,10):
+    b=-2*x*x+12*x-10
+    equal(b,-2*(x-3)**2+8,"forme canonique bénéfice")
+    equal(b,-2*(x-1)*(x-5),"forme factorisée bénéfice")
+equal(-2*3**2+12*3-10,8,"maximum bénéfice")
+assert -2*1*1+12*1-10==0 and -2*5*5+12*5-10==0
+for x in (-2,0,1,2,3,5):
+    equal(2*x*x-8*x+6,2*(x-2)**2-2,"transfert canonique")
+equal(2*2**2-8*2+6,-2,"transfert minimum")
+equal(-(4**2)+8*4-7,9,"transfert bénéfice")
+
+# Dérivation : images, dérivées et tangentes.
+f=lambda x:x**3-6*x*x+9*x+1
+derivative=lambda x:3*x*x-12*x+9
+for x in (-3,0,1,2,3,6):
+    equal(derivative(x),3*(x-1)*(x-3),"dérivée factorisée")
+equal(f(1),5,"maximum local")
+equal(f(3),1,"minimum local")
+equal(f(2),3,"point tangence")
+equal(derivative(2),-3,"pente tangente")
+equal(-3*2+9,f(2),"équation tangente")
+equal(2*3-2,2*3**2-4*3+7,"transfert tangente")
+equal((-1)**3-3*(-1),2,"transfert maximum")
+equal(1**3-3*1,-2,"transfert minimum")
+
+# Suites : formules explicites, seuil entier, somme et point fixe.
+u=lambda n:160*(1.25**n)
+equal(sum(u(n) for n in range(4)),922.5,"somme géométrique")
+equal(u(4),390.625,"rang précédent seuil")
+equal(u(5),488.28125,"rang du seuil")
+assert u(4)<400<=u(5)
+assert 4<log(2.5)/log(1.25)<5
+transfer=lambda n:80*(1.5**n)
+equal(sum(transfer(n) for n in range(3)),380,"somme transfert")
+assert transfer(3)<300<=transfer(4)
+v=lambda n:20-16*(.75**n)
+equal(v(0),4,"suites affines valeur initiale")
+equal(v(1),8,"suites affines terme 1")
+equal(v(2),11,"suites affines terme 2")
+for n in range(6):
+    equal(v(n+1),.75*v(n)+5,"récurrence affine")
+
+# Intégrales : différences de primitive aux bornes et vérification analytique.
+F=lambda x:x**3-2*x*x+x
+equal(F(2)-F(0),2,"intégrale signée")
+equal((F(2)-F(0))/2,1,"valeur moyenne")
+for x in (-2,0,.25,.5,1,2):
+    equal(3*x*x-4*x+1,(3*x-1)*(x-1),"signes de l'intégrande")
+G=lambda x:x*x-2*x
+equal(G(2)-G(0),0,"intégrale signée de transfert")
+equal(1+1,2,"aire décomposée")
+H=lambda x:2*x**3+x*x
+equal(H(1)-H(0),3,"intégrale polynomiale transfert")
+equal(exp(1)-exp(0),exp(1)-1,"primitive exponentielle")
+
+print("OK: 10 ateliers, 20 problèmes de transfert corrigés, invariants mathématiques recalculés.")

@@ -228,3 +228,8 @@ Chaque session D comprend 4 exercices, 16 questions, 16 étapes d'auto-évaluati
 
 
 Les cours 07/08/11/12 sont renforcés par des **ateliers guidés et huit problèmes de transfert corrigés**. Ils complètent la banque interactive de 143 items et les quatre examens blancs A/B/C/D. Les fichiers Markdown sont sur GitHub et exigent un accès Internet ; le cache PWA actuel ne contient que l'application et ses corrections internes.
+
+
+## Cours v13 : dix ateliers approfondis
+
+Les chapitres 01, 03, 04, 06, 07, 08, 10, 11, 12 et 15 ont chacun un exemple de méthode commenté et deux exercices supplémentaires de transfert, corrigés. Leur structure et les calculs de référence font l'objet du contrôle CI `scripts/verify_worked_cases.py`. Ces cours restent externes à la PWA, qui conserve 143 items et quatre examens blancs sans modification des données locales.

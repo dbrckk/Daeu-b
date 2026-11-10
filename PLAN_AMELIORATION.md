@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v12 sur adresse permanente (10 novembre 2026)
+## État actuel — livraison v13 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -240,3 +240,17 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Ajouter huit problèmes de transfert et leurs corrigés guidés, sans modifier les examens et sauvegardes existants.
 - [x] Intégrer une vérification arithmétique et structurelle des nouveaux exemples à la CI.
 - [ ] Appliquer progressivement la même profondeur pédagogique aux autres chapitres de base, et obtenir une relecture humaine indépendante.
+
+
+## Livraison v13 — fondations et analyse, rédaction complète (10/11/2026)
+
+- [x] Approfondir le calcul numérique : fractions, pourcentages successifs, retour au prix initial et arrondis.
+- [x] Approfondir systèmes et inéquations : modélisation, substitution, vérification et domaines interdits.
+- [x] Approfondir le second degré : formes canonique/factorisée, racines, signes et maximum contextualisé.
+- [x] Approfondir la dérivation : étude du signe, extrema locaux/globaux et tangentes.
+- [x] Approfondir les suites : somme, seuil entier logarithmique et convergence d'une récurrence affine.
+- [x] Approfondir les primitives et intégrales : intégrale signée, aire, moyenne et composition.
+- [x] Ajouter 12 nouveaux problèmes de transfert avec corrections en conservant les exercices et les sauvegardes existants.
+- [x] Étendre les tests numériques et structurels à **10 ateliers / 20 problèmes de transfert**.
+- [ ] Poursuivre la consolidation des chapitres encore synthétiques (02, 05, 09 et 17) puis organiser une relecture pédagogique indépendante.
+- [ ] Vérifier la PWA sur un Android physique et un navigateur secondaire.

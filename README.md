@@ -88,11 +88,17 @@ Licence : [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) pour les con
 
 ## Ateliers de consolidation approfondie — v12
 
-Quatre cours prioritaires ont été enrichis d'une démarche rédigée pas à pas, de contre-exemples et de deux problèmes de transfert corrigés chacun. Ils sont accessibles depuis les cartes de chapitres de l'application ou directement dans le dépôt :
+Dix cours prioritaires ont été enrichis d'une démarche rédigée pas à pas, de contre-exemples et de deux problèmes de transfert corrigés chacun (**20 problèmes supplémentaires au total**). Ils sont accessibles depuis les cartes de chapitres de l'application ou directement dans le dépôt :
 
 - [Limites, asymptotes et rationalisation](maths/07-limites-asymptotes.md)
 - [TVI, unicité et dichotomie](maths/08-continuite-tvi.md)
 - [Statistiques : quartiles et variance](maths/11-statistiques.md)
 - [Probabilités conditionnelles, Bayes et tirages](maths/12-probabilites.md)
+- [Calcul numérique, fractions et évolutions successives](maths/01-calcul-numerique.md)
+- [Systèmes, modélisation et inéquations rationnelles](maths/03-equations-inequations-systemes.md)
+- [Second degré, formes et optimisation](maths/04-second-degre.md)
+- [Dérivation, variations et tangentes](maths/06-derivation.md)
+- [Suites, sommes et seuils logarithmiques](maths/10-suites.md)
+- [Intégrales signées, aire et compositions](maths/15-primitives-integrales.md)
 
 Les cours sont hébergés sur GitHub et nécessitent une connexion Internet ; **seul l'atelier interactif est précaché pour une utilisation hors ligne**. Les exemples sont recalculés par un contrôle CI dédié, sans que cela constitue une validation universitaire exhaustive.

@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v12, domaine permanent Render (10/11/2026)**  
+**État : candidat public stable v13, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -126,3 +126,12 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - **Huit problèmes de transfert** (deux par chapitre), accompagnés de corrections détaillées et de distinctions entre erreurs classiques.
 - Un contrôle Python dédié recalcule les résultats numériques fondamentaux et vérifie la présence des exercices, corrections et délimiteurs mathématiques dans les quatre chapitres.
 - Le domaine reste https://daeu-b-maths-dbrckk.onrender.com ; les liens vers les cours GitHub nécessitent Internet.
+
+
+## v13 — consolidation des fondations et de l'analyse (10/11/2026)
+
+- Six cours supplémentaires approfondis : 01 calcul numérique, 03 équations/systèmes, 04 second degré, 06 dérivation, 10 suites et 15 intégration.
+- Chaque nouveau module comprend un atelier de méthode entièrement résolu et deux problèmes de transfert corrigés, sans remplacer les exercices antérieurs. Total cumulé : **dix ateliers et vingt problèmes de transfert** dans les chapitres consolidés.
+- Le contrôle GitHub Actions `scripts/verify_worked_cases.py` vérifie désormais les dix chapitres et recalcule les résultats principaux à l'aide de fractions exactes et d'identités indépendantes du texte.
+- La banque interactive reste à **143 éléments** ; aucune modification de ses IDs ni du stockage des copies. Les cours Markdown sont servis depuis GitHub, hors du cache PWA.
+- L'exactitude complète des démonstrations et les tests sur Android physique nécessitent encore une validation externe.
