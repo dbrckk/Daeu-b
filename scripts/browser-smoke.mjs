@@ -43,6 +43,10 @@ try {
   await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
     "Cours de limites relié directement au bon chapitre d'entraînement");
   await courseOnline.locator("#coursePractice").click();
+  // Le document HTML peut être visible avant l'initialisation du module ES.
+  // Attendre que les options aient été chargées ET le paramètre appliqué.
+  await courseOnline.waitForFunction(()=>document.querySelector("#topic")?.value==="limites"
+    &&document.querySelectorAll("#topic option").length===14,null,{timeout:10000});
   await check(async()=>await courseOnline.locator("#topic").inputValue().then(v=>v==="limites"),
     "Retour au quiz avec le chapitre limites présélectionné");
   await check(async()=>await courseOnline.locator("#quiz").isVisible().then(v=>!v),
