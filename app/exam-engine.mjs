@@ -50,7 +50,7 @@ export function validateExamBank(bank=EXAMS){
 export function startExam(examId,now=Date.now(),seed=null){
   if(!findExam(examId,seed)||!validMs(now)||!validMs(now+EXAM_DURATION_MS))throw new Error("Examen, graine ou date invalide");
   const session={examId,startedAt:now,deadlineAt:now+EXAM_DURATION_MS,sectionIndex:0,answers:{},notes:{}};
-  if(examId===GENERATED_EXAM_ID)session.seed=seed;
+  if(isGeneratedExamId(examId))session.seed=seed;
   return session;
 }
 export function hasExpired(session,now=Date.now()){
@@ -91,7 +91,7 @@ function cleanSession(raw){
   for(const s of exam.sections){
     const note=raw.notes?.[s.id];if(validText(note,3500))notes[s.id]=note;
   }
-  return {examId:raw.examId,...(raw.isGeneratedExamId(examId)?{seed:raw.seed}:{}),startedAt:raw.startedAt,deadlineAt:raw.deadlineAt,sectionIndex:raw.sectionIndex,answers,notes};
+  return {examId:raw.examId,...(isGeneratedExamId(raw.examId)?{seed:raw.seed}:{}),startedAt:raw.startedAt,deadlineAt:raw.deadlineAt,sectionIndex:raw.sectionIndex,answers,notes};
 }
 export function sanitizeExamStore(raw){
   if(!raw||raw.version!==EXAM_STORE_VERSION||!Array.isArray(raw.history))throw new Error("Sauvegarde d'examen incompatible");
