@@ -322,6 +322,8 @@ try {
   await offlineCourse.close();
   const offlinePractice=await context.newPage();
   await offlinePractice.goto(BASE+"/?topic=probas#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlinePractice.waitForFunction(()=>document.querySelector("#topic")?.value==="probas"
+    &&document.querySelectorAll("#topic option").length===14,null,{timeout:10000});
   await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas"),
     "Lien direct vers les probabilités utilisable hors connexion");
   await offlinePractice.close();
