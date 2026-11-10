@@ -53,7 +53,7 @@ Créer des dossiers indépendants (francais/, physique/, chimie/...) en partagea
 
 ## Utiliser les ateliers approfondis (v13)
 
-Dix chapitres possèdent désormais un atelier **détaillé**, deux exercices de transfert et deux corrections commentées : 01, 03, 04, 06, 07, 08, 10, 11, 12 et 15. Pour chaque chapitre :
+Quatorze chapitres du tronc commun possèdent désormais un atelier **détaillé**, deux exercices de transfert et deux corrections commentées : 01 à 12, 15 et 17. Pour chaque chapitre :
 
 1. Relire la méthode, puis **refermer le corrigé** et refaire les étapes de l'exemple sur papier.
 2. Résoudre les deux problèmes de transfert sans aide (incluant les hypothèses et unités, pas seulement le résultat).
@@ -61,3 +61,8 @@ Dix chapitres possèdent désormais un atelier **détaillé**, deux exercices de
 4. Réviser les notions correspondantes sur [l'application interactive](https://daeu-b-maths-dbrckk.onrender.com), dont les 143 éléments et les quatre examens blancs sont inchangés.
 
 Ces ateliers sont consultables dans les fichiers Markdown du dépôt GitHub (connexion nécessaire). L'application PWA conserve en cache **uniquement** ses propres exercices et corrections internes.
+
+
+### Point méthodologique v14
+
+Le chapitre 17 détaille les solutions extrinsèques introduites par élévation au carré, les hypothèses des opérations et les conclusions avec contraintes entières. Le format SONATE Côte d'Azur 2026-2027 utilisé par ce dépôt demande de gérer **quatre exercices en trois heures** ; vérifier les consignes si votre établissement diffère.

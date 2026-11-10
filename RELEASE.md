@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v13, domaine permanent Render (10/11/2026)**  
+**État : candidat public stable v14, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -135,3 +135,13 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Le contrôle GitHub Actions `scripts/verify_worked_cases.py` vérifie désormais les dix chapitres et recalcule les résultats principaux à l'aide de fractions exactes et d'identités indépendantes du texte.
 - La banque interactive reste à **143 éléments** ; aucune modification de ses IDs ni du stockage des copies. Les cours Markdown sont servis depuis GitHub, hors du cache PWA.
 - L'exactitude complète des démonstrations et les tests sur Android physique nécessitent encore une validation externe.
+
+
+## v14 — consolidation de tous les modules du tronc commun (10/11/2026)
+
+- Quatre cours de plus : 02 calcul littéral, 05 fonctions/domaines, 09 logarithmes/exponentielles, 17 raisonnement/rédaction, avec deux problèmes de transfert corrigés chacun.
+- Tronc commun approfondi sur **14 chapitres** : 01 à 12, puis 15 et 17, soit **14 ateliers et 28 problèmes de transfert** au total. Le module 00 de positionnement et les compléments 13, 14 et 16 sont conservés dans leur version antérieure.
+- Correction pédagogique : le chapitre 17 conseille désormais la lecture des **quatre exercices** de l'épreuve SONATE 2026-2027 (et non trois).
+- La vérification des méthodes et exemples porte désormais sur les 14 chapitres avec des invariants numériques et algébriques recalculés automatiquement.
+- Aucun changement de format de sauvegarde : 143 questions et modèles interactifs, quatre examens A/B/C/D, domaine Render permanent inchangés.
+- Validation sur Android physique et relecture universitaire externe toujours non réalisées : ces contrôles CI ne se substituent pas à une certification académique.

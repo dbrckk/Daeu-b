@@ -21,6 +21,10 @@ CASES = {
     "06-derivation.md": "## 8. Atelier approfondi",
     "10-suites.md": "## 8. Atelier approfondi",
     "15-primitives-integrales.md": "## 8. Atelier approfondi",
+    "02-calcul-litteral.md": "## 7. Atelier approfondi",
+    "05-fonctions.md": "## 7. Atelier approfondi",
+    "09-exponentielle-logarithme.md": "## 7. Atelier approfondi",
+    "17-raisonnement-modelisation.md": "## 9. Atelier approfondi",
 }
 
 def equal(actual, expected, context):
@@ -161,4 +165,48 @@ H=lambda x:2*x**3+x*x
 equal(H(1)-H(0),3,"intégrale polynomiale transfert")
 equal(exp(1)-exp(0),exp(1)-1,"primitive exponentielle")
 
-print("OK: 10 ateliers, 20 problèmes de transfert corrigés, invariants mathématiques recalculés.")
+# Calcul littéral : expressions équivalentes uniquement sur le domaine initial.
+for x in [-5,-2,0,2,4,8]:
+    equal((x*x-9)/(x-3)+2/(x+1),
+          (x*x+4*x+5)/(x+1),"simplification rationnelle")
+    equal((x*x-4)/(x-2)-1/(x+1),
+          (x*x+3*x+1)/(x+1),"transfert rationalisation")
+equal((-9)/(-3)+2,5,"évaluation de l'expression")
+for x in [-2,0,1,2,3,5]:
+    equal((2*x-3)**2-(x-1)**2,(x-2)*(3*x-4),"différence de carrés")
+equal((2*(4/3)-3)**2-((4/3)-1)**2,0,"racine factorisée")
+
+# Fonctions : intersection des domaines et images.
+f=lambda x:sqrt(x+2)/(x-1)
+equal(f(-2),0,"image en borne autorisée")
+equal(f(2),2,"image en deux")
+g=lambda x:sqrt(5-x)/(x+1)
+equal(g(4),.2,"image avec racine et quotient")
+q=lambda x:(x-2)**2-1
+equal(q(0),3,"image et antécédents")
+equal(q(2),-1,"minimum parabole")
+equal(q(1),0,"premier antécédent")
+equal(q(3),0,"second antécédent")
+
+# Logarithmes et exponentielles : domaines et substitution.
+equal(log(2*3-1),log(3+2),"égalité logarithmique")
+assert 3 > .5 and (2*3-1)>0 and (3+2)>0
+equal(exp(2*(log(7)/2)),7,"inéquation frontière")
+doubling=log(2)/.15
+equal(240*exp(.15*doubling),480,"doublement continu")
+equal(log(3-2),0,"transfert logarithme")
+equal(1/(3-2),1,"dérivée logarithmique")
+half_life=log(2)/.3
+equal(exp(-.3*half_life),.5,"demi-vie exponentielle")
+assert half_life>0
+
+# Rédaction : racines extrinsèques écartées et contraintes entières.
+equal(sqrt(3+1),3-1,"racine originale valide")
+assert sqrt(0+1) != 0-1  # Racine parasite introduite par mise au carré.
+equal(sqrt(5+4),5-2,"transfert racine valide")
+assert sqrt(0+4) != 0-2
+benefit=lambda n:9*n-(60+4*n)
+equal(benefit(12),0,"seuil strict non franchi")
+equal(benefit(13),5,"premier entier rentable")
+
+print("OK: 14 ateliers, 28 problèmes de transfert corrigés, invariants mathématiques recalculés.")

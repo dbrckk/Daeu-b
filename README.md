@@ -88,7 +88,7 @@ Licence : [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) pour les con
 
 ## Ateliers de consolidation approfondie — v12
 
-Dix cours prioritaires ont été enrichis d'une démarche rédigée pas à pas, de contre-exemples et de deux problèmes de transfert corrigés chacun (**20 problèmes supplémentaires au total**). Ils sont accessibles depuis les cartes de chapitres de l'application ou directement dans le dépôt :
+Quatorze cours du tronc commun ont été enrichis d'une démarche rédigée pas à pas, de contre-exemples et de deux problèmes de transfert corrigés chacun (**28 problèmes supplémentaires au total**). Ils sont accessibles depuis les cartes de chapitres de l'application ou directement dans le dépôt :
 
 - [Limites, asymptotes et rationalisation](maths/07-limites-asymptotes.md)
 - [TVI, unicité et dichotomie](maths/08-continuite-tvi.md)
@@ -100,5 +100,9 @@ Dix cours prioritaires ont été enrichis d'une démarche rédigée pas à pas, 
 - [Dérivation, variations et tangentes](maths/06-derivation.md)
 - [Suites, sommes et seuils logarithmiques](maths/10-suites.md)
 - [Intégrales signées, aire et compositions](maths/15-primitives-integrales.md)
+- [Calcul littéral et restrictions de domaine](maths/02-calcul-litteral.md)
+- [Fonctions : domaine, images et antécédents](maths/05-fonctions.md)
+- [Logarithmes, équations et croissance exponentielle](maths/09-exponentielle-logarithme.md)
+- [Raisonnement, équivalences et rédaction d'examen](maths/17-raisonnement-modelisation.md)
 
 Les cours sont hébergés sur GitHub et nécessitent une connexion Internet ; **seul l'atelier interactif est précaché pour une utilisation hors ligne**. Les exemples sont recalculés par un contrôle CI dédié, sans que cela constitue une validation universitaire exhaustive.

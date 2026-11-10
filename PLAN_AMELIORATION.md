@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v13 sur adresse permanente (10 novembre 2026)
+## État actuel — livraison v14 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -254,3 +254,14 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Étendre les tests numériques et structurels à **10 ateliers / 20 problèmes de transfert**.
 - [ ] Poursuivre la consolidation des chapitres encore synthétiques (02, 05, 09 et 17) puis organiser une relecture pédagogique indépendante.
 - [ ] Vérifier la PWA sur un Android physique et un navigateur secondaire.
+
+
+## Livraison v14 — finir les ateliers du tronc commun (10/11/2026)
+
+- [x] Ajouter aux chapitres 02, 05, 09 et 17 des ateliers rédigés, des erreurs de raisonnement fréquentes et huit nouveaux problèmes de transfert corrigés.
+- [x] Corriger le nombre d'exercices annoncés dans le guide de rédaction, aligné avec le format SONATE 2026-2027 (quatre exercices).
+- [x] Porter le total à **14 chapitres approfondis, 28 problèmes supplémentaires** et étendre les vérifications arithmétiques et structurelles en CI.
+- [x] Conserver le domaine Render, le code d'entraînement, les examens et toutes les clés de sauvegarde.
+- [ ] Relecture académique indépendante des exemples et corrections, avec vérification des programmes des établissements choisis.
+- [ ] Test sur Android physique, notamment reprise hors ligne et stockage navigateur ; évaluer ensuite l'ergonomie pour de longues séances.
+- [ ] Approfondir séparément les compléments facultatifs selon université : trigonométrie (13), géométrie (14), nombres complexes (16).
