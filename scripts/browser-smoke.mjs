@@ -284,6 +284,25 @@ try {
     "Changement de cours vers la trigonométrie hors ligne");
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
     "MathML toujours disponible au changement de chapitre");
+  const allCourses=await offlineCourse.locator("#courseSelector option").evaluateAll(nodes=>nodes.map(n=>n.value));
+  assert.equal(allCourses.length,18);
+  let mathTotal=0,mathFallbacks=0;
+  for(const slug of allCourses){
+    await offlineCourse.goto(BASE+"/course.html?course="+slug,{waitUntil:"domcontentloaded",timeout:12000});
+    await offlineCourse.waitForFunction(()=>document.querySelector("#courseStatus")?.textContent.startsWith("Cours "),null,{timeout:7000});
+    const result=await offlineCourse.evaluate(()=>({
+      title:document.querySelectorAll("#courseBody h1").length,
+      sections:document.querySelectorAll("#courseBody h2").length,
+      math:document.querySelectorAll("#courseBody math").length,
+      fallback:document.querySelectorAll("#courseBody .course-math-fallback").length,
+      placeholders:document.querySelector("#courseBody")?.textContent.includes("DAEUMATHTOKEN")
+    }));
+    assert.ok(result.title>=1&&result.sections>=1&&!result.placeholders,
+      "Chapitre offline incomplet ou invalide : "+slug+" "+JSON.stringify(result));
+    mathTotal+=result.math;mathFallbacks+=result.fallback;
+  }
+  await check(async()=>mathTotal>=60,"18 cours vérifiés hors ligne avec au moins 60 expressions mathématiques");
+  console.log("Audit mathématique offline : "+mathTotal+" MathML, "+mathFallbacks+" formules en texte de repli");
   await offlineCourse.close();
   const offlineProblems=await context.newPage();
   await offlineProblems.goto(BASE+"/problems.html",{waitUntil:"domcontentloaded",timeout:12000});
