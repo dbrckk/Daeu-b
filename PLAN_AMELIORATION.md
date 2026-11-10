@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v10 sur adresse permanente (7 novembre 2026)
+## État actuel — livraison v11 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -14,7 +14,8 @@
 - [x] **Obtenir un domaine stable sans configuration manuelle** : site Render `daeu-b-maths-dbrckk.onrender.com` créé et déployé dans l'espace `studycall12/My Workspace`. GitHub Pages reste une alternative non nécessaire.
 - [ ] Vérifier la PWA sur au moins un téléphone Android physique et un navigateur secondaire.
 - [ ] Vérifier plusieurs sujets et rédactions par une relecture pédagogique externe.
-- [ ] Améliorer la profondeur des cours, et élargir les familles d'examen C au-delà de quatre structures.
+- [x] Doubler le nombre de familles de problèmes générés en ajoutant D sans modifier les sujets C existants.
+- [ ] Améliorer la profondeur des cours et la diversité des problèmes au-delà de C/D.
 
 Le rapport [RELEASE.md](RELEASE.md) précise exactement les tests exécutés et leurs limites.
 
@@ -208,3 +209,17 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [ ] Concurrence strictement simultanée : évaluer Web Locks ou sérialisation explicite, tout en conservant les anciens navigateurs.
 
 **Site de production permanent :** https://daeu-b-maths-dbrckk.onrender.com
+
+
+## Livraison v11 — examen D et diversité d'évaluation (10/11/2026)
+
+- [x] Ajouter quatre nouvelles familles indépendantes de l'examen C : rationnelles, probabilité conditionnelle/Bayes, statistiques et théorème des valeurs intermédiaires.
+- [x] Générer les nouveaux problèmes à partir d'une graine conservée à la reprise et dans chaque export JSON.
+- [x] Maintenir la compatibilité des copies A/B/C sans changer la formule ni l'ordre des tirages du générateur C.
+- [x] Ajouter la correction mathématique dynamique, le barème par exercice et les grilles de raisonnement D.
+- [x] Étendre le diagnostic pour distinguer les sujets D et C selon le type d'épreuve et leur graine.
+- [x] Vérifier 1 000 sujets D, 300 séries de calculs indépendantes et la reprise/export/import des copies D dans les tests Node.js.
+- [x] Tester D dans un contexte Chromium mobile indépendant, y compris sa note et sa conservation après rechargement.
+- [ ] Effectuer un test physique Android, puis une relecture académique indépendante des corrigés ; le test automatisé n'est pas une certification universitaire.
+
+**Production :** https://daeu-b-maths-dbrckk.onrender.com — Render, publication liée à `main`, sans nouvelle adresse à migrer.

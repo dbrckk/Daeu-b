@@ -26,7 +26,7 @@ Cette application complète les cours Markdown du dépôt. Elle contient **95 ex
 
 ## Examens blancs interactifs (v3)
 
-Depuis cette version, la page comprend **deux sujets fixes originaux A et B et un sujet C généré** sous « Examens blancs interactifs ». Chacun comporte **4 exercices représentant 5 points chacun**, soit une note automatisée sur 20.
+Depuis la v11, la page comprend **deux sujets fixes originaux A et B, ainsi que les sujets C et D générés** sous « Examens blancs interactifs ». Chacun comporte **4 exercices représentant 5 points chacun**, soit une note automatisée sur 20.
 
 - Sélectionner le sujet A, B ou C (avec nouvelles valeurs à chaque tentative), puis « Commencer l'examen (3 h) ».
 - Le chronomètre démarre immédiatement, **continue même si la page est fermée** et s'arrête définitivement après trois heures. L'application rend alors la copie et calcule le bilan dès que l'onglet est rouvert.
@@ -112,7 +112,7 @@ Si la précédente adresse est inaccessible ou si son stockage a été effacé, 
 
 À la **fin d'un examen** (jamais pendant), ouvre chaque exercice du corrigé, puis « Correction guidée du raisonnement ». Quatre étapes structurées sont proposées : hypothèses/domaine, méthode, calculs et conclusion selon le problème. Compare-les à la rédaction sauvegardée de ta propre copie. Coche seulement les étapes **réellement démontrées**.
 
-Les examens A et B comprennent **8 grilles / 32 étapes**. Le nouvel examen C possède **4 grilles générées / 16 étapes** supplémentaires par sujet : le total est **12 grilles / 48 étapes** réparties entre les trois formats. Les cases cochées sont sauvegardées dans chaque copie et dans l'export JSON. Elles **ne modifient pas la note sur 20** : c'est une déclaration personnelle, pas une correction automatique de la rédaction ou un contrôle anti-triche.
+Les examens A et B comprennent **8 grilles / 32 étapes**. Le nouvel examen C possède **4 grilles générées / 16 étapes** supplémentaires par sujet : le total est **16 grilles / 64 étapes** réparties entre quatre formats, en ajoutant les 4 grilles et 16 étapes de D. Les cases cochées sont sauvegardées dans chaque copie et dans l'export JSON. Elles **ne modifient pas la note sur 20** : c'est une déclaration personnelle, pas une correction automatique de la rédaction ou un contrôle anti-triche.
 
 « Mon diagnostic après les examens » présente les points perdus par compétence sur les **12 dernières copies** et les liens vers les cours associés. Les mêmes sujets peuvent être refaits, mais cela ne prouve pas la maîtrise sur un sujet inédit.
 
@@ -176,7 +176,7 @@ Limite : les tests Chromium émulent le format mobile ; ils ne remplacent pas un
 
 **Site public v8 :** https://daeu-b-maths-dbrckk.onrender.com
 
-- Le suivi (127 questions/modèles) et toutes les copies des examens A/B/C sont écrits dans **une unique clé** locale, sous un document versionné. Une seule écriture remplace le tout : l'import et la remise à zéro sont **atomiques**, sans demi-import.
+- Le suivi (127 questions/modèles) et toutes les copies des examens A/B/C/D sont écrits dans **une unique clé** locale, sous un document versionné. Une seule écriture remplace le tout : l'import et la remise à zéro sont **atomiques**, sans demi-import.
 - Lors de la première utilisation de v8, les anciennes clés de progression et d'examens sont lues automatiquement si aucune sauvegarde unifiée n'existe. Elles ne sont effacées **qu'après** une première écriture unifiée réussie. Les anciens exports JSON restent importables.
 - Un import illisible, incompatible ou impossible faute d'espace disponible ne remplace pas les données valides. Ne jamais effacer manuellement le stockage pour « réparer » une importation échouée sans avoir d'abord exporté la progression.
 - Si une autre page du **même domaine** modifie la sauvegarde, l'onglet obsolète affiche un avertissement et suspend les saisies jusqu'à rechargement. Les saisies obsolètes ne doivent pas écraser silencieusement les nouvelles données.
@@ -208,3 +208,14 @@ Le simulateur distingue désormais une **ancienne correction consultée** et la 
 Le parcours Chromium couvre 320/360/390/768/1024 pixels, la sauvegarde atomique, l'import/export JSON, les corrections de l'examen C, et le redémarrage hors connexion. Ce contrôle ne remplace pas la manipulation sur un téléphone Android physique.
 
 **Dernier parcours complet validé :** https://github.com/dbrckk/Daeu-b/actions/runs/42416336635
+
+
+## Examen D — quatre nouvelles familles (v11)
+
+Le sélecteur propose maintenant **D** à côté de A, B et C. Contrairement à une simple variation des coefficients de C, D change les **structures de questions** : une fonction rationnelle et ses asymptotes, un arbre conditionnel avec Bayes, une série statistique et une équation exponentielle démontrée par continuité et monotonie.
+
+Chaque session D comprend 4 exercices, 16 questions, 16 étapes d'auto-évaluation et 20 points objectifs, avec chronomètre de trois heures. Les variantes sont calculées localement à partir d'une graine sauvée ; il n'y a ni réseau nécessaire ni crédit IA. Les corrections ne sont visibles qu'après la remise.
+
+**Compatibilité :** A/B inchangés ; C conserve exactement son générateur et sa notation. L'historique et les exports/imports JSON incluent D. Le diagnostic des notions à revoir dispose de liens vers les chapitres correspondants.
+
+**Preuves :** [45 tests Node.js réussis](https://github.com/dbrckk/Daeu-b/actions/runs/42791013222) et [parcours Chromium mobile réussi, incluant D](https://github.com/dbrckk/Daeu-b/actions/runs/42791013207). La validation sur Android physique reste à faire.

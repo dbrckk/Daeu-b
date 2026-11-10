@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v10, domaine permanent Render (07/11/2026)**  
+**État : candidat public stable v11, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -8,7 +8,7 @@
 ## Capacités réellement présentes
 - Programme DAEU B SONATE 2026-2027, 20 jalons principaux + 3 facultatifs traités dans les cours.
 - 95 questions fixes et 32 générateurs paramétriques, répartis en 13 domaines, avec corrigés, révisions espacées et suivi local.
-- Examens A/B fixes, examen C à valeurs variables, chacun 4 exercices, 3 heures, 20 points de notation objective.
+- Examens **A/B fixes** et **C/D à valeurs variables**, chacun composé de 4 exercices, 3 heures et 20 points de notation objective. Le nouveau D couvre quatre autres familles.
 - Grilles de raisonnement à valider par soi-même et diagnostic de points perdus, sans prétendre noter automatiquement la rédaction.
 - Huit problèmes progressifs indépendants et 37 sous-questions avec fichiers de corrigés séparés.
 - Export/import JSON contenant entraînements, examens, copies, réflexions et auto-évaluations ; **import atomique et migration depuis les anciennes clés**.
@@ -18,15 +18,15 @@
 ## Tests automatisés — résultats confirmés
 | Contrôle | Résultat et preuve |
 |---|---|
-| Liens Markdown, fichiers, sujets et cache | [Succès GitHub Actions](https://github.com/dbrckk/Daeu-b/actions/runs/42403528001) |
+| Liens Markdown, fichiers, sujets et cache | [Succès GitHub Actions](https://github.com/dbrckk/Daeu-b/actions/runs/42791013222) |
 | Vérifications de cohérence mathématique et notation | Même exécution : échantillons et 2 560 variantes recalculées |
 | 1 000 sujets C et 250 calculs de référence | Scripts `app/exam-generator.test.mjs` exécutés en CI |
-| Parcours mobile dans Chromium | [Succès du test fonctionnel](https://github.com/dbrckk/Daeu-b/actions/runs/42403528047) |
+| Parcours mobile dans Chromium | [Succès du test fonctionnel](https://github.com/dbrckk/Daeu-b/actions/runs/42791013207) |
 | Export → suppression → import JSON | Succès dans le test fonctionnel Chromium |
 | Sauvegarde d'une copie en cours, reprise et auto-évaluation | Succès dans le test fonctionnel Chromium |
 | Rechargement intégral sans Internet | Succès dans le test fonctionnel Chromium |
 | Absence de débordement horizontal à 390 px | Succès dans le test fonctionnel Chromium |
-| Réponse HTTP et fichier publié | ShipStatic : publication `success` |
+| Réponse HTTP et fichier publié | Render : site statique public avec adresse permanente et surveillance quotidienne |
 | Test physique Android | **Non réalisé** |
 | Relecture universitaire complète | **Non réalisée** |
 
@@ -35,7 +35,7 @@ La CI utilise Playwright en dépendance de test **uniquement sur GitHub Actions*
 ## Mode d'emploi Android
 1. Ouvrir https://daeu-b-maths-dbrckk.onrender.com dans Chrome.
 2. Choisir un chapitre, puis « Démarrer · 10 questions » ; consulter le corrigé après chaque réponse.
-3. Dans « Examens blancs », utiliser de préférence le **sujet C** pour de nouvelles données sans mémoriser les valeurs des sujets A/B.
+3. Dans « Examens blancs », alterner les **sujets C et D** : ils proposent huit familles de problèmes différentes et de nouvelles valeurs à chaque tentative.
 4. En cas de besoin, utiliser le menu du navigateur « Ajouter à l'écran d'accueil » ou « Installer l'application » selon les possibilités du navigateur.
 5. Visiter une première fois le site avec Internet pour le mettre en cache. Les cours publiés sur GitHub restent externes.
 6. Utiliser « Exporter mes résultats » régulièrement. Le stockage persistant, lorsqu'il est accepté par le navigateur, n'élimine pas la nécessité d'une sauvegarde.
@@ -61,7 +61,7 @@ Ce réglage ne touche pas au site de montres existant ni aux autres domaines.
 
 ## Limites à ne pas masquer
 - Pas de correction automatique véritable de la démonstration libre ; seule la réponse objective est notée et les étapes sont auto-évaluées.
-- L'examen C varie les coefficients sur **quatre structures de problème**, pas l'ensemble possible des questions universitaires.
+- Les examens C et D proposent **huit structures de problème différentes**, avec données variables ; cela ne couvre pas toute la diversité des sujets universitaires.
 - L'application fonctionne hors ligne pour les écrans et exercices en cache, mais les cours GitHub ne sont pas mis en cache.
 - L'usage sur un véritable téléphone Android et les autres navigateurs restent à valider.
 - Il faut **exporter/importer** pour migrer d'un domaine de déploiement à l'autre ; aucune synchronisation cloud n'existe.
@@ -101,3 +101,13 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Le contrôle responsive couvre désormais les largeurs **320, 360, 390, 768 et 1024 px**, sans débordement horizontal détecté par Chromium.
 - Tests de référence : [contrôle pédagogique vert](https://github.com/dbrckk/Daeu-b/actions/runs/42416220427) ; [parcours mobile, quotas et hors ligne vert](https://github.com/dbrckk/Daeu-b/actions/runs/42416336635).
 - Le déploiement reste sur https://daeu-b-maths-dbrckk.onrender.com ; la compatibilité Android physique et l'exactitude académique exhaustive demeurent à valider séparément.
+
+
+## v11 — nouvelles familles mathématiques (10/11/2026)
+
+- Ajout d'un **examen D** entièrement distinct de C : étude de fonctions rationnelles, probabilités conditionnelles et formule de Bayes, variance de population, exponentielle et théorème des valeurs intermédiaires.
+- **Graine indépendante et déterministe** : une copie D reprise ou importée retrouve les mêmes coefficients, énoncés, réponses et critères de rédaction ; le générateur C historique est inchangé.
+- **16 questions / 20 points / 3 h** et quatre grilles de raisonnement (16 étapes) par tentative D. Score objectif uniquement ; l'auto-évaluation ne modifie pas les points.
+- **1 000 sujets D** vérifiés structurellement et **300 séries de calculs** revérifiées par des formules indépendantes. Historique et diagnostic des lacunes gèrent désormais C et D séparément.
+- Tests : [45 vérifications pédagogiques et techniques, toutes réussies](https://github.com/dbrckk/Daeu-b/actions/runs/42791013222), [parcours Chromium mobile incluant D, réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42791013207).
+- Les examens A, B et C et les sauvegardes existantes ne sont ni remplacés ni réinitialisés.

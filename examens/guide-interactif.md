@@ -1,7 +1,7 @@
 # Guide — examens blancs interactifs du DAEU B
 
 ## Objectif
-S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les examens fixes A/B et les variantes de l'examen C sont **originaux** et distincts des sujets Markdown existants : ce ne sont pas des annales officielles.
+S'entraîner sur **quatre problèmes indépendants en trois heures**, conformément au format de référence SONATE Côte d'Azur 2026-2027. Les examens fixes A/B et les variantes des examens C/D sont **originaux** et distincts des sujets Markdown existants : ce ne sont pas des annales officielles.
 
 **Application actuelle :** https://daeu-b-maths-dbrckk.onrender.com
 
@@ -12,7 +12,7 @@ S'entraîner sur **quatre problèmes indépendants en trois heures**, conformém
 
 ## Déroulement
 1. Ouvrir l'application puis « Examens blancs interactifs ».
-2. Choisir A ou B (sujets fixes) ou **C (nouvelles valeurs générées)** et démarrer : le temps commence immédiatement, même si la page est ensuite fermée.
+2. Choisir A ou B (sujets fixes) ou **C/D (nouvelles valeurs générées et familles différentes)** et démarrer : le temps commence immédiatement, même si la page est ensuite fermée.
 3. Pour chaque exercice, répondre aux questions numériques et QCM, **et écrire sa démonstration** dans « Mon raisonnement » : domaines, théorèmes, transformations, conclusion.
 4. Changer d'exercice librement ; les champs sont automatiquement enregistrés dans le navigateur.
 5. Rendre la copie ou attendre la fin du temps. Les réponses sont alors corrigées, avec une note objective /20 et les méthodes rédigées.
@@ -62,3 +62,10 @@ Le diagnostic considère deux versions C de graines différentes comme deux suje
 Les réponses, les justifications et les grilles cochées sont enregistrées en même temps que la progression générale, dans **une sauvegarde unifiée**. Un export JSON transporte toujours ces deux volets. En cas d'import impossible, aucune des deux parties ne doit être remplacée.
 
 Si la progression a changé dans un autre onglet du même navigateur, un avertissement suspend les modifications : cliquer **« Recharger la progression »** pour reprendre les dernières données. Pendant un examen chronométré, privilégier un **onglet unique**. Le chronomètre continue pendant une fermeture ou une recharge.
+
+
+## Examen D : quatre autres familles
+
+L'examen D ajoute des problèmes de **fonction rationnelle avec asymptote**, de **probabilités conditionnelles (formule de Bayes)**, de **variance d'une population** et d'**équation exponentielle avec preuve d'unicité par le TVI et la monotonie**. Il dure trois heures et comporte 16 questions réparties en quatre exercices de cinq points.
+
+Pour mesurer sa maîtrise, alterner C et D plutôt que de refaire systématiquement le même type d'exercice. Les données de D sont reproductibles à la reprise grâce à une graine locale enregistrée dans la copie. Les démonstrations restent à rédiger et à relire : la note automatique évalue les réponses objectives seulement.
