@@ -1,6 +1,6 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-**État : candidat public stable v17, domaine permanent Render (10/11/2026)**  
+**État : candidat public stable v19, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  
 **Branche :** `main`
@@ -12,7 +12,7 @@
 - Grilles de raisonnement à valider par soi-même et diagnostic de points perdus, sans prétendre noter automatiquement la rédaction.
 - Huit problèmes progressifs indépendants et 37 sous-questions avec fichiers de corrigés séparés.
 - Export/import JSON contenant entraînements, examens, copies, réflexions et auto-évaluations ; **import atomique et migration depuis les anciennes clés**.
-- Service Worker et cache PWA pour les fichiers de l'application ; nouveau manifeste et icône vectorielle.
+- Service Worker et cache PWA des 18 cours, des problèmes et de leurs corrigés, avec manifeste et icône vectorielle.
 - Bouton de persistance facultative du stockage local et repli explicite en cas de refus.
 
 ## Tests automatisés — résultats confirmés
@@ -37,7 +37,7 @@ La CI utilise Playwright en dépendance de test **uniquement sur GitHub Actions*
 2. Choisir un chapitre, puis « Démarrer · 10 questions » ; consulter le corrigé après chaque réponse.
 3. Dans « Examens blancs », alterner les **sujets C et D** : ils proposent huit familles de problèmes différentes et de nouvelles valeurs à chaque tentative.
 4. En cas de besoin, utiliser le menu du navigateur « Ajouter à l'écran d'accueil » ou « Installer l'application » selon les possibilités du navigateur.
-5. Visiter une première fois le site avec Internet pour le mettre en cache. Les 18 cours principaux sont désormais intégrés à la PWA ; les autres annexes sur GitHub restent externes.
+5. Visiter une première fois le site avec Internet pour installer le cache. Les 18 cours et les 8 problèmes progressifs avec leurs corrigés sont désormais accessibles hors connexion ; certains autres documents annexes restent externes à la PWA.
 6. Utiliser « Exporter mes résultats » régulièrement. Le stockage persistant, lorsqu'il est accepté par le navigateur, n'élimine pas la nécessité d'une sauvegarde.
 
 ## Adresse permanente Render : active
@@ -184,3 +184,9 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Pour les cinq cours sans questions interactives dédiées, accès explicite à l'entraînement général, sans promettre une banque absente.
 - Accès aux problèmes de rédaction depuis le lecteur de cours, en ligne comme hors ligne.
 - Tests de correspondance des 18 cours avec les 13 domaines et scénario Chromium mobile incluant navigation et préselection hors ligne.
+
+
+### Vérifications finales de la navigation v19
+- [54 tests pédagogiques et techniques réussis](https://github.com/dbrckk/Daeu-b/actions/runs/42806093191) : mapping des 13 domaines, rejet des paramètres inconnus, compatibilité des sauvegardes et exercices.
+- [Parcours fonctionnel Chromium mobile réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42807190553) : navigation cours → chapitre, tests d'examens et des copies, export/import, 18 cours et corrigés consultables hors connexion.
+- Les premières exécutions Chromium de v19 échouaient sur une **vérification prématurée** avant la fin de l'initialisation des modules et du chargement Markdown. Les attentes asynchrones ont été ajoutées avant l'évaluation ; le scénario complet a ensuite réussi. Les tests matériels Android et la revue académique indépendante restent ouverts.

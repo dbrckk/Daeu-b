@@ -1,6 +1,6 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v17 sur adresse permanente (10 novembre 2026)
+## État actuel — livraison v19 sur adresse permanente (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 
@@ -315,3 +315,6 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Proposer l'accès aux huit problèmes corrigés directement dans le lecteur.
 - [x] Tester les correspondances et la navigation depuis les cours dans Chromium mobile, y compris hors ligne.
 - [ ] Validation d'utilisation réelle sur Android physique et relecture académique indépendante.
+
+
+**Validation v19 confirmée :** [54 tests sur 54](https://github.com/dbrckk/Daeu-b/actions/runs/42806093191) et [parcours Chromium avec navigation complète et hors ligne réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42807190553). Les deux échecs intermédiaires provenaient de contrôles trop précoces de l'état DOM, corrigés avant la validation finale.

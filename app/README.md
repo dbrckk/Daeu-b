@@ -49,7 +49,7 @@ L'outil accepte pour les questions numériques les écritures 3/4, 0,75, -1/2, 0
 - Le service worker précharge l'interface, les 18 cours, le moteur Markdown et le rendu MathML après la première visite HTTPS. Les annexes externes sur GitHub ne sont pas incluses.
 - Si le navigateur efface les données du site, les résultats non exportés sont perdus.
 - Import JSON : version 2, remplacement de la progression existante après confirmation.
-- Les vrais tests sur téléphone Android, la navigation au clavier et le cache hors ligne sont encore à vérifier.
+- Le parcours Chromium simulant Android et le cache hors ligne ont été vérifiés automatiquement ; un test matériel sur téléphone Android et un audit complet d'accessibilité au clavier restent nécessaires.
 
 ## Développement
 
