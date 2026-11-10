@@ -41,7 +41,54 @@ Pour chaque question : **données et domaine → règle/théorème et hypothèse
 Pour une étude de fonction : domaine, limites aux bornes, dérivée/signe, tableau de variations, zéros/valeurs, éventuelles asymptotes et graphique qualitatif.
 
 ## 8. Gestion du temps
-Lire les 3 exercices dès le début. Commencer par les questions accessibles, ne pas s'enfermer sur une question à faible barème. Réserver une dernière passe pour les **signes, domaines, unités, parenthèses**, particulièrement dans les fractions et les dérivées.
+Lire les 4 exercices dès le début (format SONATE Côte d'Azur 2026-2027). Commencer par les questions accessibles, ne pas s'enfermer sur une question à faible barème. Réserver une dernière passe pour les **signes, domaines, unités, parenthèses**, particulièrement dans les fractions et les dérivées.
+
+## 9. Atelier approfondi — éviter les fausses solutions et conclure
+
+Considérons l'équation
+
+\[
+\sqrt{x+1}=x-1.
+\]
+
+**1. Conditions avant le calcul.** La racine carrée exige \(x+1\ge0\), donc \(x\ge-1\). Mais le membre de gauche étant positif ou nul, il faut également \(x-1\ge0\). Le domaine des **candidats solutions** est donc \(x\ge1\).
+
+**2. Transformer l'équation.** On peut élever les deux membres au carré pour obtenir une **condition nécessaire** :
+
+\[
+x+1=(x-1)^2=x^2-2x+1
+\iff x(x-3)=0.
+\]
+
+Les candidats algébriques sont 0 et 3. Le premier, \(x=0\), ne satisfait pas la condition \(x\ge1\) ; il doit être éliminé.
+
+**3. Vérifier dans l'équation originale.** Pour \(x=3\), \(\sqrt{3+1}=2\) et \(3-1=2\). La solution est donc \(\boxed{S=\{3\}}\).
+
+**4. Rédiger une conclusion avec hypothèses.** « Sur le domaine \(x\ge1\), la transformation donne \(x=3\). La vérification dans l'égalité initiale montre que 3 est une solution, et les autres candidats sont impossibles. » Cela prouve plus qu'une ligne de calcul avec une flèche non justifiée.
+
+**5. Un modèle avec contraintes entières.** Une entreprise paie 60 € fixes et 4 € par unité produite, puis vend chaque unité 9 €. Pour un nombre entier \(n\ge0\), son bénéfice est
+
+\[
+B(n)=9n-(60+4n)=5n-60.
+\]
+
+Pour obtenir un **bénéfice strictement positif**, il faut \(5n-60>0\), soit \(n>12\). Le plus petit entier admissible est **13**, et le bénéfice vaut \(B(13)=5\) €. À \(n=12\), le bénéfice est **nul**, pas positif.
+
+### Deux problèmes de transfert
+
+**A.** Résoudre \(\sqrt{x+4}=x-2\). Indiquer explicitement la restriction de signe avant d'élever au carré, puis vérifier les candidats.
+
+**B.** Avec un coût fixe de 60 €, un coût variable de 4 € par unité et un prix de vente de 9 € par unité, déterminer le premier nombre entier d'unités permettant un bénéfice strictement positif, puis calculer ce bénéfice.
+
+### Corrections commentées
+
+**A.** Il faut \(x+4\ge0\) **et** \(x-2\ge0\), donc \(x\ge2\). En élevant au carré, \(x+4=(x-2)^2=x^2-4x+4\), soit \(x(x-5)=0\). Les candidats sont 0 et 5 ; le premier est interdit. Pour \(x=5\), \(\sqrt9=3=5-2\). Donc \(\boxed{S=\{5\}}\).
+
+**B.** \(B(n)=9n-4n-60=5n-60\). On cherche \(B(n)>0\), donc \(n>12\). Comme \(n\) est un entier, le minimum est \(\boxed{n=13}\), avec \(\boxed{B(13)=5\text{ €}}\). « 12 unités » correspond à l'équilibre comptable, pas à un bénéfice positif.
+
+**Pièges à surveiller :** écrire une équivalence là où l'on a seulement une implication, oublier la vérification après mise au carré, perdre une solution en divisant par une expression qui peut être nulle, oublier que la quantité demandée est entière.
+
+---
 
 ## Exercices
 1. Expliquer pourquoi « $x^2=9\Rightarrow x=3$ » est faux.

@@ -40,6 +40,44 @@ Transformations de graphes : $f(x)+k$ translate verticalement de $k$ ; $f(x-h)$ 
 ## 6. Résoudre avec une fonction
 Pour $f(x)=2x^2-3$, résoudre $f(x)=5$ : $2x^2-3=5$, donc $x^2=4$ et $x=-2$ ou $2$. Pour $f(x)>5$, $x^2>4$ donne $]-\infty;-2[\cup]2;+\infty[$.
 
+## 7. Atelier approfondi — domaine, images et antécédents
+
+On considère
+
+\[
+f(x)=\frac{\sqrt{x+2}}{x-1}.
+\]
+
+**1. Combiner les contraintes.** La racine carrée impose \(x+2\ge0\), donc \(x\ge-2\). Le dénominateur impose \(x\ne1\). L'ensemble de définition est l'**intersection** :
+
+\[
+D_f=[-2;1[\ \cup\ ]1;+\infty[.
+\]
+
+Le point \(x=-2\) est autorisé : la racine carrée peut valoir zéro, à la différence du logarithme.
+
+**2. Calculer des images autorisées.** \(f(-2)=0/(-3)=\boxed0\) et \(f(2)=\sqrt4/(2-1)=\boxed2\). En revanche \(f(1)\) **n'existe pas**, car on ne divise jamais par zéro.
+
+**3. Distinguer image et antécédent.** Pour \(p(x)=(x-2)^2-1\), l'image de \(0\) est \(p(0)=3\). Les **antécédents de 0** sont les solutions de \(p(x)=0\) : \((x-2)^2=1\), soit \(x=1\) et \(x=3\). Une même image peut donc avoir plusieurs antécédents.
+
+**4. Lire les variations sans dessin.** La fonction \(p(x)=(x-2)^2-1\) a un minimum de \(-1\) en 2, car un carré est toujours positif. Elle décroît jusqu'à 2 puis croît après 2 ; ne pas confondre ce minimum avec le signe de la fonction, qui est négatif sur \(]1;3[\).
+
+### Deux problèmes de transfert
+
+**A.** Trouver le domaine de \(g(x)=\sqrt{5-x}/(x+1)\) et calculer \(g(4)\). Distinguer la borne autorisée et la valeur interdite.
+
+**B.** Étudier \(q(x)=(x-2)^2-1\) sur \([0;4]\) : minimum, sens de variation et solutions de \(q(x)=0\).
+
+### Corrections commentées
+
+**A.** La racine impose \(5-x\ge0\), soit \(x\le5\). Le dénominateur interdit \(x=-1\). On obtient \(\boxed{D_g=]-\infty;-1[\cup]-1;5]}\). La borne 5 est admise ; \(-1\) est exclu. \(g(4)=\sqrt1/(4+1)=\boxed{1/5}\).
+
+**B.** Le carré \((x-2)^2\) est minimal en \(x=2\). Le minimum de \(q\) sur \([0;4]\) est donc \(\boxed{-1}\). La fonction décroît sur \([0;2]\), croît sur \([2;4]\). Pour \(q(x)=0\), \((x-2)^2=1\), d'où \(\boxed{x=1}\) ou \(\boxed{x=3}\), deux solutions appartenant au domaine.
+
+**Pièges à surveiller :** confondre \(f(a)\) et les solutions de \(f(x)=a\), oublier une restriction de domaine, déclarer une fonction négative simplement parce qu'elle décroît.
+
+---
+
 ## Exercices
 1. Soit $f(x)=x^2-4x+3$. Calculer $f(0)$, $f(2)$ et résoudre $f(x)=0$.
 2. Trouver le domaine de $g(x)=\sqrt{5-2x}$.

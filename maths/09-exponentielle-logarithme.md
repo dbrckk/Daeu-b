@@ -39,6 +39,63 @@ Pour une croissance annuelle **discrète** de 5 %, le modèle exact au bout de $
 $g(x)=\ln(2x-4)$ impose $2x-4>0$, donc $x>2$.
 Pour résoudre $\ln(x^2-1)=0$ : domaine $x<-1$ ou $x>1$. Puis $x^2-1=1$ donne $\boxed{x=\pm\sqrt2}$, toutes deux admises.
 
+## 7. Atelier approfondi — équation logarithmique, inéquation et modèle
+
+**1. Avant toute équation, écrire le domaine.** Résolvons
+
+\[
+\ln(2x-1)=\ln(x+2).
+\]
+
+Le logarithme de gauche existe pour \(2x-1>0\), soit \(x>1/2\). Celui de droite existe pour \(x>-2\). Le domaine commun est donc \(x>1/2\).
+
+**2. Utiliser l'injectivité de \(\ln\).** Sur ce domaine, deux logarithmes sont égaux si et seulement si leurs arguments sont égaux :
+
+\[
+2x-1=x+2\iff x=\boxed3.
+\]
+
+La valeur 3 appartient au domaine. Vérification : \(\ln(2\times3-1)=\ln5\) et \(\ln(3+2)=\ln5\). Sans l'étude du domaine, une résolution algébrique ne serait pas complète.
+
+**3. Résoudre une inéquation exponentielle.** La fonction exponentielle est **strictement croissante**. Donc
+
+\[
+e^{2x}\ge7\iff2x\ge\ln7\iff\boxed{x\ge\tfrac12\ln7}.
+\]
+
+On conserve le sens de l'inégalité car \(\ln\) est strictement croissante sur \(]0;+\infty[\), et 7 est positif.
+
+**4. Modéliser une croissance continue.** Une quantité \(N(t)=240e^{0{,}15t}\), avec \(t\ge0\), double lorsque \(N(t)=480\). On trouve \(e^{0{,}15t}=2\), d'où
+
+\[
+t=\frac{\ln2}{0{,}15}\approx\boxed{4{,}62\text{ unités de temps}}.
+\]
+
+Il faut préciser l'unité de \(t\) selon le problème : si \(t\) est exprimé en années, il s'agit d'environ 4,62 années. Le modèle **discret** \(240(1+0{,}15)^n\) n'est pas identique à un modèle exponentiel continu.
+
+### Deux problèmes de transfert
+
+**A.** Résoudre \(\ln(x-2)=0\) en précisant le domaine. En déduire la dérivée de \(f(x)=\ln(x-2)\) et calculer \(f'(3)\).
+
+**B.** Une substance suit \(M(t)=M_0e^{-0{,}3t}\), avec \(M_0>0\) et \(t\ge0\). Déterminer le temps exact puis approché nécessaire pour obtenir \(M(t)=M_0/2\).
+
+### Corrections commentées
+
+**A.** Domaine \(x-2>0\), donc \(x>2\). Comme \(\ln1=0\), l'équation équivaut à \(x-2=1\), d'où \(\boxed{x=3}\), autorisé. La dérivée est \(f'(x)=1/(x-2)\) sur \(]2;+\infty[\), donc \(\boxed{f'(3)=1}\).
+
+**B.** Diviser par \(M_0>0\), puis prendre le logarithme :
+
+\[
+e^{-0{,}3t}=1/2\iff-0{,}3t=\ln(1/2)=-\ln2
+\iff\boxed{t=\frac{\ln2}{0{,}3}\approx2{,}31}.
+\]
+
+Le temps trouvé est positif, ce qui correspond à une décroissance.
+
+**Pièges à surveiller :** écrire \(\ln(a+b)=\ln a+\ln b\), oublier les arguments strictement positifs, inverser sans raison une inéquation, mélanger croissance continue et croissance par périodes.
+
+---
+
 ## Exercices
 1. Simplifier $e^{3x}/e^x$.
 2. Résoudre $e^{3x}=7$.

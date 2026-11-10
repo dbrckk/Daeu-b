@@ -39,6 +39,64 @@ On additionne $\frac1x+\frac1{x+1}=\frac{2x+1}{x(x+1)}$, **avec $x\ne0,-1$**.
 ## 6. Substituer une valeur
 Pour $A(x)=2x^2-3x+1$, $A(-2)=2(4)+6+1=15$. Toujours mettre les valeurs négatives entre parenthèses.
 
+## 7. Atelier approfondi — expression rationnelle et valeur interdite
+
+Étudier l'expression
+
+\[
+E(x)=\frac{x^2-9}{x-3}+\frac2{x+1}.
+\]
+
+**1. Domaine avant simplification.** Les dénominateurs initiaux imposent \(x\ne3\) et \(x\ne-1\). Ainsi \(D_E=\mathbb R\setminus\{-1,3\}\). Une simplification ne peut pas rétablir une valeur interdite.
+
+**2. Factoriser le numérateur.** L'identité \(a^2-b^2=(a-b)(a+b)\) donne \(x^2-9=(x-3)(x+3)\). Puis, **pour \(x\ne3\)**,
+
+\[
+E(x)=x+3+\frac2{x+1}.
+\]
+
+**3. Mettre sur un dénominateur commun.** Pour \(x\ne-1,3\) :
+
+\[
+E(x)=\frac{(x+3)(x+1)+2}{x+1}
+=\boxed{\frac{x^2+4x+5}{x+1}}.
+\]
+
+Les formes sont égales **sur le domaine initial seulement**. La forme simplifiée possède une valeur algébrique en \(x=3\), mais cette valeur n'appartient pas à la fonction d'origine.
+
+**4. Contrôle par substitution.** En \(x=0\), l'expression initiale vaut \((-9)/(-3)+2/1=5\). La forme finale donne \(5/1=5\). En revanche, \(x=3\) reste interdit, même si le quotient simplifié serait calculable.
+
+### Deux problèmes de transfert
+
+**A.** Simplifier \(F(x)=(x^2-4)/(x-2)-1/(x+1)\), préciser **toutes** les valeurs interdites et calculer \(F(0)\).
+
+**B.** Factoriser sans développer inutilement \((2x-3)^2-(x-1)^2\), puis donner les zéros de l'expression factorisée.
+
+### Corrections commentées
+
+**A.** Le domaine initial interdit \(\boxed{x=2}\) et \(\boxed{x=-1}\). Pour \(x\) autorisé, \((x^2-4)/(x-2)=x+2\). Donc
+
+\[
+F(x)=x+2-\frac1{x+1}
+=\boxed{\frac{x^2+3x+1}{x+1}},\qquad x\ne-1,2.
+\]
+
+En \(x=0\), \(F(0)=2-1=\boxed1\). L'interdiction \(x=2\) doit être conservée.
+
+**B.** Différence de carrés \(A^2-B^2=(A-B)(A+B)\), avec \(A=2x-3\) et \(B=x-1\) :
+
+\[
+(2x-3)^2-(x-1)^2
+=[(2x-3)-(x-1)]\,[(2x-3)+(x-1)]
+=\boxed{(x-2)(3x-4)}.
+\]
+
+L'expression s'annule pour \(\boxed{x=2}\) ou \(\boxed{x=4/3}\). Le redéveloppement donne \(3x^2-10x+8\), ce qui confirme le produit.
+
+**Pièges à surveiller :** supprimer un terme au lieu d'un facteur, oublier une valeur interdite après simplification, écrire \((a-b)^2=a^2-b^2\), substituer sans parenthèses un nombre négatif.
+
+---
+
 ## Exercices
 1. Réduire $4x-3(2x-5)+7$.
 2. Développer $(3x-2)^2$.
