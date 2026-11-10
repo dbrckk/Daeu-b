@@ -177,3 +177,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Cache PWA mis à jour pour permettre la navigation directe vers `course.html` sans recharger l'accueil hors connexion.
 - Parcours Chromium mobile vérifié en ligne et sans réseau à la version `f80998b` : [validation réussie](https://github.com/dbrckk/Daeu-b/actions/runs/42804827207).
 - Progression, séances et copies A/B/C/D conservées, aucune migration.
+
+
+## v19 — liaison directe cours et entraînement (10/11/2026)
+- Depuis chaque cours du tronc commun, lien d'entraînement ciblant son domaine interactif, sans démarrage automatique ni perte des séances sauvegardées.
+- Pour les cinq cours sans questions interactives dédiées, accès explicite à l'entraînement général, sans promettre une banque absente.
+- Accès aux problèmes de rédaction depuis le lecteur de cours, en ligne comme hors ligne.
+- Tests de correspondance des 18 cours avec les 13 domaines et scénario Chromium mobile incluant navigation et préselection hors ligne.

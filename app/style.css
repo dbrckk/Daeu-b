@@ -87,3 +87,10 @@
 .course-footer-nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:18px 0}
 .course-footer-nav a{border:1px solid var(--stroke);border-radius:10px;padding:12px 16px;max-width:100%;text-decoration:none}
 @media(max-width:640px){.course-layout{padding-top:16px}.course-document{padding:18px}.course-navigation{padding:12px}.course-document table{font-size:.82rem}}
+
+/* Accès direct cours → entraînement sur ordinateur et mobile. */
+.course-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%}
+.course-actions .primary{min-height:44px;white-space:normal;text-align:center}
+.course-secondary-link{display:inline-flex;align-items:center;min-height:44px;padding:10px 12px;border:1px solid var(--stroke);border-radius:10px;text-decoration:none}
+.course-secondary-link:hover{background:var(--panel2)}
+@media(max-width:460px){.course-actions{align-items:stretch;flex-direction:column}.course-actions a{justify-content:center;width:100%}}

@@ -242,6 +242,10 @@ async function importProgress(file) {
 }
 
 buildTopicSelector();
+// Les liens issus des cours sélectionnent uniquement le chapitre autorisé.
+// Aucune nouvelle séance n'est créée sans action explicite.
+const requestedTopic=new URLSearchParams(location.search).get("topic");
+if(fullTopics.some(topic=>topic.slug===requestedTopic))el("topic").value=requestedTopic;
 renderCourseLibrary();
 refreshOverview();
 initExams(dataStore,conflictWarning);

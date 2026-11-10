@@ -1,4 +1,4 @@
-import {COURSES,courseInfo,courseUrl} from "./course-catalog.mjs";
+import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
 const byId=id=>document.getElementById(id);
 let slug=new URL(location.href).searchParams.get("course")||"00-positionnement";
 if(!courseInfo(slug))slug="00-positionnement";
@@ -7,6 +7,12 @@ for(const [key,title] of COURSES){
   const option=document.createElement("option");option.value=key;option.textContent=title;selector.append(option);
 }
 selector.value=slug;
+const practice=byId("coursePractice");
+practice.href=practiceUrlForCourse(slug);
+practice.textContent=practiceTopicForCourse(slug)
+  ?"M'entraîner sur ce chapitre"
+  :"M'entraîner sur le tronc commun";
+practice.setAttribute("aria-label",practice.textContent+" : "+courseInfo(slug));
 selector.addEventListener("change",()=>{location.href=courseUrl(selector.value);});
 const index=COURSES.findIndex(([key])=>key===slug);
 for(const [id,diff] of [["coursePrevious",-1],["courseNext",1]]){

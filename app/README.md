@@ -244,3 +244,7 @@ La séance active conserve ses IDs, ses graines de variantes, son nombre de rép
 
 ## v17 — Bibliothèque locale des 18 cours
 Les fichiers `app/cours/*.md` sont des copies des cours `maths/*.md`, vérifiées par la CI. Les bibliothèques libres `app/vendor/` fonctionnent sans réseau ni API. L'affichage passe par un convertisseur Markdown puis une désinfection HTML (DOMPurify) et un moteur MathML natif (Temml). La navigation et les liens « Lire le cours » pointent vers `course.html?course=…`. Mettre à jour les cours en exécutant `python3 scripts/sync_courses.py` après toute modification du dossier `maths/`.
+
+
+## v19 — navigation pédagogique depuis un cours (10/11/2026)
+Les treize chapitres couverts par la banque de 143 questions disposent, dans leur lecteur Markdown, d'un accès **« M'entraîner sur ce chapitre »** qui présélectionne le domaine associé à leur arrivée à l'atelier. L'entraînement ne commence pas automatiquement : une séance éventuellement en cours n'est pas remplacée. Les cinq cours sans domaine dédié (positionnement, trigonométrie, géométrie, complexes, rédaction) renvoient honnêtement vers l'entraînement général. Un second lien ouvre les huit problèmes rédigés. Les liens restent utilisables hors ligne après installation de la PWA.

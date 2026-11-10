@@ -40,6 +40,16 @@ try {
     "Navigation entre les 18 cours");
   await check(async()=>await courseOnline.locator("#courseStatus").textContent().then(s=>s.includes("Cours 8/18")),
     "Chapitre choisi depuis le paramètre d'URL");
+  await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
+    "Cours de limites relié directement au bon chapitre d'entraînement");
+  await courseOnline.locator("#coursePractice").click();
+  await check(async()=>await courseOnline.locator("#topic").inputValue().then(v=>v==="limites"),
+    "Retour au quiz avec le chapitre limites présélectionné");
+  await check(async()=>await courseOnline.locator("#quiz").isVisible().then(v=>!v),
+    "Navigation depuis le cours sans démarrage intempestif d'une séance");
+  await courseOnline.goto(BASE+"/course.html?course=13-trigonometrie",{waitUntil:"networkidle"});
+  await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
+    "Complément facultatif : accès honnête à l'entraînement général");
   await courseOnline.close();
   const problemsPage=await context.newPage();
   problemsPage.on("pageerror",e=>errors.push("Problèmes : "+e.message));
@@ -303,7 +313,14 @@ try {
   }
   await check(async()=>mathTotal>=60,"18 cours vérifiés hors ligne avec au moins 60 expressions mathématiques");
   console.log("Audit mathématique offline : "+mathTotal+" MathML, "+mathFallbacks+" formules en texte de repli");
+  await check(async()=>await offlineCourse.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
+    "Navigation vers la pratique générale conservée hors ligne pour le complément");
   await offlineCourse.close();
+  const offlinePractice=await context.newPage();
+  await offlinePractice.goto(BASE+"/?topic=probas#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
+  await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas"),
+    "Lien direct vers les probabilités utilisable hors connexion");
+  await offlinePractice.close();
   const offlineProblems=await context.newPage();
   await offlineProblems.goto(BASE+"/problems.html",{waitUntil:"domcontentloaded",timeout:12000});
   await check(async()=>await offlineProblems.locator("#problemBody h3").count()===8,

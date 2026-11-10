@@ -306,3 +306,12 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [ ] Valider sur un Android physique l'installation et la lecture sans réseau après fermeture forcée de la PWA.
 - [ ] Étendre si nécessaire la lecture hors ligne aux documents complémentaires hors programme principal.
 - [ ] Relecture universitaire indépendante des démonstrations et corrigés.
+
+
+## Livraison v19 — parcours continu cours → entraînement (10/11/2026)
+- [x] Raccorder les treize cours du tronc commun à leurs questions interactives avec présélection du domaine.
+- [x] Préserver la séance enregistrée lors d'un retour depuis le cours, sans la démarrer ni la remplacer automatiquement.
+- [x] Afficher un accès général honnête pour les cinq cours complémentaires hors banque interactive.
+- [x] Proposer l'accès aux huit problèmes corrigés directement dans le lecteur.
+- [x] Tester les correspondances et la navigation depuis les cours dans Chromium mobile, y compris hors ligne.
+- [ ] Validation d'utilisation réelle sur Android physique et relecture académique indépendante.
