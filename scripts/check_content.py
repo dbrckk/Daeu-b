@@ -39,6 +39,15 @@ for path in markdown_files:
         if not target.exists():
             errors.append(f"{path.relative_to(ROOT)} : lien brisé {dest}")
 
+# Invariant pédagogique critique : le calcul intégral (jalon 18) est obligatoire
+# dans le programme SONATE Côte d'Azur 2026-2027.
+programme = (ROOT / "PROGRAMME.md").read_text(encoding="utf-8")
+suivi = (ROOT / "SUIVI.md").read_text(encoding="utf-8")
+if "| 18 | Calcul intégral | 15 | Programme |" not in programme:
+    errors.append("Jalon 18 : calcul intégral obligatoire absent du programme")
+if "| 15 Intégrales |" not in suivi or "| 15 Intégrales* |" in suivi:
+    errors.append("Suivi : intégrales (cours 15) classées facultatives à tort")
+
 for base in ("01", "02", "03"):
     glob_expr = f"blanc-{base}*sujet.md"
     if len(list((ROOT / "examens").glob(glob_expr))) != 1:

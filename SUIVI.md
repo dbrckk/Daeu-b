@@ -19,11 +19,11 @@ Copier ce fichier dans ses notes ou le modifier directement dans GitHub : rempla
 | 12 Probabilités | 🔲 | 🔲 | 🔲 | 🔲 |
 | 13 Trigonométrie* | 🔲 | 🔲 | 🔲 | 🔲 |
 | 14 Géométrie* | 🔲 | 🔲 | 🔲 | 🔲 |
-| 15 Intégrales* | 🔲 | 🔲 | 🔲 | 🔲 |
+| 15 Intégrales | 🔲 | 🔲 | 🔲 | 🔲 |
 | 16 Complexes* | 🔲 | 🔲 | 🔲 | 🔲 |
 | 17 Méthode/preuves | 🔲 | 🔲 | 🔲 | 🔲 |
 
-*Selon programme d'université. Lire les compléments avant d'abandonner un sujet pour lequel ils sont exigés.*
+*Les chapitres 13 (trigonométrie), 14 (géométrie) et 16 (complexes) dépendent de l'université ; à SONATE Côte d'Azur 2026–2027, les **intégrales du chapitre 15 correspondent au jalon 18 obligatoire**. Ne pas les classer comme facultatives.*
 
 ## Historique d'évaluation
 | Date | Épreuve | Temps | Note /20 | Points faibles | Action |

@@ -1,6 +1,8 @@
 # DAEU B — Plan d'amélioration priorisé (07/11/2026)
 
-## État actuel — livraison v19 sur adresse permanente (10 novembre 2026)
+**Feuille de route active à compter du 11/11/2026 :** [ROADMAP_V23.md](ROADMAP_V23.md). Les phases ci-dessous retracent l'historique des versions v1–v22 ; les prochains travaux doivent suivre le plan v23–v28 et ses critères de sortie.
+
+## Historique — état de la livraison v19 (10 novembre 2026)
 
 **Application publique actuelle (adresse stable) : https://daeu-b-maths-dbrckk.onrender.com**
 

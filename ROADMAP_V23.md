@@ -1,0 +1,90 @@
+# Feuille de route v23–v28 — DAEU B mathématiques
+
+**Établie le 11 novembre 2026.** Source de vérité pour les prochaines itérations, en complément de l'[historique des améliorations](PLAN_AMELIORATION.md), du [programme](PROGRAMME.md) et du [parcours apprenant](PARCOURS.md).
+
+## 1. Finalité du produit
+
+Construire une plateforme **gratuite, réellement exploitable sur Android et PC, sans compte, sans API payante et utilisable hors connexion**, qui aide à atteindre une maîtrise démontrée des mathématiques du DAEU B. Ne pas confondre réussite à un QCM, preuve de compréhension et réussite à une épreuve universitaire.
+
+**Centre de référence actuel :** syllabus SONATE / Université Côte d'Azur 2026–2027, documenté dans `PROGRAMME.md`. Les **20 premiers jalons sont obligatoires** dans ce référentiel, dont le **jalon 18 (calcul intégral, cours 15)** ; les jalons 21–23 sont facultatifs à Nice. Les exigences des autres établissements restent configurables et ne doivent pas être présentées comme universelles.
+
+### Base réelle auditée (v22)
+
+| Élément | État vérifié | Limite actuelle |
+|---|---|---|
+| Cours | 18 chapitres Markdown embarqués, MathML, sommaires, recherche et signets | Couverture textuelle ≠ maîtrise de toutes les difficultés |
+| Pratique | 111 questions fixes + 32 modèles paramétriques, soit 143 entrées dans 13 domaines | Types principaux : nombre ou choix multiple ; raisonnement libre non noté automatiquement |
+| Programme | 20 jalons obligatoires représentés dans la banque, 3 facultatifs séparés | Distribution et profondeur par jalon à quantifier |
+| Examens | 4 blancs A/B/C/D, 4 exercices, 3 h, score objectif /20, notes et grilles d'auto-évaluation | Variété limitée de structures ; note /20 non officielle |
+| Rédaction | 8 problèmes progressifs, 37 sous-questions, corrigés séparés | Pas d'évaluation humaine automatique de la démonstration |
+| Résilience | PWA hors connexion, reprise des séances/copies, sauvegarde JSON, 59 tests Node réussis, parcours Chromium mobile réussi | Android physique, TalkBack et relecture universitaire indépendante non validés |
+| Déploiement | Branche `main`, adresse Render stable | Validation nécessaire à chaque livraison, même documentaire si contenu pédagogique modifié |
+
+**Preuves techniques initiales :** [59 tests réussis](https://github.com/dbrckk/Daeu-b/actions/runs/43058595653) et [parcours Chromium mobile et hors ligne](https://github.com/dbrckk/Daeu-b/actions/runs/43058595540).
+
+## 2. Ordre de progression technique — une étape terminée avant la suivante
+
+| Phase / priorité | Travail livrable | Critères de sortie vérifiables |
+|---|---|---|
+| **v23 — P0 : audit de couverture** | Produire une matrice des 20 jalons (cours, questions fixes et variables, compétences, types de réponse, niveau, corrigé), distinguer les trois facultatifs ; détecter doublons, trous et biais | Rapport généré depuis les données réelles et contrôlé en CI ; chaque jalon a ses sources et son état ; aucun faux taux de maîtrise |
+| **v24 — P0 : corriger les lacunes réelles** | Revoir en priorité calcul algébrique, fonctions, analyse, probabilités et intégrales selon la matrice ; vérifier indépendamment domaines, signes, arrondis, hypothèses, solutions et démonstrations | Toute correction accompagnée d'un test reproduisant l'erreur ; aucune incohérence bloquante connue ; sources/copies hors ligne identiques |
+| **v25 — P1 : progression guidée** | Diagnostic initial dans l'application, prérequis et recommandations explicables, séquence « cours → méthode → exercices → transfert → rappel », état par jalon obligatoire | Aucune notion déclarée « acquise » à la seule lecture ; indicateurs fondés sur réponses et rappels réellement effectués ; conservation/migration des sauvegardes démontrée |
+| **v26 — P1 : exercices de raisonnement** | Pour chaque jalon obligatoire, viser un diagnostic, des applications distinctes, un transfert inédit et une justification guidée ; expliquer les erreurs typiques | Couverture de **20/20** jalons pour les niveaux diagnostic/application/transfert ; corrections testées ; les justifications libres sont **auto-évaluées avec grille**, jamais prétendument corrigées par IA |
+| **v27 — P1 : examens plus représentatifs** | Élargir les familles de sujets à condition qu'elles apportent des compétences réellement nouvelles ; renforcer l'analyse des erreurs et le transfert vers les cours ciblés | Quatre exercices indépendants, 3 h et score /20 conservés pour SONATE ; sujets reproductibles, variants validés et sans divulgation précoce de correction ; deux sujets réellement distincts |
+| **v28 — P0/P2 : finition et accessibilité** | Audit clavier et lecteur d'écran, focus/contrastes/MathML, perf et usage hors connexion ; tests Firefox/WebKit si possible ; essais sur Android physique | CI verte (Node, Python, Chromium et hors connexion), aucun bug P0/P1 connu ; sauvegarde/import/export vérifiés ; résultats des essais matériels et de la revue pédagogique consignés honnêtement |
+
+### Détail de la première itération à exécuter : v23
+
+1. **Construire `scripts/audit_coverage.py` ou équivalent**, en inspectant `app/questions.mjs`, `app/variants.mjs`, `PROGRAMME.md` et les cours ; préférer un export machine-readable issu du code à un parsage fragile de JavaScript.
+2. Produire une matrice avec une ligne par jalon **1 à 20**, ses références vers les cours, nombres vérifiés de questions fixes/variables, lacunes, tests manquants et recommandation de priorité ; maintenir les jalons 21–23 dans une section « facultatif selon établissement ».
+3. Vérifier l'alignement des supports : programme, parcours, suivi, application ; toute contradiction (notamment intégrales facultatives à tort) est bloquante.
+4. Corriger d'abord les erreurs réelles révélées ; ajouter des tests d'invariants ; ensuite seulement enrichir les exercices.
+5. Livrer une version utilisable avec les vérifications vertes et une documentation distinguant **présent / mesuré / restant à vérifier**.
+
+**Principe de livraison :** aucun nouveau tableau de bord de maîtrise avant de disposer de mesures fiables par jalon et d'une politique claire de restauration des données.
+
+## 3. Méthode de progression de l'apprenant
+
+Le [parcours de 12 semaines](PARCOURS.md) reste **indicatif** et doit être ajusté au niveau initial, au rythme soutenable et à l'université visée. Pour les 20 jalons SONATE obligatoires :
+
+1. **Diagnostic :** question inédite sans indice ; noter si l'erreur provient d'une notion, d'une méthode, d'un calcul ou d'une lecture d'énoncé.
+2. **Compréhension :** démontrer la méthode avec hypothèses et domaines, puis refaire un exemple à l'écrit sans regarder.
+3. **Application :** obtenir **au moins 80 %** sur des questions variées sans indice, et savoir expliquer les étapes.
+4. **Transfert :** résoudre une situation différente sans correction visible ; vérifier unités, signes, hypothèses et conclusion.
+5. **Consolidation :** révisions espacées J+1/J+3/J+7/J+14/J+30 selon le moteur actuel ; nouveau contrôle **au moins 7 jours plus tard**, avec `≥ 80 %` sans indice.
+6. **Examen :** viser **deux sujets blancs distincts à ≥ 16/20**, espacés d'au moins une semaine, et contrôler séparément la qualité de la rédaction selon une grille. Ces chiffres sont des **objectifs internes de préparation**, pas une garantie d'admission ni une note universitaire.
+
+Une séance courte de **20–45 min** peut être fractionnée (rappel, lecture active, résolution, correction), sans calendrier de réussite garanti. Les compléments 21–23 sont étudiés uniquement lorsque le centre choisi les exige, ou pour approfondissement volontaire.
+
+## 4. Indicateurs et garde-fous
+
+**Indicateurs de couverture produit :**
+- **20/20 jalons obligatoires** disposant de références vérifiées vers leurs cours, questions, transferts et corrigés ; montrer séparément les manques de niveaux de difficulté.
+- **3 niveaux utiles** par jalon : diagnostic, application, transfert ; compter des exercices **distincts**, pas plusieurs graines d'un même modèle comme des notions différentes.
+- **0 erreur mathématique bloquante connue** et **0 régression de sauvegarde** à chaque livraison ; CI verte pour le code réellement déployé.
+- **0 dépendance payante**, aucun envoi des notes à un serveur, disponibilité hors connexion confirmée pour les ressources annoncées.
+
+**Indicateurs d'apprentissage (ne pas inventer) :**
+- Part des jalons testés sans indice, acquis à J+7, et revus à J+30 ; distingue *non tenté*, *tenté*, *réussi une fois*, *confirmé*.
+- Score des deux derniers **sujets distincts**, avec date et intervalle de confiance pédagogique limité (pas de prédiction de réussite officielle).
+- Erreurs de raisonnement identifiées par grille personnelle, jamais par une prétendue correction automatique de démonstration.
+
+**Garde-fous techniques :**
+- Priorité **fiabilité > fonctionnement > sécurité > architecture > performances > interface**.
+- Pas de changement du schéma `daeu-b-data-v1` sans tests de migration réels et essais d'import/export d'anciennes sauvegardes.
+- Tester hors connexion, rechargement, stockage indisponible, conflits d'onglets, écran de 320 px, liens et rendu des formules.
+- Ne pas interrompre l'usage sur Render pour une refonte ; commits atomiques, CI vérifiée, état `live` confirmé.
+- Toute validation nécessitant un **vrai téléphone ou un correcteur universitaire** reste marquée *non réalisée* tant qu'aucune preuve n'existe.
+
+## 5. Non-objectifs des prochaines itérations
+
+- Aucune inscription, synchronisation cloud, télémétrie ou paiement nécessaire pour maîtriser les mathématiques.
+- Pas d'agent IA payant ou de note automatique simulée sur la rédaction libre.
+- Pas d'ajout précipité d'autres matières avant de stabiliser le système de progression en mathématiques ; l'architecture doit néanmoins permettre leur ajout ultérieur.
+- Pas d'affichage « préparation officiellement certifiée » ni de réussite garantie.
+
+## 6. Définition de « finalisé »
+
+La première version considérée **complète pour l'objectif pédagogique** devra avoir : matrice de couverture contrôlée, 20/20 jalons avec pratique à trois niveaux, parcours personnalisé fondé sur de vraies réponses, rédaction auto-évaluable de manière honnête, examens variés reproductibles, sauvegardes robustes, usage mobile hors connexion validé et aucune anomalie critique connue. La conformité des contenus au syllabus de **l'établissement réellement retenu** et la validation sur appareil physique doivent être vérifiées séparément.
+
+**Prochaine action : v23 / matrice de couverture et contrôle des incohérences**, sans modifier le moteur de notation avant l'audit.

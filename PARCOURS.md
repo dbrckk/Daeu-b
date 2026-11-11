@@ -46,7 +46,7 @@
 4. Le syllabus Côte d'Azur SONATE 2026-2027 autorise une calculatrice autonome et fournit un formulaire ; dans d'autres centres, consulter leurs consignes. Préparer aussi une version sans calculatrice.
 
 ## Préparation sur smartphone
-Les fichiers Markdown sont consultables directement sur GitHub Android ou dans un navigateur. Pour les maths, utiliser cahier/papier pour poser les calculs ; GeoGebra aide à **contrôler** un graphique, pas à contourner le raisonnement.
+Les 18 cours sont consultables directement depuis [l'application Android/PC](https://daeu-b-maths-dbrckk.onrender.com/course.html), y compris hors connexion une fois la PWA mise en cache. Pour les maths, utiliser cahier/papier pour poser les calculs ; GeoGebra aide à **contrôler** un graphique, pas à contourner le raisonnement.
 
 ## Quand les autres matières seront ajoutées
 Créer des dossiers indépendants (francais/, physique/, chimie/...) en partageant la méthode du diagnostic, de la progression et des examens blancs ; conserver ce module maths comme référence.
@@ -60,7 +60,7 @@ Quatorze chapitres du tronc commun possèdent désormais un atelier **détaillé
 3. Comparer la démarche complète à la correction ; noter l'erreur de méthode éventuelle et reprendre le problème sept jours plus tard.
 4. Réviser les notions correspondantes sur [l'application interactive](https://daeu-b-maths-dbrckk.onrender.com), dont les 143 éléments et les quatre examens blancs sont inchangés.
 
-Ces ateliers sont consultables dans les fichiers Markdown du dépôt GitHub (connexion nécessaire). L'application PWA conserve en cache **uniquement** ses propres exercices et corrections internes.
+Ces ateliers sont intégrés aux 18 cours de la PWA et sont consultables **hors connexion après la première mise en cache complète**. Les fichiers Markdown sources restent également disponibles sur GitHub ; les sujets et corrigés des 8 problèmes progressifs sont eux aussi préchargés.
 
 
 ### Point méthodologique v14
