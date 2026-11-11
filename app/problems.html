@@ -35,6 +35,26 @@
 <details class="reader-outline" id="problemOutline"><summary>Sommaire des problèmes</summary><nav id="problemToc" aria-label="Sections des problèmes"></nav></details>
 
 </nav>
+<section id="transferTracking" class="transfer-tracking" aria-labelledby="transferTrackingTitle" hidden>
+<h2 id="transferTrackingTitle">Mon carnet de raisonnement</h2>
+<p class="helper">Rédige la solution avant d’ouvrir le corrigé. Après comparaison, déclare les critères que tu estimes satisfaits. Cette auto-évaluation ne modifie pas les notes automatiques. Elle programme un rappel à J+7 puis J+30.</p>
+<div class="field"><label for="transferSelect">Problème suivi</label><select id="transferSelect"></select></div>
+<p id="transferStage" class="transfer-stage" role="status" aria-live="polite"></p>
+<form id="transferForm">
+<fieldset id="transferRubric">
+<legend>Critères observés dans ma rédaction</legend>
+<label><input type="checkbox" class="transfer-criterion"> Hypothèses et domaine justifiés</label>
+<label><input type="checkbox" class="transfer-criterion"> Méthode expliquée et adaptée</label>
+<label><input type="checkbox" class="transfer-criterion"> Calculs et égalités exacts</label>
+<label><input type="checkbox" class="transfer-criterion"> Conclusion, signes et unités vérifiés</label>
+</fieldset>
+<label class="transfer-attest"><input type="checkbox" id="transferAttest" required> J’ai rédigé une solution, puis comparé ma démarche au corrigé.</label>
+<button type="submit" id="transferRecord" class="primary">Enregistrer mon auto-évaluation</button>
+</form>
+<p id="transferNotice" role="status" aria-live="polite"></p>
+<p id="transferGlobal" class="helper"></p>
+<a href="./" class="transfer-back">Exporter la sauvegarde depuis l’atelier</a>
+</section>
 <article class="course-document" id="problemBody" tabindex="-1"><p>Chargement des problèmes…</p></article>
 <nav class="course-footer-nav"><a href="#readerTop">Retour au sommaire</a><a href="./">Retour à l'entraînement</a></nav>
 </main>

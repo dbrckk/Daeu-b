@@ -1,4 +1,9 @@
 import {initReadingTools} from "./reading-tools.mjs";
+import {TOPICS} from "./questions.mjs";
+import {injectVariants} from "./variants.mjs";
+import {flatten} from "./engine.mjs";
+import {createPersistence,DATA_KEY,StaleDataError} from "./persistence.mjs";
+import {recordTransferReview,transferStatus,transferSummary} from "./transfer-progress.mjs";
 const el=id=>document.getElementById(id);
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
@@ -17,6 +22,82 @@ el("problemSwitch").href="./problems.html?"+collectionSuffix+"mode="+other+jalon
 el("problemSwitch").textContent=mode==="sujets"?"Consulter les corrigés détaillés":"Retour aux sujets sans les réponses";
 el("problemTitle").textContent=transfers?(mode==="sujets"?"20 problèmes de transfert":"Corrigés des 20 transferts"):(mode==="sujets"?"8 problèmes progressifs":"Corrigés des 8 problèmes");
 document.title=el("problemTitle").textContent+" · DAEU B";
+function initTransferTracker(){
+  if(!transfers)return;
+  const panel=el("transferTracking");panel.hidden=false;
+  const selector=el("transferSelect");
+  for(let id=1;id<=20;id++){
+    const option=document.createElement("option");
+    option.value=String(id);option.textContent="T"+String(id).padStart(2,"0")+" — Jalon "+id;
+    selector.append(option);
+  }
+  selector.value=String(selectedJalon>=1&&selectedJalon<=20?selectedJalon:1);
+  const form=el("transferForm"),notice=el("transferNotice"),button=el("transferRecord");
+  const checks=[...panel.querySelectorAll(".transfer-criterion")];
+  const attest=el("transferAttest");
+  let data=null;
+  try {
+    const knownIds=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
+    data=createPersistence(localStorage,knownIds);
+  }catch(err){
+    notice.textContent="Stockage indisponible ou sauvegarde illisible : aucun historique n'est modifié. Utilise l'atelier pour vérifier tes données.";
+    form.hidden=true;
+    return;
+  }
+  function render(){
+    let snapshot;
+    try{snapshot=data.snapshot();}
+    catch(err){
+      form.hidden=true;
+      notice.textContent="Historique modifié dans un autre onglet. Recharge cette page avant d'enregistrer pour protéger tes réponses.";
+      return;
+    }
+    const id=Number(selector.value);
+    const status=transferStatus(snapshot.transfers,id);
+    const summary=transferSummary(snapshot.transfers);
+    el("transferGlobal").textContent=summary.started+"/20 transferts rédigés · "+summary.due+" rappel(s) à effectuer · "+summary.completed+" parcours J0/J+7/J+30 déclarés terminés.";
+    const formatDate=value=>new Intl.DateTimeFormat("fr-FR",{day:"numeric",month:"long",year:"numeric"}).format(new Date(value));
+    const stageName=status.count===0?"Première rédaction (J0)":status.done?"Trois déclarations enregistrées":status.stage===7?"Rappel J+7":"Rappel J+30";
+    const detail=status.done?"Le parcours prévu est enregistré, sans certification de maîtrise.":status.dueAt===null?"Commence par résoudre le sujet sans regarder la correction.":status.due?"Le rappel est arrivé à échéance : résous à nouveau sans solution visible.":"Prochaine auto-évaluation possible à partir du "+formatDate(status.dueAt)+".";
+    const criteria=status.criteria?status.criteria.filter(Boolean).length+"/4 critères déclarés lors de la dernière rédaction. ":"";
+    el("transferStage").textContent=stageName+" — "+criteria+detail;
+    const canRecord=!status.done&&(status.dueAt===null||status.due);
+    form.hidden=false;
+    button.disabled=!canRecord;
+    button.textContent=canRecord?"Enregistrer mon auto-évaluation":status.done?"Parcours de rappels terminé":"Rappel pas encore à échéance";
+    checks.forEach(x=>{x.checked=false;x.disabled=!canRecord;});
+    attest.checked=false;attest.disabled=!canRecord;
+  }
+  selector.addEventListener("change",()=>{
+    const next=Number(selector.value);
+    location.href="./problems.html?set=transferts&mode="+mode+"&jalon="+next;
+  });
+  form.addEventListener("submit",event=>{
+    event.preventDefault();
+    if(!attest.checked){notice.textContent="Confirme d'abord avoir rédigé ta solution et lu le corrigé.";return;}
+    try{
+      const snapshot=data.snapshot();
+      const next=recordTransferReview(snapshot.transfers,Number(selector.value),checks.map(x=>x.checked));
+      data.updateTransfers(next);
+      notice.textContent="Auto-évaluation enregistrée avec sa date. Elle ne constitue pas une note automatique.";
+      render();
+    }catch(err){
+      if(err instanceof StaleDataError){
+        form.hidden=true;
+        notice.textContent="Une autre page a modifié la progression. Recharge pour récupérer la version récente sans perdre de données.";
+      }else notice.textContent="Enregistrement refusé : "+err.message;
+    }
+  });
+  window.addEventListener("storage",event=>{
+    if((event.key===DATA_KEY||event.key===null)&&data.isStale()){
+      form.hidden=true;
+      notice.textContent="Progression modifiée dans un autre onglet : recharge pour éviter tout écrasement.";
+    }
+  });
+  render();
+}
+initTransferTracker();
+
 const markdown=new showdown.Converter({tables:true,ghCodeBlocks:true,tasklists:true,strikethrough:true,backslashEscapesHTMLTags:true});
 function protectMath(src){
   const items=[];
@@ -77,7 +158,15 @@ async function load(){
     if(transfers&&jalonSuffix){
       const prefix="T"+String(selectedJalon).padStart(2,"0")+" ";
       const heading=[...target.querySelectorAll("h2")].find(h=>h.textContent.trim().startsWith(prefix));
-      if(heading){heading.scrollIntoView({block:"start"});heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});}
+      if(heading){
+        heading.scrollIntoView({block:"start"});
+        heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});
+        const link=document.createElement("a");
+        link.href="#transferTracking";
+        link.className="reader-section-save";
+        link.textContent="Après correction : noter mon raisonnement";
+        heading.insertAdjacentElement("afterend",link);
+      }
     }
     const details=transfers?(mode==="sujets"?"20 problèmes de transfert · 20 jalons":"20 corrigés et grilles de raisonnement"):(mode==="sujets"?"37 questions · 8 problèmes · 3 niveaux":"37 corrections détaillées · 8 problèmes");
     el("problemStatus").textContent=details+" · Lecture hors connexion";

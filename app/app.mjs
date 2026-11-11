@@ -8,6 +8,7 @@ import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
+import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus} from "./transfer-progress.mjs";
 
 
 const fullTopics=injectVariants(TOPICS);
@@ -19,7 +20,7 @@ if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
 const transferUrl=id=>"./problems.html?set=transferts&jalon="+id;
-let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null;
+let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
 let dataStore=null;
 let storageWorks=true;
 function conflictWarning(){
@@ -35,7 +36,7 @@ function notification(message) {
 
 try {
   dataStore=createPersistence(localStorage,knownIds);
-  const initial=dataStore.snapshot();state=initial.practice;round=initial.round;
+  const initial=dataStore.snapshot();state=initial.practice;round=initial.round;transfers=initial.transfers;
 } catch(err) {
   storageWorks=false;
   // Aucun original corrompu n'est effacé. Le mode dégradé reste utilisable,
@@ -69,6 +70,8 @@ function refreshOverview() {
   el("masteryProgress").value=metrics.percent;
   renderCatalog();
   renderJalonPath();
+  const t=transferSummary(transfers);
+  el("transferSummary").textContent=t.started+"/20 problèmes rédigés · "+t.due+" rappel(s) J+7/J+30 à effectuer · "+t.completed+" parcours de rappels déclarés terminés (non certifiés).";
 }
 function renderJalonPath(){
   const rows=jalonProgress(state,questions,jalonIndex);
@@ -118,6 +121,10 @@ function renderJalonPath(){
     play.addEventListener("click",()=>startJalonSession(row.id,row.mode));
     const course=document.createElement("a");course.href=courseUrl(row.lesson);course.textContent="Cours";
     const transfer=document.createElement("a");transfer.href=transferUrl(row.id);transfer.textContent="Transfert rédigé";
+    const transferState=transferStatus(transfers,row.id);
+    const tinfo=document.createElement("p");tinfo.className="jalon-pre";
+    tinfo.textContent=!transferState.count?"Transfert écrit : non commencé":transferState.done?"Transfert écrit : 3 étapes auto-déclarées":transferState.due?"Transfert écrit : rappel à effectuer":"Transfert écrit : prochain rappel planifié";
+    item.append(tinfo);
     const requirements=prerequisiteAdvice(rows,row.id);
     if(requirements.length){
       const info=document.createElement("p");info.className="jalon-pre";info.textContent="Prérequis : "+requirements.map(p=>"J"+p.id+" ("+p.status+")").join(" · ");
@@ -291,7 +298,7 @@ function exportProgress(){
   let snapshot;
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
-  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round};
+  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,transfers:snapshot.transfers};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
@@ -309,12 +316,13 @@ async function importProgress(file) {
     const bundled=raw?.backupVersion===1;
     const imported=sanitizeState(bundled?raw.practice:raw,knownIds);
     const importedExams=bundled?sanitizeExamStore(raw.exams):null;
+    const importedTransfers=bundled?sanitizeTransferStore(raw.transfers):emptyTransferStore();
     const importedCount=Object.keys(imported.items).length;
     if(!confirm("Importer "+importedCount+" résultat(s) ? Cela remplace la progression de cet appareil.")) return;
     // Une seule écriture atomique contient les révisions ET les examens.
     const prior=dataStore.snapshot();
-    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null);
-    state=updated.practice;round=updated.round;
+    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null,importedTransfers);
+    state=updated.practice;round=updated.round;transfers=updated.transfers;
     restoreExamBackup(updated.exams);
     el("quiz").hidden=true;el("results").hidden=true;session=[];
     refreshOverview();resumeSession();
@@ -370,7 +378,7 @@ el("reset").addEventListener("click",()=>{
   if(!confirm("Effacer tous les résultats enregistrés sur cet appareil ? Pense à exporter d'abord."))return;
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
-    state=fresh.practice;round=null;clearExamProgress();refreshOverview();
+    state=fresh.practice;round=null;transfers=fresh.transfers;clearExamProgress();refreshOverview();
     session=[];el("quiz").hidden=true;el("results").hidden=true;
     notification("Progression et copies remises à zéro.");
   }catch(err){

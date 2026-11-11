@@ -184,3 +184,19 @@
 .jalon-entry .jalon-pre{margin:2px 0 12px}
 .jalon-entry .path-buttons{gap:10px}
 .jalon-entry .path-buttons a{font-size:.84rem}
+
+
+/* Carnet d'auto-évaluation des problèmes de transfert, sans points automatiques. */
+.transfer-tracking{border:1px solid var(--stroke);border-radius:16px;padding:22px;margin:25px 0;background:var(--panel)}
+.transfer-tracking h2{font-size:1.22rem;margin:0 0 8px}
+.transfer-tracking .field{margin:17px 0;max-width:410px}
+.transfer-tracking .field select{width:100%;min-height:46px;padding:8px 12px;border-radius:10px;background:var(--panel2);color:var(--ink);border:1px solid #657797}
+.transfer-stage{padding:13px;background:var(--panel2);border-left:3px solid var(--teal);border-radius:8px;font-size:.9rem}
+#transferRubric{display:grid;gap:10px;padding:12px 0}
+#transferRubric legend{font-weight:700;color:var(--ink)}
+#transferRubric label{display:flex;gap:11px;align-items:center;min-height:41px}
+#transferRubric input,.transfer-attest input{width:19px;height:19px;flex-shrink:0;accent-color:var(--teal)}
+.transfer-attest{display:flex;gap:11px;align-items:flex-start;margin:12px 0 18px;font-size:.91rem}
+#transferNotice{font-size:.9rem;min-height:1.4em;color:var(--orange)}
+.transfer-back{font-size:.85rem}
+@media(max-width:600px){.transfer-tracking{padding:15px}#transferRecord{width:100%}}
