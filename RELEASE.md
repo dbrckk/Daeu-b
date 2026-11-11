@@ -214,3 +214,9 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 
 
 **Correctif v22 :** les titres Markdown peuvent posséder des ancres auto-générées commençant par un chiffre. Le signet emploie désormais un identifiant stable de section interne, indépendant des ancres des titres, sans les modifier. Les anciens signets valides sont encore recherchés par l'ancien identifiant. Le test vérifie désormais l'identité réelle de la section.
+
+
+## v22 — recherche pédagogique hors ligne (11/11/2026)
+- Recherche locale dans les 18 cours Markdown avec gestion des accents et de la casse, résultats classés et extraits.
+- Chargement uniquement sur demande, sans service tiers ni modification de la progression ou des copies.
+- Contrôles Node.js et parcours Chromium mobile en ligne et hors connexion.

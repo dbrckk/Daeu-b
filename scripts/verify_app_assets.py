@@ -47,7 +47,7 @@ for source in source_courses:
     if not target.is_file():error(f"Cours manquant hors ligne : {source.name}")
     elif target.read_bytes()!=source.read_bytes():error(f"Cours hors ligne obsolète : {source.name}")
 
-for required in ("course.html","course-reader.mjs","course-catalog.mjs","reading-tools.mjs","reading-tools.mjs","problems.html","problems-reader.mjs",
+for required in ("course.html","course-reader.mjs","course-catalog.mjs","course-search.mjs","reading-tools.mjs","reading-tools.mjs","problems.html","problems-reader.mjs",
                  "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
     if not (APP/required).is_file():error(f"Lecteur offline absent : {required}")
 

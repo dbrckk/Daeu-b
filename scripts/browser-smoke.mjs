@@ -40,6 +40,17 @@ try {
     "Navigation entre les 18 cours");
   await check(async()=>await courseOnline.locator("#courseStatus").textContent().then(s=>s.includes("Cours 8/18")),
     "Chapitre choisi depuis le paramètre d'URL");
+  await courseOnline.locator("#courseSearchPanel summary").click();
+  await courseOnline.locator("#courseSearchInput").fill("dichotomie");
+  await courseOnline.locator("#courseSearchSubmit").click();
+  await courseOnline.locator('#courseSearchResults a[href*="08-continuite-tvi"]').waitFor();
+  await check(async()=>await courseOnline.locator('#courseSearchResults a[href*="08-continuite-tvi"]').count()===1,
+    "Recherche locale : dichotomie retrouvée");
+  await courseOnline.locator("#courseSearchInput").fill("notioninventeeqqqq");
+  await courseOnline.locator("#courseSearchSubmit").click();
+  await courseOnline.waitForFunction(()=>document.querySelector("#courseSearchStatus")?.textContent.includes("Aucun cours correspondant"));
+  await check(async()=>await courseOnline.locator("#courseSearchStatus").textContent().then(s=>s.includes("Aucun cours correspondant")),
+    "Recherche locale : aucun résultat annoncé");
   await check(async()=>await courseOnline.locator("#courseToc a").count()===await courseOnline.locator("#courseBody h2, #courseBody h3").count(),
     "Sommaire du cours : chaque section et sous-section dispose d'un lien");
   await courseOnline.locator("#courseOutline summary").click();
@@ -358,6 +369,12 @@ try {
     "Changement de cours vers la trigonométrie hors ligne");
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
     "MathML toujours disponible au changement de chapitre");
+  await offlineCourse.locator("#courseSearchPanel summary").click();
+  await offlineCourse.locator("#courseSearchInput").fill("bayes");
+  await offlineCourse.locator("#courseSearchSubmit").click();
+  await offlineCourse.locator('#courseSearchResults a[href*="12-probabilites"]').waitFor();
+  await check(async()=>await offlineCourse.locator('#courseSearchResults a[href*="12-probabilites"]').count()===1,
+    "Recherche Bayes hors connexion");
   await check(async()=>await offlineCourse.locator("#courseTextSize").inputValue().then(v=>v==="large"),
     "Préférence de lecture conservée en changeant de chapitre hors connexion");
   const allCourses=await offlineCourse.locator("#courseSelector option").evaluateAll(nodes=>nodes.map(n=>n.value));

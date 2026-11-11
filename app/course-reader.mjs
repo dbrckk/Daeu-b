@@ -1,5 +1,6 @@
 import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
 import {initReadingTools} from "./reading-tools.mjs";
+import {validSearchQuery,searchCourseDocs} from "./course-search.mjs";
 const byId=id=>document.getElementById(id);
 let slug=new URL(location.href).searchParams.get("course")||"00-positionnement";
 if(!courseInfo(slug))slug="00-positionnement";
@@ -109,3 +110,36 @@ async function displayCourse(){
   }
 }
 displayCourse();
+// Chargement des 18 cours uniquement à la première recherche ; cache PWA hors ligne.
+let corpusPromise=null;
+async function corpus(){
+  if(!corpusPromise)corpusPromise=Promise.all(COURSES.map(async([key,title])=>{
+    const response=await fetch("./cours/"+key+".md");
+    if(!response.ok)throw Error("Cours indisponible "+key);
+    const content=await response.text();
+    if(!content.startsWith("# "))throw Error("Cours incomplet "+key);
+    return {slug:key,title,content};
+  })).catch(error=>{corpusPromise=null;throw error;});
+  return corpusPromise;
+}
+byId("courseSearchForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const results=byId("courseSearchResults"),status=byId("courseSearchStatus");
+  const button=byId("courseSearchSubmit"),query=validSearchQuery(byId("courseSearchInput").value);
+  results.replaceChildren();
+  if(!query){status.textContent="Saisis entre 2 et 80 caractères.";return;}
+  button.disabled=true;status.textContent="Recherche dans les 18 cours…";
+  try{
+    const matches=searchCourseDocs(await corpus(),query);
+    for(const item of matches){
+      const li=document.createElement("li"),a=document.createElement("a"),p=document.createElement("p");
+      a.href=courseUrl(item.slug);a.textContent=item.title;p.textContent=item.excerpt;
+      li.append(a,p);results.append(li);
+    }
+    status.textContent=matches.length
+      ?matches.length+" cours correspondant"+(matches.length>1?"s":"")+" sur 18."
+      :"Aucun cours correspondant. Essaie un terme plus général.";
+  }catch{
+    status.textContent="Bibliothèque indisponible. Ouvre d'abord le site avec Internet pour mettre les cours en cache.";
+  }finally{button.disabled=false;}
+});

@@ -345,3 +345,10 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 
 
 **Correctif ciblé v22 :** vérifier et corriger les sections dont l'ancre Markdown auto-générée était rejetée par la validation du signet ; préserver les liens du sommaire et l'ancienne forme de signet. Les tests contrôlent les identifiants internes de section.
+
+
+## Livraison v22 — recherche pédagogique dans les cours (11/11/2026)
+- [x] Recherche textuelle dans les 18 cours embarqués, y compris hors connexion.
+- [x] Extraits et liens sûrs vers les cours, aucun HTML issu de la requête utilisateur.
+- [x] Chargement paresseux et tests unitaires et Chromium mobile.
+- [ ] Tester sur téléphone Android physique et évaluer la qualité de classement en situation réelle.

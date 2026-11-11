@@ -138,3 +138,16 @@
 }
 .course-layout{padding-bottom:max(105px,calc(105px + env(safe-area-inset-bottom)))}
 @media(prefers-reduced-motion:reduce){.course-layout{scroll-behavior:auto}}
+
+/* Recherche locale, ouverte seulement sur demande pour éviter d'alourdir le lecteur. */
+.course-search-panel{width:100%;border:1px solid var(--stroke);border-radius:10px;padding:10px 14px;background:var(--panel2)}
+.course-search-panel summary{cursor:pointer;font-weight:700;padding:4px 0}
+.course-search-panel form{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.course-search-controls{display:flex;gap:8px;flex-wrap:wrap}
+.course-search-controls input{flex:1 1 220px;min-width:0;border:1px solid #607595;background:var(--panel);color:var(--ink);min-height:44px;border-radius:9px;padding:9px 12px}
+.course-search-controls button{min-height:44px}
+#courseSearchResults{margin:8px 0;padding-left:1.4rem}
+#courseSearchResults li{padding:9px 0;border-top:1px solid var(--stroke)}
+#courseSearchResults a{font-weight:750}
+#courseSearchResults p{margin:4px 0;font-size:.91rem;overflow-wrap:anywhere;line-height:1.55}
+@media(max-width:460px){.course-search-controls{flex-direction:column}.course-search-controls input{flex:initial;width:100%}.course-search-controls button{width:100%}}

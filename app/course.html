@@ -35,6 +35,15 @@
 <button type="button" id="courseBookmarkClear" class="subtle small" hidden>Effacer le signet</button>
 <p id="courseBookmarkStatus" class="helper" role="status" aria-live="polite"></p>
 </div>
+<details class="course-search-panel" id="courseSearchPanel">
+<summary>Rechercher une notion dans les 18 cours</summary>
+<form id="courseSearchForm" role="search">
+<label for="courseSearchInput">Mot ou expression mathématique</label>
+<div class="course-search-controls"><input id="courseSearchInput" type="search" minlength="2" maxlength="80" autocomplete="off" placeholder="Ex. dichotomie, Bayes, équations" required><button type="submit" id="courseSearchSubmit" class="primary">Rechercher</button></div>
+<p id="courseSearchStatus" role="status" aria-live="polite"></p>
+<ol id="courseSearchResults" aria-label="Cours trouvés"></ol>
+</form>
+</details>
 <details class="reader-outline" id="courseOutline"><summary>Sommaire du chapitre</summary><nav id="courseToc" aria-label="Sections du chapitre"></nav></details>
 <div class="course-actions">
 <a id="coursePractice" class="primary problems-link" href="./#practice-title">M'entraîner sur ce chapitre</a>

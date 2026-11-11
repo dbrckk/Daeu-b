@@ -255,3 +255,7 @@ Les treize chapitres couverts par la banque de 143 questions disposent, dans leu
 - **Trois tailles de texte** (normale, grande, très grande), avec préférence locale `daeu-b-reading-size-v1` commune aux deux lecteurs. L'écriture reste facultative si le stockage est bloqué.
 - Aucune modification de la clé transactionnelle `daeu-b-data-v1`, des examens A/B/C/D, de la progression ou des exports JSON.
 - Tests Chromium : sommaires et focus des titres, texte agrandi à 320 px, persistance entre écrans et entre chapitres hors ligne.
+
+
+## v22 — recherche locale dans les 18 cours (11/11/2026)
+Panneau de recherche déroulant sans API ni compte : casse et accents ignorés, recherche multi-termes, extraits de contexte et liens locaux vers les cours trouvés. Le corpus est lu à la demande pour préserver les performances. Une fois le cache PWA installé, la recherche fonctionne hors connexion. Aucune requête n'est enregistrée avec les notes et les examens.
