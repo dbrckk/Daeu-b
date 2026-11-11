@@ -2,6 +2,7 @@ import {EXAMS} from "./exams.mjs";
 import {courseUrl} from "./course-catalog.mjs";
 import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
 import {ALTERNATIVE_EXAM_ID} from "./exam-alternative.mjs";
+import {APPLIED_EXAM_ID} from "./exam-applied.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
 import {inspectExamDraft} from "./exam-readiness.mjs";
@@ -24,7 +25,11 @@ const EXAM_LESSONS={
   "d-rationnelle":[["Fonctions","05-fonctions.md"],["Limites et asymptotes","07-limites-asymptotes.md"],["Dérivation","06-derivation.md"]],
   "d-conditionnelles":[["Probabilités","12-probabilites.md"]],
   "d-statistiques":[["Statistiques","11-statistiques.md"]],
-  "d-exponentielle":[["Continuité et TVI","08-continuite-tvi.md"],["Exponentielle et logarithmes","09-exponentielle-logarithme.md"]]
+  "d-exponentielle":[["Continuité et TVI","08-continuite-tvi.md"],["Exponentielle et logarithmes","09-exponentielle-logarithme.md"]],
+  "e-systeme":[["Équations et systèmes","03-equations-inequations-systemes.md"],["Modélisation","17-raisonnement-modelisation.md"]],
+  "e-trigonometrie":[["Trigonométrie","13-trigonometrie.md"]],
+  "e-sans-remise":[["Probabilités","12-probabilites.md"]],
+  "e-racine":[["Domaine des fonctions","05-fonctions.md"],["Équations","03-equations-inequations-systemes.md"]]
 };
 const byId=id=>document.getElementById(id);
 let store=emptyExamStore(),timer=null,lastResult=null;
@@ -363,6 +368,8 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
   generated.value=GENERATED_EXAM_ID;select.prepend(generated);
   const alternative=element("option","","Examen D — autres problèmes : rationnelles, conditionnelles, statistiques, TVI");
   alternative.value=ALTERNATIVE_EXAM_ID;select.append(alternative);
+  const applied=element("option","","Examen E — systèmes, trigonométrie, sans remise et fonctions à racine");
+  applied.value=APPLIED_EXAM_ID;select.append(applied);
   byId("examStart").addEventListener("click",start);
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
   byId("examNext").addEventListener("click",()=>moveTo(Math.min(3,store.active.sectionIndex+1)));

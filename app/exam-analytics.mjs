@@ -12,7 +12,10 @@ export const SKILL_LESSONS={
  "modélisation":"17-raisonnement-modelisation.md","moyenne":"11-statistiques.md",
  "médiane":"11-statistiques.md","variance":"11-statistiques.md","dispersion":"11-statistiques.md",
  "exponentielle":"09-exponentielle-logarithme.md","TVI":"08-continuite-tvi.md",
- "probabilités totales":"12-probabilites.md","Bayes":"12-probabilites.md"
+ "probabilités totales":"12-probabilites.md","Bayes":"12-probabilites.md",
+ "budget":"17-raisonnement-modelisation.md","géométrie":"13-trigonometrie.md",
+ "aires":"13-trigonometrie.md","trigonométrie":"13-trigonometrie.md",
+ "tirages sans remise":"12-probabilites.md","équations":"03-equations-inequations-systemes.md"
 };
 export function analyzeExamHistory(history,limit=12){
   const reports=(Array.isArray(history)?history:[]).filter(r=>r?.examId&&Array.isArray(r.sections)&&Number.isFinite(r.score)).slice(-limit);
@@ -34,7 +37,7 @@ export function analyzeExamHistory(history,limit=12){
   const weaknesses=[...keys.values()].filter(k=>k.lost>0).sort((a,b)=>b.lost-a.lost || b.errors-a.errors || a.skill.localeCompare(b.skill,"fr"));
   const last=reports.at(-1);
   const previous=reports.length>1?reports.at(-2):null;
-  const distinct=new Set(reports.map(r=>r.examId+(["blanc-c","blanc-d"].includes(r.examId)?"#"+r.seed:""))).size;
+  const distinct=new Set(reports.map(r=>r.examId+(["blanc-c","blanc-d","blanc-e"].includes(r.examId)?"#"+r.seed:""))).size;
   return {
     attempts:reports.length,distinctSubjects:distinct,
     average:reports.length?Number((earnedPoints/reports.length).toFixed(1)):null,

@@ -2,7 +2,8 @@ import {gradeAnswer} from "./engine.mjs";
 import {EXAMS} from "./exams.mjs";
 import {GENERATED_EXAM_ID,createGeneratedExam,isSeed} from "./exam-generator.mjs";
 import {ALTERNATIVE_EXAM_ID,createAlternativeExam} from "./exam-alternative.mjs";
-export const isGeneratedExamId=id=>id===GENERATED_EXAM_ID||id===ALTERNATIVE_EXAM_ID;
+import {APPLIED_EXAM_ID,createAppliedExam} from "./exam-applied.mjs";
+export const isGeneratedExamId=id=>id===GENERATED_EXAM_ID||id===ALTERNATIVE_EXAM_ID||id===APPLIED_EXAM_ID;
 import {sanitizeSelfChecks,validReviewKeys} from "./reasoning.mjs";
 
 export const EXAM_DURATION_MS=3*60*60*1000;
@@ -13,6 +14,7 @@ const allQuestions=exam=>exam.sections.flatMap(s=>s.questions);
 export const findExam=(id,seed=null)=>{
   if(id===GENERATED_EXAM_ID)return isSeed(seed)?createGeneratedExam(seed):undefined;
   if(id===ALTERNATIVE_EXAM_ID)return isSeed(seed)?createAlternativeExam(seed):undefined;
+  if(id===APPLIED_EXAM_ID)return isSeed(seed)?createAppliedExam(seed):undefined;
   if(seed!==null && seed!==undefined)return undefined;
   return EXAMS.find(e=>e.id===id);
 };

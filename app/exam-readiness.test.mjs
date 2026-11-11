@@ -4,6 +4,7 @@ import {EXAMS} from "./exams.mjs";
 import {startExam,updateExamAnswer,updateExamNotes,findExam,EXAM_DURATION_MS} from "./exam-engine.mjs";
 import {createGeneratedExam} from "./exam-generator.mjs";
 import {createAlternativeExam} from "./exam-alternative.mjs";
+import {createAppliedExam} from "./exam-applied.mjs";
 import {inspectExamDraft} from "./exam-readiness.mjs";
 const time=Date.UTC(2026,10,11,21);
 test("A/B : les champs absents sont comptés en questions et points, sans note",()=>{
@@ -40,7 +41,7 @@ test("compter une réponse présente, mais pas les espaces ou une rédaction bla
   assert.equal(Object.hasOwn(draft,"correct"),false);
 });
 test("C et D : tous les exercices restent reproductibles après restauration",()=>{
-  for(const create of [createGeneratedExam,createAlternativeExam]){
+  for(const create of [createGeneratedExam,createAlternativeExam,createAppliedExam]){
     for(const seed of [0,1,29,2048,0xffffffff]){
       const exam=create(seed),original=startExam(exam.id,time,seed);
       let session=original;
