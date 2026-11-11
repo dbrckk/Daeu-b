@@ -161,3 +161,11 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Examens A/B/C/D : affiche les questions sans réponse, leurs points de barème et la présence des quatre rédactions, sans score anticipé ; navigation rapide et confirmation de remise précise.
 - Protection des données inchangée ; mêmes sujets déterministes, durée trois heures, notes indicatives /20 et cache PWA actualisé.
 - Suite prioritaire : diversifier les familles de sujets générés, puis relecture indépendante des corrigés et des compétences sous-représentées dans les examens.
+
+
+## v26.1 — diversité de familles dans les examens générés
+
+- Nouveau sujet E : systèmes et budgets, trigonométrie et Pythagore, tirages sans remise, fonction irrationnelle et conditions de définition. Quatre problèmes indépendants, seize questions, barème 20 points, trois heures.
+- Génération déterministe par graine : import/réouverture sans perdre la copie ; *aucune réécriture* de C/D qui casserait leurs anciennes graines.
+- 1000 sujets E vérifiés structurellement et 500 contrôles des formules ; tests de copie, notation, navigateur Android et cache hors ligne.
+- Suites : vérifier l'équilibre de difficulté de plusieurs familles de sujets et ajouter des modèles de preuve écrite sans prétendre qu'un QCM valide une démonstration.

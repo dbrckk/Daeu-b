@@ -24,7 +24,7 @@ try {
   await page.goto(BASE,{waitUntil:"networkidle",timeout:30000});
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
-  await check(async()=>await page.locator("#examSelect option").count()===4,"Examens A/B/C/D disponibles");
+  await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
   await check(async()=>await page.locator("#courseLibrary a").count()===18,
     "Bibliothèque complète de 18 cours locaux");
   await check(async()=>await page.locator("#topicCards .topic-card a").first().getAttribute("href").then(h=>h.startsWith("./course.html?course=")),
@@ -300,6 +300,58 @@ try {
       &&Number.isInteger(exams.history[0].seed);
   }),"D : copie et graine sauvegardées");
   await dContext.close();
+
+  // Examen E : famille de problèmes différente de C et D, graine inchangée
+  // après rechargement et fonctionnement sous cache PWA déconnecté.
+  const eContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const ePage=await eContext.newPage();
+    ePage.on("dialog",dialog=>dialog.accept());
+    await ePage.goto(BASE,{waitUntil:"networkidle"});
+    await ePage.locator("#examSelect").selectOption("blanc-e");
+    await ePage.locator("#examStart").click();
+    await check(async()=>await ePage.locator("#examActive").isVisible()
+      &&await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("tarifs")),
+      "Examen E : nouveau sujet de systèmes prêt sur Android");
+    await check(async()=>await ePage.locator("#examDraftSummary").textContent().then(x=>x.includes("0/16 réponses")),
+      "Examen E : préparation de la copie sans corrigé");
+    const eSeed=await ePage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).exams.active.seed);
+    assert.ok(Number.isInteger(eSeed));
+    await ePage.locator("#examQuestions .exam-input").first().fill("9999");
+    await ePage.locator("#examNotes").fill("Deux inconnues, deux équations, vérification.");
+    await ePage.locator("#examNext").click();
+    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("Triangle")),
+      "Examen E : deuxième famille trigonométrique distincte");
+    await ePage.locator("#examNext").click();
+    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("sans remise")),
+      "Examen E : calcul de probabilités dépendantes");
+    await ePage.locator("#examNext").click();
+    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("racine")),
+      "Examen E : domaine d'une fonction irrationnelle");
+    await ePage.reload({waitUntil:"networkidle"});
+    await check(async()=>await ePage.evaluate(seed=>{
+      const a=JSON.parse(localStorage.getItem("daeu-b-data-v1")).exams.active;
+      return a.examId==="blanc-e"&&a.seed===seed&&a.answers.e01==="9999"
+        &&a.notes["e-systeme"]?.includes("Deux inconnues")&&a.sectionIndex===3;
+    },eSeed),"Examen E : graine, brouillon et position repris sans changement");
+    await ePage.evaluate(()=>navigator.serviceWorker.ready);
+    if(await ePage.evaluate(()=>!!navigator.serviceWorker.controller)===false){
+      await ePage.reload({waitUntil:"networkidle"});
+    }
+    await eContext.setOffline(true);
+    await ePage.reload({waitUntil:"domcontentloaded",timeout:12000});
+    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("racine"))
+      &&await ePage.locator("#examDraftSummary").textContent().then(x=>x.includes("1/16 réponses")),
+      "Examen E : reprise sous cache hors connexion");
+    await eContext.setOffline(false);
+    await ePage.locator("#examSubmit").click();
+    await check(async()=>await ePage.locator("#examScore").textContent().then(x=>x.trim()==="0 / 20"),
+      "Examen E : résultat de la réponse fausse sans point fictif");
+    await check(async()=>await ePage.locator("#examReview .exam-reasoning-step").count()===16,
+      "Examen E : seize critères de rédaction et quatre corrigés");
+  }finally{await eContext.close();}
 
   // Séance rétablie après fermeture de l'onglet et reprise du contexte.
   const roundContext=await browser.newContext({

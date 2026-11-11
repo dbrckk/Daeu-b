@@ -166,3 +166,8 @@ Les **60 corrigés des problèmes de transfert** comprennent désormais chacun d
 ## Examens blancs v26 — contrôle de copie sans corrigé anticipé
 
 La préparation des épreuves A/B/C/D intègre désormais un **tableau de complétude en temps réel** : questions avec saisie non vide (mais non encore corrigées), questions restantes et points qu'elles représentent, exercices possédant une rédaction personnelle. Quatre raccourcis facilitent la vérification de chaque exercice avant remise. La confirmation de rendu résume la copie sans révéler les solutions. Le minuteur de trois heures, le barème indicatif /20, les sauvegardes et la reprise hors connexion sont inchangés. Une réponse présente n'est ni une réponse correcte ni une démonstration maîtrisée.
+
+
+## Examen E — familles complémentaires de mathématiques (v26.1)
+
+Un cinquième examen blanc a été ajouté : **E**, à quatre exercices de cinq points, trois heures et seize questions, avec de **nouveaux modèles d'énoncés**, distincts des exercices C et D. Il traite les systèmes de tarifs, la trigonométrie du triangle rectangle, les probabilités **sans remise** et les domaines de fonctions avec racine carrée. Chaque sujet E est généré à partir d'une graine uint32, conserve exactement ses valeurs et ses corrigés après fermeture ou import, et dispose de seize étapes guidées de raisonnement déclaratif après remise. Les anciens générateurs C/D et leurs copies ne sont pas modifiés. Le cache PWA comprend le nouveau moteur E. La réponse automatique sur 20 demeure **indicative** : elle ne note pas les preuves et justifications rédigées.

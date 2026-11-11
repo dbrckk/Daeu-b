@@ -303,3 +303,8 @@ Dans chaque corrigé A/B/C des 20 jalons, deux paragraphes adaptés (« Justific
 ## v26 — vérification des champs de l'examen avant remise
 
 Le module pur `exam-readiness.mjs` calcule `inspectExamDraft(exam,session)` sans corriger les réponses, sans exposer les solutions et sans modifier le schéma de sauvegarde. Le composant `#examDraftSummary` suit les saisies en direct et les quatre raccourcis permettent de revoir chaque exercice. La confirmation de remise donne les questions et points non traités, ainsi que le nombre de rédactions présentes. Tests Node sur A/B et plusieurs graines C/D, Chromium Android sur saisie, navigation, reprise et hors connexion.
+
+
+## v26.1 — cinquième examen E, sans migration des sujets historiques
+
+`exam-applied.mjs` construit de façon déterministe quatre nouveaux exercices (`e-systeme`, `e-trigonometrie`, `e-sans-remise`, `e-racine`) et leurs grilles de raisonnement, 4 × 5 = 20 points. Le moteur `exam-engine.mjs` reconnaît l'ID `blanc-e` et restaure une copie E par sa graine, y compris via export/import historique. Les algorithmes des examens C et D restent strictement inchangés pour préserver les copies existantes. `exam-analytics.mjs` distingue les sujets E par graine et oriente les points perdus vers les nouveaux cours. Tests : 1000 graines E avec validation du barème, 500 recalculs mathématiques indépendants, sauvegarde/reprise/auto-évaluation et Chromium Android avec cache déconnecté.

@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v26.1 — nouvel examen E de quatre familles (11 novembre 2026)
+
+- Systèmes, trigonométrie, probabilités sans remise et racines carrées dans un cinquième sujet blanc reproductible (4 exercices, 16 questions, 20 points, 3 h).
+- Corrigés et grilles de rédaction spécifiques, nouvelle famille de compétences dans l'analytique, compatibilité historique C/D et sauvegardes locales conservée.
+- Validation mathématique, tests de centaines de graines et parcours Android hors connexion.
+
 ## v26 — examens blancs et vérification de copie (11 novembre 2026)
 
 - Un tableau de complétude détaille réponses non vides, points restant sans réponse et rédaction personnelle, avec navigation parmi quatre exercices.
