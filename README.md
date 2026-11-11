@@ -135,3 +135,8 @@ Chaque jalon indique maintenant des **prérequis conseillés** avec leur statut 
 Les **20 problèmes de transfert** disposent maintenant d'un carnet d'auto-évaluation : quatre critères (domaine, méthode, calcul, interprétation), datés lorsqu'on confirme avoir rédigé sa solution puis consulté le corrigé. Les rappels sont programmés **sept puis trente jours après la première rédaction** (et toujours au moins un jour après le rappel précédent). Impossible d'antidater la progression depuis l'interface ou d'enregistrer une révision trop tôt. Les échéances sont visibles dans le tableau de bord. 
 
 Le suivi des transferts est intégré à la même sauvegarde transactionnelle `daeu-b-data-v1` que les questions et les examens : **export, import, reprise et remise à zéro** incluent ces déclarations. Les anciennes sauvegardes sans suivi de transferts restent acceptées, sans altération des résultats antérieurs. Il s'agit **d'auto-évaluations**, pas de notes certifiées ni de correction automatique des démonstrations.
+
+
+## Deuxième série de transferts — v25.4
+
+La banque comporte maintenant **40 problèmes rédigés et 120 sous-questions**, soit deux situations réellement différentes (A et B) pour chacun des 20 jalons obligatoires. Les [sujets B](transferts/sujets-b.md) et leurs [corrigés B](transferts/corriges-b.md) sont originaux, distincts de la première série et intégrés au lecteur PWA **hors connexion**. Le lien « Essayer la situation B » et le carnet de raisonnement sont disponibles sur chaque fiche. Le suivi J+7 recommande la série B pour réduire la mémorisation du premier énoncé ; les quatre critères restent auto-déclarés, sans note automatique ni certification de réussite.

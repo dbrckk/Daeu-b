@@ -278,3 +278,8 @@ Chaque jalon inclut un graphe de prérequis pédagogiques, un bouton pour revoir
 ## v25.3 — carnet des raisonnements à J+7 et J+30
 
 Dans le lecteur `problems.html?set=transferts&jalon=18`, la section « Mon carnet de raisonnement » permet d'enregistrer quatre critères auto-déclarés après rédaction et comparaison au corrigé. La première saisie planifie le rappel J+7, puis J+30 à partir du premier essai (avec au moins 24 h entre deux déclarations). Les échéances sont contrôlées par le moteur pur `transfer-progress.mjs`, sauvegardées atomiquement par `persistence.mjs` dans `daeu-b-data-v1` et incluses dans les exports `backupVersion:1` sans rompre la compatibilité avec les exports historiques dépourvus du champ `transfers`. Les dates et critères sont validés à la lecture : un JSON corrompu n'est pas effacé silencieusement.
+
+
+## v25.4 — série B d'application
+
+Le lecteur accepte `problems.html?set=transferts&variante=b&jalon=18` : vingt nouveaux sujets à trois sous-questions, corrigés séparés et huit ressources de transfert en tout (quatre Markdown source + quatre copies PWA). Le choix de série est conservé quand on affiche les corrigés ou un autre jalon ; les signets A/B sont indépendants. À J+7, l'application propose B par défaut. Le suivi d'auto-évaluation conserve un seul parcours daté par jalon, quelle que soit la situation choisie.

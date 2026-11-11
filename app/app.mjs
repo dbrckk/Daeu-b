@@ -19,7 +19,8 @@ const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS),...validateP
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
-const transferUrl=id=>"./problems.html?set=transferts&jalon="+id;
+const transferUrl=id=>"./problems.html?set=transferts&jalon="+id
+  +(transferStatus(transfers,id).stage===7?"&variante=b":"");
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
 let dataStore=null;
 let storageWorks=true;

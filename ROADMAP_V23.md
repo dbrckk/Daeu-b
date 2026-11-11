@@ -125,3 +125,10 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Échéances J+7 et J+30 calculées et contrôlées par un module pur ; au moins 24 h entre rappels, pas de double validation anticipée.
 - Suivi inclus dans le même stockage transactionnel que les examens et exercices ; le même fichier JSON inclut désormais les transferts. Anciennes sauvegardes compatibles, remise à zéro intégrale et conflits multi-onglets protégés.
 - Suite ciblée : une deuxième situation originale par jalon pour les rappels, puis validation éditoriale des démarches et de la diversité des énoncés.
+
+
+## v25.4 — diversification réelle des transferts
+
+- Deux séries **A et B** pour chacun des vingt jalons : 40 problèmes de transfert et 120 sous-questions corrigées. Contrôle éditorial structurel et copies hors connexion vérifiés pour les quatre sources Markdown.
+- Commutation A/B dans le lecteur, conservation du jalon lors de l'ouverture du corrigé, cache PWA versionné ; la série B est suggérée au rappel J+7.
+- Amélioration ultérieure : troisième situation pour J+30 et relecture humaine des corrections délicates, sans attribuer un niveau de maîtrise à partir de déclarations personnelles.

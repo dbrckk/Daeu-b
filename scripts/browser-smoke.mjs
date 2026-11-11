@@ -43,6 +43,12 @@ try {
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20,"20 transferts intégrés au lecteur sécurisé");
     await check(async()=>await transferPage.locator("#problemBody h2").nth(17).textContent().then(s=>s.includes("T18")),"Transfert intégral directement localisé");
     await check(async()=>await transferPage.locator("#transferTracking").isVisible(),"Carnet de raisonnement visible uniquement pour les transferts");
+    await transferPage.locator("#transferVariantSwitch").click();
+    await transferPage.waitForURL("**/problems.html?set=transferts&jalon=18&mode=sujets&variante=b");
+    await transferPage.waitForFunction(()=>document.querySelector("#problemBody h2")?.textContent.includes("Arithmétique"),null,{timeout:10000});
+    await check(async()=>await transferPage.locator("#problemBody h2").count()===20
+      &&await transferPage.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Série B : vingt nouveaux problèmes affichés");
+    await check(async()=>await transferPage.locator("#transferSelect").inputValue().then(s=>s==="18"),"Jalon 18 conservé entre les situations A/B");
     await check(async()=>await transferPage.locator("#transferStage").textContent().then(s=>s.includes("Première rédaction")),"Première étape sans faux acquis");
     await transferPage.locator(".transfer-criterion").nth(0).check();
     await transferPage.locator(".transfer-criterion").nth(2).check();
@@ -65,6 +71,7 @@ try {
     await transferPage.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20
       &&await transferPage.locator("#problemBody").textContent().then(s=>s.includes("Auto-évaluation raisonnement")),"20 corrigés séparés et grille de raisonnement");
+    await check(async()=>await transferPage.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Corrigés de la série B sans basculer vers la série A");
     await transferPage.close();
     await check(async()=>await diagnosisPage.locator("#syncWarning").isVisible()
       &&await diagnosisPage.locator("#main").getAttribute("inert")!==null,
@@ -496,6 +503,14 @@ try {
   await offlineTransfer.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
   await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 corrigés de transfert disponibles hors connexion");
   await offlineTransfer.close();
+  const offlineB=await context.newPage();
+  await offlineB.goto(BASE+"/problems.html?set=transferts&variante=b&jalon=9",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineB.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:10000});
+  await check(async()=>await offlineB.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Série B disponible sans connexion");
+  await offlineB.locator("#problemSwitch").click();
+  await offlineB.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:10000});
+  await check(async()=>await offlineB.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Corrigés B hors ligne isolés des sujets A");
+  await offlineB.close();
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");

@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25.4 — vingt transferts supplémentaires
+
+- 40 problèmes originaux sur les 20 jalons : deux situations indépendantes A/B, chacune avec ses corrigés et une grille d'auto-évaluation.
+- Série B sélectionnable depuis le lecteur, suggérée pour J+7, consultable sans réseau ; signets de lecture des deux séries isolés.
+- Aucun changement de sauvegarde, d'examens ou des 157 exercices autocorrigés.
+
 ## v25.3 — carnet de raisonnement et rappels (11 novembre 2026)
 
 - Quatre critères par transfert rédigé, déclarés après correction par l'apprenant, sans note automatique.
