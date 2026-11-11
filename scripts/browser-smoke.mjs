@@ -35,6 +35,16 @@ try {
     await diagnosisPage.goto(BASE,{waitUntil:"networkidle"});
     await check(async()=>await diagnosisPage.locator("#jalonList li").count()===20,"v25 : 20 jalons consultables");
     await check(async()=>await diagnosisPage.locator("#pathNext h3").textContent().then(s=>s.includes("Nombres entiers")),"v25 : recommandation initiale");
+    await check(async()=>await diagnosisPage.locator("#jalonList li").nth(17).locator('a[href*="set=transferts"]').getAttribute("href").then(s=>s.includes("jalon=18")),"v25 : transfert ciblé sur le jalon 18");
+    await check(async()=>await diagnosisPage.locator("#jalonList li").nth(17).textContent().then(s=>s.includes("J12")),"v25 : prérequis de l'intégration visibles");
+    const transferPage=await diagnosisContext.newPage();
+    await transferPage.goto(BASE+"/problems.html?set=transferts&jalon=18",{waitUntil:"networkidle"});
+    await check(async()=>await transferPage.locator("#problemBody h2").count()===20,"20 transferts intégrés au lecteur sécurisé");
+    await check(async()=>await transferPage.locator("#problemBody h2").nth(17).textContent().then(s=>s.includes("T18")),"Transfert intégral directement localisé");
+    await transferPage.locator("#problemSwitch").click();
+    await check(async()=>await transferPage.locator("#problemBody h2").count()===20
+      &&await transferPage.locator("#problemBody").textContent().then(s=>s.includes("Auto-évaluation raisonnement")),"20 corrigés séparés et grille de raisonnement");
+    await transferPage.close();
     await diagnosisPage.locator("#diagnosticStart").click();
     await check(async()=>await diagnosisPage.locator("#quiz").isVisible()&&await diagnosisPage.locator("#quizCount").textContent().then(s=>s.includes("1 / 10")),"v25 : repérage initial en dix questions");
     await diagnosisPage.locator("#unknownButton").click();
@@ -449,6 +459,13 @@ try {
   await check(async()=>await offlineProblems.locator("#problemBody h2").count()>=8,
     "Corrigés complets disponibles hors connexion");
   await offlineProblems.close();
+  const offlineTransfer=await context.newPage();
+  await offlineTransfer.goto(BASE+"/problems.html?set=transferts&jalon=20",{waitUntil:"domcontentloaded",timeout:12000});
+  await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 sujets de transfert consultables hors connexion");
+  await offlineTransfer.locator("#problemSwitch").click();
+  await offlineTransfer.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
+  await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 corrigés de transfert disponibles hors connexion");
+  await offlineTransfer.close();
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");

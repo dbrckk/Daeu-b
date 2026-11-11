@@ -7,16 +7,18 @@ import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
+import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
 
 
 const fullTopics=injectVariants(TOPICS);
 const questions=flatten(fullTopics);
 const knownIds=new Set(questions.map(q=>q.id));
 const jalonIndex=buildJalonIndex(questions);
-const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS)];
+const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS),...validatePrerequisites()];
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
+const transferUrl=id=>"./problems.html?set=transferts&jalon="+id;
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null;
 let dataStore=null;
 let storageWorks=true;
@@ -80,11 +82,27 @@ function renderJalonPath(){
   message.textContent=!next?"Continue avec les exercices rédigés, les transferts et les examens blancs. Ces compteurs ne certifient pas la maîtrise.":next.due>0?next.due+" rappel(s) arrivé(s) à échéance : contrôle sans indice.":next.unconfirmedErrors>0?next.unconfirmedErrors+" erreur(s) non encore confirmée(s) : revois la méthode avant de recommencer.":!next.attempted?"Cette notion n’a pas encore été travaillée.":"Déjà abordé : consolide les exercices non confirmés sur plusieurs jours.";
   area.append(heading,message);
   if(next){
+    const requirements=prerequisiteAdvice(rows,next.id);
+    if(requirements.length){
+      const info=document.createElement("p");info.className="path-prerequisites";
+      info.textContent="Prérequis conseillés : "+requirements.map(p=>"J"+p.id+" ("+p.status+")").join(" · ")+". L'accès au jalon n'est pas bloqué.";
+      area.append(info);
+    }
+    const priority=nextPrerequisite(rows,next.id);
+    if(priority){
+      const review=document.createElement("button");review.type="button";review.className="subtle small";
+      review.textContent="Revoir d'abord le jalon "+priority.id;
+      review.addEventListener("click",()=>startJalonSession(priority.id,priority.mode));
+      area.append(review);
+    }
+  }
+  if(next){
     const actions=document.createElement("div");actions.className="path-buttons";
     const play=document.createElement("button");play.className="primary";play.type="button";play.textContent="Travailler ce jalon";
     play.addEventListener("click",()=>startJalonSession(next.id,next.mode));
     const course=document.createElement("a");course.href=courseUrl(next.lesson);course.textContent="Lire le cours";
-    actions.append(play,course);area.append(actions);
+    const transfer=document.createElement("a");transfer.href=transferUrl(next.id);transfer.textContent="Problème de transfert";
+    actions.append(play,course,transfer);area.append(actions);
   }
   const diagnostic=el("diagnosticStart");diagnostic.disabled=notAttempted===0;
   diagnostic.textContent=notAttempted?"Repérage initial · jusqu’à 10 jalons":"Tous les jalons ont été abordés";
@@ -99,7 +117,20 @@ function renderJalonPath(){
     play.setAttribute("aria-label","S’entraîner sur le jalon "+row.id+" : "+row.title);
     play.addEventListener("click",()=>startJalonSession(row.id,row.mode));
     const course=document.createElement("a");course.href=courseUrl(row.lesson);course.textContent="Cours";
-    buttons.append(play,course);item.append(title,status,buttons);list.append(item);
+    const transfer=document.createElement("a");transfer.href=transferUrl(row.id);transfer.textContent="Transfert rédigé";
+    const requirements=prerequisiteAdvice(rows,row.id);
+    if(requirements.length){
+      const info=document.createElement("p");info.className="jalon-pre";info.textContent="Prérequis : "+requirements.map(p=>"J"+p.id+" ("+p.status+")").join(" · ");
+      item.append(title,status,info);
+    }else item.append(title,status);
+    const priority=nextPrerequisite(rows,row.id);
+    if(priority){
+      const back=document.createElement("button");back.type="button";back.className="subtle small";back.textContent="Revoir J"+priority.id;
+      back.setAttribute("aria-label","Revoir le prérequis jalon "+priority.id+" avant le jalon "+row.id);
+      back.addEventListener("click",()=>startJalonSession(priority.id,priority.mode));
+      buttons.append(back);
+    }
+    buttons.append(play,course,transfer);item.append(buttons);list.append(item);
   }
 }
 

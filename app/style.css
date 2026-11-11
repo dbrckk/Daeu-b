@@ -176,3 +176,11 @@
 .jalon-entry h3{font-size:.96rem;margin:0 0 7px}
 .jalon-entry .jalon-status{font-size:.83rem;color:var(--muted);margin:0 0 11px}
 @media(max-width:680px){.learning-path{padding:17px}.jalon-grid{grid-template-columns:1fr}.path-buttons .primary{width:100%}}
+
+
+/* Préparation guidée : état de prérequis et transfert par jalon. */
+.path-prerequisites,.jalon-pre{font-size:.84rem;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+.path-next>.subtle{margin:0 0 12px}
+.jalon-entry .jalon-pre{margin:2px 0 12px}
+.jalon-entry .path-buttons{gap:10px}
+.jalon-entry .path-buttons a{font-size:.84rem}
