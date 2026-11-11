@@ -293,3 +293,8 @@ Le paramètre `variante=c` sélectionne la troisième situation pour chacun des 
 ## v25.6 — priorisation des rappels de raisonnement
 
 La fonction pure `pendingTransferReviews(store, now)` trie les rappels déjà échus par date et identifiant de jalon. Elle extrait, sans prétendre les vérifier, les quatre critères déclarés non satisfaits lors de la dernière rédaction. Le tableau de bord `#transferDuePanel` affiche les cinq premiers, avec des liens directs B à J+7 et C à J+30. La compatibilité des sauvegardes `daeu-b-data-v1` est intacte. Les tests Node vérifient le tri et les contraintes temporelles ; le smoke Chromium couvre deux rappels simulés via l'API locale, avec liens et priorités.
+
+
+## v25.7 — aides rédactionnelles pour chaque problème
+
+Dans chaque corrigé A/B/C des 20 jalons, deux paragraphes adaptés (« Justification à expliciter » et « Erreur fréquente à éviter ») accompagnent maintenant les calculs et la grille non notée. Le script `scripts/check_transfers.py` exige exactement une justification et un piège par problème, des explications suffisamment développées, les trois étapes et des copies PWA identiques. Les annotations n'apparaissent jamais dans les sujets. Le scénario Chromium vérifie leur présence en ligne et hors connexion. Aucun changement de schéma des sauvegardes.

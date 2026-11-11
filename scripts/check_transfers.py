@@ -42,6 +42,24 @@ for suffix in ("","-b","-c"):
         check("**Auto-évaluation" not in documents["sujets"],"Grille révélée dans les sujets")
         check(documents["corriges"].count("**Auto-évaluation")==20,
               f"Série {suffix or 'A'} : 20 grilles de raisonnement attendues")
+        check("**Justification à expliciter :**" not in documents["sujets"],
+              f"Série {suffix or 'A'} : annotations pédagogiques divulguées dans les sujets")
+        check("**Erreur fréquente à éviter :**" not in documents["sujets"],
+              f"Série {suffix or 'A'} : pièges pédagogiques divulgués dans les sujets")
+        corrections=list(pattern.finditer(documents["corriges"]))
+        for i,heading in enumerate(corrections):
+            part=documents["corriges"][heading.end():(corrections[i+1].start()
+                                                   if i+1<len(corrections) else len(documents["corriges"]))]
+            for marker in ("**Justification à expliciter :**","**Erreur fréquente à éviter :**"):
+                check(part.count(marker)==1,
+                      f"{kind}{suffix} T{i+1:02} : un seul paragraphe {marker!r} attendu")
+                if part.count(marker)==1:
+                    paragraph=part.split(marker,1)[1].split("\\n\\n",1)[0].strip()
+                    check(len(paragraph)>=45,
+                          f"{kind}{suffix} T{i+1:02} : annotation trop brève ({len(paragraph)} caractères)")
+            check(part.index("**Justification à expliciter :**") < part.index("**Erreur fréquente à éviter :**")
+                  if "**Justification à expliciter :**" in part and "**Erreur fréquente à éviter :**" in part else False,
+                  f"{kind}{suffix} T{i+1:02} : ordre du retour rédactionnel incorrect")
 
 # Trois contextes distincts par jalon, sans recycler le même titre d'exercice.
 if len(series_titles)==3:
@@ -52,4 +70,4 @@ if len(series_titles)==3:
 if ERRORS:
     for error in ERRORS:print("ERREUR :",error)
     sys.exit(1)
-print("OK : 60 problèmes originaux, 180 questions, 60 corrigés/grilles et copies PWA cohérentes.")
+print("OK : 60 problèmes, 180 sous-questions, 60 rubriques de justification, 60 pièges, 60 grilles et copies PWA identiques.")

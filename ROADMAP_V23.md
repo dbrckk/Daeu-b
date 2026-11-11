@@ -147,3 +147,10 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Tableau de bord enrichi des rappels réellement échus, triés par ancienneté, avec accès direct aux séries conseillées et diagnostic **uniquement auto-déclaré** des critères non satisfaits.
 - Quarante nouveaux contrôles arithmétiques A/B indépendants du texte source, venant compléter vingt oracles C ; chaque série couvre désormais les 20 jalons.
 - Tous les contrôles sont intégrés au workflow GitHub ; sa mise en file d'attente ne constitue pas un succès. Prochaine étape : validation réelle du navigateur et relecture pédagogique systématique des 60 corrigés.
+
+
+## v25.7 — enrichissement des preuves et erreurs fréquentes
+
+- Les **60 corrigés A/B/C** sont augmentés de 60 justifications méthodologiques et 60 pièges spécifiques aux situations.
+- Le contrôle de couverture rédactionnelle protège désormais les six fichiers Markdown et leurs copies PWA ; Chromium contrôle le rendu sans connexion.
+- Audit arithmétique en place : 40 oracles A/B + 20 C. Une égalité vérifiée ne constitue pas une preuve formelle de chaque raisonnement ; restent la relecture académique externe et l'évaluation des rédactions réelles de l'apprenant.

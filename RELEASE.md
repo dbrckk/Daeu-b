@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25.7 — justifications détaillées et pièges des 60 transferts (11 novembre 2026)
+
+- Soixante aides de justification et soixante avertissements contextualisés, disponibles seulement dans les corrigés des séries A/B/C.
+- CI : 60/60 rubriques méthodologiques, 60/60 pièges, copies PWA identiques, tests navigateur et cache actualisé ; aucune modification des notes ou sauvegardes.
+
 ## v25.6 — rappels écrits priorisés et audit mathématique renforcé (11 novembre 2026)
 
 - Les rappels rédigés échus sont regroupés par date, avec les critères auto-déclarés à revoir et le lien direct vers B ou C selon l'étape.

@@ -83,6 +83,8 @@ try {
       &&await cPage.locator("#problemTitle").textContent().then(s=>s.includes("série C"))
       &&await cPage.locator("#problemBody").textContent().then(s=>s.includes("Auto-évaluation raisonnement")),
       "Corrigés de la série C isolés des séries A/B");
+    await check(async()=>await cPage.locator("#problemBody").textContent().then(s=>s.includes("Justification à expliciter")&&s.includes("Erreur fréquente à éviter")),
+      "Corrigés C : aide rédactionnelle et pièges affichés seulement après consultation");
     await cPage.close();
     await transferPage.locator("#problemSwitch").click();
     await transferPage.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
@@ -570,8 +572,9 @@ try {
   await offlineC.locator("#problemSwitch").click();
   await offlineC.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:10000});
   await check(async()=>await offlineC.locator("#problemBody h2").count()===20
-    &&await offlineC.locator("#problemTitle").textContent().then(s=>s.includes("série C")),
-    "Corrigés C hors ligne sans basculement vers A ou B");
+    &&await offlineC.locator("#problemTitle").textContent().then(s=>s.includes("série C"))
+    &&await offlineC.locator("#problemBody").textContent().then(s=>s.includes("Justification à expliciter")),
+    "Corrigés C hors ligne : justifications enrichies réellement disponibles");
   await offlineC.close();
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");

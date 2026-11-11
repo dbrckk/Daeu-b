@@ -156,3 +156,8 @@ Les **60 problèmes de transfert rédigés** (trois situations distinctes A, B e
 Le tableau de bord affiche désormais jusqu'à cinq rappels rédigés échus, **classés par date d'échéance**, avec le jalon, la série adaptée au rappel (B pour J+7, C pour J+30) et les critères jugés insuffisants **dans la dernière auto-évaluation**. Les liens ouvrent immédiatement le bon problème sur Android, sans modifier l'historique ni créer de prétendue note. Le compteur global indique les autres rappels éventuels, accessibles depuis la liste des jalons.
 
 Les **40 problèmes A/B** sont désormais contrôlés par des oracles arithmétiques indépendants, en plus des 20 oracles C, des tests de progression, de la cohérence des six documents et des contrôles du cache. Un résultat numérique correct ne dispense pas de relire les raisonnements, domaines et formulations.
+
+
+## v25.7 — corriger la méthode, pas seulement le résultat
+
+Les **60 corrigés des problèmes de transfert** comprennent désormais chacun deux rubriques distinctes : « Justification à expliciter » et « Erreur fréquente à éviter ». Les indications sont spécifiques à la situation, par exemple : domaine avant résolution, inversion de signe, conditions du TVI, rôle de la dérivée, risque de confondre conditionnelles, ou unité d'une intégrale. Les sujets restent séparés et ne révèlent aucune de ces aides avant la consultation volontaire du corrigé. Le contrôle des contenus refuse tout corrigé privé de sa méthode ou de sa mise en garde. Les six fichiers sources et leurs copies mobiles hors connexion sont synchronisés.
