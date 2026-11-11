@@ -367,6 +367,8 @@ try {
   await check(async()=>await offlineCourse.locator("#courseToc a").count()>=5,
     "Sommaire des sections reconstruit hors connexion");
   await offlineCourse.locator("#courseSelector").selectOption("13-trigonometrie");
+  await offlineCourse.waitForURL("**/course.html?course=13-trigonometrie",{timeout:12000});
+  await offlineCourse.waitForFunction(()=>document.querySelector("#courseBody h1")?.textContent?.includes("Trigonométrie"),null,{timeout:12000});
   await check(async()=>await offlineCourse.locator("#courseBody h1").textContent().then(s=>s.includes("Trigonométrie")),
     "Changement de cours vers la trigonométrie hors ligne");
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,

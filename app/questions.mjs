@@ -14,9 +14,9 @@ export const TOPICS=[
  n("n06","Résultat de −3 × (−4) + 2 ?",14,"Le produit de deux négatifs est positif.","(−3)×(−4)=12 ; puis 12+2=14."),
  n("n07","Un prix augmente de 10 % puis baisse de 10 %. Variation totale en % ?",-1,"Multiplie les coefficients, ne les additionne pas.","1,10 × 0,90 = 0,99 : baisse totale de 1 %. Réponse : −1."),
  n("n08","Combien vaut (−2)⁴ ?",16,"Les parenthèses comptent.","(−2)⁴ = (−2)(−2)(−2)(−2) = 16."),
- n("n09","Calculer 5/8 − 1/6 (fraction ou décimal).",11/24,"Réduis au dénominateur commun 24.","5/8=15/24 et 1/6=4/24 ; leur différence vaut 11/24."),
+ n("n09","Calculer 5/8 − 1/6 (fraction ou décimal).",11/24,"Réduis au dénominateur commun 24.","On choisit 24 comme dénominateur commun : 5/8=15/24 et 1/6=4/24 ; donc 15/24−4/24=11/24. La fraction est irréductible."),
  n("n10","Calculer la valeur absolue |−7/3|.",7/3,"La valeur absolue est une distance, jamais négative.","|−7/3| = 7/3 car la valeur absolue d'un réel négatif est son opposé."),
- c("n11","Simplifier √50 − √8.",["3√2","7√2","√42"],"3√2","Extrais les carrés parfaits des deux racines.","√50=5√2 et √8=2√2 ; donc √50−√8=3√2.")
+ c("n11","Simplifier √50 − √8.",["3√2","7√2","√42"],"3√2","Extrais les carrés parfaits des deux racines.","On extrait les carrés parfaits : √50=√(25×2)=5√2 et √8=√(4×2)=2√2 ; la différence est (5−2)√2=3√2.")
 ]},
 {slug:"litteral",title:"Développer et factoriser",lesson:"02-calcul-litteral.md",jalons:[4],questions:[
  c("a01","Développement de (x+3)² ?",["x²+6x+9","x²+9","x²+3x+9"],"x²+6x+9","Utilise (a+b)² = a² + 2ab + b².","(x+3)² = x² + 2×3x + 9 = x²+6x+9."),
@@ -35,7 +35,7 @@ export const TOPICS=[
  c("e06","Solutions de (x+1)/(x−2) ≥ 0 ?",["x≤−1 ou x>2","−1≤x≤2","x<−1 ou x≥2"],"x≤−1 ou x>2","Numérateur nul admis, dénominateur nul interdit.","La fraction est non négative sur ]−∞;−1]∪]2;+∞[."),
  n("e07","Résoudre |x−3|=2 : donner la plus petite solution.",1,"La distance à 3 vaut 2.","x−3=±2, donc solutions 1 et 5 ; la plus petite est 1."),
  n("e08","Système 2x+y=10 et x−y=2. Valeur de x ?",4,"Additionne après élimination de y.","3x=12 ; x=4, puis y=2."),
- n("e09","Résoudre x/3 + 1/2 = 5/6. Donner x.",1,"Soustrais 1/2, puis multiplie par 3.","x/3=5/6−3/6=2/6=1/3 ; par conséquent x=1."),
+ n("e09","Résoudre x/3 + 1/2 = 5/6. Donner x.",1,"Soustrais 1/2, puis multiplie par 3.","On ramène 1/2 à 3/6, puis x/3=5/6−3/6=2/6=1/3 ; d'où x=1. Vérification : 1/3+1/2=5/6."),
  n("e10","Résoudre 2/(x−1)=1. Donner x.",3,"Commence par exclure x=1, puis multiplie par x−1.","Domaine : x≠1. Sur ce domaine, 2=x−1 donc x=3 ; cette valeur est bien admissible.")
 ]},
 {slug:"second",title:"Second degré",lesson:"04-second-degre.md",jalons:[7],questions:[
