@@ -30,7 +30,9 @@ const C=(id,prompt,options,answer,points,solution,skill)=>({
  id,prompt,options,answer,points,type:"choice",skill,
  solution:solution+"\n\nMéthode : "+HINTS[skill]
 });
-const step=(id,prompt,model,lesson)=>({id,prompt,model,lesson});
+const step=(id,prompt,model,lesson)=>({
+ id,prompt,model:model+"\nRédiger la propriété utilisée, les calculs et la conclusion reliée à la question.",lesson
+});
 const section=(id,title,context,questions,method,intro,steps)=>({
  id,title,context,questions,method,rubric:{intro,steps}
 });
