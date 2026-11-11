@@ -29,6 +29,19 @@ try {
     "Bibliothèque complète de 18 cours locaux");
   await check(async()=>await page.locator("#topicCards .topic-card a").first().getAttribute("href").then(h=>h.startsWith("./course.html?course=")),
     "Cours du catalogue reliés au lecteur local");
+  const diagnosisContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const diagnosisPage=await diagnosisContext.newPage();
+    await diagnosisPage.goto(BASE,{waitUntil:"networkidle"});
+    await check(async()=>await diagnosisPage.locator("#jalonList li").count()===20,"v25 : 20 jalons consultables");
+    await check(async()=>await diagnosisPage.locator("#pathNext h3").textContent().then(s=>s.includes("Nombres entiers")),"v25 : recommandation initiale");
+    await diagnosisPage.locator("#diagnosticStart").click();
+    await check(async()=>await diagnosisPage.locator("#quiz").isVisible()&&await diagnosisPage.locator("#quizCount").textContent().then(s=>s.includes("1 / 10")),"v25 : repérage initial en dix questions");
+    await diagnosisPage.locator("#unknownButton").click();
+    await check(async()=>await diagnosisPage.locator("#jalonList li").first().textContent().then(s=>s.includes("1/")),"v25 : suivi mis à jour après réponse");
+    await diagnosisPage.reload({waitUntil:"networkidle"});
+    await check(async()=>await diagnosisPage.locator("#quizCount").textContent().then(s=>s.includes("2 / 10")),"v25 : repérage restauré après rechargement");
+  }finally{await diagnosisContext.close();}
   const courseOnline=await context.newPage();
   courseOnline.on("pageerror",e=>errors.push("Lecteur cours : "+e.message));
   await courseOnline.goto(BASE+"/course.html?course=07-limites-asymptotes",{waitUntil:"networkidle"});

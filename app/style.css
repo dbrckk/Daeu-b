@@ -156,3 +156,23 @@
 .reader-section-save{display:inline-flex;align-items:center;min-height:40px;margin:0 0 10px;padding:7px 12px;border:1px solid var(--stroke);border-radius:9px;background:var(--panel2);color:var(--teal);font-size:.82rem;font-weight:650}
 .reader-section-save:hover{border-color:var(--teal)}
 .reader-section-save:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+
+/* v25 : progression par jalon, repli mobile à une colonne. */
+.learning-path{margin:0 0 42px;padding:25px;background:var(--panel);border:1px solid var(--stroke);border-radius:20px}
+.learning-path .section-header{margin-bottom:10px}
+.learning-path>.helper{margin:0 0 15px}
+.path-next{padding:18px;border:1px solid #3f6575;background:#14283b;border-radius:14px}
+.path-next h3{font-size:1.03rem;line-height:1.35;margin:0 0 8px}
+.path-next p{color:var(--muted);margin:0 0 12px;font-size:.92rem}
+.path-buttons{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.path-buttons a{font-weight:650}
+.path-diagnostic{margin:16px 0}
+.path-diagnostic .helper{margin:9px 0 0;max-width:690px}
+.jalon-panel{border-top:1px solid var(--stroke);padding-top:13px}
+.jalon-panel>summary{cursor:pointer;font-weight:700;min-height:44px;padding:8px 0}
+.jalon-grid{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:12px 0 0;padding:0}
+.jalon-entry{background:var(--panel2);border:1px solid var(--stroke);padding:15px;border-radius:12px;min-width:0}
+.jalon-entry h3{font-size:.96rem;margin:0 0 7px}
+.jalon-entry .jalon-status{font-size:.83rem;color:var(--muted);margin:0 0 11px}
+@media(max-width:680px){.learning-path{padding:17px}.jalon-grid{grid-template-columns:1fr}.path-buttons .primary{width:100%}}

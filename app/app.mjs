@@ -6,11 +6,13 @@ import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from ".
 import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
+import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 
 
 const fullTopics=injectVariants(TOPICS);
 const questions=flatten(fullTopics);
 const knownIds=new Set(questions.map(q=>q.id));
+const jalonIndex=buildJalonIndex(questions);
 const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS)];
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
@@ -64,6 +66,41 @@ function refreshOverview() {
   el("percentage").textContent=metrics.percent+" %";
   el("masteryProgress").value=metrics.percent;
   renderCatalog();
+  renderJalonPath();
+}
+function renderJalonPath(){
+  const rows=jalonProgress(state,questions,jalonIndex);
+  const next=recommendJalon(rows);
+  const notAttempted=rows.filter(r=>!r.attempted).length;
+  el("jalonSummary").textContent=(20-notAttempted)+"/20 jalons abordés · "+rows.filter(r=>r.due>0).length+" avec rappels à faire. Une question réussie ne certifie pas la notion.";
+  const area=el("pathNext");area.replaceChildren();
+  const heading=document.createElement("h3");
+  heading.textContent=next?"Étape conseillée : jalon "+next.id+" — "+next.title:"Toutes les questions interactives sont confirmées";
+  const message=document.createElement("p");
+  message.textContent=!next?"Continue avec les exercices rédigés, les transferts et les examens blancs. Ces compteurs ne certifient pas la maîtrise.":next.due>0?next.due+" rappel(s) arrivé(s) à échéance : contrôle sans indice.":next.unconfirmedErrors>0?next.unconfirmedErrors+" erreur(s) non encore confirmée(s) : revois la méthode avant de recommencer.":!next.attempted?"Cette notion n’a pas encore été travaillée.":"Déjà abordé : consolide les exercices non confirmés sur plusieurs jours.";
+  area.append(heading,message);
+  if(next){
+    const actions=document.createElement("div");actions.className="path-buttons";
+    const play=document.createElement("button");play.className="primary";play.type="button";play.textContent="Travailler ce jalon";
+    play.addEventListener("click",()=>startJalonSession(next.id,next.mode));
+    const course=document.createElement("a");course.href=courseUrl(next.lesson);course.textContent="Lire le cours";
+    actions.append(play,course);area.append(actions);
+  }
+  const diagnostic=el("diagnosticStart");diagnostic.disabled=notAttempted===0;
+  diagnostic.textContent=notAttempted?"Repérage initial · jusqu’à 10 jalons":"Tous les jalons ont été abordés";
+  const list=el("jalonList");list.replaceChildren();
+  for(const row of rows){
+    const item=document.createElement("li");item.className="jalon-entry";
+    const title=document.createElement("h3");title.textContent=row.id+". "+row.title;
+    const status=document.createElement("p");status.className="jalon-status";
+    status.textContent=row.status+" · "+row.attempted+"/"+row.total+" tentées · "+row.confirmed+" confirmée(s)"+(row.due?" · "+row.due+" rappel(s)":"");
+    const buttons=document.createElement("div");buttons.className="path-buttons";
+    const play=document.createElement("button");play.className="subtle small";play.type="button";play.textContent="S’entraîner";
+    play.setAttribute("aria-label","S’entraîner sur le jalon "+row.id+" : "+row.title);
+    play.addEventListener("click",()=>startJalonSession(row.id,row.mode));
+    const course=document.createElement("a");course.href=courseUrl(row.lesson);course.textContent="Cours";
+    buttons.append(play,course);item.append(title,status,buttons);list.append(item);
+  }
 }
 
 function renderCatalog() {
@@ -112,6 +149,9 @@ function startSession() {
     notification(el("mode").value==="due"?"Aucune question à réviser actuellement dans ce chapitre. Passe en mode découverte ou reviens à la date d'échéance.":"Aucune question correspondante. Essaie un autre domaine ou mode.");
     return;
   }
+  startSelectedSession(selected);
+}
+function startSelectedSession(selected){
   try{
     const planned=buildRound(selected,state);
     const saved=dataStore.updateRound(planned.round);
@@ -126,6 +166,19 @@ function startSession() {
   el("quiz").hidden=false;
   notification("");
   renderQuestion();
+}
+function startJalonSession(jalon,mode="all"){
+  let selection=selectJalonQuestions(state,questions,jalonIndex,jalon,mode);
+  if(!selection.length&&mode!=="all")selection=selectJalonQuestions(state,questions,jalonIndex,jalon,"all");
+  if(!selection.length){notification("Aucune question disponible pour ce jalon.");return;}
+  startSelectedSession(selection);
+  el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function startDiagnosticSession(){
+  const selection=selectDiagnosticQuestions(state,questions,jalonIndex);
+  if(!selection.length){notification("Tous les jalons ont déjà été abordés. Utilise les révisions ciblées.");return;}
+  startSelectedSession(selection);
+  el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function resumeSession(){
   if(!round)return;
@@ -251,6 +304,7 @@ refreshOverview();
 initExams(dataStore,conflictWarning);
 resumeSession();
 el("start").addEventListener("click",startSession);
+el("diagnosticStart").addEventListener("click",startDiagnosticSession);
 el("restart").addEventListener("click",startSession);
 el("answerForm").addEventListener("submit",evt=>{
   evt.preventDefault();

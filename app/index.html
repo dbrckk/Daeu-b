@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:title" content="DAEU B — Atelier de mathématiques gratuit">
-  <meta property="og:description" content="111 questions fixes, 32 modèles variables, quatre examens blancs dont deux générés, et révisions espacées. Gratuit sur Android et PC.">
+  <meta property="og:description" content="116 questions fixes, 41 modèles variables, quatre examens blancs dont deux générés, et révisions espacées. Gratuit sur Android et PC.">
   <meta property="og:url" content="https://daeu-b-maths-dbrckk.onrender.com/">
   <meta name="twitter:card" content="summary">
   <link rel="stylesheet" href="./style.css">
@@ -48,6 +48,16 @@
         </div>
         <div class="meter-label"><span>Acquis confirmés</span><span id="percentage">0 %</span></div>
         <progress id="masteryProgress" max="100" value="0" aria-label="Pourcentage de questions acquises"></progress>
+      </section>
+      <section class="learning-path" aria-labelledby="path-title">
+        <div class="section-header"><div><p class="eyebrow">PARCOURS PERSONNALISÉ</p><h2 id="path-title">Mes 20 jalons de mathématiques</h2></div></div>
+        <p id="jalonSummary" class="helper">Analyse des réponses enregistrées sur cet appareil…</p>
+        <div id="pathNext" class="path-next" aria-live="polite"></div>
+        <div class="path-diagnostic">
+          <button type="button" class="subtle" id="diagnosticStart">Repérage initial · jusqu’à 10 jalons</button>
+          <p class="helper">Une première question par notion non encore abordée, en blocs de dix. Ce repérage aide à choisir les prochaines révisions, sans certifier les acquis.</p>
+        </div>
+        <details class="jalon-panel" id="jalonPanel"><summary>Afficher les 20 jalons et leurs exercices</summary><ol id="jalonList" class="jalon-grid"></ol></details>
       </section>
       <section class="workshop" aria-labelledby="practice-title">
         <div class="section-header"><div><p class="eyebrow">ENTRAÎNEMENT</p><h2 id="practice-title">Choisir une séance</h2></div><a href="./course.html?course=00-positionnement" target="_blank" rel="noopener noreferrer">Test initial ↗</a></div>
