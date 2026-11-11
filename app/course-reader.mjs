@@ -1,4 +1,5 @@
 import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
+import {initReadingTools} from "./reading-tools.mjs";
 const byId=id=>document.getElementById(id);
 let slug=new URL(location.href).searchParams.get("course")||"00-positionnement";
 if(!courseInfo(slug))slug="00-positionnement";
@@ -21,6 +22,7 @@ for(const [id,diff] of [["coursePrevious",-1],["courseNext",1]]){
   element.href=courseUrl(neighbor[0]);
   element.textContent=(diff<0?"← ":"")+neighbor[1]+(diff>0?" →":"");
 }
+const updateOutline=initReadingTools(byId("courseBody"),byId("courseTextSize"),byId("courseToc"));
 const markdown=new showdown.Converter({
   tables:true,ghCodeBlocks:true,tasklists:true,strikethrough:true,
   simplifiedAutoLink:false,openLinksInNewWindow:false,backslashEscapesHTMLTags:true
@@ -95,6 +97,7 @@ async function displayCourse(){
     target.innerHTML=safe;
     installMath(target,equations);
     sanitizeLinks(target);
+    updateOutline();
     byId("courseStatus").textContent="Cours "+(index+1)+"/18 · Contenu intégral et formules mathématiques · Cache PWA hors connexion";
   }catch(error){
     byId("courseBody").textContent="Cours indisponible. Ouvre l'Atelier avec une connexion au moins une fois pour télécharger la bibliothèque hors connexion.";

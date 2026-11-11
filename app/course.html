@@ -24,6 +24,12 @@
 <nav class="course-navigation" aria-label="Naviguer entre les cours">
 <label for="courseSelector">Choisir un cours</label><select id="courseSelector"></select>
 <p class="helper" id="courseStatus" role="status">Chargement du cours…</p>
+
+<div class="reader-settings">
+<label for="courseTextSize">Taille du texte</label>
+<select id="courseTextSize"><option value="normal">Normale</option><option value="large">Grande</option><option value="extra">Très grande</option></select>
+</div>
+<details class="reader-outline" id="courseOutline"><summary>Sommaire du chapitre</summary><nav id="courseToc" aria-label="Sections du chapitre"></nav></details>
 <div class="course-actions">
 <a id="coursePractice" class="primary problems-link" href="./#practice-title">M'entraîner sur ce chapitre</a>
 <a class="course-secondary-link" href="./problems.html">Problèmes rédigés</a>

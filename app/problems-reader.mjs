@@ -1,4 +1,6 @@
+import {initReadingTools} from "./reading-tools.mjs";
 const el=id=>document.getElementById(id);
+const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"));
 const files={sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
 const params=new URL(location.href).searchParams;
 const mode=params.get("mode")==="corriges"?"corriges":"sujets";
@@ -63,6 +65,7 @@ async function load(){
       else if(href.startsWith("#"))continue;
       else a.removeAttribute("href");
     }
+    updateOutline();
     el("problemStatus").textContent=(mode==="sujets"?"37 questions · 8 problèmes · 3 niveaux":"37 corrections détaillées · 8 problèmes")+" · Lecture hors connexion";
   }catch(error){
     el("problemBody").textContent="Contenu indisponible. Charge une fois l'application en ligne pour installer les sujets et leurs corrections.";
