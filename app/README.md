@@ -298,3 +298,8 @@ La fonction pure `pendingTransferReviews(store, now)` trie les rappels déjà é
 ## v25.7 — aides rédactionnelles pour chaque problème
 
 Dans chaque corrigé A/B/C des 20 jalons, deux paragraphes adaptés (« Justification à expliciter » et « Erreur fréquente à éviter ») accompagnent maintenant les calculs et la grille non notée. Le script `scripts/check_transfers.py` exige exactement une justification et un piège par problème, des explications suffisamment développées, les trois étapes et des copies PWA identiques. Les annotations n'apparaissent jamais dans les sujets. Le scénario Chromium vérifie leur présence en ligne et hors connexion. Aucun changement de schéma des sauvegardes.
+
+
+## v26 — vérification des champs de l'examen avant remise
+
+Le module pur `exam-readiness.mjs` calcule `inspectExamDraft(exam,session)` sans corriger les réponses, sans exposer les solutions et sans modifier le schéma de sauvegarde. Le composant `#examDraftSummary` suit les saisies en direct et les quatre raccourcis permettent de revoir chaque exercice. La confirmation de remise donne les questions et points non traités, ainsi que le nombre de rédactions présentes. Tests Node sur A/B et plusieurs graines C/D, Chromium Android sur saisie, navigation, reprise et hors connexion.

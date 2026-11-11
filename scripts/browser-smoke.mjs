@@ -266,12 +266,22 @@ try {
   await dPage.locator("#examSelect").selectOption("blanc-d");
   await dPage.locator("#examStart").click();
   await check(async()=>await dPage.locator("#examActive").isVisible(),"Nouvel examen D démarré");
+  await check(async()=>await dPage.locator("#examDraftSummary").textContent().then(s=>s.includes("0/16 réponses")&&s.includes("0/4 justifications")),
+    "Examens D : copie vierge, progression objective sans notation");
   const dRational=await dPage.locator("#examContext").textContent();
   const excluded=dRational.match(/f\(x\)=x\+\d+\+\d+\/\(x−(\d+)\)/)?.[1];
   assert.ok(excluded,"D : domaine rationnel absent");
   await check(async()=>await dPage.locator("#examQuestions fieldset").count()===4,
     "D : quatre sous-questions en première section");
   await dPage.locator("#examQuestions .exam-input").first().fill(excluded);
+  await check(async()=>await dPage.locator("#examDraftSummary").textContent().then(s=>s.includes("1/16 réponses")&&s.includes("19 point(s)")),
+    "Examens D : champs et points non traités mis à jour en direct");
+  await dPage.locator(".exam-draft-overview summary").click();
+  await check(async()=>await dPage.locator("#examDraftSections button").count()===4,"Quatre raccourcis d'examen vérifiables");
+  await dPage.locator("#examDraftSections button").nth(1).click();
+  await check(async()=>await dPage.locator("#examPosition").textContent().then(s=>s.includes("Exercice 2")),
+    "Raccourci de la copie vers la section 2 fonctionnel");
+  await dPage.locator("#examPrev").click();
   await dPage.reload({waitUntil:"networkidle"});
   await check(async()=>await dPage.locator("#examContext").textContent().then(x=>x===dRational),
     "D : même énoncé après rechargement");
@@ -326,12 +336,18 @@ try {
   await page.locator("#examSelect").selectOption("blanc-c");
   await page.locator("#examStart").click();
   await check(async()=>await page.locator("#examActive").isVisible(),"Examen C lancé");
+  await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("0/16 réponses")&&s.includes("0/4 justifications")),
+    "Examen C : contrôle pré-remise visible sans solutions");
   const contextText=await page.locator("#examContext").textContent();
   assert.ok(contextText.includes("B(x)="),"Énoncé complet");
   await check(async()=>await page.locator("#examQuestions fieldset").count()===4,"4 questions au premier exercice");
   await page.locator("#examQuestions .exam-input").first().fill("8");
+  await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/16 réponses")),
+    "Examen C : complétude recalculée après saisie");
   await page.locator("#examNext").click();
   await page.locator("#examNotes").fill("Raisonnement géométrique rédigé dans la copie.");
+  await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/4 justifications")),
+    "Justifications présentes séparées des réponses automatiques");
   await page.locator("#examPrev").click();
   await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="8"),"Réponse conservée à la navigation");
   await page.reload({waitUntil:"networkidle"});
@@ -340,6 +356,8 @@ try {
   await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="8"),"Réponse conservée au rechargement");
   await page.locator("#examNext").click();
   await check(async()=>await page.locator("#examNotes").inputValue().then(x=>x.includes("géométrique")),"Rédaction récupérée");
+  await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/16 réponses")&&s.includes("1/4 justifications")),
+    "Résumé de complétude exact après rechargement");
 
   await page.locator("#examSubmit").click();
   await check(async()=>await page.locator("#examResult").isVisible(),"Note et corrigé révélés");
@@ -448,6 +466,8 @@ try {
   await page.locator("#examStart").click();
   await check(async()=>await page.locator("#examActive").isVisible(),
     "Nouvel examen C démarré hors ligne");
+  await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("0/16 réponses")),
+    "Vérification d'examen disponible hors connexion");
   const offlineContext=await page.locator("#examContext").textContent();
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
   await check(async()=>await page.locator("#examContext").textContent().then(x=>x===offlineContext),

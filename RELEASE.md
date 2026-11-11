@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v26 — examens blancs et vérification de copie (11 novembre 2026)
+
+- Un tableau de complétude détaille réponses non vides, points restant sans réponse et rédaction personnelle, avec navigation parmi quatre exercices.
+- Confirmation de remise précise et non notée ; compatible avec l'historique, les sujets générés déterministes et le fonctionnement hors connexion.
+
 ## v25.7 — justifications détaillées et pièges des 60 transferts (11 novembre 2026)
 
 - Soixante aides de justification et soixante avertissements contextualisés, disponibles seulement dans les corrigés des séries A/B/C.

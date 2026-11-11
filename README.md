@@ -161,3 +161,8 @@ Les **40 problèmes A/B** sont désormais contrôlés par des oracles arithméti
 ## v25.7 — corriger la méthode, pas seulement le résultat
 
 Les **60 corrigés des problèmes de transfert** comprennent désormais chacun deux rubriques distinctes : « Justification à expliciter » et « Erreur fréquente à éviter ». Les indications sont spécifiques à la situation, par exemple : domaine avant résolution, inversion de signe, conditions du TVI, rôle de la dérivée, risque de confondre conditionnelles, ou unité d'une intégrale. Les sujets restent séparés et ne révèlent aucune de ces aides avant la consultation volontaire du corrigé. Le contrôle des contenus refuse tout corrigé privé de sa méthode ou de sa mise en garde. Les six fichiers sources et leurs copies mobiles hors connexion sont synchronisés.
+
+
+## Examens blancs v26 — contrôle de copie sans corrigé anticipé
+
+La préparation des épreuves A/B/C/D intègre désormais un **tableau de complétude en temps réel** : questions avec saisie non vide (mais non encore corrigées), questions restantes et points qu'elles représentent, exercices possédant une rédaction personnelle. Quatre raccourcis facilitent la vérification de chaque exercice avant remise. La confirmation de rendu résume la copie sans révéler les solutions. Le minuteur de trois heures, le barème indicatif /20, les sauvegardes et la reprise hors connexion sont inchangés. Une réponse présente n'est ni une réponse correcte ni une démonstration maîtrisée.

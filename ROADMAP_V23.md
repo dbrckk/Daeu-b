@@ -154,3 +154,10 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Les **60 corrigés A/B/C** sont augmentés de 60 justifications méthodologiques et 60 pièges spécifiques aux situations.
 - Le contrôle de couverture rédactionnelle protège désormais les six fichiers Markdown et leurs copies PWA ; Chromium contrôle le rendu sans connexion.
 - Audit arithmétique en place : 40 oracles A/B + 20 C. Une égalité vérifiée ne constitue pas une preuve formelle de chaque raisonnement ; restent la relecture académique externe et l'évaluation des rédactions réelles de l'apprenant.
+
+
+## v26 — contrôle de copie sans surévaluer les compétences
+
+- Examens A/B/C/D : affiche les questions sans réponse, leurs points de barème et la présence des quatre rédactions, sans score anticipé ; navigation rapide et confirmation de remise précise.
+- Protection des données inchangée ; mêmes sujets déterministes, durée trois heures, notes indicatives /20 et cache PWA actualisé.
+- Suite prioritaire : diversifier les familles de sujets générés, puis relecture indépendante des corrigés et des compétences sous-représentées dans les examens.
