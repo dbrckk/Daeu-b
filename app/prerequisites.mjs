@@ -56,7 +56,7 @@ export function nextPrerequisite(rows,target,graph=PREREQUISITES){
       if(nested)return nested;
       const row=byId.get(dep);
       if(!row)throw Error("Prérequis manquant : "+dep);
-      if(!row.attempted||row.unconfirmedErrors>0||row.due>0)return row;
+      if(!row.attempted||row.unconfirmedErrors>0||row.due>0||row.confirmed<row.total)return row;
     }
     return null;
   }

@@ -4,7 +4,7 @@ Ces problèmes originaux vérifient l'application d'une méthode à une situatio
 
 Chaque jalon est une première activité de transfert, pas une couverture exhaustive des difficultés possibles.
 
-## Consignes
+### Consignes
 
 Pour chaque tâche : indiquer les hypothèses et le domaine, écrire la méthode, effectuer les calculs exacts, puis conclure avec unités. On peut utiliser la calculatrice si elle est autorisée à l'épreuve.
 

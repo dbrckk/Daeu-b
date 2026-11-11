@@ -26,6 +26,7 @@ test("conseils de prérequis fondés sur réponses réelles, sans faux acquis",(
   rows=jalonProgress(state,bank,index,t);
   assert.equal(rows[0].confirmed,0,"un succès n'est pas une preuve de maîtrise");
   assert.equal(prerequisiteAdvice(rows,2)[0].status,"à consolider");
+  assert.equal(nextPrerequisite(rows,18).id,1,"Un succès isolé ne suffit pas à consolider un prérequis");
   state=recordAnswer(state,"n02",false,t+DAY_MS);
   rows=jalonProgress(state,bank,index,t+DAY_MS);
   assert.equal(prerequisiteAdvice(rows,2)[0].status,"rappel à effectuer");

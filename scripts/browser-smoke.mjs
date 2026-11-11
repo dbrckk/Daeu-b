@@ -39,9 +39,11 @@ try {
     await check(async()=>await diagnosisPage.locator("#jalonList li").nth(17).textContent().then(s=>s.includes("J12")),"v25 : prérequis de l'intégration visibles");
     const transferPage=await diagnosisContext.newPage();
     await transferPage.goto(BASE+"/problems.html?set=transferts&jalon=18",{waitUntil:"networkidle"});
+    await transferPage.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:12000});
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20,"20 transferts intégrés au lecteur sécurisé");
     await check(async()=>await transferPage.locator("#problemBody h2").nth(17).textContent().then(s=>s.includes("T18")),"Transfert intégral directement localisé");
     await transferPage.locator("#problemSwitch").click();
+    await transferPage.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20
       &&await transferPage.locator("#problemBody").textContent().then(s=>s.includes("Auto-évaluation raisonnement")),"20 corrigés séparés et grille de raisonnement");
     await transferPage.close();
@@ -461,6 +463,7 @@ try {
   await offlineProblems.close();
   const offlineTransfer=await context.newPage();
   await offlineTransfer.goto(BASE+"/problems.html?set=transferts&jalon=20",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineTransfer.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:12000});
   await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 sujets de transfert consultables hors connexion");
   await offlineTransfer.locator("#problemSwitch").click();
   await offlineTransfer.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
