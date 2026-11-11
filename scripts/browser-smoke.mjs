@@ -328,7 +328,7 @@ try {
     await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("sans remise")),
       "Examen E : calcul de probabilités dépendantes");
     await ePage.locator("#examNext").click();
-    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("racine")),
+    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("irrationnelle")),
       "Examen E : domaine d'une fonction irrationnelle");
     await ePage.reload({waitUntil:"networkidle"});
     await check(async()=>await ePage.evaluate(seed=>{
@@ -342,7 +342,7 @@ try {
     }
     await eContext.setOffline(true);
     await ePage.reload({waitUntil:"domcontentloaded",timeout:12000});
-    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("racine"))
+    await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("irrationnelle"))
       &&await ePage.locator("#examDraftSummary").textContent().then(x=>x.includes("1/16 réponses")),
       "Examen E : reprise sous cache hors connexion");
     await eContext.setOffline(false);
