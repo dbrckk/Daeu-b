@@ -268,3 +268,8 @@ Chaque titre de cours ou de problème possède désormais une commande « Marque
 ## Version v25 — repérage initial et suivi des jalons
 
 Depuis la page d'accueil, « Repérage initial · jusqu’à 10 jalons » choisit une question fixe nouvelle par jalon encore jamais abordé. La série suivante peut couvrir d'autres jalons, jusqu'aux vingt obligatoires. Les réponses utilisent le même système de progression, d'export/import et de reprise hors connexion. La liste par jalon et les recommandations sont recalculées uniquement à partir des réponses réelles. L'outil ne délivre ni note de diagnostic psychométrique ni certificat de maîtrise. Les examens A/B/C/D et la clé `daeu-b-data-v1` sont inchangés.
+
+
+## v25.2 — Pré-requis et exercices de transfert
+
+Chaque jalon inclut un graphe de prérequis pédagogiques, un bouton pour revoir le premier prérequis à consolider, et un lien **« Transfert rédigé »** vers `./problems.html?set=transferts&jalon=N`. Les 20 sujets et 20 corrections sont séparés, chargés depuis `./transferts/` dans le cache PWA. Aucune réponse rédigée n'est notée artificiellement : la grille « hypothèses et domaine / méthode / calcul / conclusion » se coche mentalement ou sur papier. L'import/export des notes, les examens A/B/C/D et les données locales ne changent pas.

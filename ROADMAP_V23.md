@@ -109,3 +109,11 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - **Disponible :** repérage en blocs de dix jalons non abordés, statistiques descriptives par jalon et recommandations déterministes (rappels > erreurs non confirmées > nouveautés > consolidation).
 - **Validation :** tests Node, contrôles de contenu et scénario Chromium mobile/hors ligne, avec reprise de la séance initiale ; aucune prétention de validation universitaire ou sur téléphone physique.
 - **Reste à accomplir pour la v25 complète :** expliciter les liens de prérequis, analyser la réussite sur des situations de transfert et éviter toute interprétation abusive d'un compteur d'exercices confirmés comme une maîtrise du jalon.
+
+
+## v25.2 — prérequis et transfert opérationnels (11 novembre 2026)
+
+- **20/20 jalons** dotés d'une liste explicite de prérequis, graphe validé sans cycle ni référence invalide ; suggestions non bloquantes fondées sur les réponses sauvegardées.
+- **20/20 jalons** dotés d'un premier problème original de transfert à trois étapes, d'un corrigé séparé et d'une grille de quatre critères de raisonnement, consultables hors ligne.
+- Sources et copies PWA contrôlées en CI, lecteur mutualisé, navigation directe par jalon, compatibilité de progression préservée.
+- **Limite assumée :** une seule activité de transfert par jalon ne suffit pas à valider toute la notion ; l'auto-évaluation de la rédaction n'est ni une notation automatique ni une certification de réussite. Étape suivante : diversifier les situations et intégrer un suivi volontaire de relecture à J+7 sans surinterpréter la maîtrise.

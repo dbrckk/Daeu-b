@@ -121,3 +121,10 @@ La [bibliothèque de cours](https://daeu-b-maths-dbrckk.onrender.com/course.html
 ## Parcours d'apprentissage par jalon — v25
 
 L'atelier propose un **repérage initial en séries de dix questions maximum**, une question pour chacun des jalons obligatoires qui n'ont pas encore été abordés. Le suivi de **20 jalons** présente les questions tentées, confirmées, les rappels à effectuer et les erreurs non confirmées. La prochaine étape conseillée privilégie les rappels échus, puis les erreurs, les notions nouvelles et la consolidation. Un bouton lance une séance ciblée sur le jalon choisi et ouvre son cours. Les modèles qui couvrent deux jalons ne deviennent pas deux exercices distincts dans le total global. Les anciennes sauvegardes restent compatibles ; **une réussite isolée ne certifie pas la maîtrise du programme**.
+
+
+## Pré-requis et problèmes de transfert — v25.2
+
+Chaque jalon indique maintenant des **prérequis conseillés** avec leur statut réel (non abordé, à consolider, erreur ou rappel), un lien vers le cours, les exercices du jalon et **un transfert rédigé distinct**. Le parcours des prérequis est sans cycle, explicite et non bloquant : on peut étudier un jalon même si des bases restent à revoir.
+
+[20 problèmes de transfert et sujets indépendants](transferts/sujets.md) · [20 corrigés et grilles de raisonnement](transferts/corriges.md). Le lecteur mobile propose les mêmes sujets et corrigés dans la PWA hors connexion, **sans révéler la correction avant une action volontaire**. La grille qualitative de quatre critères est auto-évaluée par l'apprenant et **n'entre pas dans la note automatique**. Les anciens historiques, exercices, examens et sauvegardes restent inchangés.

@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25.2 — prérequis et 20 transferts guidés (11 novembre 2026)
+
+- 20 jalons associés à leurs prérequis conseillés, statut issu des réponses locales, accès direct à la révision des bases.
+- 20 problèmes originaux de transfert (60 sous-questions), corrigés séparés et grilles de raisonnement non notées automatiquement ; consultation hors ligne via lecteur existant.
+- Graphe acyclique, contrôles documentaires et tests Chromium mobile intégrés dans GitHub Actions ; conservation des 157 exercices, quatre examens et anciennes sauvegardes.
+
 ## v25 — parcours guidé par jalon (11 novembre 2026)
 
 - Repérage initial de dix questions maximum sur les jalons encore non abordés.
