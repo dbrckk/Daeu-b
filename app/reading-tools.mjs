@@ -26,6 +26,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
       while(used.has(id))id+="-suite";
       used.add(id);
       heading.id=id;
+      heading.dataset.readerBookmarkId="lecture-section-"+(i+1);
       heading.tabIndex=-1;
       const li=document.createElement("li");
       const link=document.createElement("a");
@@ -37,7 +38,10 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
     }
     outline.replaceChildren(list);
     if(documentId&&saveButton&&resumeButton&&clearButton&&status){
-      const available=()=>headings.find(h=>h.id===readBookmark(localStorage,documentId));
+      const available=()=>{
+        const saved=readBookmark(localStorage,documentId);
+        return headings.find(h=>h.dataset.readerBookmarkId===saved||h.id===saved);
+      };
       function refresh(){
         const target=available();
         resumeButton.hidden=!target;
@@ -56,10 +60,10 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
       saveButton.onclick=()=>{
         // Conserver le dernier titre atteint, pas un décalage de pixels
         // fragile après zoom, changement de police ou mise à jour du cours.
-        const reached=headings.filter(h=>h.getBoundingClientRect().top<=window.innerHeight*0.35);
+        const reached=headings.filter(h=>h.getBoundingClientRect().top<=48);
         const current=reached.at(-1)??headings[0];
         if(!current){announce("Aucune section à enregistrer.");return;}
-        const ok=saveBookmark(localStorage,documentId,current.id);
+        const ok=saveBookmark(localStorage,documentId,current.dataset.readerBookmarkId);
         announce(ok?"Position enregistrée : "+current.textContent.trim()+".":"Stockage indisponible : position non enregistrée.");
         refresh();
       };

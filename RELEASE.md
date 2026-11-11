@@ -211,3 +211,6 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Confirmation visuelle temporaire et annonce accessible de la section sauvegardée ; positionnement respectant les marges sûres de l'écran.
 - Scénarios Chromium renforcés : vérification de l'identifiant exact de la section dans un cours et un problème, puis reprise après rechargement hors connexion.
 - La CI installe uniquement Chromium headless, sans installation apt répétée et bloquante ; la compatibilité du runner reste validée par l'exécution réelle du navigateur.
+
+
+**Correctif v22 :** les titres Markdown peuvent posséder des ancres auto-générées commençant par un chiffre. Le signet emploie désormais un identifiant stable de section interne, indépendant des ancres des titres, sans les modifier. Les anciens signets valides sont encore recherchés par l'ancien identifiant. Le test vérifie désormais l'identité réelle de la section.

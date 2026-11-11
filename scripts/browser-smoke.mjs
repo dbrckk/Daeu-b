@@ -48,7 +48,7 @@ try {
     !!location.hash&&document.activeElement?.matches("#courseBody h2, #courseBody h3")),
     "Sommaire : saut et focus au clavier vers le titre de section");
   // Signet explicite, restauration après rechargement et isolation par cours.
-  const chosenHeading=await courseOnline.locator("#courseBody h2").nth(2).getAttribute("id");
+  const chosenHeading=await courseOnline.locator("#courseBody h2").nth(2).getAttribute("data-reader-bookmark-id");
   await courseOnline.evaluate(()=>document.querySelectorAll("#courseBody h2")[2].scrollIntoView({block:"start",behavior:"instant"}));
   await courseOnline.locator("#courseBookmarkSave").click();
   await check(async()=>await courseOnline.locator("#courseBookmarkResume").isVisible(),
@@ -60,7 +60,7 @@ try {
   await check(async()=>await courseOnline.locator("#courseBookmarkResume").isVisible(),
     "Signet de cours conservé après rechargement");
   await courseOnline.locator("#courseBookmarkResume").click();
-  await check(async()=>await courseOnline.evaluate(id=>document.activeElement?.id===id,savedSection),
+  await check(async()=>await courseOnline.evaluate(id=>document.activeElement?.dataset.readerBookmarkId===id,savedSection),
     "Reprise de lecture au titre enregistré avec focus clavier");
   await courseOnline.locator("#courseTextSize").selectOption("extra");
   await check(async()=>await courseOnline.evaluate(()=>
@@ -110,7 +110,7 @@ try {
   await problemsPage.evaluate(()=>document.querySelector("#problemBody h3").scrollIntoView({block:"start",behavior:"instant"}));
   await problemsPage.locator("#problemBookmarkSave").click();
   await check(async()=>await problemsPage.evaluate(()=>
-    localStorage.getItem("daeu-b-reader-bookmark-v1:problemes:sujets")===document.querySelector("#problemBody h3").id),
+    localStorage.getItem("daeu-b-reader-bookmark-v1:problemes:sujets")===document.querySelector("#problemBody h3").dataset.readerBookmarkId),
     "Signet des problèmes : section exacte conservée sans remonter au sommaire");
   await check(async()=>await problemsPage.locator("#problemBookmarkResume").isVisible(),
     "Signet des sujets de problèmes enregistré");
@@ -387,7 +387,7 @@ try {
   await offlineCourse.locator("#courseBookmarkResume").waitFor({state:"visible"});
   await offlineCourse.locator("#courseBookmarkResume").click();
   await check(async()=>await offlineCourse.evaluate(()=>
-    document.activeElement?.id===localStorage.getItem("daeu-b-reader-bookmark-v1:cours:13-trigonometrie")),
+    document.activeElement?.dataset.readerBookmarkId===localStorage.getItem("daeu-b-reader-bookmark-v1:cours:13-trigonometrie")),
     "Section marquée reprise après recharge intégralement hors connexion");
   await check(async()=>await offlineCourse.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
     "Navigation vers la pratique générale conservée hors ligne pour le complément");

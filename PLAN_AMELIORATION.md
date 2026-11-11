@@ -342,3 +342,6 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Contrôler l'identité de la section réellement lue puis sa reprise après redémarrage hors connexion.
 - [x] Réduire les risques de blocage des tests Chromium en supprimant l'installation apt à chaque exécution.
 - [ ] Valider les interactions au toucher et avec TalkBack sur un téléphone Android physique.
+
+
+**Correctif ciblé v22 :** vérifier et corriger les sections dont l'ancre Markdown auto-générée était rejetée par la validation du signet ; préserver les liens du sommaire et l'ancienne forme de signet. Les tests contrôlent les identifiants internes de section.
