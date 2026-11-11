@@ -9,6 +9,7 @@ on:
       - 'scripts/audit-coverage.test.mjs'
       - 'scripts/coverage-map.mjs'
       - 'scripts/check_transfers.py'
+      - 'scripts/verify_transfer_math.py'
       - 'audits/**'
       - 'app/**'
       - '.github/workflows/verify-content.yml'
@@ -21,6 +22,7 @@ on:
       - 'scripts/audit-coverage.test.mjs'
       - 'scripts/coverage-map.mjs'
       - 'scripts/check_transfers.py'
+      - 'scripts/verify_transfer_math.py'
       - 'audits/**'
       - 'app/**'
       - '.github/workflows/verify-content.yml'
@@ -39,6 +41,8 @@ jobs:
         run: python3 scripts/verify_worked_cases.py
       - name: Vérifier les 20 transferts, grilles et ressources hors connexion
         run: python3 scripts/check_transfers.py
+      - name: Vérifier les calculs indépendants des 20 transferts C
+        run: python3 scripts/verify_transfer_math.py
       - name: Vérifier matrice v23 et détecter toute divergence des rapports
         run: node scripts/audit-coverage.mjs --check
       - name: Vérifier syntaxe JS (sans dépendances npm)
