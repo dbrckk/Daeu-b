@@ -117,3 +117,11 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - **20/20 jalons** dotés d'un premier problème original de transfert à trois étapes, d'un corrigé séparé et d'une grille de quatre critères de raisonnement, consultables hors ligne.
 - Sources et copies PWA contrôlées en CI, lecteur mutualisé, navigation directe par jalon, compatibilité de progression préservée.
 - **Limite assumée :** une seule activité de transfert par jalon ne suffit pas à valider toute la notion ; l'auto-évaluation de la rédaction n'est ni une notation automatique ni une certification de réussite. Étape suivante : diversifier les situations et intégrer un suivi volontaire de relecture à J+7 sans surinterpréter la maîtrise.
+
+
+## v25.3 — suivi réellement enregistré des transferts (11 novembre 2026)
+
+- Création d'un carnet d'auto-évaluation par jalon : quatre critères déclarés après rédaction et consultation du corrigé, sans correction automatique ni certification.
+- Échéances J+7 et J+30 calculées et contrôlées par un module pur ; au moins 24 h entre rappels, pas de double validation anticipée.
+- Suivi inclus dans le même stockage transactionnel que les examens et exercices ; le même fichier JSON inclut désormais les transferts. Anciennes sauvegardes compatibles, remise à zéro intégrale et conflits multi-onglets protégés.
+- Suite ciblée : une deuxième situation originale par jalon pour les rappels, puis validation éditoriale des démarches et de la diversité des énoncés.

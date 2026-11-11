@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25.3 — carnet de raisonnement et rappels (11 novembre 2026)
+
+- Quatre critères par transfert rédigé, déclarés après correction par l'apprenant, sans note automatique.
+- Rappels J+7 et J+30 non anticipables ; dates et déclarations conservées dans l'export/import transactionnel, sans casser les anciennes données.
+- Tableau de bord des rappels, reprise après rechargement, lecteur et stockage local fonctionnant hors connexion.
+
 ## v25.2 — prérequis et 20 transferts guidés (11 novembre 2026)
 
 - 20 jalons associés à leurs prérequis conseillés, statut issu des réponses locales, accès direct à la révision des bases.

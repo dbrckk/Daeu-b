@@ -42,6 +42,25 @@ try {
     await transferPage.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:12000});
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20,"20 transferts intégrés au lecteur sécurisé");
     await check(async()=>await transferPage.locator("#problemBody h2").nth(17).textContent().then(s=>s.includes("T18")),"Transfert intégral directement localisé");
+    await check(async()=>await transferPage.locator("#transferTracking").isVisible(),"Carnet de raisonnement visible uniquement pour les transferts");
+    await check(async()=>await transferPage.locator("#transferStage").textContent().then(s=>s.includes("Première rédaction")),"Première étape sans faux acquis");
+    await transferPage.locator(".transfer-criterion").nth(0).check();
+    await transferPage.locator(".transfer-criterion").nth(2).check();
+    await transferPage.locator("#transferAttest").check();
+    await transferPage.locator("#transferRecord").click();
+    await check(async()=>await transferPage.locator("#transferStage").textContent().then(s=>s.includes("J+7")&&s.includes("2/4")),"Évaluation explicite 2/4 et rappel J+7 programmé");
+    await check(async()=>await transferPage.evaluate(()=>{
+      const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      return s.transfers.version===1
+        &&s.transfers.items[18].reviews.length===1
+        &&s.transfers.items[18].reviews[0].criteria.join(",")==="true,false,true,false";
+    }),"Rédaction sauvegardée dans l'archive transactionnelle");
+    await transferPage.reload({waitUntil:"networkidle"});
+    await check(async()=>await transferPage.locator("#transferRecord").isDisabled(),"Rappel anticipé empêché après actualisation");
+    const transferHome=await diagnosisContext.newPage();
+    await transferHome.goto(BASE,{waitUntil:"networkidle"});
+    await check(async()=>await transferHome.locator("#transferSummary").textContent().then(s=>s.includes("1/20")),"Transfert retrouvé sur le tableau de bord après rechargement");
+    await transferHome.close();
     await transferPage.locator("#problemSwitch").click();
     await transferPage.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20
@@ -465,6 +484,8 @@ try {
   await offlineTransfer.goto(BASE+"/problems.html?set=transferts&jalon=20",{waitUntil:"domcontentloaded",timeout:12000});
   await offlineTransfer.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:12000});
   await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 sujets de transfert consultables hors connexion");
+  await check(async()=>await offlineTransfer.locator("#transferTracking").isVisible()
+    &&await offlineTransfer.locator("#transferStage").textContent().then(s=>s.includes("Première rédaction")),"Carnet de transfert opérationnel sans connexion");
   await offlineTransfer.locator("#problemSwitch").click();
   await offlineTransfer.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
   await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 corrigés de transfert disponibles hors connexion");

@@ -128,3 +128,10 @@ L'atelier propose un **repérage initial en séries de dix questions maximum**, 
 Chaque jalon indique maintenant des **prérequis conseillés** avec leur statut réel (non abordé, à consolider, erreur ou rappel), un lien vers le cours, les exercices du jalon et **un transfert rédigé distinct**. Le parcours des prérequis est sans cycle, explicite et non bloquant : on peut étudier un jalon même si des bases restent à revoir.
 
 [20 problèmes de transfert et sujets indépendants](transferts/sujets.md) · [20 corrigés et grilles de raisonnement](transferts/corriges.md). Le lecteur mobile propose les mêmes sujets et corrigés dans la PWA hors connexion, **sans révéler la correction avant une action volontaire**. La grille qualitative de quatre critères est auto-évaluée par l'apprenant et **n'entre pas dans la note automatique**. Les anciens historiques, exercices, examens et sauvegardes restent inchangés.
+
+
+## Carnet des transferts — v25.3
+
+Les **20 problèmes de transfert** disposent maintenant d'un carnet d'auto-évaluation : quatre critères (domaine, méthode, calcul, interprétation), datés lorsqu'on confirme avoir rédigé sa solution puis consulté le corrigé. Les rappels sont programmés **sept puis trente jours après la première rédaction** (et toujours au moins un jour après le rappel précédent). Impossible d'antidater la progression depuis l'interface ou d'enregistrer une révision trop tôt. Les échéances sont visibles dans le tableau de bord. 
+
+Le suivi des transferts est intégré à la même sauvegarde transactionnelle `daeu-b-data-v1` que les questions et les examens : **export, import, reprise et remise à zéro** incluent ces déclarations. Les anciennes sauvegardes sans suivi de transferts restent acceptées, sans altération des résultats antérieurs. Il s'agit **d'auto-évaluations**, pas de notes certifiées ni de correction automatique des démonstrations.

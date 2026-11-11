@@ -273,3 +273,8 @@ Depuis la page d'accueil, « Repérage initial · jusqu’à 10 jalons » choisi
 ## v25.2 — Pré-requis et exercices de transfert
 
 Chaque jalon inclut un graphe de prérequis pédagogiques, un bouton pour revoir le premier prérequis à consolider, et un lien **« Transfert rédigé »** vers `./problems.html?set=transferts&jalon=N`. Les 20 sujets et 20 corrections sont séparés, chargés depuis `./transferts/` dans le cache PWA. Aucune réponse rédigée n'est notée artificiellement : la grille « hypothèses et domaine / méthode / calcul / conclusion » se coche mentalement ou sur papier. L'import/export des notes, les examens A/B/C/D et les données locales ne changent pas.
+
+
+## v25.3 — carnet des raisonnements à J+7 et J+30
+
+Dans le lecteur `problems.html?set=transferts&jalon=18`, la section « Mon carnet de raisonnement » permet d'enregistrer quatre critères auto-déclarés après rédaction et comparaison au corrigé. La première saisie planifie le rappel J+7, puis J+30 à partir du premier essai (avec au moins 24 h entre deux déclarations). Les échéances sont contrôlées par le moteur pur `transfer-progress.mjs`, sauvegardées atomiquement par `persistence.mjs` dans `daeu-b-data-v1` et incluses dans les exports `backupVersion:1` sans rompre la compatibilité avec les exports historiques dépourvus du champ `transfers`. Les dates et critères sont validés à la lecture : un JSON corrompu n'est pas effacé silencieusement.
