@@ -1,0 +1,46 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {TOPICS} from "./questions.mjs";
+import {injectVariants} from "./variants.mjs";
+import {flatten,emptyState,recordAnswer,DAY_MS,sanitizeState} from "./engine.mjs";
+import {JALONS,FIXED_IDS_BY_JALON} from "./jalons.mjs";
+import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
+const bank=flatten(injectVariants(TOPICS));
+const index=buildJalonIndex(bank);const t=Date.UTC(2026,10,11,12);
+test("20 jalons avec classification exhaustive et unique des 157 entrées",()=>{
+  assert.equal(JALONS.length,20);assert.equal(bank.length,157);assert.equal(index.size,20);
+  assert.equal(index.get(12).has("l12"),true);
+  assert.equal(index.get(19).has("v30"),true);assert.equal(index.get(20).has("v30"),true);
+  assert.equal(index.has(21),false);
+  const rows=jalonProgress(emptyState(),bank,index,t);
+  assert.equal(rows.length,20);assert.ok(rows.every(r=>r.attempted===0&&r.confirmed===0&&r.status==="Non abordé"));
+  assert.equal(recommendJalon(rows).id,1);
+  assert.throws(()=>buildJalonIndex([...bank,bank[0]]),/dupliqués/);
+  assert.throws(()=>buildJalonIndex(bank.filter(q=>q.id!=="n01")),/invalide/);
+});
+test("repérage : deux blocs de dix jalons distincts et sauvegarde ancienne",()=>{
+  let state=emptyState(),first=selectDiagnosticQuestions(state,bank,index);
+  assert.equal(first.length,10);
+  assert.deepEqual(first.map(q=>q.id),Array.from({length:10},(_,i)=>FIXED_IDS_BY_JALON[i+1].split(" ")[0]));
+  for(const q of first)state=recordAnswer(state,q.id,true,t);
+  const second=selectDiagnosticQuestions(state,bank,index);
+  assert.equal(second.length,10);
+  assert.equal(new Set([...first,...second].map(q=>q.id)).size,20);
+  for(const q of second)state=recordAnswer(state,q.id,false,t);
+  assert.equal(selectDiagnosticQuestions(state,bank,index).length,0);
+  assert.throws(()=>selectDiagnosticQuestions(state,bank,index,11),/Taille/);
+  const restored=sanitizeState(state,new Set(bank.map(q=>q.id)));
+  assert.deepEqual(jalonProgress(restored,bank,index,t),jalonProgress(state,bank,index,t));
+});
+test("rappels et erreurs prioritaires, pas de maîtrise après une seule réussite",()=>{
+  let state=recordAnswer(emptyState(),"n02",true,t);
+  assert.equal(jalonProgress(state,bank,index,t)[0].confirmed,0);
+  state=recordAnswer(state,"n02",true,t+DAY_MS);
+  assert.equal(jalonProgress(state,bank,index,t+DAY_MS)[0].confirmed,1);
+  state=recordAnswer(state,"e09",false,t+DAY_MS);
+  const rows=jalonProgress(state,bank,index,t+DAY_MS);
+  assert.equal(recommendJalon(rows).id,5);
+  assert.equal(rows[4].status,"Rappels à faire");
+  assert.deepEqual(selectJalonQuestions(state,bank,index,5,"due",t+DAY_MS).map(q=>q.id),["e09"]);
+  assert.throws(()=>selectJalonQuestions(state,bank,index,25),/inconnu/);
+});
