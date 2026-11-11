@@ -207,3 +207,13 @@
 .transfer-series a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:8px 14px;border-radius:10px;border:1px solid var(--stroke);background:var(--panel2);color:var(--ink);font-weight:700;text-decoration:none}
 .transfer-series a[aria-current="page"]{border-color:var(--teal);color:var(--teal);background:#21443f}
 .transfer-series a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+
+/* v25.6 — reprises de rédaction échues, triées par date et lisibles au téléphone. */
+.transfer-due{border:1px solid var(--stroke);background:var(--panel2);padding:16px;border-radius:14px;margin:13px 0 18px}
+.transfer-due h3{margin:0 0 10px;font-size:1rem}
+.transfer-due ol{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.transfer-due-entry{border-left:3px solid var(--teal);padding:9px 10px;background:var(--panel);border-radius:7px}
+.transfer-due-entry a{font-weight:750;overflow-wrap:anywhere}
+.transfer-due-entry p{font-size:.85rem;color:var(--muted);margin:7px 0 0}
+.transfer-due>.helper{font-size:.83rem;margin:10px 0 0}

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {emptyTransferStore,sanitizeTransferStore,recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries,TRANSFER_DAY_MS} from "./transfer-progress.mjs";
+import {emptyTransferStore,sanitizeTransferStore,recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries,pendingTransferReviews,TRANSFER_DAY_MS} from "./transfer-progress.mjs";
 const t=Date.UTC(2026,10,11,12),yes=[true,true,true,true],weak=[true,false,false,true];
 test("ancien historique absent -> magasin vide ; aucun acquis attribué",()=>{
   assert.deepEqual(sanitizeTransferStore(undefined),emptyTransferStore());
@@ -56,4 +56,23 @@ test("v25.5 : séries A puis B à J+7, C à J+30, sans changement de sauvegarde"
   assert.equal(recommendedTransferSeries(transferStatus(s,9,t+40*TRANSFER_DAY_MS)),"a");
   assert.equal(s.version,1);
   assert.throws(()=>recommendedTransferSeries({stage:99}),/inconnue/);
+});
+
+test("v25.6 : rappels rédigés triés et lacunes auto-déclarées, séries appropriées",()=>{
+  let store=emptyTransferStore();
+  store=recordTransferReview(store,18,[true,false,true,false],t);
+  store=recordTransferReview(store,6,[false,true,true,true],t+TRANSFER_DAY_MS);
+  assert.deepEqual(pendingTransferReviews(store,t+6*TRANSFER_DAY_MS),[]);
+  const reviews=pendingTransferReviews(store,t+8*TRANSFER_DAY_MS);
+  assert.deepEqual(reviews.map(r=>r.id),[18,6]);
+  assert.deepEqual(reviews.map(r=>r.series),["b","b"]);
+  assert.equal(reviews[0].stage,7);
+  assert.deepEqual(reviews[0].missing,["méthode","conclusion et unités"]);
+  assert.deepEqual(reviews[1].missing,["domaine et hypothèses"]);
+  store=recordTransferReview(store,18,[true,true,true,true],t+8*TRANSFER_DAY_MS);
+  assert.deepEqual(pendingTransferReviews(store,t+8*TRANSFER_DAY_MS).map(r=>r.id),[6]);
+  assert.deepEqual(pendingTransferReviews(store,t+30*TRANSFER_DAY_MS).map(r=>[r.id,r.series]),[[6,"b"],[18,"c"]]);
+  const previous=pendingTransferReviews(store,t+30*TRANSFER_DAY_MS)[1];
+  assert.equal(previous.stage,30);
+  assert.deepEqual(previous.missing,[],"Une déclaration complète ne vaut pas certification");
 });

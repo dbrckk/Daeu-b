@@ -103,6 +103,39 @@ try {
     await diagnosisPage.reload({waitUntil:"networkidle"});
     await check(async()=>await diagnosisPage.locator("#quizCount").textContent().then(s=>s.includes("2 / 10")),"v25 : repérage restauré après rechargement");
   }finally{await diagnosisContext.close();}
+  // Deux rappels rédigés arrivés à échéance : tri, recommandations B/C
+  // et critères auto-déclarés sont vérifiés dans un navigateur isolé.
+  const dueContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const duePage=await dueContext.newPage();
+    await duePage.goto(BASE,{waitUntil:"networkidle"});
+    const persisted=await duePage.evaluate(async()=>{
+      const [{createPersistence},{recordTransferReview,TRANSFER_DAY_MS},{TOPICS},{injectVariants},{flatten}]=await Promise.all([
+        import("./persistence.mjs"),import("./transfer-progress.mjs"),
+        import("./questions.mjs"),import("./variants.mjs"),import("./engine.mjs")
+      ]);
+      const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
+      const data=createPersistence(localStorage,ids);
+      const now=Date.now();
+      let transfers=data.snapshot().transfers;
+      transfers=recordTransferReview(transfers,18,[true,false,true,false],now-10*TRANSFER_DAY_MS);
+      transfers=recordTransferReview(transfers,9,[false,true,true,true],now-32*TRANSFER_DAY_MS);
+      transfers=recordTransferReview(transfers,9,[true,true,true,true],now-25*TRANSFER_DAY_MS);
+      data.updateTransfers(transfers);
+      return data.snapshot().transfers.items[9].reviews.length===2;
+    });
+    assert.ok(persisted,"Deuxième rappel sauvegardé via le moteur local");
+    await duePage.reload({waitUntil:"networkidle"});
+    await check(async()=>await duePage.locator("#transferDuePanel").isVisible()
+      &&await duePage.locator("#transferDueList li").count()===2,
+      "Rappels rédigés : deux échéances affichées avec les vraies données");
+    await check(async()=>await duePage.locator("#transferDueList li").first().textContent().then(s=>s.includes("Jalon 18")&&s.includes("J+7")&&s.includes("méthode")),
+      "Liste de rappels : échéance plus ancienne et critère manquant priorisés");
+    await check(async()=>await duePage.locator("#transferDueList li").nth(1).locator("a").getAttribute("href").then(s=>s.includes("jalon=9")&&s.includes("variante=c")),
+      "Rappel rédigé J+30 : lien direct vers la série C");
+    await check(async()=>await duePage.locator("#transferDueList li").first().locator("a").getAttribute("href").then(s=>s.includes("variante=b")),
+      "Rappel rédigé J+7 : lien direct vers la série B");
+  }finally{await dueContext.close();}
   const courseOnline=await context.newPage();
   courseOnline.on("pageerror",e=>errors.push("Lecteur cours : "+e.message));
   await courseOnline.goto(BASE+"/course.html?course=07-limites-asymptotes",{waitUntil:"networkidle"});

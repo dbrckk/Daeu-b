@@ -8,7 +8,7 @@ import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
-import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus,recommendedTransferSeries} from "./transfer-progress.mjs";
+import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus,recommendedTransferSeries,pendingTransferReviews} from "./transfer-progress.mjs";
 
 
 const fullTopics=injectVariants(TOPICS);
@@ -75,6 +75,27 @@ function refreshOverview() {
   renderJalonPath();
   const t=transferSummary(transfers);
   el("transferSummary").textContent=t.started+"/20 problèmes rédigés · "+t.due+" rappel(s) J+7/J+30 à effectuer · "+t.completed+" parcours de rappels déclarés terminés (non certifiés).";
+  renderTransferQueue();
+}
+function renderTransferQueue(){
+  const pending=pendingTransferReviews(transfers);
+  const panel=el("transferDuePanel");
+  panel.hidden=pending.length===0;
+  const list=el("transferDueList");list.replaceChildren();
+  for(const entry of pending.slice(0,5)){
+    const item=document.createElement("li");item.className="transfer-due-entry";
+    const link=document.createElement("a");
+    link.href=transferUrl(entry.id);
+    link.textContent="Jalon "+entry.id+" — rappel J+"+entry.stage+" (série "+entry.series.toUpperCase()+")";
+    const note=document.createElement("p");
+    note.textContent=entry.missing.length
+      ?"À retravailler selon ta dernière auto-évaluation : "+entry.missing.join(", ")+"."
+      :"Dernière auto-évaluation : aucun critère signalé. Refais pourtant le sujet sans corrigé.";
+    item.append(link,note);list.append(item);
+  }
+  el("transferDueMore").textContent=pending.length>5
+    ?(pending.length-5)+" autre(s) rappel(s) : retrouve-les en ouvrant les jalons détaillés."
+    :"Les critères sont déclarés par toi, sans correction automatique.";
 }
 function renderJalonPath(){
   const rows=jalonProgress(state,questions,jalonIndex);

@@ -48,6 +48,23 @@ export function recommendedTransferSeries(status){
   if(!status||![0,7,30,null].includes(status.stage))throw Error("Étape de transfert inconnue");
   return status.stage===7?"b":status.stage===30?"c":"a";
 }
+/** Libellés des quatre critères auto-déclarés, non équivalents à une correction. */
+export const TRANSFER_CRITERIA=Object.freeze(["domaine et hypothèses","méthode","calculs","conclusion et unités"]);
+/** Rappels réellement échus, triés par date d'échéance (puis par jalon).
+ * Les lacunes proviennent exclusivement de la dernière déclaration de l'apprenant.
+ */
+export function pendingTransferReviews(store,now=Date.now()){
+  const pending=[];
+  for(let id=1;id<=TRANSFER_JALONS;id++){
+    const status=transferStatus(store,id,now);
+    if(!status.due)continue;
+    pending.push({
+      id,stage:status.stage,series:recommendedTransferSeries(status),dueAt:status.dueAt,
+      missing:TRANSFER_CRITERIA.filter((_,i)=>status.criteria?.[i]===false)
+    });
+  }
+  return pending.sort((a,b)=>a.dueAt-b.dueAt||a.id-b.id);
+}
 export function transferSummary(store,now=Date.now()){
   let started=0,due=0,completed=0;
   for(let id=1;id<=TRANSFER_JALONS;id++){
