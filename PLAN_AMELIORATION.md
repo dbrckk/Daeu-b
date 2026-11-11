@@ -352,3 +352,6 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Extraits et liens sûrs vers les cours, aucun HTML issu de la requête utilisateur.
 - [x] Chargement paresseux et tests unitaires et Chromium mobile.
 - [ ] Tester sur téléphone Android physique et évaluer la qualité de classement en situation réelle.
+
+
+**Correctif signet :** ajout d'un marqueur contextuel directement sous chaque titre et contrôle de la section exacte après un rechargement hors connexion. Les tests intermédiaires signalaient un problème de scénario (cours 17 contre cours 13) et un risque d'enregistrer le mauvais titre en remontant à la commande globale.

@@ -259,3 +259,7 @@ Les treize chapitres couverts par la banque de 143 questions disposent, dans leu
 
 ## v22 — recherche locale dans les 18 cours (11/11/2026)
 Panneau de recherche déroulant sans API ni compte : casse et accents ignorés, recherche multi-termes, extraits de contexte et liens locaux vers les cours trouvés. Le corpus est lu à la demande pour préserver les performances. Une fois le cache PWA installé, la recherche fonctionne hors connexion. Aucune requête n'est enregistrée avec les notes et les examens.
+
+
+### Signets par section — correction d'ergonomie v22
+Chaque titre de cours ou de problème possède désormais une commande « Marquer cette section ». Elle évite de remonter aux réglages, ce qui changeait le titre considéré comme la position actuelle. La reprise et l'effacement des signets existants restent compatibles ; les données d'examen ne sont pas modifiées.

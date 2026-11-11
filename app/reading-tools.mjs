@@ -77,6 +77,21 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
         announce(ok?"Signet supprimé.":"Impossible de supprimer le signet.");
         refresh();
       };
+      // Action au plus près du titre : le clic n'oblige pas à remonter
+      // dans le sommaire et ne déplace pas le repère de lecture avant sauvegarde.
+      for(const heading of headings){
+        const mark=document.createElement("button");
+        mark.type="button";
+        mark.className="reader-section-save";
+        mark.textContent="Marquer cette section";
+        mark.setAttribute("aria-label","Marquer ma lecture à : "+heading.textContent.trim());
+        mark.addEventListener("click",()=>{
+          const ok=saveBookmark(localStorage,documentId,heading.dataset.readerBookmarkId);
+          announce(ok?"Signet enregistré : "+heading.textContent.trim()+".":"Stockage indisponible : signet non enregistré.");
+          refresh();
+        });
+        heading.after(mark);
+      }
       refresh();
     }
     // Les contenus sont chargés après le document HTML : restaurer un lien

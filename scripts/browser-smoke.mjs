@@ -51,6 +51,8 @@ try {
   await courseOnline.waitForFunction(()=>document.querySelector("#courseSearchStatus")?.textContent.includes("Aucun cours correspondant"));
   await check(async()=>await courseOnline.locator("#courseSearchStatus").textContent().then(s=>s.includes("Aucun cours correspondant")),
     "Recherche locale : aucun résultat annoncé");
+  await check(async()=>await courseOnline.locator("#courseBody .reader-section-save").count()===await courseOnline.locator("#courseBody h2, #courseBody h3").count(),
+    "Chaque titre est muni d'un signet précis sans retour au sommaire");
   await check(async()=>await courseOnline.locator("#courseToc a").count()===await courseOnline.locator("#courseBody h2, #courseBody h3").count(),
     "Sommaire du cours : chaque section et sous-section dispose d'un lien");
   await courseOnline.locator("#courseOutline summary").click();
@@ -401,8 +403,7 @@ try {
   await offlineCourse.goto(BASE+"/course.html?course=13-trigonometrie",{waitUntil:"domcontentloaded",timeout:12000});
   await offlineCourse.waitForFunction(()=>document.querySelector("#courseStatus")?.textContent.startsWith("Cours 14/18"),null,{timeout:7000});
   const offlineHeading=await offlineCourse.locator("#courseBody h2").nth(1).getAttribute("data-reader-bookmark-id");
-  await offlineCourse.locator("#courseBody h2").nth(1).evaluate(node=>node.scrollIntoView({block:"start",behavior:"instant"}));
-  await offlineCourse.locator("#courseBookmarkSave").click();
+  await offlineCourse.locator("#courseBody h2").nth(1).locator("xpath=following-sibling::button[1]").click();
   await check(async()=>await offlineCourse.evaluate(()=>
     localStorage.getItem("daeu-b-reader-bookmark-v1:cours:13-trigonometrie")===document.querySelectorAll("#courseBody h2")[1].dataset.readerBookmarkId),
     "Signet hors ligne associé exactement au chapitre et à la section visibles");

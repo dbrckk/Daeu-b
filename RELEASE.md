@@ -220,3 +220,8 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Recherche locale dans les 18 cours Markdown avec gestion des accents et de la casse, résultats classés et extraits.
 - Chargement uniquement sur demande, sans service tiers ni modification de la progression ou des copies.
 - Contrôles Node.js et parcours Chromium mobile en ligne et hors connexion.
+
+
+### Correctif de reprise de lecture (11/11/2026)
+- Ajout de « Marquer cette section » directement sous chaque titre du lecteur, pour enregistrer la vraie section consultée sans déplacer le défilement avant le clic.
+- Scénario Chromium corrigé : revient au chapitre de trigonométrie après l'audit des 18 cours et contrôle explicitement la même section avant et après rechargement hors connexion.
