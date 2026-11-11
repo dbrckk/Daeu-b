@@ -1,17 +1,21 @@
 import {initReadingTools} from "./reading-tools.mjs";
 const el=id=>document.getElementById(id);
+const params=new URL(location.href).searchParams;
+const transfers=params.get("set")==="transferts";
+const selectedJalon=Number(params.get("jalon"));
+const jalonSuffix=Number.isInteger(selectedJalon)&&selectedJalon>=1&&selectedJalon<=20?"&jalon="+selectedJalon:"";
+const collectionSuffix=transfers?"set=transferts&":"";
 const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"),{
-  documentId:"problemes:"+(new URL(location.href).searchParams.get("mode")==="corriges"?"corriges":"sujets"),
+  documentId:(transfers?"transferts:":"problemes:")+(params.get("mode")==="corriges"?"corriges":"sujets"),
   saveButton:el("problemBookmarkSave"),resumeButton:el("problemBookmarkResume"),
   clearButton:el("problemBookmarkClear"),status:el("problemBookmarkStatus")
 });
-const files={sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
-const params=new URL(location.href).searchParams;
+const files=transfers?{sujets:"./transferts/sujets.md",corriges:"./transferts/corriges.md"}:{sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
 const mode=params.get("mode")==="corriges"?"corriges":"sujets";
 const other=mode==="sujets"?"corriges":"sujets";
-el("problemSwitch").href="./problems.html?mode="+other;
+el("problemSwitch").href="./problems.html?"+collectionSuffix+"mode="+other+jalonSuffix;
 el("problemSwitch").textContent=mode==="sujets"?"Consulter les corrigés détaillés":"Retour aux sujets sans les réponses";
-el("problemTitle").textContent=mode==="sujets"?"8 problèmes progressifs":"Corrigés des 8 problèmes";
+el("problemTitle").textContent=transfers?(mode==="sujets"?"20 problèmes de transfert":"Corrigés des 20 transferts"):(mode==="sujets"?"8 problèmes progressifs":"Corrigés des 8 problèmes");
 document.title=el("problemTitle").textContent+" · DAEU B";
 const markdown=new showdown.Converter({tables:true,ghCodeBlocks:true,tasklists:true,strikethrough:true,backslashEscapesHTMLTags:true});
 function protectMath(src){
@@ -64,13 +68,19 @@ async function load(){
     restoreMath(target,items);
     for(const a of target.querySelectorAll("a[href]")){
       const href=a.getAttribute("href");
-      if(/^(?:\.\/)?corriges\.md(?:#.*)?$/.test(href))a.href="./problems.html?mode=corriges";
-      else if(/^(?:\.\/)?sujets\.md(?:#.*)?$/.test(href))a.href="./problems.html?mode=sujets";
+      if(/^(?:\.\/)?corriges\.md(?:#.*)?$/.test(href))a.href="./problems.html?"+collectionSuffix+"mode=corriges"+jalonSuffix;
+      else if(/^(?:\.\/)?sujets\.md(?:#.*)?$/.test(href))a.href="./problems.html?"+collectionSuffix+"mode=sujets"+jalonSuffix;
       else if(href.startsWith("#"))continue;
       else a.removeAttribute("href");
     }
     updateOutline();
-    el("problemStatus").textContent=(mode==="sujets"?"37 questions · 8 problèmes · 3 niveaux":"37 corrections détaillées · 8 problèmes")+" · Lecture hors connexion";
+    if(transfers&&jalonSuffix){
+      const prefix="T"+String(selectedJalon).padStart(2,"0")+" ";
+      const heading=[...target.querySelectorAll("h2")].find(h=>h.textContent.trim().startsWith(prefix));
+      if(heading){heading.scrollIntoView({block:"start"});heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});}
+    }
+    const details=transfers?(mode==="sujets"?"20 problèmes de transfert · 20 jalons":"20 corrigés et grilles de raisonnement"):(mode==="sujets"?"37 questions · 8 problèmes · 3 niveaux":"37 corrections détaillées · 8 problèmes");
+    el("problemStatus").textContent=details+" · Lecture hors connexion";
   }catch(error){
     el("problemBody").textContent="Contenu indisponible. Charge une fois l'application en ligne pour installer les sujets et leurs corrections.";
     el("problemStatus").textContent="Erreur de chargement : "+error.message;
