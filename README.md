@@ -149,3 +149,10 @@ Les **60 problèmes de transfert rédigés** (trois situations distinctes A, B e
 - [Sujets C](transferts/sujets-c.md) et [corrigés C](transferts/corriges-c.md) accessibles dans le dépôt.
 - Trois séries sélectionnables dans le lecteur, sans révélation des corrigés avant une action explicite, avec même carnet de raisonnement daté.
 - Les données locales et exports restent compatibles. Ni les cases cochées ni un seul sujet réussi ne valent une certification de maîtrise.
+
+
+## v25.6 — rappels rédigés directement exploitables
+
+Le tableau de bord affiche désormais jusqu'à cinq rappels rédigés échus, **classés par date d'échéance**, avec le jalon, la série adaptée au rappel (B pour J+7, C pour J+30) et les critères jugés insuffisants **dans la dernière auto-évaluation**. Les liens ouvrent immédiatement le bon problème sur Android, sans modifier l'historique ni créer de prétendue note. Le compteur global indique les autres rappels éventuels, accessibles depuis la liste des jalons.
+
+Les **40 problèmes A/B** sont désormais contrôlés par des oracles arithmétiques indépendants, en plus des 20 oracles C, des tests de progression, de la cohérence des six documents et des contrôles du cache. Un résultat numérique correct ne dispense pas de relire les raisonnements, domaines et formulations.

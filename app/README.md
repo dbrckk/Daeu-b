@@ -288,3 +288,8 @@ Le lecteur accepte `problems.html?set=transferts&variante=b&jalon=18` : vingt no
 ## v25.5 — troisième contexte de transfert et audit numérique
 
 Le paramètre `variante=c` sélectionne la troisième situation pour chacun des vingt jalons, exemple : `./problems.html?set=transferts&variante=c&jalon=18`. Les boutons « Série A / Série B / Série C » conservent le jalon et le mode (sujets/corrigés). À J+30, le tableau de bord propose C automatiquement via `recommendedTransferSeries()`, pure et testée, sans migration des sauvegardes. Les six documents (sujets/corrigés A/B/C) sont contrôlés structurellement et disposent d'une copie PWA. Un oracle Python sans dépendance vérifie les principaux résultats numériques C ; il ne remplace pas la relecture des raisonnements.
+
+
+## v25.6 — priorisation des rappels de raisonnement
+
+La fonction pure `pendingTransferReviews(store, now)` trie les rappels déjà échus par date et identifiant de jalon. Elle extrait, sans prétendre les vérifier, les quatre critères déclarés non satisfaits lors de la dernière rédaction. Le tableau de bord `#transferDuePanel` affiche les cinq premiers, avec des liens directs B à J+7 et C à J+30. La compatibilité des sauvegardes `daeu-b-data-v1` est intacte. Les tests Node vérifient le tri et les contraintes temporelles ; le smoke Chromium couvre deux rappels simulés via l'API locale, avec liens et priorités.

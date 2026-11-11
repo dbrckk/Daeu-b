@@ -140,3 +140,10 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Première situation A, deuxième B privilégiée à J+7, troisième C privilégiée à J+30. Trois liens explicites, même historique de déclarations sans modifier la clé `daeu-b-data-v1`.
 - Validation structurelle, contrôle des prérequis, calculs indépendants des vingt nouvelles situations, intégration navigateur Android et tests hors connexion.
 - **Travail restant :** relecture mathématique humaine exhaustive des 180 sous-questions, enrichissement des critères rédactionnels et indicateurs de difficultés qui n'attribuent pas une maîtrise sur une simple auto-déclaration.
+
+
+## v25.6 — priorité aux rappels rédigés et qualité des résultats numériques
+
+- Tableau de bord enrichi des rappels réellement échus, triés par ancienneté, avec accès direct aux séries conseillées et diagnostic **uniquement auto-déclaré** des critères non satisfaits.
+- Quarante nouveaux contrôles arithmétiques A/B indépendants du texte source, venant compléter vingt oracles C ; chaque série couvre désormais les 20 jalons.
+- Tous les contrôles sont intégrés au workflow GitHub ; sa mise en file d'attente ne constitue pas un succès. Prochaine étape : validation réelle du navigateur et relecture pédagogique systématique des 60 corrigés.

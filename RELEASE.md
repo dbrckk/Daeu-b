@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25.6 — rappels écrits priorisés et audit mathématique renforcé (11 novembre 2026)
+
+- Les rappels rédigés échus sont regroupés par date, avec les critères auto-déclarés à revoir et le lien direct vers B ou C selon l'étape.
+- Tests Node dédiés, scénario Chromium mobile de deux échéances simultanées, contrôle de 40 résultats numériques A/B supplémentaire aux 20 oracles C ; pas de migration ni de note artificielle.
+
 ## v25.5 — troisième série et audit mathématique (11 novembre 2026)
 
 - Vingt situations C supplémentaires, une par jalon : 60 problèmes rédigés et 180 sous-questions sur trois séries A/B/C avec corrections distinctes.
