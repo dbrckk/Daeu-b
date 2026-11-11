@@ -8,7 +8,7 @@ import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
-import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus} from "./transfer-progress.mjs";
+import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus,recommendedTransferSeries} from "./transfer-progress.mjs";
 
 
 const fullTopics=injectVariants(TOPICS);
@@ -19,8 +19,10 @@ const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS),...validateP
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
-const transferUrl=id=>"./problems.html?set=transferts&jalon="+id
-  +(transferStatus(transfers,id).stage===7?"&variante=b":"");
+const transferUrl=id=>{
+  const series=recommendedTransferSeries(transferStatus(transfers,id));
+  return "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
+};
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
 let dataStore=null;
 let storageWorks=true;

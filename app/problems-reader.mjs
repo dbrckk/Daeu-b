@@ -3,28 +3,30 @@ import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";
 import {createPersistence,DATA_KEY,StaleDataError} from "./persistence.mjs";
-import {recordTransferReview,transferStatus,transferSummary} from "./transfer-progress.mjs";
+import {recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries} from "./transfer-progress.mjs";
 const el=id=>document.getElementById(id);
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
-const variantB=transfers&&params.get("variante")==="b";
+const variant=transfers&&["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
+const variantB=variant==="b";
+const variantC=variant==="c";
 const selectedJalon=Number(params.get("jalon"));
 const jalonSuffix=Number.isInteger(selectedJalon)&&selectedJalon>=1&&selectedJalon<=20?"&jalon="+selectedJalon:"";
-const collectionSuffix=transfers?(variantB?"set=transferts&variante=b&":"set=transferts&"):"";
+const collectionSuffix=transfers?"set=transferts&"+(variant==="a"?"":"variante="+variant+"&"):"";
 const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"),{
-  documentId:(transfers?(variantB?"transferts-b:":"transferts:"):"problemes:")+(params.get("mode")==="corriges"?"corriges":"sujets"),
+  documentId:(transfers?"transferts"+(variant==="a"?"":"-"+variant)+":":"problemes:")+(params.get("mode")==="corriges"?"corriges":"sujets"),
   saveButton:el("problemBookmarkSave"),resumeButton:el("problemBookmarkResume"),
   clearButton:el("problemBookmarkClear"),status:el("problemBookmarkStatus")
 });
-const files=transfers?(variantB
-  ?{sujets:"./transferts/sujets-b.md",corriges:"./transferts/corriges-b.md"}
-  :{sujets:"./transferts/sujets.md",corriges:"./transferts/corriges.md"}
-):{sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
+const files=transfers?{
+  sujets:"./transferts/sujets"+(variant==="a"?"":"-"+variant)+".md",
+  corriges:"./transferts/corriges"+(variant==="a"?"":"-"+variant)+".md"
+}:{sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
 const mode=params.get("mode")==="corriges"?"corriges":"sujets";
 const other=mode==="sujets"?"corriges":"sujets";
 el("problemSwitch").href="./problems.html?"+collectionSuffix+"mode="+other+jalonSuffix;
 el("problemSwitch").textContent=mode==="sujets"?"Consulter les corrigés détaillés":"Retour aux sujets sans les réponses";
-el("problemTitle").textContent=transfers?(mode==="sujets"?"20 problèmes de transfert"+(variantB?" — série B":" — série A"):"Corrigés des 20 transferts"+(variantB?" — série B":" — série A")):(mode==="sujets"?"8 problèmes progressifs":"Corrigés des 8 problèmes");
+el("problemTitle").textContent=transfers?(mode==="sujets"?"20 problèmes de transfert — série "+variant.toUpperCase():"Corrigés des 20 transferts — série "+variant.toUpperCase()):(mode==="sujets"?"8 problèmes progressifs":"Corrigés des 8 problèmes");
 document.title=el("problemTitle").textContent+" · DAEU B";
 function initTransferTracker(){
   if(!transfers)return;
@@ -60,10 +62,22 @@ function initTransferTracker(){
     const status=transferStatus(snapshot.transfers,id);
     const summary=transferSummary(snapshot.transfers);
     el("transferGlobal").textContent=summary.started+"/20 transferts rédigés · "+summary.due+" rappel(s) à effectuer · "+summary.completed+" parcours J0/J+7/J+30 déclarés terminés.";
+    const nextSeries=variant==="a"?"b":variant==="b"?"c":"a";
     const alternate=el("transferVariantSwitch");
-    alternate.href="./problems.html?set=transferts&jalon="+id+"&mode="+mode+(variantB?"":"&variante=b");
-    alternate.textContent=variantB?"Essayer la situation A du jalon":"Essayer la situation B (autre contexte)";
-    el("transferVarietyTip").textContent=status.stage===7?"Pour le rappel J+7, privilégie la situation B afin de vérifier le transfert, pas le souvenir du sujet A.":status.stage===30?"Pour J+30, refais une situation sans consulter sa correction ; change les données si possible.":"Les situations A et B sont deux applications différentes du même jalon.";
+    alternate.href="./problems.html?set=transferts&jalon="+id+"&mode="+mode+(nextSeries==="a"?"":"&variante="+nextSeries);
+    alternate.textContent="Essayer la situation "+nextSeries.toUpperCase()+" du jalon";
+    const seriesNav=el("transferSeries");
+    seriesNav.replaceChildren();
+    for(const name of ["a","b","c"]){
+      const link=document.createElement("a");
+      link.href="./problems.html?set=transferts&jalon="+id+"&mode="+mode+(name==="a"?"":"&variante="+name);
+      link.textContent="Série "+name.toUpperCase();
+      link.dataset.series=name;
+      if(name===variant)link.setAttribute("aria-current","page");
+      seriesNav.append(link);
+    }
+    const suggested=recommendedTransferSeries(status).toUpperCase();
+    el("transferVarietyTip").textContent=status.stage===7?"Pour J+7, privilégie la série B, différente de la première rédaction.":status.stage===30?"Pour J+30, privilégie la série C, un troisième contexte inédit.":"Trois situations A, B, C pour le même jalon ; série conseillée actuellement : "+suggested+".";
     const formatDate=value=>new Intl.DateTimeFormat("fr-FR",{day:"numeric",month:"long",year:"numeric"}).format(new Date(value));
     const stageName=status.count===0?"Première rédaction (J0)":status.done?"Trois déclarations enregistrées":status.stage===7?"Rappel J+7":"Rappel J+30";
     const detail=status.done?"Le parcours prévu est enregistré, sans certification de maîtrise.":status.dueAt===null?"Commence par résoudre le sujet sans regarder la correction.":status.due?"Le rappel est arrivé à échéance : résous à nouveau sans solution visible.":"Prochaine auto-évaluation possible à partir du "+formatDate(status.dueAt)+".";
@@ -78,7 +92,7 @@ function initTransferTracker(){
   }
   selector.addEventListener("change",()=>{
     const next=Number(selector.value);
-    location.href="./problems.html?set=transferts&mode="+mode+"&jalon="+next+(variantB?"&variante=b":"");
+    location.href="./problems.html?set=transferts&mode="+mode+"&jalon="+next+(variant==="a"?"":"&variante="+variant);
   });
   form.addEventListener("submit",event=>{
     event.preventDefault();

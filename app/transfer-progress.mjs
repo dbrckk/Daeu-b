@@ -43,6 +43,11 @@ export function transferStatus(store,id,now=Date.now()){
   const dueAt=count===0?null:done?null:Math.max(reviews[0].at+stage*TRANSFER_DAY_MS,last.at+TRANSFER_DAY_MS);
   return {id,count,stage,dueAt,due:dueAt!==null&&now>=dueAt,done,lastAt:last?.at??null,criteria:last?.criteria??null};
 }
+/** Indication de variation : ne fait pas partie de la sauvegarde ni d'une note. */
+export function recommendedTransferSeries(status){
+  if(!status||![0,7,30,null].includes(status.stage))throw Error("Étape de transfert inconnue");
+  return status.stage===7?"b":status.stage===30?"c":"a";
+}
 export function transferSummary(store,now=Date.now()){
   let started=0,due=0,completed=0;
   for(let id=1;id<=TRANSFER_JALONS;id++){

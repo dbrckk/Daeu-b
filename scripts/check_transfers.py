@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Contrôle éditorial des 40 problèmes de transfert, copies offline et corrigés."""
+"""Contrôle éditorial des 60 problèmes de transfert, copies offline et corrigés."""
 from pathlib import Path
 import re
 import sys
@@ -11,7 +11,7 @@ def check(ok,message):
 
 pattern=re.compile(r"^## T(\d{2}) — Jalon (\d+) : ([^\n]+)$",re.MULTILINE)
 expected=list(range(1,21))
-for suffix in ("","-b"):
+for suffix in ("","-b","-c"):
     documents={}
     for kind in ("sujets","corriges"):
         name=f"{kind}{suffix}.md"
@@ -44,4 +44,4 @@ for suffix in ("","-b"):
 if ERRORS:
     for error in ERRORS:print("ERREUR :",error)
     sys.exit(1)
-print("OK : 40 problèmes originaux, 120 questions, 40 corrigés/grilles et copies PWA cohérentes.")
+print("OK : 60 problèmes originaux, 180 questions, 60 corrigés/grilles et copies PWA cohérentes.")

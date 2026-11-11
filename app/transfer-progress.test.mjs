@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {emptyTransferStore,sanitizeTransferStore,recordTransferReview,transferStatus,transferSummary,TRANSFER_DAY_MS} from "./transfer-progress.mjs";
+import {emptyTransferStore,sanitizeTransferStore,recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries,TRANSFER_DAY_MS} from "./transfer-progress.mjs";
 const t=Date.UTC(2026,10,11,12),yes=[true,true,true,true],weak=[true,false,false,true];
 test("ancien historique absent -> magasin vide ; aucun acquis attribué",()=>{
   assert.deepEqual(sanitizeTransferStore(undefined),emptyTransferStore());
@@ -42,4 +42,18 @@ test("vérification stricte et conservation : pas de correction implicite des do
   assert.throws(()=>sanitizeTransferStore({version:2,items:{}}),/incompatible/);
   assert.throws(()=>sanitizeTransferStore({version:1,items:{"21":{reviews:[]}}}),/mal formé/);
   assert.throws(()=>sanitizeTransferStore({version:1,items:{"3":{reviews:[{at:t,criteria:yes},{at:t,criteria:yes}]}}}),/échéance/);
+});
+
+test("v25.5 : séries A puis B à J+7, C à J+30, sans changement de sauvegarde",()=>{
+  let s=emptyTransferStore();
+  assert.equal(recommendedTransferSeries(transferStatus(s,9,t)),"a");
+  s=recordTransferReview(s,9,weak,t);
+  assert.equal(recommendedTransferSeries(transferStatus(s,9,t)),"b");
+  assert.equal(recommendedTransferSeries(transferStatus(s,9,t+7*TRANSFER_DAY_MS)),"b");
+  s=recordTransferReview(s,9,yes,t+7*TRANSFER_DAY_MS);
+  assert.equal(recommendedTransferSeries(transferStatus(s,9,t+30*TRANSFER_DAY_MS)),"c");
+  s=recordTransferReview(s,9,yes,t+30*TRANSFER_DAY_MS);
+  assert.equal(recommendedTransferSeries(transferStatus(s,9,t+40*TRANSFER_DAY_MS)),"a");
+  assert.equal(s.version,1);
+  assert.throws(()=>recommendedTransferSeries({stage:99}),/inconnue/);
 });
