@@ -1,0 +1,33 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {JALONS} from "./jalons.mjs";
+import {PREREQUISITES,validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
+import {TOPICS} from "./questions.mjs";
+import {injectVariants} from "./variants.mjs";
+import {flatten,emptyState,recordAnswer,DAY_MS} from "./engine.mjs";
+import {buildJalonIndex,jalonProgress} from "./jalon-progress.mjs";
+const bank=flatten(injectVariants(TOPICS));
+const index=buildJalonIndex(bank),t=Date.UTC(2026,10,11,12);
+test("graphe de 20 jalons exhaustif, sans cycle et sans doublon",()=>{
+  assert.deepEqual(validatePrerequisites(),[]);
+  assert.equal(Object.keys(PREREQUISITES).length,20);
+  assert.deepEqual(PREREQUISITES[18],[12,10]);
+  assert.ok(validatePrerequisites(JALONS,{...PREREQUISITES,18:[12,18]}).some(e=>e.includes("Cycle")));
+  assert.ok(validatePrerequisites(JALONS,{...PREREQUISITES,18:[12,12]}).some(e=>e.includes("dupliqués")));
+  assert.ok(validatePrerequisites(JALONS,{...PREREQUISITES,18:[999]}).some(e=>e.includes("inexistant")));
+  assert.ok(validatePrerequisites(JALONS,{...PREREQUISITES,18:null}).some(e=>e.includes("absents")));
+});
+test("conseils de prérequis fondés sur réponses réelles, sans faux acquis",()=>{
+  let state=emptyState(),rows=jalonProgress(state,bank,index,t);
+  assert.equal(nextPrerequisite(rows,18).id,1,"premier fondamental non abordé");
+  assert.deepEqual(prerequisiteAdvice(rows,18).map(x=>x.id),[12,10]);
+  assert.ok(prerequisiteAdvice(rows,18).every(x=>x.status==="non abordé"));
+  state=recordAnswer(state,"n02",true,t);
+  rows=jalonProgress(state,bank,index,t);
+  assert.equal(rows[0].confirmed,0,"un succès n'est pas une preuve de maîtrise");
+  assert.equal(prerequisiteAdvice(rows,2)[0].status,"à consolider");
+  state=recordAnswer(state,"n02",false,t+DAY_MS);
+  rows=jalonProgress(state,bank,index,t+DAY_MS);
+  assert.equal(prerequisiteAdvice(rows,2)[0].status,"rappel à effectuer");
+  assert.throws(()=>prerequisiteAdvice(rows,25),/inconnu/);
+});
