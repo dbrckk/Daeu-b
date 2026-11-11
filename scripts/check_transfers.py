@@ -54,7 +54,7 @@ for suffix in ("","-b","-c"):
                 check(part.count(marker)==1,
                       f"{kind}{suffix} T{i+1:02} : un seul paragraphe {marker!r} attendu")
                 if part.count(marker)==1:
-                    paragraph=part.split(marker,1)[1].split("\\n\\n",1)[0].strip()
+                    paragraph=part.split(marker,1)[1].splitlines()[0].strip()
                     check(len(paragraph)>=45,
                           f"{kind}{suffix} T{i+1:02} : annotation trop brève ({len(paragraph)} caractères)")
             check(part.index("**Justification à expliciter :**") < part.index("**Erreur fréquente à éviter :**")

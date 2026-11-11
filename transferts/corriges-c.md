@@ -46,7 +46,7 @@ Troisième mise en situation indépendante par jalon obligatoire. Série C conse
 
 **Justification à expliciter :** Utiliser différence de carrés puis facteur commun avant le produit nul.
 
-**Erreur fréquente à éviter :** Ne pas oublier la solution négative x=-5.
+**Erreur fréquente à éviter :** Ne pas oublier la racine négative x=-5 obtenue par la règle du produit nul.
 
 **Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses justifiés ; méthode expliquée ; calculs exacts ; conclusion vérifiée. Les quatre critères sont déclarés par l'étudiant après rédaction et comparaison au corrigé.
 
@@ -70,7 +70,7 @@ Troisième mise en situation indépendante par jalon obligatoire. Série C conse
 
 **Justification à expliciter :** Le périmètre est deux fois la somme des côtés ; vérifier la positivité des mesures.
 
-**Erreur fréquente à éviter :** Le demi-périmètre vaut 17 et non 34.
+**Erreur fréquente à éviter :** Le demi-périmètre vaut 17 mètres, alors que 34 mètres est le périmètre entier.
 
 **Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses justifiés ; méthode expliquée ; calculs exacts ; conclusion vérifiée. Les quatre critères sont déclarés par l'étudiant après rédaction et comparaison au corrigé.
 

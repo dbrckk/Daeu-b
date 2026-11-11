@@ -46,7 +46,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 
 **Justification à expliciter :** L'identité du carré de somme contient le double produit 6x.
 
-**Erreur fréquente à éviter :** Ne pas écrire le carré de x+3 comme x²+9.
+**Erreur fréquente à éviter :** Ne pas écrire (x+3)² = x²+9 : le double produit 6x est indispensable.
 
 **Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 

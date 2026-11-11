@@ -10,7 +10,7 @@
 
 **Justification à expliciter :** Justifier la divisibilité par 9 avec un quotient entier et un reste nul.
 
-**Erreur fréquente à éviter :** Ne pas confondre 126 carnets et 14 paquets.
+**Erreur fréquente à éviter :** Ne pas confondre le stock initial de 126 carnets et les 14 paquets qui en résultent.
 
 **Auto-évaluation raisonnement (0 à 4, sans correction automatique) :** 1 point si les hypothèses et le domaine sont justifiés ; 1 pour la méthode explicitée ; 1 pour les calculs exacts ; 1 pour l'interprétation, les signes ou les unités. Reprendre la tâche sans corrigé après quelques jours.
 
@@ -58,7 +58,7 @@
 
 **Justification à expliciter :** Définir la distance, imposer sa positivité, puis vérifier la facture obtenue.
 
-**Erreur fréquente à éviter :** Ne pas omettre les frais fixes de la course.
+**Erreur fréquente à éviter :** Ne pas omettre les frais fixes de 5 € lors de la modélisation de la facture.
 
 **Auto-évaluation raisonnement (0 à 4, sans correction automatique) :** 1 point si les hypothèses et le domaine sont justifiés ; 1 pour la méthode explicitée ; 1 pour les calculs exacts ; 1 pour l'interprétation, les signes ou les unités. Reprendre la tâche sans corrigé après quelques jours.
 
@@ -94,7 +94,7 @@
 
 **Justification à expliciter :** Diviser par un coefficient négatif inverse le signe, puis intersecter avec la contrainte.
 
-**Erreur fréquente à éviter :** La borne -1 est exclue par le signe strict.
+**Erreur fréquente à éviter :** La borne -1 reste exclue de l'ensemble solution parce que l'inégalité est stricte.
 
 **Auto-évaluation raisonnement (0 à 4, sans correction automatique) :** 1 point si les hypothèses et le domaine sont justifiés ; 1 pour la méthode explicitée ; 1 pour les calculs exacts ; 1 pour l'interprétation, les signes ou les unités. Reprendre la tâche sans corrigé après quelques jours.
 
