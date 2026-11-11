@@ -396,8 +396,16 @@ try {
   }
   await check(async()=>mathTotal>=60,"18 cours vérifiés hors ligne avec au moins 60 expressions mathématiques");
   console.log("Audit mathématique offline : "+mathTotal+" MathML, "+mathFallbacks+" formules en texte de repli");
+  // Après l'audit des 18 cours, rouvrir explicitement la trigonométrie :
+  // la boucle précédente se termine dans le chapitre 17.
+  await offlineCourse.goto(BASE+"/course.html?course=13-trigonometrie",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineCourse.waitForFunction(()=>document.querySelector("#courseStatus")?.textContent.startsWith("Cours 14/18"),null,{timeout:7000});
+  const offlineHeading=await offlineCourse.locator("#courseBody h2").nth(1).getAttribute("data-reader-bookmark-id");
   await offlineCourse.locator("#courseBody h2").nth(1).evaluate(node=>node.scrollIntoView({block:"start",behavior:"instant"}));
   await offlineCourse.locator("#courseBookmarkSave").click();
+  await check(async()=>await offlineCourse.evaluate(()=>
+    localStorage.getItem("daeu-b-reader-bookmark-v1:cours:13-trigonometrie")===document.querySelectorAll("#courseBody h2")[1].dataset.readerBookmarkId),
+    "Signet hors ligne associé exactement au chapitre et à la section visibles");
   await check(async()=>await offlineCourse.locator("#courseBookmarkResume").isVisible(),
     "Signet enregistré alors que le téléphone simulé est hors connexion");
   await offlineCourse.reload({waitUntil:"domcontentloaded"});
