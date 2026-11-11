@@ -26,6 +26,12 @@
 <label for="problemTextSize">Taille du texte</label>
 <select id="problemTextSize"><option value="normal">Normale</option><option value="large">Grande</option><option value="extra">Très grande</option></select>
 </div>
+<div class="reader-bookmarks" role="group" aria-label="Signet de lecture">
+<button type="button" id="problemBookmarkSave" class="subtle small">Marquer ma position</button>
+<button type="button" id="problemBookmarkResume" class="subtle small" hidden>Reprendre ma lecture</button>
+<button type="button" id="problemBookmarkClear" class="subtle small" hidden>Effacer le signet</button>
+<p id="problemBookmarkStatus" class="helper" role="status" aria-live="polite"></p>
+</div>
 <details class="reader-outline" id="problemOutline"><summary>Sommaire des problèmes</summary><nav id="problemToc" aria-label="Sections des problèmes"></nav></details>
 
 </nav>

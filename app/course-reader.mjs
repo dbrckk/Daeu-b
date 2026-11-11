@@ -22,7 +22,11 @@ for(const [id,diff] of [["coursePrevious",-1],["courseNext",1]]){
   element.href=courseUrl(neighbor[0]);
   element.textContent=(diff<0?"← ":"")+neighbor[1]+(diff>0?" →":"");
 }
-const updateOutline=initReadingTools(byId("courseBody"),byId("courseTextSize"),byId("courseToc"));
+const updateOutline=initReadingTools(byId("courseBody"),byId("courseTextSize"),byId("courseToc"),{
+  documentId:"cours:"+slug,
+  saveButton:byId("courseBookmarkSave"),resumeButton:byId("courseBookmarkResume"),
+  clearButton:byId("courseBookmarkClear"),status:byId("courseBookmarkStatus")
+});
 const markdown=new showdown.Converter({
   tables:true,ghCodeBlocks:true,tasklists:true,strikethrough:true,
   simplifiedAutoLink:false,openLinksInNewWindow:false,backslashEscapesHTMLTags:true

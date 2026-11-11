@@ -47,6 +47,20 @@ try {
   await check(async()=>await courseOnline.evaluate(()=>
     !!location.hash&&document.activeElement?.matches("#courseBody h2, #courseBody h3")),
     "Sommaire : saut et focus au clavier vers le titre de section");
+  // Signet explicite, restauration après rechargement et isolation par cours.
+  await courseOnline.locator("#courseBody h2").nth(2).scrollIntoViewIfNeeded();
+  await courseOnline.locator("#courseBookmarkSave").click();
+  await check(async()=>await courseOnline.locator("#courseBookmarkResume").isVisible(),
+    "Signet de cours enregistré et bouton de reprise disponible");
+  const savedSection=await courseOnline.evaluate(()=>
+    localStorage.getItem("daeu-b-reader-bookmark-v1:cours:07-limites-asymptotes"));
+  assert.ok(savedSection?.startsWith("lecture-section-"),"Signet de cours manquant");
+  await courseOnline.reload({waitUntil:"networkidle"});
+  await check(async()=>await courseOnline.locator("#courseBookmarkResume").isVisible(),
+    "Signet de cours conservé après rechargement");
+  await courseOnline.locator("#courseBookmarkResume").click();
+  await check(async()=>await courseOnline.evaluate(id=>document.activeElement?.id===id,savedSection),
+    "Reprise de lecture au titre enregistré avec focus clavier");
   await courseOnline.locator("#courseTextSize").selectOption("extra");
   await check(async()=>await courseOnline.evaluate(()=>
     document.querySelector("#courseBody").dataset.readingSize==="extra"
@@ -74,6 +88,8 @@ try {
   const problemsPage=await context.newPage();
   problemsPage.on("pageerror",e=>errors.push("Problèmes : "+e.message));
   await problemsPage.goto(BASE+"/problems.html",{waitUntil:"networkidle"});
+  await check(async()=>await problemsPage.locator("#problemBookmarkResume").isHidden(),
+    "Signet des problèmes distinct de celui du cours");
   await check(async()=>await problemsPage.locator("#problemTextSize").inputValue().then(v=>v==="extra")
     &&await problemsPage.locator("#problemBody").getAttribute("data-reading-size").then(v=>v==="extra"),
     "Taille de lecture conservée entre un cours et les problèmes");
@@ -90,10 +106,16 @@ try {
     "Huit problèmes locaux affichés sans correction");
   await check(async()=>await problemsPage.locator("#problemBody math").count()>=5,
     "Formules des problèmes converties en MathML");
+  await problemsPage.locator("#problemBody h3").first().scrollIntoViewIfNeeded();
+  await problemsPage.locator("#problemBookmarkSave").click();
+  await check(async()=>await problemsPage.locator("#problemBookmarkResume").isVisible(),
+    "Signet des sujets de problèmes enregistré");
   await problemsPage.locator("#problemSwitch").click();
   await problemsPage.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length>=8,null,{timeout:10000});
   await check(async()=>await problemsPage.locator("#problemBody h2").count()>=8,
     "Corrigés locaux accessibles par action explicite");
+  await check(async()=>await problemsPage.locator("#problemBookmarkResume").isHidden(),
+    "Signet des sujets non divulgué aux corrigés");
   await problemsPage.close();
   await check(async()=>await page.locator('link[rel="canonical"]').getAttribute("href")==="https://daeu-b-maths-dbrckk.onrender.com/","URL canonique permanente");
   await check(async()=>await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute("content").then(c=>c.includes("script-src 'self'")&&c.includes("object-src 'none'")),"CSP restrictive activée");

@@ -326,3 +326,11 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Ajouter un retour au sommaire en fin de document.
 - [x] Étendre le contrôle Chromium aux petits écrans, aux préférences de lecture et au fonctionnement hors ligne.
 - [ ] Audit réel avec TalkBack, navigation clavier et Android physique ; relecture académique indépendante des cours.
+
+
+## Livraison v21 — reprise de lecture par section (11/11/2026)
+- [x] Signet explicite par chapitre et par document de problèmes, indépendant des notes, examens et copies.
+- [x] Reprise avec focus sur la section mémorisée, effacement et repli si stockage refusé.
+- [x] Préchargement du module pour le hors-ligne et vérification des identifiants dans les tests Node.js.
+- [x] Contrôles Chromium mobile des signets, de la reprise et de leur isolation entre documents.
+- [ ] Essai sur Android physique et audit avec lecteur d'écran TalkBack.

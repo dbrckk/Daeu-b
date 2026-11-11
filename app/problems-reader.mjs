@@ -1,6 +1,10 @@
 import {initReadingTools} from "./reading-tools.mjs";
 const el=id=>document.getElementById(id);
-const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"));
+const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"),{
+  documentId:"problemes:"+(new URL(location.href).searchParams.get("mode")==="corriges"?"corriges":"sujets"),
+  saveButton:el("problemBookmarkSave"),resumeButton:el("problemBookmarkResume"),
+  clearButton:el("problemBookmarkClear"),status:el("problemBookmarkStatus")
+});
 const files={sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
 const params=new URL(location.href).searchParams;
 const mode=params.get("mode")==="corriges"?"corriges":"sujets";

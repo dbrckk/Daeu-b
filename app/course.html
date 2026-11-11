@@ -29,6 +29,12 @@
 <label for="courseTextSize">Taille du texte</label>
 <select id="courseTextSize"><option value="normal">Normale</option><option value="large">Grande</option><option value="extra">Très grande</option></select>
 </div>
+<div class="reader-bookmarks" role="group" aria-label="Signet de lecture">
+<button type="button" id="courseBookmarkSave" class="subtle small">Marquer ma position</button>
+<button type="button" id="courseBookmarkResume" class="subtle small" hidden>Reprendre ma lecture</button>
+<button type="button" id="courseBookmarkClear" class="subtle small" hidden>Effacer le signet</button>
+<p id="courseBookmarkStatus" class="helper" role="status" aria-live="polite"></p>
+</div>
 <details class="reader-outline" id="courseOutline"><summary>Sommaire du chapitre</summary><nav id="courseToc" aria-label="Sections du chapitre"></nav></details>
 <div class="course-actions">
 <a id="coursePractice" class="primary problems-link" href="./#practice-title">M'entraîner sur ce chapitre</a>

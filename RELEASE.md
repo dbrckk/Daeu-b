@@ -197,3 +197,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Choix entre trois tailles de texte, partagé entre cours et problèmes, mémorisé localement sous une clé distincte des examens.
 - Tests Chromium mobile : navigation au sommaire et focus, 320 px avec texte très agrandi, préférence conservée entre lecteurs et hors connexion.
 - Les tests automatisés ne remplacent pas un audit humain complet d'accessibilité (notamment lecteurs d'écran) ni une validation sur un téléphone physique.
+
+
+## v21 — signets de lecture explicites (11/11/2026)
+- Enregistrer et reprendre une section précise des cours ou des problèmes, y compris après fermeture du navigateur et hors connexion.
+- Signets distincts par chapitre et par document (sujets/corrigés), sans enregistrement automatique des mouvements de lecture et sans toucher aux copies d'examens.
+- Effacement volontaire, message d'erreur si le stockage est interdit, identifiants strictement validés ; commandes tactiles et focus clavier.
+- Vérification par tests purs et parcours Chromium mobile, y compris la restauration après rechargement.

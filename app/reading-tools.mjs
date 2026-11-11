@@ -2,9 +2,10 @@
  * Contrôles de lecture locaux et accessibles, communs aux cours et problèmes.
  * Préférence de taille volontairement indépendante des copies d'examens.
  */
+import {readBookmark,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
 const KEY="daeu-b-reading-size-v1";
 const VALID=new Set(["normal","large","extra"]);
-export function initReadingTools(article,sizeSelect,outline){
+export function initReadingTools(article,sizeSelect,outline,{documentId,saveButton,resumeButton,clearButton,status}={}){
   function setSize(value){
     const size=VALID.has(value)?value:"normal";
     article.dataset.readingSize=size;
@@ -35,6 +36,40 @@ export function initReadingTools(article,sizeSelect,outline){
       li.append(link);list.append(li);
     }
     outline.replaceChildren(list);
+    if(documentId&&saveButton&&resumeButton&&clearButton&&status){
+      const available=()=>headings.find(h=>h.id===readBookmark(localStorage,documentId));
+      function refresh(){
+        const target=available();
+        resumeButton.hidden=!target;
+        clearButton.hidden=!target;
+        resumeButton.textContent=target?"Reprendre : "+target.textContent.trim():"Reprendre ma lecture";
+      }
+      function goTo(heading){
+        heading.focus({preventScroll:true});
+        heading.scrollIntoView({block:"start"});
+      }
+      saveButton.onclick=()=>{
+        // Conserver le dernier titre atteint, pas un décalage de pixels
+        // fragile après zoom, changement de police ou mise à jour du cours.
+        const reached=headings.filter(h=>h.getBoundingClientRect().top<=window.innerHeight*0.35);
+        const current=reached.at(-1)??headings[0];
+        if(!current){status.textContent="Aucune section à enregistrer.";return;}
+        const ok=saveBookmark(localStorage,documentId,current.id);
+        status.textContent=ok?"Position enregistrée sur cet appareil.":"Stockage indisponible : position non enregistrée.";
+        refresh();
+      };
+      resumeButton.onclick=()=>{
+        const heading=available();
+        if(heading)goTo(heading);
+        else {status.textContent="Signet indisponible : cette section n'existe plus.";refresh();}
+      };
+      clearButton.onclick=()=>{
+        const ok=clearBookmark(localStorage,documentId);
+        status.textContent=ok?"Signet supprimé.":"Impossible de supprimer le signet.";
+        refresh();
+      };
+      refresh();
+    }
     // Les contenus sont chargés après le document HTML : restaurer un lien
     // direct vers une section (y compris hors réseau).
     if(location.hash){
