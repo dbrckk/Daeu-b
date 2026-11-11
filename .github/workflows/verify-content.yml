@@ -65,6 +65,7 @@ jobs:
           node --check app/exam-alternative.mjs
           node --check app/reasoning.mjs
           node --check app/exam-analytics.mjs
+          node --check app/exam-readiness.mjs
           node --check app/persistence.mjs
           node --check app/jalons.mjs
           node --check app/jalon-progress.mjs
@@ -80,4 +81,4 @@ jobs:
           node --check app/course-search.mjs
           node --check app/course-catalog.mjs
       - name: Vérifier notation, jalons, révisions et sauvegardes
-        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs app/jalon-progress.test.mjs app/prerequisites.test.mjs app/transfer-progress.test.mjs
+        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/exam-readiness.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs app/jalon-progress.test.mjs app/prerequisites.test.mjs app/transfer-progress.test.mjs

@@ -4,6 +4,7 @@ import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
 import {ALTERNATIVE_EXAM_ID} from "./exam-alternative.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
+import {inspectExamDraft} from "./exam-readiness.mjs";
 import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 import {StaleDataError} from "./persistence.mjs";
 
@@ -123,6 +124,29 @@ function renderHistory(){
   }
   renderAnalytics();
 }
+/** Indique les saisies manquantes sans juger leur justesse ni afficher de solution. */
+function renderDraftProgress(){
+  if(!store.active)return;
+  const exam=findExam(store.active.examId,store.active.seed??null);
+  const draft=inspectExamDraft(exam,store.active);
+  byId("examDraftSummary").textContent=
+    "Copie : "+draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (non vérifiées) · "+
+    draft.sectionsWithNotes+"/4 justifications présentes · "+draft.pointsUnanswered+
+    " point(s) associés à des questions sans réponse, sur 20.";
+  const list=byId("examDraftSections");list.replaceChildren();
+  for(const section of draft.sections){
+    const button=element("button","subtle small exam-draft-section",
+      "Exercice "+(section.index+1)+" — "+section.answered+"/"+section.total+" réponses · "+
+      (section.notePresent?"rédaction présente":"rédaction absente"));
+    button.type="button";
+    button.setAttribute("aria-label","Aller à l'exercice "+(section.index+1)+
+      " : "+section.remaining+" question(s) sans réponse, "+
+      (section.notePresent?"justification saisie":"justification absente"));
+    if(section.index===store.active.sectionIndex)button.setAttribute("aria-current","step");
+    button.addEventListener("click",()=>moveTo(section.index));
+    list.append(button);
+  }
+}
 function renderExamSection(){
   const session=store.active;
   if(!session)return;
@@ -146,6 +170,7 @@ function renderExamSection(){
       input.addEventListener("input",()=>{
         if(hasExpired(store.active)){tick();return;}
         if(!commitExam({...store,active:updateExamAnswer(store.active,q.id,input.value)}))input.value=store.active.answers[q.id]||"";
+        else renderDraftProgress();
       });
       field.append(input);
     }else{
@@ -157,6 +182,7 @@ function renderExamSection(){
         radio.addEventListener("change",()=>{
           if(hasExpired(store.active)){tick();return;}
           if(!commitExam({...store,active:updateExamAnswer(store.active,q.id,radio.value)}))renderExamSection();
+          else renderDraftProgress();
         });
         choice.append(radio,element("span","",option));options.append(choice);
       }
@@ -171,6 +197,7 @@ function renderExamSection(){
   notes.oninput=()=>{
     if(hasExpired(store.active)){tick();return;}
     if(!commitExam({...store,active:updateExamNotes(store.active,section.id,notes.value)}))notes.value=store.active.notes[section.id]||"";
+    else renderDraftProgress();
   };
   byId("examPrev").disabled=session.sectionIndex===0;
   byId("examNext").disabled=session.sectionIndex===3;
@@ -182,6 +209,7 @@ function renderExamSection(){
     btn.addEventListener("click",()=>moveTo(i));
     byId("examNav").append(btn);
   }
+  renderDraftProgress();
   tick();
 }
 function moveTo(i){
@@ -341,10 +369,14 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
   byId("examSubmit").addEventListener("click",()=>{
     const exam=findExam(store.active?.examId,store.active?.seed??null);
     if(!exam)return;
-    const total=exam.sections.reduce((n,s)=>n+s.questions.length,0);
-    const filled=Object.values(store.active.answers).filter(x=>x.trim()).length;
+    const draft=inspectExamDraft(exam,store.active);
     if(hasExpired(store.active)){finalize("timeout");return;}
-    if(confirm("Rendre définitivement la copie ("+filled+"/"+total+" réponses) ? Le corrigé et la note seront affichés."))finalize(hasExpired(store.active)?"timeout":"submitted");
+    const text="Rendre définitivement la copie ?\n"+
+      draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (justesse non vérifiée), "+
+      draft.remainingQuestions+" sans réponse ("+draft.pointsUnanswered+" point(s) concernés).\n"+
+      draft.sectionsWithNotes+"/4 exercices avec rédaction.\n"+
+      "La note automatique est indicative et n'évalue pas les démonstrations. Afficher le corrigé ?";
+    if(confirm(text))finalize(hasExpired(store.active)?"timeout":"submitted");
   });
   byId("examNew").addEventListener("click",()=>{lastResult=null;setVisible("examResult",false);renderActive();byId("exam-title").scrollIntoView({behavior:"smooth",block:"start"});});
   window.addEventListener("pageshow",tick);

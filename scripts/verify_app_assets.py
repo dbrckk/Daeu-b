@@ -90,7 +90,7 @@ else:
     for asset in re.findall(r'"(\./[^"]+)"',asset_match.group(1)):
         if asset=="./": continue
         if not (APP/asset[2:]).is_file():error(f"Cache hors ligne : fichier manquant {asset}")
-    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","persistence.mjs","round.mjs","jalons.mjs","jalon-progress.mjs","prerequisites.mjs","transfer-progress.mjs","transferts/sujets.md","transferts/corriges.md","transferts/sujets-b.md","transferts/corriges-b.md","transferts/sujets-c.md","transferts/corriges-c.md","problems.html","problems-reader.mjs","problemes/sujets.md","problemes/corriges.md",
+    for name in ("exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","exam-readiness.mjs","persistence.mjs","round.mjs","jalons.mjs","jalon-progress.mjs","prerequisites.mjs","transfer-progress.mjs","transferts/sujets.md","transferts/corriges.md","transferts/sujets-b.md","transferts/corriges-b.md","transferts/sujets-c.md","transferts/corriges-c.md","problems.html","problems-reader.mjs","problemes/sujets.md","problemes/corriges.md",
                  "course.html","course-reader.mjs","course-catalog.mjs",
                  "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : ressource manquante {name}")

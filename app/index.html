@@ -104,6 +104,14 @@
         <div id="examActive" class="exam-active" hidden>
           <div class="exam-status"><div><span class="eyebrow">COPIE EN COURS</span><h3 id="examActiveTitle">Examen</h3></div><div class="exam-time-wrap"><span>Temps restant</span><strong id="examTimer" role="timer" aria-label="Temps restant">03:00:00</strong></div></div>
           <div id="examNav" class="exam-nav" role="group" aria-label="Navigation entre les quatre exercices"></div>
+          <section class="exam-draft-overview" aria-labelledby="examDraftTitle">
+            <h4 id="examDraftTitle">Vérification de ma copie avant remise</h4>
+            <p id="examDraftSummary" role="status" aria-live="polite"></p>
+            <details><summary>Voir les quatre exercices et les réponses manquantes</summary>
+              <div id="examDraftSections" class="exam-draft-sections"></div>
+            </details>
+            <p class="helper">Une réponse saisie n'est pas nécessairement correcte. Le raisonnement rédigé n'est pas noté automatiquement.</p>
+          </section>
           <p id="examPosition" class="eyebrow"></p>
           <h3 id="examSectionTitle"></h3>
           <p id="examContext" class="exam-context"></p>

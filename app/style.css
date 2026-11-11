@@ -217,3 +217,14 @@
 .transfer-due-entry a{font-weight:750;overflow-wrap:anywhere}
 .transfer-due-entry p{font-size:.85rem;color:var(--muted);margin:7px 0 0}
 .transfer-due>.helper{font-size:.83rem;margin:10px 0 0}
+
+
+/* v26 — contrôle des champs de la copie, sans fuite du corrigé ni faux acquis. */
+.exam-draft-overview{border:1px solid var(--stroke);border-radius:14px;background:var(--panel2);padding:13px 16px;margin:13px 0}
+.exam-draft-overview h4{font-size:1rem;margin:0 0 6px}
+.exam-draft-overview p{font-size:.88rem;margin:6px 0 10px;line-height:1.5}
+.exam-draft-overview details>summary{cursor:pointer;font-weight:650;padding:8px 0}
+.exam-draft-sections{display:grid;gap:8px;padding:9px 0}
+.exam-draft-section{display:block;width:100%;text-align:left;min-height:44px;white-space:normal}
+.exam-draft-section[aria-current="step"]{outline:2px solid var(--teal);outline-offset:1px}
+@media(max-width:480px){.exam-draft-overview{padding:11px}.exam-draft-overview p{font-size:.84rem}}
