@@ -140,3 +140,12 @@ Le suivi des transferts est intégré à la même sauvegarde transactionnelle `d
 ## Deuxième série de transferts — v25.4
 
 La banque comporte maintenant **40 problèmes rédigés et 120 sous-questions**, soit deux situations réellement différentes (A et B) pour chacun des 20 jalons obligatoires. Les [sujets B](transferts/sujets-b.md) et leurs [corrigés B](transferts/corriges-b.md) sont originaux, distincts de la première série et intégrés au lecteur PWA **hors connexion**. Le lien « Essayer la situation B » et le carnet de raisonnement sont disponibles sur chaque fiche. Le suivi J+7 recommande la série B pour réduire la mémorisation du premier énoncé ; les quatre critères restent auto-déclarés, sans note automatique ni certification de réussite.
+
+
+## Série C et rappels J+30 — v25.5
+
+Les **60 problèmes de transfert rédigés** (trois situations distinctes A, B et C pour chacun des vingt jalons) comptent désormais **180 sous-questions** avec corrigés explicites. La série C est recommandée lors de la révision **J+30** ; A reste le point de départ et B la variante privilégiée à J+7. On peut toujours choisir librement A, B ou C. Les six documents Markdown sources ont des copies embarquées dans la PWA et sont contrôlés en CI, tout comme les contraintes mathématiques des vingt nouveaux transferts.
+
+- [Sujets C](transferts/sujets-c.md) et [corrigés C](transferts/corriges-c.md) accessibles dans le dépôt.
+- Trois séries sélectionnables dans le lecteur, sans révélation des corrigés avant une action explicite, avec même carnet de raisonnement daté.
+- Les données locales et exports restent compatibles. Ni les cases cochées ni un seul sujet réussi ne valent une certification de maîtrise.

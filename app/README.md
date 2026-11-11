@@ -283,3 +283,8 @@ Dans le lecteur `problems.html?set=transferts&jalon=18`, la section « Mon carne
 ## v25.4 — série B d'application
 
 Le lecteur accepte `problems.html?set=transferts&variante=b&jalon=18` : vingt nouveaux sujets à trois sous-questions, corrigés séparés et huit ressources de transfert en tout (quatre Markdown source + quatre copies PWA). Le choix de série est conservé quand on affiche les corrigés ou un autre jalon ; les signets A/B sont indépendants. À J+7, l'application propose B par défaut. Le suivi d'auto-évaluation conserve un seul parcours daté par jalon, quelle que soit la situation choisie.
+
+
+## v25.5 — troisième contexte de transfert et audit numérique
+
+Le paramètre `variante=c` sélectionne la troisième situation pour chacun des vingt jalons, exemple : `./problems.html?set=transferts&variante=c&jalon=18`. Les boutons « Série A / Série B / Série C » conservent le jalon et le mode (sujets/corrigés). À J+30, le tableau de bord propose C automatiquement via `recommendedTransferSeries()`, pure et testée, sans migration des sauvegardes. Les six documents (sujets/corrigés A/B/C) sont contrôlés structurellement et disposent d'une copie PWA. Un oracle Python sans dépendance vérifie les principaux résultats numériques C ; il ne remplace pas la relecture des raisonnements.

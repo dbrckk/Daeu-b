@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25.5 — troisième série et audit mathématique (11 novembre 2026)
+
+- Vingt situations C supplémentaires, une par jalon : 60 problèmes rédigés et 180 sous-questions sur trois séries A/B/C avec corrections distinctes.
+- Série C recommandée au rappel J+30, navigation explicite A/B/C, signets indépendants et disponibilité hors ligne.
+- Contrôle structurel des documents et oracles mathématiques indépendants pour les principales égalités de la série C ; anciens examens, progression et exports préservés.
+
 ## v25.4 — vingt transferts supplémentaires
 
 - 40 problèmes originaux sur les 20 jalons : deux situations indépendantes A/B, chacune avec ses corrigés et une grille d'auto-évaluation.

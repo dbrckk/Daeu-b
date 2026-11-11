@@ -132,3 +132,11 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Deux séries **A et B** pour chacun des vingt jalons : 40 problèmes de transfert et 120 sous-questions corrigées. Contrôle éditorial structurel et copies hors connexion vérifiés pour les quatre sources Markdown.
 - Commutation A/B dans le lecteur, conservation du jalon lors de l'ouverture du corrigé, cache PWA versionné ; la série B est suggérée au rappel J+7.
 - Amélioration ultérieure : troisième situation pour J+30 et relecture humaine des corrections délicates, sans attribuer un niveau de maîtrise à partir de déclarations personnelles.
+
+
+## Livraison v25.5 — trois situations A/B/C par jalon (11 novembre 2026)
+
+- **60/60 problèmes de transfert** dans les vingt jalons obligatoires, soit 180 sous-questions rédigées et leurs corrections, avec sujet/corrigé séparés et six copies PWA.
+- Première situation A, deuxième B privilégiée à J+7, troisième C privilégiée à J+30. Trois liens explicites, même historique de déclarations sans modifier la clé `daeu-b-data-v1`.
+- Validation structurelle, contrôle des prérequis, calculs indépendants des vingt nouvelles situations, intégration navigateur Android et tests hors connexion.
+- **Travail restant :** relecture mathématique humaine exhaustive des 180 sous-questions, enrichissement des critères rédactionnels et indicateurs de difficultés qui n'attribuent pas une maîtrise sur une simple auto-déclaration.

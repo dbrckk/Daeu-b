@@ -49,6 +49,9 @@ try {
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20
       &&await transferPage.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Série B : vingt nouveaux problèmes affichés");
     await check(async()=>await transferPage.locator("#transferSelect").inputValue().then(s=>s==="18"),"Jalon 18 conservé entre les situations A/B");
+    await check(async()=>await transferPage.locator("#transferSeries a").count()===3
+      &&await transferPage.locator('#transferSeries a[data-series="b"]').getAttribute("aria-current").then(s=>s==="page"),
+      "Choix explicite A/B/C et signalement de la situation actuelle");
     await check(async()=>await transferPage.locator("#transferStage").textContent().then(s=>s.includes("Première rédaction")),"Première étape sans faux acquis");
     await transferPage.locator(".transfer-criterion").nth(0).check();
     await transferPage.locator(".transfer-criterion").nth(2).check();
@@ -67,6 +70,20 @@ try {
     await transferHome.goto(BASE,{waitUntil:"networkidle"});
     await check(async()=>await transferHome.locator("#transferSummary").textContent().then(s=>s.includes("1/20")),"Transfert retrouvé sur le tableau de bord après rechargement");
     await transferHome.close();
+    const cPage=await diagnosisContext.newPage();
+    await cPage.goto(BASE+"/problems.html?set=transferts&variante=c&jalon=16",{waitUntil:"networkidle"});
+    await cPage.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:12000});
+    await check(async()=>await cPage.locator("#problemTitle").textContent().then(s=>s.includes("série C"))
+      &&await cPage.locator("#transferSelect").inputValue().then(s=>s==="16")
+      &&await cPage.locator('#transferSeries a[data-series="c"]').getAttribute("aria-current").then(s=>s==="page"),
+      "Série C : vingt sujets, accès direct J16 et navigation accessible");
+    await cPage.locator("#problemSwitch").click();
+    await cPage.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
+    await check(async()=>await cPage.locator("#problemBody h2").count()===20
+      &&await cPage.locator("#problemTitle").textContent().then(s=>s.includes("série C"))
+      &&await cPage.locator("#problemBody").textContent().then(s=>s.includes("Auto-évaluation raisonnement")),
+      "Corrigés de la série C isolés des séries A/B");
+    await cPage.close();
     await transferPage.locator("#problemSwitch").click();
     await transferPage.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:12000});
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20
@@ -511,6 +528,18 @@ try {
   await offlineB.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:10000});
   await check(async()=>await offlineB.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Corrigés B hors ligne isolés des sujets A");
   await offlineB.close();
+  const offlineC=await context.newPage();
+  await offlineC.goto(BASE+"/problems.html?set=transferts&variante=c&jalon=19",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineC.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:10000});
+  await check(async()=>await offlineC.locator("#problemTitle").textContent().then(s=>s.includes("série C"))
+    &&await offlineC.locator("#problemBody math").count()>=10,
+    "Série C complète et formules MathML disponibles hors connexion");
+  await offlineC.locator("#problemSwitch").click();
+  await offlineC.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:10000});
+  await check(async()=>await offlineC.locator("#problemBody h2").count()===20
+    &&await offlineC.locator("#problemTitle").textContent().then(s=>s.includes("série C")),
+    "Corrigés C hors ligne sans basculement vers A ou B");
+  await offlineC.close();
   await context.setOffline(false);
   assert.deepEqual(errors,[],"Aucune requête locale en erreur");
   console.log("CHROMIUM MOBILE / COPIES / EXPORT-IMPORT / HORS LIGNE : OK");

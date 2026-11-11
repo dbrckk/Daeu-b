@@ -57,6 +57,14 @@ for module in APP.glob("*.mjs"):
         target=module.parent/relative
         if not target.is_file(): error(f"Import cassé : {module.name} -> {relative}")
 
+# Les identifiants requis par le lecteur de problèmes sont aussi vérifiés.
+reader_html=(APP/"problems.html").read_text(encoding="utf-8")
+reader_ids=set(re.findall(r'\bid="([^"]+)"',reader_html))
+reader_js=(APP/"problems-reader.mjs").read_text(encoding="utf-8")
+for requested in re.findall(r'\bel\("([^"]+)"\)',reader_js):
+    if requested not in reader_ids:
+        error(f"ID absent du lecteur de problèmes : {requested}")
+
 html=(APP/"index.html").read_text(encoding="utf-8")
 element_ids=set(re.findall(r'\bid="([^"]+)"',html))
 for module in ("app.mjs","exam-ui.mjs"):

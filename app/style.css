@@ -200,3 +200,10 @@
 #transferNotice{font-size:.9rem;min-height:1.4em;color:var(--orange)}
 .transfer-back{font-size:.85rem}
 @media(max-width:600px){.transfer-tracking{padding:15px}#transferRecord{width:100%}}
+
+
+/* Sélection explicite des trois situations, avec l'actuelle identifiée. */
+.transfer-series{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0 4px}
+.transfer-series a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:8px 14px;border-radius:10px;border:1px solid var(--stroke);background:var(--panel2);color:var(--ink);font-weight:700;text-decoration:none}
+.transfer-series a[aria-current="page"]{border-color:var(--teal);color:var(--teal);background:#21443f}
+.transfer-series a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}

@@ -8,8 +8,6 @@ const el=id=>document.getElementById(id);
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
 const variant=transfers&&["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
-const variantB=variant==="b";
-const variantC=variant==="c";
 const selectedJalon=Number(params.get("jalon"));
 const jalonSuffix=Number.isInteger(selectedJalon)&&selectedJalon>=1&&selectedJalon<=20?"&jalon="+selectedJalon:"";
 const collectionSuffix=transfers?"set=transferts&"+(variant==="a"?"":"variante="+variant+"&"):"";
