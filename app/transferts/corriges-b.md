@@ -8,7 +8,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. On obtient **12 lots** avec $84/12=7$ crayons et $60/12=5$ gommes chacun.
 3. $84/15$ et $60/15$ ne sont pas tous deux des entiers, donc la répartition sans reste est impossible.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T02 — Jalon 2 : Fractions de quantités successives
 
@@ -16,7 +16,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $180\times1/2=\mathbf{90}$ L.
 3. Le deuxième quart s'applique au **volume restant**, contrairement au premier tiers. Les deux fractions n'ont pas le même dénominateur de référence.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T03 — Jalon 3 : Valeur absolue et tolérance
 
@@ -24,7 +24,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. Elle équivaut à $-3\le T-18\le3$, donc à **$15\le T\le21$**.
 3. $14$ est exclu ($|14-18|=4>3$). $21$ est admis ($|21-18|=3$). Les deux bornes sont comprises car l'inégalité est large.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T04 — Jalon 4 : Développement et différence d'aires
 
@@ -32,7 +32,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $(x+3)^2=x^2+6x+9$, donc **$\Delta A=6x+9$**.
 3. Pour $x=4$, $\Delta A=6\times4+9=33$ m². La différence est positive : le carré de côté 7 m est plus grand que celui de côté 4 m.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T05 — Jalon 5 : Équation à dénominateurs
 
@@ -40,7 +40,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. On multiplie par 6 : $2(x-1)+3(x+2)=30$. Ainsi $5x+4=30$, puis **$x=26/5$**.
 3. $(26/5-1)/3=7/5$ et $(26/5+2)/2=18/5$. Leur somme vaut $25/5=5$. Le résultat convient.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T06 — Jalon 6 : Deux tarifs de billetterie
 
@@ -48,7 +48,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $r=30-p$. Alors $12p+7(30-p)=260$, soit $5p=50$ ; **$p=10$ et $r=20$**.
 3. $10+20=30$ billets et $12\times10+7\times20=120+140=260$ €.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T07 — Jalon 7 : Aire et forme canonique
 
@@ -56,7 +56,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. Puisque $(x-6)^2\ge0$, le maximum vaut **36 m²**, atteint pour $x=6$.
 3. $-(x-6)^2+36\ge32$ donne $(x-6)^2\le4$, donc **$x\in[4;8]$**. Cette solution est bien dans $[0;12]$.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T08 — Jalon 8 : Budget et inéquation
 
@@ -64,7 +64,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $30n\le240$, soit $n\le8$. Le maximum est **8 unités**.
 3. Pour $n=8$, le coût vaut $90+240=330$ €. Pour $n=9$, il vaut $360$ € et dépasse le budget.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T09 — Jalon 9 : Statistiques et valeur atypique
 
@@ -72,7 +72,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. La série est ordonnée : la **médiane est 4** et l'étendue vaut $10-2=8$.
 3. La valeur 10, nettement supérieure aux autres, tire la moyenne à 4,8 tandis que la médiane reste égale à 4.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T10 — Jalon 10 : Domaine d'une fonction composée
 
@@ -80,7 +80,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $f(3)=\sqrt4/1=2$ et $f(-1)=0/(-3)=0$.
 3. Le dénominateur étant non nul, $f(x)=0$ impose $\sqrt{x+1}=0$, soit **$x=-1$**, autorisé.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T11 — Jalon 11 : Limite d'un quotient
 
@@ -88,7 +88,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. En divisant par $x^2$ pour $x\ne0$, $f(x)=(3-1/x)/(1+2/x^2)$ ; aux deux infinis, la limite est **3**.
 3. La droite **$y=3$** est une asymptote horizontale en $+\infty$ et en $-\infty$.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T12 — Jalon 12 : Dérivée et extrema
 
@@ -96,7 +96,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. Le signe est positif sur $[0;1[$, négatif sur $]1;3[$, positif sur $]3;4]$. Donc $f$ croît, décroît, puis croît.
 3. $f(0)=0$, $f(1)=4$, $f(3)=0$ et $f(4)=4$. Le **minimum vaut 0** (en 0 et 3), le **maximum vaut 4** (en 1 et 4).
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T13 — Jalon 13 : Asymptote oblique
 
@@ -104,7 +104,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. Près de $x=1$, le numérateur tend vers 2, strictement positif ; le terme $2/(x-1)$ diverge. **$x=1$** est une asymptote verticale.
 3. $g(x)-(x+1)=2/(x-1)\to0$ aux deux infinis. La droite **$y=x+1$** est une asymptote oblique.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T14 — Jalon 14 : TVI et encadrement
 
@@ -112,7 +112,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $f'(x)=3x^2+1>0$ sur $\mathbb R$ ; la fonction est strictement croissante, donc la racine est unique.
 3. $f(1{,}3)=2{,}197+1{,}3-4=-0{,}503$ et $f(1{,}4)=2{,}744+1{,}4-4=0{,}144$. Donc **$1{,}3<\alpha<1{,}4$**.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T15 — Jalon 15 : Suite arithmétique et objectif
 
@@ -120,7 +120,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $14+5n\ge100$ entraîne $n\ge86/5=17{,}2$, donc premier indice entier **$n=18$** ; $u_{17}=99<100$, $u_{18}=104\ge100$.
 3. De $u_0=14$ à $u_5=39$, la somme vaut $6(14+39)/2=\mathbf{159}$ commandes.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T16 — Jalon 16 : Logarithme d'une fonction affine
 
@@ -128,7 +128,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. L'injectivité de $\ln$ donne $2x-1=5$, soit **$x=3$** ; cette valeur est admise.
 3. $f'(x)=2/(2x-1)>0$ sur le domaine, donc $f$ est strictement croissante.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T17 — Jalon 17 : Décroissance exponentielle
 
@@ -136,7 +136,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $A(t)=150$ implique $e^{-0{,}1t}=1/2$, donc $-0{,}1t=-\ln2$ ; **$t=10\ln2$**.
 3. $10\ln2\approx\mathbf{6{,}93}$ unités de temps.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T18 — Jalon 18 : Intégrale et valeur moyenne
 
@@ -144,7 +144,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $I=F(4)-F(1)=(16+12)-(1+3)=\mathbf{24}$.
 3. La longueur de l'intervalle est $4-1=3$ ; la **valeur moyenne vaut $24/3=8$**.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T19 — Jalon 19 : Tirages avec remise
 
@@ -152,7 +152,7 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. Les deux ordres conviennent : $P(RB)+P(BR)=2(3/5)(2/5)=\mathbf{12/25}$.
 3. L'événement complémentaire est « deux rouges », donc $P(\text{au moins une bleue})=1-9/25=\mathbf{16/25}$.
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
 ## T20 — Jalon 20 : Loi discrète et variance
 
@@ -160,5 +160,5 @@ Deuxième situation originale par jalon du programme obligatoire. Les situations
 2. $E(X)=(-2)/4+3(3/4)=-1/2+9/4=\mathbf{7/4}$ ; $E(X^2)=4(1/4)+9(3/4)=\mathbf{31/4}$.
 3. $V(X)=E(X^2)-E(X)^2=31/4-49/16=(124-49)/16=\mathbf{75/16}$ (soit $4{,}6875$).
 
-**Auto-évaluation non notée automatiquement :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
+**Auto-évaluation raisonnement (non notée automatiquement) :** domaine et hypothèses ; méthode ; calculs exacts ; conclusion et vérification. Pour la mémorisation, refaire sans consulter le corrigé.
 
