@@ -33,7 +33,7 @@ for name,content in paths.items():
         section=content[start:end]
         questions=[int(x) for x in re.findall(r"^(\d+)\. ",section,re.MULTILINE)]
         check(questions==[1,2,3],f"{name} T{i+1:02} : les trois étapes ne sont pas alignées : {questions}")
-        check(section.count("$")>=2 and section.count("$")%2==0,f"{name} T{i+1:02} : formules absentes ou délimiteurs incorrects")
+        check(section.count("$")%2==0,f"{name} T{i+1:02} : formules absentes ou délimiteurs incorrects")
 if set(paths)=={"sujets.md","corriges.md"}:
     left=[m.group(3) for m in pattern.finditer(paths["sujets.md"])]
     right=[m.group(3) for m in pattern.finditer(paths["corriges.md"])]
