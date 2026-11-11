@@ -5,6 +5,10 @@ on:
       - '**/*.md'
       - 'scripts/check_content.py'
       - 'scripts/verify_worked_cases.py'
+      - 'scripts/audit-coverage.mjs'
+      - 'scripts/audit-coverage.test.mjs'
+      - 'scripts/coverage-map.mjs'
+      - 'audits/**'
       - 'app/**'
       - '.github/workflows/verify-content.yml'
   pull_request:
@@ -12,6 +16,10 @@ on:
       - '**/*.md'
       - 'scripts/check_content.py'
       - 'scripts/verify_worked_cases.py'
+      - 'scripts/audit-coverage.mjs'
+      - 'scripts/audit-coverage.test.mjs'
+      - 'scripts/coverage-map.mjs'
+      - 'audits/**'
       - 'app/**'
       - '.github/workflows/verify-content.yml'
 permissions:
@@ -27,8 +35,12 @@ jobs:
         run: python3 scripts/verify_app_assets.py
       - name: Vérifier les ateliers et recalculer les exemples
         run: python3 scripts/verify_worked_cases.py
+      - name: Vérifier matrice v23 et détecter toute divergence des rapports
+        run: node scripts/audit-coverage.mjs --check
       - name: Vérifier syntaxe JS (sans dépendances npm)
         run: |
+          node --check scripts/audit-coverage.mjs
+          node --check scripts/coverage-map.mjs
           node --check app/app.mjs
           node --check app/engine.mjs
           node --check app/questions.mjs
@@ -50,4 +62,4 @@ jobs:
           node --check app/course-search.mjs
           node --check app/course-catalog.mjs
       - name: Vérifier notation, jalons, révisions et sauvegardes
-        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs
+        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs

@@ -357,3 +357,11 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 
 
 **Correctif signet :** ajout d'un marqueur contextuel directement sous chaque titre et contrôle de la section exacte après un rechargement hors connexion. Les tests intermédiaires signalaient un problème de scénario (cours 17 contre cours 13) et un risque d'enregistrer le mauvais titre en remontant à la commande globale.
+
+
+## Livraison v23 — audit de couverture du programme (11/11/2026)
+- [x] Générer une matrice vérifiable des 20 jalons obligatoires et 3 facultatifs depuis le programme et les modules JS réels.
+- [x] Attribuer chaque question fixe à un jalon principal explicite, sans gonfler les nombres par domaines partagés.
+- [x] Compter les générateurs multi-jalons avec leurs ID réels et signaler les associations hors domaine.
+- [x] Conserver une version Markdown + JSON contrôlée contre le code en CI, sans affecter les sauvegardes.
+- [ ] Relire indépendamment les attributions et la profondeur diagnostic/application/transfert avant de calculer un score de maîtrise par jalon.

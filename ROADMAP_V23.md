@@ -33,6 +33,10 @@ Construire une plateforme **gratuite, réellement exploitable sur Android et PC,
 | **v27 — P1 : examens plus représentatifs** | Élargir les familles de sujets à condition qu'elles apportent des compétences réellement nouvelles ; renforcer l'analyse des erreurs et le transfert vers les cours ciblés | Quatre exercices indépendants, 3 h et score /20 conservés pour SONATE ; sujets reproductibles, variants validés et sans divulgation précoce de correction ; deux sujets réellement distincts |
 | **v28 — P0/P2 : finition et accessibilité** | Audit clavier et lecteur d'écran, focus/contrastes/MathML, perf et usage hors connexion ; tests Firefox/WebKit si possible ; essais sur Android physique | CI verte (Node, Python, Chromium et hors connexion), aucun bug P0/P1 connu ; sauvegarde/import/export vérifiés ; résultats des essais matériels et de la revue pédagogique consignés honnêtement |
 
+### v23 — premier livrable : audit reproductible
+
+La matrice détaillée des 23 jalons (20 obligatoires et 3 facultatifs) est publiée dans [l'audit de couverture](AUDIT_COUVERTURE.md) avec [les données machine-readable](audits/coverage.json). Les 111 questions fixes ont reçu une affectation principale explicite, les 32 générateurs sont lus depuis leur métadonnée existante, et les attributions doubles ou manquantes bloquent la CI. **Cette classification ne vaut pas vérification académique des compétences ni mesure de maîtrise ; les niveaux de difficulté restent à établir.**
+
 ### Détail de la première itération à exécuter : v23
 
 1. **Construire `scripts/audit_coverage.py` ou équivalent**, en inspectant `app/questions.mjs`, `app/variants.mjs`, `PROGRAMME.md` et les cours ; préférer un export machine-readable issu du code à un parsage fragile de JavaScript.

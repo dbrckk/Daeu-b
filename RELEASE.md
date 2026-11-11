@@ -225,3 +225,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 ### Correctif de reprise de lecture (11/11/2026)
 - Ajout de « Marquer cette section » directement sous chaque titre du lecteur, pour enregistrer la vraie section consultée sans déplacer le défilement avant le clic.
 - Scénario Chromium corrigé : revient au chapitre de trigonométrie après l'audit des 18 cours et contrôle explicitement la même section avant et après rechargement hors connexion.
+
+
+## v23 — audit de couverture fondé sur les données réelles (11/11/2026)
+- Les 111 questions fixes sont classifiées une fois chacune ; les 32 générateurs conservent les jalons déclarés dans `app/variants.mjs`.
+- Tableau détaillé [Markdown](AUDIT_COUVERTURE.md) et [JSON](audits/coverage.json), régénérables et contrôlés en CI via `node scripts/audit-coverage.mjs --check`.
+- Les questions hors domaine, jalons à faible couverture et compléments facultatifs sont explicitement identifiés ; aucune note de maîtrise n'est fabriquée.
+- Aucun changement du moteur, des exercices, de la PWA ni des sauvegardes locales.
