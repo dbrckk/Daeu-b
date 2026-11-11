@@ -318,3 +318,11 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 
 
 **Validation v19 confirmée :** [54 tests sur 54](https://github.com/dbrckk/Daeu-b/actions/runs/42806093191) et [parcours Chromium avec navigation complète et hors ligne réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42807190553). Les deux échecs intermédiaires provenaient de contrôles trop précoces de l'état DOM, corrigés avant la validation finale.
+
+
+## Livraison v20 — lecteur accessible et confortable (11/11/2026)
+- [x] Ajouter des sommaires navigables pour les 18 cours et les 8 problèmes, avec focus clavier sur les titres.
+- [x] Permettre le choix de trois tailles de police dans les deux lecteurs, conservé localement, sans toucher aux sauvegardes d'étude.
+- [x] Ajouter un retour au sommaire en fin de document.
+- [x] Étendre le contrôle Chromium aux petits écrans, aux préférences de lecture et au fonctionnement hors ligne.
+- [ ] Audit réel avec TalkBack, navigation clavier et Android physique ; relecture académique indépendante des cours.

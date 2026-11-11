@@ -110,6 +110,7 @@
 .course-document[data-reading-size="extra"] h2{font-size:1.9rem}
 .course-document[data-reading-size="large"] h3{font-size:1.3rem}
 .course-document[data-reading-size="extra"] h3{font-size:1.45rem}
-.course-document h2:focus{outline:3px solid var(--focus);outline-offset:5px;border-radius:3px}
-.course-document h2[id]{scroll-margin-top:16px}
+.course-document :is(h2,h3):focus{outline:3px solid var(--focus);outline-offset:5px;border-radius:3px}
+.course-document :is(h2,h3)[id]{scroll-margin-top:16px}
+.reader-outline-subsection{margin-left:15px;font-size:.92em}
 @media(max-width:460px){.reader-settings{flex-direction:column;align-items:stretch}.reader-settings select{flex:initial;width:100%}.course-document[data-reading-size="extra"] h2{font-size:1.6rem}}

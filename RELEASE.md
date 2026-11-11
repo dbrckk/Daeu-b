@@ -190,3 +190,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - [54 tests pédagogiques et techniques réussis](https://github.com/dbrckk/Daeu-b/actions/runs/42806093191) : mapping des 13 domaines, rejet des paramètres inconnus, compatibilité des sauvegardes et exercices.
 - [Parcours fonctionnel Chromium mobile réussi](https://github.com/dbrckk/Daeu-b/actions/runs/42807190553) : navigation cours → chapitre, tests d'examens et des copies, export/import, 18 cours et corrigés consultables hors connexion.
 - Les premières exécutions Chromium de v19 échouaient sur une **vérification prématurée** avant la fin de l'initialisation des modules et du chargement Markdown. Les attentes asynchrones ont été ajoutées avant l'évaluation ; le scénario complet a ensuite réussi. Les tests matériels Android et la revue académique indépendante restent ouverts.
+
+
+## v20 — confort et accessibilité des lecteurs (11/11/2026)
+- Sommaires repliables avec liens directs vers les titres de sections et sous-sections, accessibles au clavier, sur les cours et les problèmes. Retour au sommaire en bas de document.
+- Choix entre trois tailles de texte, partagé entre cours et problèmes, mémorisé localement sous une clé distincte des examens.
+- Tests Chromium mobile : navigation au sommaire et focus, 320 px avec texte très agrandi, préférence conservée entre lecteurs et hors connexion.
+- Les tests automatisés ne remplacent pas un audit humain complet d'accessibilité (notamment lecteurs d'écran) ni une validation sur un téléphone physique.

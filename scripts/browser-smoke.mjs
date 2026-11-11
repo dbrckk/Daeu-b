@@ -40,6 +40,22 @@ try {
     "Navigation entre les 18 cours");
   await check(async()=>await courseOnline.locator("#courseStatus").textContent().then(s=>s.includes("Cours 8/18")),
     "Chapitre choisi depuis le paramètre d'URL");
+  await check(async()=>await courseOnline.locator("#courseToc a").count()===await courseOnline.locator("#courseBody h2, #courseBody h3").count(),
+    "Sommaire du cours : chaque section et sous-section dispose d'un lien");
+  await courseOnline.locator("#courseOutline summary").click();
+  await courseOnline.locator("#courseToc a").first().click();
+  await check(async()=>await courseOnline.evaluate(()=>
+    !!location.hash&&document.activeElement?.matches("#courseBody h2, #courseBody h3")),
+    "Sommaire : saut et focus au clavier vers le titre de section");
+  await courseOnline.locator("#courseTextSize").selectOption("extra");
+  await check(async()=>await courseOnline.evaluate(()=>
+    document.querySelector("#courseBody").dataset.readingSize==="extra"
+    &&Number.parseFloat(getComputedStyle(document.querySelector("#courseBody")).fontSize)>=20),
+    "Taille de lecture très grande activée et appliquée");
+  await courseOnline.setViewportSize({width:320,height:800});
+  await check(async()=>await courseOnline.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),
+    "Lecture agrandie sans défilement horizontal à 320 px");
+  await courseOnline.setViewportSize({width:390,height:844});
   await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
     "Cours de limites relié directement au bon chapitre d'entraînement");
   await courseOnline.locator("#coursePractice").click();
@@ -58,6 +74,18 @@ try {
   const problemsPage=await context.newPage();
   problemsPage.on("pageerror",e=>errors.push("Problèmes : "+e.message));
   await problemsPage.goto(BASE+"/problems.html",{waitUntil:"networkidle"});
+  await check(async()=>await problemsPage.locator("#problemTextSize").inputValue().then(v=>v==="extra")
+    &&await problemsPage.locator("#problemBody").getAttribute("data-reading-size").then(v=>v==="extra"),
+    "Taille de lecture conservée entre un cours et les problèmes");
+  await check(async()=>await problemsPage.locator("#problemToc a").count()>=11,
+    "Sommaire des problèmes : les niveaux et les huit exercices sont navigables");
+  await problemsPage.locator("#problemOutline summary").click();
+  await problemsPage.locator("#problemToc a").last().click();
+  await check(async()=>await problemsPage.evaluate(()=>document.activeElement?.matches("#problemBody h2, #problemBody h3")),
+    "Sommaire des problèmes : navigation clavier vers un exercice");
+  await problemsPage.locator("#problemTextSize").selectOption("normal");
+  await check(async()=>await problemsPage.locator("#problemBody").getAttribute("data-reading-size").then(v=>v==="normal"),
+    "Réglage de lecture normal rétabli");
   await check(async()=>await problemsPage.locator("#problemBody h3").count()===8,
     "Huit problèmes locaux affichés sans correction");
   await check(async()=>await problemsPage.locator("#problemBody math").count()>=5,
@@ -294,11 +322,18 @@ try {
     "Cours de probabilités accessible par URL directe hors ligne");
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
     "Équations de probabilités rendues sans connexion");
+  await offlineCourse.locator("#courseTextSize").selectOption("large");
+  await check(async()=>await offlineCourse.locator("#courseBody").getAttribute("data-reading-size").then(v=>v==="large"),
+    "Lecture agrandie disponible hors connexion");
+  await check(async()=>await offlineCourse.locator("#courseToc a").count()>=5,
+    "Sommaire des sections reconstruit hors connexion");
   await offlineCourse.locator("#courseSelector").selectOption("13-trigonometrie");
   await check(async()=>await offlineCourse.locator("#courseBody h1").textContent().then(s=>s.includes("Trigonométrie")),
     "Changement de cours vers la trigonométrie hors ligne");
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
     "MathML toujours disponible au changement de chapitre");
+  await check(async()=>await offlineCourse.locator("#courseTextSize").inputValue().then(v=>v==="large"),
+    "Préférence de lecture conservée en changeant de chapitre hors connexion");
   const allCourses=await offlineCourse.locator("#courseSelector option").evaluateAll(nodes=>nodes.map(n=>n.value));
   assert.equal(allCourses.length,18);
   let mathTotal=0,mathFallbacks=0;

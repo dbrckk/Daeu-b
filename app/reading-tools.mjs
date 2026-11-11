@@ -18,7 +18,7 @@ export function initReadingTools(article,sizeSelect,outline){
     try{localStorage.setItem(KEY,sizeSelect.value);}catch{/* lecture toujours utilisable */ }
   });
   return function rebuildOutline(){
-    const headings=[...article.querySelectorAll("h2")],used=new Set();
+    const headings=[...article.querySelectorAll("h2,h3")],used=new Set();
     const list=document.createElement("ol");
     for(const [i,heading] of headings.entries()){
       let id=heading.id && !used.has(heading.id)?heading.id:"lecture-section-"+(i+1);
@@ -31,6 +31,7 @@ export function initReadingTools(article,sizeSelect,outline){
       link.href="#"+encodeURIComponent(id);
       link.textContent=heading.textContent.trim()||"Section "+(i+1);
       link.addEventListener("click",()=>heading.focus({preventScroll:true}));
+      if(heading.tagName==="H3")li.className="reader-outline-subsection";
       li.append(link);list.append(li);
     }
     outline.replaceChildren(list);

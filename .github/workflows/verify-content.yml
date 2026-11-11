@@ -44,6 +44,7 @@ jobs:
           node --check app/round.mjs
           node --check app/sw.js
           node --check app/course-catalog.mjs
+          node --check app/reading-tools.mjs
           node --check app/course-reader.mjs
           node --check app/course-catalog.mjs
       - name: Vérifier notation, jalons, révisions et sauvegardes

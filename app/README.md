@@ -248,3 +248,10 @@ Les fichiers `app/cours/*.md` sont des copies des cours `maths/*.md`, vérifiée
 
 ## v19 — navigation pédagogique depuis un cours (10/11/2026)
 Les treize chapitres couverts par la banque de 143 questions disposent, dans leur lecteur Markdown, d'un accès **« M'entraîner sur ce chapitre »** qui présélectionne le domaine associé à leur arrivée à l'atelier. L'entraînement ne commence pas automatiquement : une séance éventuellement en cours n'est pas remplacée. Les cinq cours sans domaine dédié (positionnement, trigonométrie, géométrie, complexes, rédaction) renvoient honnêtement vers l'entraînement général. Un second lien ouvre les huit problèmes rédigés. Les liens restent utilisables hors ligne après installation de la PWA.
+
+
+## v20 — lecture confortable et navigation accessible (11/11/2026)
+- **Sommaire interactif** dans les 18 cours, les 8 problèmes et leurs corrections : liens vers chaque titre et sous-titre, utilisables au clavier et hors connexion ; retour au sommaire depuis le bas de page.
+- **Trois tailles de texte** (normale, grande, très grande), avec préférence locale `daeu-b-reading-size-v1` commune aux deux lecteurs. L'écriture reste facultative si le stockage est bloqué.
+- Aucune modification de la clé transactionnelle `daeu-b-data-v1`, des examens A/B/C/D, de la progression ou des exports JSON.
+- Tests Chromium : sommaires et focus des titres, texte agrandi à 320 px, persistance entre écrans et entre chapitres hors ligne.
