@@ -263,3 +263,8 @@ Panneau de recherche déroulant sans API ni compte : casse et accents ignorés, 
 
 ### Signets par section — correction d'ergonomie v22
 Chaque titre de cours ou de problème possède désormais une commande « Marquer cette section ». Elle évite de remonter aux réglages, ce qui changeait le titre considéré comme la position actuelle. La reprise et l'effacement des signets existants restent compatibles ; les données d'examen ne sont pas modifiées.
+
+
+## Version v25 — repérage initial et suivi des jalons
+
+Depuis la page d'accueil, « Repérage initial · jusqu’à 10 jalons » choisit une question fixe nouvelle par jalon encore jamais abordé. La série suivante peut couvrir d'autres jalons, jusqu'aux vingt obligatoires. Les réponses utilisent le même système de progression, d'export/import et de reprise hors connexion. La liste par jalon et les recommandations sont recalculées uniquement à partir des réponses réelles. L'outil ne délivre ni note de diagnostic psychométrique ni certificat de maîtrise. Les examens A/B/C/D et la clé `daeu-b-data-v1` sont inchangés.

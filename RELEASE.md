@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v25 — parcours guidé par jalon (11 novembre 2026)
+
+- Repérage initial de dix questions maximum sur les jalons encore non abordés.
+- Tableau des vingt jalons avec tentatives, questions confirmées, rappels échus et erreurs non confirmées ; recommandations et révisions ciblées.
+- Compatibilité des sauvegardes et examens préservée ; tests Node/Chromium mobile et scénario hors connexion réussis.
+
 ## v24 — renforcement prioritaire de la banque interactive (11 novembre 2026)
 
 - 116 questions fixes + 41 générateurs de valeurs = **157 entrées** avec corrections et exercices reproductibles.

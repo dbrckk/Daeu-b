@@ -116,3 +116,8 @@ La séance de dix questions en cours est enregistrée dans la même transaction 
 
 ## v17 — Bibliothèque complète hors ligne
 La [bibliothèque de cours](https://daeu-b-maths-dbrckk.onrender.com/course.html) inclut les 18 chapitres 00–17 : explications, équations, tableaux, exercices et corrigés. Le navigateur télécharge les cours, le moteur Markdown et le rendu MathML lors de la mise en cache de la PWA. Les liens des cartes de chapitre, de l'entraînement et des corrections d'examen ouvrent ce lecteur local, sans CDN. Les fichiers sources restent dans `maths/` et les copies déployées dans `app/cours/` sont comparées octet par octet en CI.
+
+
+## Parcours d'apprentissage par jalon — v25
+
+L'atelier propose un **repérage initial en séries de dix questions maximum**, une question pour chacun des jalons obligatoires qui n'ont pas encore été abordés. Le suivi de **20 jalons** présente les questions tentées, confirmées, les rappels à effectuer et les erreurs non confirmées. La prochaine étape conseillée privilégie les rappels échus, puis les erreurs, les notions nouvelles et la consolidation. Un bouton lance une séance ciblée sur le jalon choisi et ouvre son cours. Les modèles qui couvrent deux jalons ne deviennent pas deux exercices distincts dans le total global. Les anciennes sauvegardes restent compatibles ; **une réussite isolée ne certifie pas la maîtrise du programme**.

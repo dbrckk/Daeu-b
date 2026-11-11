@@ -90,7 +90,7 @@ export const buildAudit=function buildAudit(topics,variants,courses,program,fixe
   return {
     schemaVersion:1,
     scope:"SONATE / Université Côte d'Azur 2026–2027",
-    sourceFiles:["PROGRAMME.md","app/questions.mjs","app/variants.mjs","app/course-catalog.mjs","scripts/coverage-map.mjs"],
+    sourceFiles:["PROGRAMME.md","app/questions.mjs","app/variants.mjs","app/course-catalog.mjs","app/jalons.mjs","scripts/coverage-map.mjs"],
     methodology:"Questions fixes classifiées une seule fois manuellement par jalon; les générateurs portent leurs jalons explicitement dans le code et peuvent couvrir plusieurs jalons. Ni difficulté ni maîtrise personnelle déduites des effectifs.",
     totals,jalons,errors
   };

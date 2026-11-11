@@ -101,3 +101,11 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Les lacunes **purement quantitatives** du rapport v23 sont levées (aucun jalon obligatoire avec deux questions fixes ou moins, ni avec un seul modèle variable). La profondeur pédagogique et les transferts restent à mesurer, sans prétendre que le taux de maîtrise est établi.
 - Compatibilité : identifiants historiques préservés ; même modèle de sauvegarde ; cache PWA incrémenté pour éviter un mélange ancien/nouveau.
 - **Prochaine priorité v24** : vérifier systématiquement les corrections, domaines et hypothèses, puis enrichir les problèmes rédigés avant de lancer le diagnostic v25.
+
+
+## Livraison v25 — repérage et progression par jalon (11 novembre 2026)
+
+- **Déployé dans `main` :** `app/jalons.mjs` et `app/jalon-progress.mjs` donnent une attribution commune aux outils d'audit et au navigateur, sans changement des identifiants de questions.
+- **Disponible :** repérage en blocs de dix jalons non abordés, statistiques descriptives par jalon et recommandations déterministes (rappels > erreurs non confirmées > nouveautés > consolidation).
+- **Validation :** tests Node, contrôles de contenu et scénario Chromium mobile/hors ligne, avec reprise de la séance initiale ; aucune prétention de validation universitaire ou sur téléphone physique.
+- **Reste à accomplir pour la v25 complète :** expliciter les liens de prérequis, analyser la réussite sur des situations de transfert et éviter toute interprétation abusive d'un compteur d'exercices confirmés comme une maîtrise du jalon.
