@@ -11,6 +11,7 @@ def check(ok,message):
 
 pattern=re.compile(r"^## T(\d{2}) — Jalon (\d+) : ([^\n]+)$",re.MULTILINE)
 expected=list(range(1,21))
+series_titles={}
 for suffix in ("","-b","-c"):
     documents={}
     for kind in ("sujets","corriges"):
@@ -37,9 +38,16 @@ for suffix in ("","-b","-c"):
     if set(documents)=={"sujets","corriges"}:
         titles=lambda kind:[m.group(3) for m in pattern.finditer(documents[kind])]
         check(titles("sujets")==titles("corriges"),f"Série {suffix or 'A'} : titres sujet/corrigé différents")
+        series_titles[suffix or "-a"]=titles("sujets")
         check("**Auto-évaluation" not in documents["sujets"],"Grille révélée dans les sujets")
         check(documents["corriges"].count("**Auto-évaluation")==20,
               f"Série {suffix or 'A'} : 20 grilles de raisonnement attendues")
+
+# Trois contextes distincts par jalon, sans recycler le même titre d'exercice.
+if len(series_titles)==3:
+    for i in range(20):
+        titles={series_titles[series][i] for series in ("-a","-b","-c")}
+        check(len(titles)==3,f"Jalon {i+1} : les séries A/B/C doivent avoir des titres distincts")
 
 if ERRORS:
     for error in ERRORS:print("ERREUR :",error)
