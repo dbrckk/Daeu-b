@@ -99,3 +99,37 @@ test("JSON corrompu conservé et non effacé silencieusement",()=>{
   assert.throws(()=>createPersistence(storage,known),/non lisibles/);
   assert.equal(storage.getItem(OLD_PRACTICE_KEY),"{");
 });
+
+import {emptyTransferStore,recordTransferReview} from "./transfer-progress.mjs";
+test("v25.3 : import historique ancien sans transferts, puis édition atomique",()=>{
+  const storage=createVolatileStorage();
+  storage.setItem(DATA_KEY,JSON.stringify({version:1,revision:0,practice:emptyState(),exams:emptyExamStore(),round:null}));
+  const adapter=createPersistence(storage,known);
+  assert.deepEqual(adapter.snapshot().transfers,emptyTransferStore());
+  const changed=recordTransferReview(emptyTransferStore(),5,[true,true,false,false],time);
+  const after=adapter.updateTransfers(changed);
+  assert.equal(after.revision,1);
+  assert.equal(after.transfers.items[5].reviews.length,1);
+  const reload=createPersistence(storage,known);
+  assert.deepEqual(reload.snapshot().transfers,changed);
+  assert.equal(reload.snapshot().practice.version,2);
+});
+test("v25.3 : import, export JSON et reset : pas de perte et pas de modification partielle",()=>{
+  const storage=createVolatileStorage(),adapter=createPersistence(storage,known);
+  const transfer=recordTransferReview(emptyTransferStore(),18,[false,true,true,false],time);
+  adapter.updateTransfers(transfer);
+  const old=storage.getItem(DATA_KEY);
+  assert.throws(()=>adapter.replaceAll(emptyState(),emptyExamStore(),null,{version:1,items:{"18":{reviews:[]}}}),/mal formé/);
+  assert.equal(storage.getItem(DATA_KEY),old);
+  adapter.replaceAll(recordAnswer(emptyState(),"q01",true,time),emptyExamStore(),null,transfer);
+  assert.deepEqual(adapter.snapshot().transfers,transfer);
+  adapter.replaceAll(emptyState(),emptyExamStore());
+  assert.deepEqual(adapter.snapshot().transfers,emptyTransferStore());
+  assert.equal(adapter.snapshot().practice.items.q01,undefined);
+});
+test("v25.3 : onglet obsolète ne peut effacer les transferts",()=>{
+  const storage=createVolatileStorage(),a=createPersistence(storage,known),b=createPersistence(storage,known);
+  a.updateTransfers(recordTransferReview(emptyTransferStore(),20,[true,false,false,false],time));
+  assert.throws(()=>b.updatePractice(emptyState()),StaleDataError);
+  assert.equal(createPersistence(storage,known).snapshot().transfers.items[20].reviews.length,1);
+});

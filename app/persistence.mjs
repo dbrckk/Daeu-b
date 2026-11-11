@@ -1,9 +1,9 @@
 /**
- * Storage transactionnel unique pour les révisions et les copies.
+ * Storage transactionnel unique pour les révisions, les copies et les transferts.
  *
  * Une écriture localStorage.setItem() remplace atomiquement la chaîne
  * complète ; l'export/import ou le reset ne peuvent ainsi laisser un
- * état « révisions importées, copies non importées ».
+ * état « révisions importées, copies ou transferts non importés ».
  *
  * Le contrôle d'empreinte empêche un onglet ancien d'écraser sans préavis
  * un état qui a changé depuis son chargement. L'API localStorage ne fournit
@@ -13,6 +13,7 @@
 import {emptyState,sanitizeState} from "./engine.mjs";
 import {emptyExamStore,sanitizeExamStore} from "./exam-engine.mjs";
 import {sanitizeRound} from "./round.mjs";
+import {emptyTransferStore,sanitizeTransferStore} from "./transfer-progress.mjs";
 
 export const DATA_KEY="daeu-b-data-v1";
 export const OLD_PRACTICE_KEY="daeu-b-maths-progress-v2";
@@ -35,7 +36,8 @@ function normalizeBundle(raw,knownIds){
     revision:raw.revision,
     practice:sanitizeState(raw.practice,knownIds),
     exams:sanitizeExamStore(raw.exams),
-    round:sanitizeRound(raw.round,knownIds)
+    round:sanitizeRound(raw.round,knownIds),
+    transfers:sanitizeTransferStore(raw.transfers)
   };
 }
 function parse(value,label){
@@ -53,7 +55,8 @@ export function createPersistence(storage,knownIds){
     revision:0,
     practice:legacyPracticeRaw===null?emptyState():sanitizeState(parse(legacyPracticeRaw,"du suivi"),knownIds),
     exams:legacyExamsRaw===null?emptyExamStore():sanitizeExamStore(parse(legacyExamsRaw,"des copies")),
-    round:null
+    round:null,
+    transfers:emptyTransferStore()
   }:normalizeBundle(parse(startRaw,"unifiées"),knownIds);
   let fingerprint=startRaw;
 
@@ -72,7 +75,8 @@ export function createPersistence(storage,knownIds){
       revision:current.revision+1,
       practice:updated.practice,
       exams:updated.exams,
-      round:updated.round??null
+      round:updated.round??null,
+      transfers:sanitizeTransferStore(updated.transfers??current.transfers)
     };
     if(next.revision>1e12)throw new InvalidStorageError("Le compteur de sauvegarde a atteint sa limite");
     const encoded=JSON.stringify(next);
@@ -107,6 +111,9 @@ export function createPersistence(storage,knownIds){
       if(!exams||exams.version!==emptyExamStore().version)throw new InvalidStorageError("Copies non compatibles");
       return save({...current,exams:sanitizeExamStore(exams)});
     },
+    updateTransfers(transfers){
+      return save({...current,transfers:sanitizeTransferStore(transfers)});
+    },
     updateRound(round){
       return save({...current,round:sanitizeRound(round,knownIds)});
     },
@@ -116,12 +123,13 @@ export function createPersistence(storage,knownIds){
       const cleanRound=sanitizeRound(round,knownIds);
       return save({...current,practice:cleanPractice,round:cleanRound});
     },
-    replaceAll(practice,exams,round=null){
+    replaceAll(practice,exams,round=null,transfers=emptyTransferStore()){
       // Import et remise à zéro remplacent toutes les données ensemble.
       const cleanPractice=sanitizeState(practice,knownIds);
       const cleanExams=sanitizeExamStore(exams);
       const cleanRound=sanitizeRound(round,knownIds);
-      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound});
+      const cleanTransfers=sanitizeTransferStore(transfers);
+      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,transfers:cleanTransfers});
     },
     storageKey:DATA_KEY
   };
