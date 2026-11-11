@@ -66,6 +66,12 @@ try {
     await check(async()=>await transferPage.locator("#problemBody h2").count()===20
       &&await transferPage.locator("#problemBody").textContent().then(s=>s.includes("Auto-évaluation raisonnement")),"20 corrigés séparés et grille de raisonnement");
     await transferPage.close();
+    await check(async()=>await diagnosisPage.locator("#syncWarning").isVisible()
+      &&await diagnosisPage.locator("#main").getAttribute("inert")!==null,
+      "Modification inter-onglets détectée : l'ancien tableau de bord refuse les écritures");
+    await diagnosisPage.reload({waitUntil:"networkidle"});
+    await check(async()=>await diagnosisPage.locator("#syncWarning").isHidden(),
+      "Rechargement résout le conflit et conserve le transfert écrit");
     await diagnosisPage.locator("#diagnosticStart").click();
     await check(async()=>await diagnosisPage.locator("#quiz").isVisible()&&await diagnosisPage.locator("#quizCount").textContent().then(s=>s.includes("1 / 10")),"v25 : repérage initial en dix questions");
     await diagnosisPage.locator("#unknownButton").click();
