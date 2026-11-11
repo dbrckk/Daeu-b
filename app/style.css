@@ -120,3 +120,21 @@
 .reader-bookmarks button{min-height:44px;max-width:100%;white-space:normal;text-align:left}
 .reader-bookmarks p{flex-basis:100%;margin:0}
 @media(max-width:460px){.reader-bookmarks button{flex:1 1 100%}}
+
+/* v22 : sauvegarde flottante au niveau de la section lue. */
+#courseBookmarkSave,#problemBookmarkSave{
+  position:fixed;right:max(15px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));
+  z-index:12;max-width:min(80vw,280px);min-height:48px;
+  padding:11px 16px;border-radius:14px;
+  background:var(--teal);color:#102737;border:2px solid #244957;
+  box-shadow:0 5px 24px #071224bb;font-weight:750;text-align:center;
+}
+#courseBookmarkSave:hover,#problemBookmarkSave:hover{background:#a2f4e6}
+#courseBookmarkStatus:not(:empty),#problemBookmarkStatus:not(:empty){
+  position:fixed;right:15px;bottom:85px;z-index:13;pointer-events:none;
+  width:max-content;max-width:min(85vw,340px);padding:10px 13px;
+  background:var(--panel2);color:var(--ink);
+  border:1px solid var(--teal);border-radius:10px;box-shadow:0 4px 22px #0008
+}
+.course-layout{padding-bottom:max(105px,calc(105px + env(safe-area-inset-bottom)))}
+@media(prefers-reduced-motion:reduce){.course-layout{scroll-behavior:auto}}

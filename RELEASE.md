@@ -204,3 +204,10 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Signets distincts par chapitre et par document (sujets/corrigés), sans enregistrement automatique des mouvements de lecture et sans toucher aux copies d'examens.
 - Effacement volontaire, message d'erreur si le stockage est interdit, identifiants strictement validés ; commandes tactiles et focus clavier.
 - Vérification par tests purs et parcours Chromium mobile, y compris la restauration après rechargement.
+
+
+## v22 — signets exacts sur mobile et CI moins dépendante du réseau (11/11/2026)
+- Le bouton « Marquer ma position » reste accessible pendant la lecture sans faire remonter la page au sommaire ; le signet enregistre la section visible, non une section choisie par erreur après défilement.
+- Confirmation visuelle temporaire et annonce accessible de la section sauvegardée ; positionnement respectant les marges sûres de l'écran.
+- Scénarios Chromium renforcés : vérification de l'identifiant exact de la section dans un cours et un problème, puis reprise après rechargement hors connexion.
+- La CI installe uniquement Chromium headless, sans installation apt répétée et bloquante ; la compatibilité du runner reste validée par l'exécution réelle du navigateur.

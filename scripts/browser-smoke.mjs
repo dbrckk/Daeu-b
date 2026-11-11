@@ -48,13 +48,14 @@ try {
     !!location.hash&&document.activeElement?.matches("#courseBody h2, #courseBody h3")),
     "Sommaire : saut et focus au clavier vers le titre de section");
   // Signet explicite, restauration après rechargement et isolation par cours.
-  await courseOnline.locator("#courseBody h2").nth(2).scrollIntoViewIfNeeded();
+  const chosenHeading=await courseOnline.locator("#courseBody h2").nth(2).getAttribute("id");
+  await courseOnline.evaluate(()=>document.querySelectorAll("#courseBody h2")[2].scrollIntoView({block:"start",behavior:"instant"}));
   await courseOnline.locator("#courseBookmarkSave").click();
   await check(async()=>await courseOnline.locator("#courseBookmarkResume").isVisible(),
     "Signet de cours enregistré et bouton de reprise disponible");
   const savedSection=await courseOnline.evaluate(()=>
     localStorage.getItem("daeu-b-reader-bookmark-v1:cours:07-limites-asymptotes"));
-  assert.ok(savedSection?.startsWith("lecture-section-"),"Signet de cours manquant");
+  assert.equal(savedSection,chosenHeading,"Le signet doit pointer la section réellement lue");
   await courseOnline.reload({waitUntil:"networkidle"});
   await check(async()=>await courseOnline.locator("#courseBookmarkResume").isVisible(),
     "Signet de cours conservé après rechargement");
@@ -106,8 +107,11 @@ try {
     "Huit problèmes locaux affichés sans correction");
   await check(async()=>await problemsPage.locator("#problemBody math").count()>=5,
     "Formules des problèmes converties en MathML");
-  await problemsPage.locator("#problemBody h3").first().scrollIntoViewIfNeeded();
+  await problemsPage.evaluate(()=>document.querySelector("#problemBody h3").scrollIntoView({block:"start",behavior:"instant"}));
   await problemsPage.locator("#problemBookmarkSave").click();
+  await check(async()=>await problemsPage.evaluate(()=>
+    localStorage.getItem("daeu-b-reader-bookmark-v1:problemes:sujets")===document.querySelector("#problemBody h3").id),
+    "Signet des problèmes : section exacte conservée sans remonter au sommaire");
   await check(async()=>await problemsPage.locator("#problemBookmarkResume").isVisible(),
     "Signet des sujets de problèmes enregistré");
   await problemsPage.locator("#problemSwitch").click();
@@ -375,6 +379,16 @@ try {
   }
   await check(async()=>mathTotal>=60,"18 cours vérifiés hors ligne avec au moins 60 expressions mathématiques");
   console.log("Audit mathématique offline : "+mathTotal+" MathML, "+mathFallbacks+" formules en texte de repli");
+  await offlineCourse.locator("#courseBody h2").nth(1).evaluate(node=>node.scrollIntoView({block:"start",behavior:"instant"}));
+  await offlineCourse.locator("#courseBookmarkSave").click();
+  await check(async()=>await offlineCourse.locator("#courseBookmarkResume").isVisible(),
+    "Signet enregistré alors que le téléphone simulé est hors connexion");
+  await offlineCourse.reload({waitUntil:"domcontentloaded"});
+  await offlineCourse.locator("#courseBookmarkResume").waitFor({state:"visible"});
+  await offlineCourse.locator("#courseBookmarkResume").click();
+  await check(async()=>await offlineCourse.evaluate(()=>
+    document.activeElement?.id===localStorage.getItem("daeu-b-reader-bookmark-v1:cours:13-trigonometrie")),
+    "Section marquée reprise après recharge intégralement hors connexion");
   await check(async()=>await offlineCourse.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
     "Navigation vers la pratique générale conservée hors ligne pour le complément");
   await offlineCourse.close();

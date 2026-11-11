@@ -48,24 +48,29 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
         heading.focus({preventScroll:true});
         heading.scrollIntoView({block:"start"});
       }
+      function announce(message){
+        status.textContent=message;
+        clearTimeout(announce.clearTimer);
+        announce.clearTimer=setTimeout(()=>{status.textContent="";},5500);
+      }
       saveButton.onclick=()=>{
         // Conserver le dernier titre atteint, pas un décalage de pixels
         // fragile après zoom, changement de police ou mise à jour du cours.
         const reached=headings.filter(h=>h.getBoundingClientRect().top<=window.innerHeight*0.35);
         const current=reached.at(-1)??headings[0];
-        if(!current){status.textContent="Aucune section à enregistrer.";return;}
+        if(!current){announce("Aucune section à enregistrer.");return;}
         const ok=saveBookmark(localStorage,documentId,current.id);
-        status.textContent=ok?"Position enregistrée sur cet appareil.":"Stockage indisponible : position non enregistrée.";
+        announce(ok?"Position enregistrée : "+current.textContent.trim()+".":"Stockage indisponible : position non enregistrée.");
         refresh();
       };
       resumeButton.onclick=()=>{
         const heading=available();
         if(heading)goTo(heading);
-        else {status.textContent="Signet indisponible : cette section n'existe plus.";refresh();}
+        else {announce("Signet indisponible : cette section n'existe plus.");refresh();}
       };
       clearButton.onclick=()=>{
         const ok=clearBookmark(localStorage,documentId);
-        status.textContent=ok?"Signet supprimé.":"Impossible de supprimer le signet.";
+        announce(ok?"Signet supprimé.":"Impossible de supprimer le signet.");
         refresh();
       };
       refresh();

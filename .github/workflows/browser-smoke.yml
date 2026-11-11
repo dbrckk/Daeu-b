@@ -30,10 +30,12 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: daeu-playwright-${{ runner.os }}-chromium-shell-1.65.0
-      - name: Installer seulement Chromium headless (dépendance CI)
+      # Les runners hébergés disposent des bibliothèques Chromium usuelles.
+      # Éviter apt-get à chaque exécution : cette étape réseau pouvait rester bloquée.
+      - name: Installer Chromium headless sans apt
         run: |
           npm install --no-save --ignore-scripts --no-audit --no-fund playwright@1.65.0
-          npx playwright install --with-deps --only-shell chromium
+          npx playwright install --only-shell chromium
       - name: Tester le parcours réel et le hors ligne
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 --directory app > /tmp/daeu-http.log 2>&1 &

@@ -334,3 +334,11 @@ Le site de préparation reste indépendant de l'université et ne délivre pas l
 - [x] Préchargement du module pour le hors-ligne et vérification des identifiants dans les tests Node.js.
 - [x] Contrôles Chromium mobile des signets, de la reprise et de leur isolation entre documents.
 - [ ] Essai sur Android physique et audit avec lecteur d'écran TalkBack.
+
+
+## Livraison v22 — signets fiables pendant la lecture (11/11/2026)
+- [x] Corriger le choix involontaire de section lorsque le bouton de signet déplaçait la fenêtre vers le haut.
+- [x] Conserver le bouton de marquage à portée de main avec confirmation et respect des zones sûres Android.
+- [x] Contrôler l'identité de la section réellement lue puis sa reprise après redémarrage hors connexion.
+- [x] Réduire les risques de blocage des tests Chromium en supprimant l'installation apt à chaque exécution.
+- [ ] Valider les interactions au toucher et avec TalkBack sur un téléphone Android physique.
