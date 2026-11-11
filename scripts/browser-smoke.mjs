@@ -22,7 +22,7 @@ const check=async (fn,label)=>{
 
 try {
   await page.goto(BASE,{waitUntil:"networkidle",timeout:30000});
-  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="143"),"143 questions chargées");
+  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===4,"Examens A/B/C/D disponibles");
   await check(async()=>await page.locator("#courseLibrary a").count()===18,
@@ -327,7 +327,7 @@ try {
   await page.reload({waitUntil:"networkidle"});
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
-  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="143"),"Application chargée hors ligne");
+  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"Application chargée hors ligne");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Copies accessibles hors ligne");
   // La PWA doit aussi conserver les modules des examens et les nouvelles
   // variantes hors ligne, sans tenter de charger les cours GitHub.

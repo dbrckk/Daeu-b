@@ -6,32 +6,32 @@ Les affectations des **questions fixes** sont une classification éditoriale exp
 
 ## Inventaire vérifiable
 
-- **111 questions fixes** attribuées une fois chacune (111 classées) ; **32 générateurs uniques** ; **143 entrées interactives uniques**.
+- **116 questions fixes** attribuées une fois chacune (116 classées) ; **41 générateurs uniques** ; **157 entrées interactives uniques**.
 - **20 jalons obligatoires** dotés d'au moins une question fixe attribuée et d'un générateur ; **3 jalons facultatifs** distingués de la banque.
-- **34 attributions de générateurs à des jalons**, pour 32 modèles uniques (modèles couvrant plusieurs jalons).
-- Effectif fixe faible (≤2) : **2, 3, 5**. Un seul modèle variable : **5, 6, 8, 11, 13, 16, 17**.
+- **43 attributions de générateurs à des jalons**, pour 41 modèles uniques (modèles couvrant plusieurs jalons).
+- Effectif fixe faible (≤2) : **aucun**. Un seul modèle variable : **aucun**.
 
 ## Matrice des 23 jalons (20 obligatoires + 3 facultatifs)
 
 | Jalon | Notion | Cours | Fixes (N/Choix) | Modèles variables | Vigilance |
 |---:|---|---|---:|---:|---|
 | 1 | Nombres entiers | 01 | 5 (5/0) | 2 | Attribution présente ; profondeur non mesurée |
-| 2 | Nombres rationnels | 01 | 2 (2/0) | 2 | ≤2 questions fixes |
-| 3 | Nombres réels | 01 | 1 (1/0) | 2 | ≤2 questions fixes |
+| 2 | Nombres rationnels | 01 | 3 (3/0) | 3 | Attribution présente ; profondeur non mesurée |
+| 3 | Nombres réels | 01 | 3 (2/1) | 3 | Attribution présente ; profondeur non mesurée |
 | 4 | Calcul littéral | 02 | 6 (1/5) | 2 | Attribution présente ; profondeur non mesurée |
-| 5 | Équations à une inconnue | 03 | 2 (2/0) | 1 | ≤2 questions fixes ; ≤1 modèle variable |
-| 6 | Systèmes de deux équations à deux inconnues | 03 | 3 (3/0) | 1 | ≤1 modèle variable |
+| 5 | Équations à une inconnue | 03 | 4 (4/0) | 2 | Attribution présente ; profondeur non mesurée |
+| 6 | Systèmes de deux équations à deux inconnues | 03 | 3 (3/0) | 2 | Attribution présente ; profondeur non mesurée |
 | 7 | Polynômes de degré 2 | 04 | 6 (4/2) | 2 | Attribution présente ; profondeur non mesurée |
-| 8 | Intervalles réels et inéquations | 03, 04 | 3 (0/3) | 1 | ≤1 modèle variable |
+| 8 | Intervalles réels et inéquations | 03, 04 | 3 (0/3) | 2 | Attribution présente ; profondeur non mesurée |
 | 9 | Statistiques descriptives | 11 | 10 (9/1) | 2 | Attribution présente ; profondeur non mesurée |
 | 10 | Introduction aux fonctions | 05 | 7 (3/4) | 2 | Attribution présente ; profondeur non mesurée |
-| 11 | Limites | 07 | 6 (4/2) | 1 | ≤1 modèle variable |
+| 11 | Limites | 07 | 6 (4/2) | 2 | Attribution présente ; profondeur non mesurée |
 | 12 | Dérivées | 06 | 8 (4/4) | 2 | question hors jalons du domaine : l12 |
-| 13 | Asymptotes | 07 | 5 (0/5) | 1 | ≤1 modèle variable |
+| 13 | Asymptotes | 07 | 5 (0/5) | 2 | Attribution présente ; profondeur non mesurée |
 | 14 | Théorème des valeurs intermédiaires | 08 | 10 (5/5) | 2 | Attribution présente ; profondeur non mesurée |
 | 15 | Suites numériques | 10 | 7 (5/2) | 2 | Attribution présente ; profondeur non mesurée |
-| 16 | Logarithme | 09 | 6 (3/3) | 1 | ≤1 modèle variable |
-| 17 | Exponentielle | 09 | 3 (1/2) | 1 | ≤1 modèle variable |
+| 16 | Logarithme | 09 | 6 (3/3) | 2 | Attribution présente ; profondeur non mesurée |
+| 17 | Exponentielle | 09 | 3 (1/2) | 2 | Attribution présente ; profondeur non mesurée |
 | 18 | Calcul intégral | 15 | 8 (5/3) | 2 | Attribution présente ; profondeur non mesurée |
 | 19 | Probabilités discrètes | 12 | 8 (8/0) | 3 | Attribution présente ; profondeur non mesurée |
 | 20 | Variables aléatoires | 12 | 5 (5/0) | 2 | Attribution présente ; profondeur non mesurée |

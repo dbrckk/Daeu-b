@@ -6,17 +6,19 @@ import {VARIANTS} from "../app/variants.mjs";
 import {COURSES} from "../app/course-catalog.mjs";
 import {FIXED_IDS_BY_JALON} from "./coverage-map.mjs";
 import {readFileSync} from "node:fs";
-test("v23 : attribution exacte et distincte des 143 entrées",()=>{
+test("v24 : attribution exacte et distincte des 157 entrées",()=>{
  const a=currentAudit();
  assert.deepEqual(a.errors,[]);
- assert.equal(a.totals.fixedUnique,111);
- assert.equal(a.totals.variantUnique,32);
- assert.equal(a.totals.interactiveUnique,143);
- assert.equal(a.totals.fixedAttributed,111);
+ assert.equal(a.totals.fixedUnique,116);
+ assert.equal(a.totals.variantUnique,41);
+ assert.equal(a.totals.interactiveUnique,157);
+ assert.equal(a.totals.fixedAttributed,116);
  assert.equal(a.totals.requiredJalons,20);
  assert.equal(a.totals.optionalJalons,3);
- assert.equal(a.totals.variantJalonAssignments,34);
+ assert.equal(a.totals.variantJalonAssignments,43);
  assert.deepEqual(a.totals.crossTopic,[{id:"l12",jalon:12}]);
+ assert.deepEqual(a.totals.sparseFixed,[]);
+ assert.deepEqual(a.totals.singleVariant,[]);
  assert.equal(a.jalons[17].title,"Calcul intégral");
  assert.equal(a.jalons[17].courseSlugs[0],"15-primitives-integrales");
  assert.equal(a.jalons[17].required,true);

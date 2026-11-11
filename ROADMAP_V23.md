@@ -92,3 +92,12 @@ Une séance courte de **20–45 min** peut être fractionnée (rappel, lecture a
 La première version considérée **complète pour l'objectif pédagogique** devra avoir : matrice de couverture contrôlée, 20/20 jalons avec pratique à trois niveaux, parcours personnalisé fondé sur de vraies réponses, rédaction auto-évaluable de manière honnête, examens variés reproductibles, sauvegardes robustes, usage mobile hors connexion validé et aucune anomalie critique connue. La conformité des contenus au syllabus de **l'établissement réellement retenu** et la validation sur appareil physique doivent être vérifiées séparément.
 
 **Prochaine action : v23 / matrice de couverture et contrôle des incohérences**, sans modifier le moteur de notation avant l'audit.
+
+
+## Point de livraison v24 — renfort ciblé de la banque (11 novembre 2026)
+
+- Cinq questions fixes ajoutées : fractions à dénominateurs distincts (jalon 2), valeur absolue et simplification de radicaux (jalon 3), équations fractionnaires avec domaine (jalon 5).
+- Neuf nouvelles familles paramétriques indépendantes : fractions et distances (2, 3), équations et systèmes (5, 6), inéquation à coefficient négatif (8), limite par factorisation et asymptote horizontale (11, 13), logarithmes et exponentielles (16, 17).
+- Les lacunes **purement quantitatives** du rapport v23 sont levées (aucun jalon obligatoire avec deux questions fixes ou moins, ni avec un seul modèle variable). La profondeur pédagogique et les transferts restent à mesurer, sans prétendre que le taux de maîtrise est établi.
+- Compatibilité : identifiants historiques préservés ; même modèle de sauvegarde ; cache PWA incrémenté pour éviter un mélange ancien/nouveau.
+- **Prochaine priorité v24** : vérifier systématiquement les corrections, domaines et hypothèses, puis enrichir les problèmes rédigés avant de lancer le diagnostic v25.

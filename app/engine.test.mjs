@@ -8,7 +8,7 @@ const questions=flatten(TOPICS);
 const ids=new Set(questions.map(q=>q.id));
 test("couverture 20 jalons obligatoires, banque non triviale et données cohérentes",()=>{
   assert.deepEqual(validateTopics(TOPICS),[]);
-  assert.equal(questions.length,111,"95 questions historiques + 16 nouvelles");
+  assert.equal(questions.length,116,"95 historiques + 16 approfondies + 5 ciblées v24");
   assert.equal(ids.size,questions.length);
   assert.equal(TOPICS.length,13);
   assert.equal(questions.filter(q=>q.type==="number").length>50,true);
@@ -52,7 +52,7 @@ test("sélection des rappels uniquement à échéance et filtres",()=>{
   const wrong=selectRound(s,questions,{topic:"nombres",mode:"wrong",now,random:()=>.25});
   assert.deepEqual(wrong.map(q=>q.id),["n01"]);
   const all=selectRound(s,questions,{topic:"nombres",mode:"all",limit:10,now,random:()=>.25});
-  assert.equal(all.length,8);
+  assert.equal(all.length,10);
   assert.equal(all[0].id,"n01","rappel arrivé à échéance en premier");
   assert.equal(selectRound(s,questions,{topic:"unknown",mode:"all"}).length,0);
   assert.equal(selectRound(s,questions,{mode:"invalid"}).length,0);
@@ -75,9 +75,9 @@ test("échantillons de calcul issus de chapitres différents",()=>{
   for(const [id,answer] of examples) assert.equal(gradeAnswer(map.get(id),answer).correct,true,id);
 });
 
-test("banque paramétrique: IDs uniques, 20 jalons, 32 modèles",()=>{
+test("banque paramétrique: IDs uniques, 20 jalons, 41 modèles",()=>{
   assert.deepEqual(validateVariants(TOPICS,100),[]);
-  assert.equal(VARIANTS.length,32);
+  assert.equal(VARIANTS.length,41);
   const merged=flatten(injectVariants(TOPICS));
   assert.equal(merged.length,questions.length+VARIANTS.length);
   assert.equal(new Set(merged.map(q=>q.id)).size,merged.length);
@@ -120,7 +120,7 @@ test("validation complète de plusieurs valeurs et équations",()=>{
 });
 
 
-test("contrôle indépendant des 32 familles de calculs sur 2 560 énoncés",()=>{
+test("contrôle indépendant des 41 familles de calculs sur 3 280 énoncés",()=>{
   const reference={
     priority:m=>m.a+m.b*m.c,
     fractions:m=>(m.a+m.b)/m.d,
@@ -153,7 +153,16 @@ test("contrôle indépendant des 32 familles de calculs sur 2 560 énoncés",()=
     binomial_mean:m=>m.n*m.p,
     at_least_one:m=>1-Math.pow(1-m.p,m.n),
     conditional:m=>m.favorable*m.conditional/m.total,
-    discount:m=>m.price-m.price*m.percent/100
+    discount:m=>m.price-m.price*m.percent/100,
+    unlike_fractions:m=>m.a/m.d+m.b/m.e,
+    absolute_distance:m=>Math.abs(m.x-m.h),
+    fractional_equation:m=>m.a+m.b*m.c,
+    two_by_two_system:m=>(m.a-3*m.b)/5,
+    negative_inequality:m=>Math.ceil((m.b-m.c)/m.a)-1,
+    removable_limit:m=>2*m.a,
+    horizontal_asymptote:m=>m.a/m.c,
+    log_exp_product:m=>Math.log(Math.exp(m.a)*Math.exp(m.b)),
+    exponential_log_power:m=>Math.pow(m.base,m.n)
   };
   assert.equal(Object.keys(reference).length,VARIANTS.length);
   for(const t of VARIANTS){
@@ -186,9 +195,26 @@ test("16 exercices approfondis : exactitude et compatibilité des données local
     assert.equal(gradeAnswer(q,answer).correct,true,"mauvaise correction "+id);
     assert.ok(q.hint.length>=15&&q.explanation.length>=65,"explication trop brève "+id);
   }
-  assert.equal(flatten(injectVariants(TOPICS)).length,143);
+  assert.equal(flatten(injectVariants(TOPICS)).length,157);
   const prev=recordAnswer(emptyState(),"st05",true,Date.UTC(2026,10,9));
   const compatible=sanitizeState(JSON.parse(JSON.stringify(prev)),new Set(flatten(injectVariants(TOPICS)).map(q=>q.id)));
   assert.equal(compatible.items.st05.correct,1,"progrès antérieur inchangé");
   assert.equal(compatible.items.st10,undefined,"nouvelle question non acquise");
+});
+
+
+test("v24 : exercices ciblés, saisie exacte et stabilité des anciens IDs",()=>{
+  const byId=new Map(questions.map(q=>[q.id,q]));
+  for(const [id,answer] of [["n09","11/24"],["n10","7/3"],["n11","3√2"],["e09","1"],["e10","3"]]){
+    const q=byId.get(id);
+    assert.ok(q,id);
+    assert.equal(gradeAnswer(q,answer).correct,true,id);
+    assert.ok(q.explanation.length>=55,id);
+  }
+  assert.equal(questions.filter(q=>q.id.startsWith("n")).length,11);
+  assert.equal(questions.filter(q=>q.id.startsWith("e")).length,10);
+  const previous=recordAnswer(emptyState(),"n01",true,Date.UTC(2026,10,10));
+  const restored=sanitizeState(previous,new Set(flatten(injectVariants(TOPICS)).map(q=>q.id)));
+  assert.equal(restored.items.n01.correct,1);
+  assert.equal(restored.items.n11,undefined);
 });

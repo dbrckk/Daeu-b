@@ -1,5 +1,12 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v24 — renforcement prioritaire de la banque interactive (11 novembre 2026)
+
+- 116 questions fixes + 41 générateurs de valeurs = **157 entrées** avec corrections et exercices reproductibles.
+- Neuf familles inédites pour les sept jalons les moins riches en modèles et les deux jalons de fondation 2–3 ; cinq questions fixes ajoutées.
+- Les anciens identifiants, les grilles d'examen et le format des données locales sont préservés ; incrément du cache PWA.
+- Matrice de couverture régénérée depuis les sources et vérifications algébriques indépendantes dans la suite de tests. Les niveaux de transfert restent à certifier.
+
 **État : candidat public stable v19, domaine permanent Render (10/11/2026)**  
 **Version hébergée :** https://daeu-b-maths-dbrckk.onrender.com  
 **Dépôt :** https://github.com/dbrckk/Daeu-b  

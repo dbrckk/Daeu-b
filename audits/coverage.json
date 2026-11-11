@@ -10,27 +10,15 @@
   ],
   "methodology": "Questions fixes classifiées une seule fois manuellement par jalon; les générateurs portent leurs jalons explicitement dans le code et peuvent couvrir plusieurs jalons. Ni difficulté ni maîtrise personnelle déduites des effectifs.",
   "totals": {
-    "fixedUnique": 111,
-    "variantUnique": 32,
-    "interactiveUnique": 143,
-    "fixedAttributed": 111,
-    "variantJalonAssignments": 34,
+    "fixedUnique": 116,
+    "variantUnique": 41,
+    "interactiveUnique": 157,
+    "fixedAttributed": 116,
+    "variantJalonAssignments": 43,
     "requiredJalons": 20,
     "optionalJalons": 3,
-    "sparseFixed": [
-      2,
-      3,
-      5
-    ],
-    "singleVariant": [
-      5,
-      6,
-      8,
-      11,
-      13,
-      16,
-      17
-    ],
+    "sparseFixed": [],
+    "singleVariant": [],
     "crossTopic": [
       {
         "id": "l12",
@@ -88,21 +76,21 @@
       ],
       "fixedIds": [
         "n01",
-        "n05"
+        "n05",
+        "n09"
       ],
       "fixedFormats": {
-        "number": 2,
+        "number": 3,
         "choice": 0
       },
       "variantIds": [
         "v02",
-        "v04"
+        "v04",
+        "v33"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤2 questions fixes"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -120,21 +108,22 @@
         "nombres"
       ],
       "fixedIds": [
-        "n03"
+        "n03",
+        "n10",
+        "n11"
       ],
       "fixedFormats": {
-        "number": 1,
-        "choice": 0
+        "number": 2,
+        "choice": 1
       },
       "variantIds": [
         "v03",
-        "v04"
+        "v04",
+        "v34"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤2 questions fixes"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -188,21 +177,21 @@
       ],
       "fixedIds": [
         "e01",
-        "e07"
+        "e07",
+        "e09",
+        "e10"
       ],
       "fixedFormats": {
-        "number": 2,
+        "number": 4,
         "choice": 0
       },
       "variantIds": [
-        "v07"
+        "v07",
+        "v35"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤2 questions fixes",
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -229,13 +218,12 @@
         "choice": 0
       },
       "variantIds": [
-        "v08"
+        "v08",
+        "v36"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -299,13 +287,12 @@
         "choice": 3
       },
       "variantIds": [
-        "v09"
+        "v09",
+        "v37"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -410,13 +397,12 @@
         "choice": 2
       },
       "variantIds": [
-        "v16"
+        "v16",
+        "v38"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -486,13 +472,12 @@
         "choice": 5
       },
       "variantIds": [
-        "v19"
+        "v19",
+        "v39"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -597,13 +582,12 @@
         "choice": 3
       },
       "variantIds": [
-        "v24"
+        "v24",
+        "v40"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
@@ -630,13 +614,12 @@
         "choice": 2
       },
       "variantIds": [
-        "v25"
+        "v25",
+        "v41"
       ],
       "crossTopicFixedIds": [],
-      "attention": [
-        "≤1 modèle variable"
-      ],
-      "priority": "P0",
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },

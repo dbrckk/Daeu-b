@@ -143,6 +143,71 @@ export const VARIANTS=[
   v("v32","nombres",[1],r=>{
     const price=pick(r,3,14)*10,percent=pick(r,1,7)*5;
     return num("Un objet vaut "+price+" €. On applique une remise de "+percent+" %. Quel est le nouveau prix ?",price*(100-percent)/100,"Multiplie par 1−(pourcentage/100).",price+"×(1−"+percent+"/100) = "+fmt(price*(100-percent)/100)+" €.",{price,percent,kind:"discount"});
+  }),
+
+  v("v33","nombres",[2],r=>{
+    const d=pick(r,2,10),e=pick(r,d+1,d+6),a=pick(r,1,d-1),b=pick(r,1,e-1);
+    const value=(a*e+b*d)/(d*e);
+    return num("Calculer "+a+"/"+d+" + "+b+"/"+e+" (fraction ou décimal).",value,
+      "Utilise un dénominateur commun avant d'additionner les numérateurs.",
+      a+"/"+d+" + "+b+"/"+e+" = ("+a+"×"+e+"+"+b+"×"+d+")/("+d+"×"+e+") = "+(a*e+b*d)+"/"+(d*e)+" = "+fmt(value)+".",
+      {a,b,d,e,kind:"unlike_fractions"});
+  }),
+  v("v34","nombres",[3],r=>{
+    const x=pick(r,-9,9),h=pick(r,-7,7);
+    return num("Calculer la distance |"+x+" − ("+h+")| sur la droite réelle.",Math.abs(x-h),
+      "La distance entre deux réels est la valeur absolue de leur différence.",
+      "|"+x+"−("+h+")|=|"+(x-h)+"|="+Math.abs(x-h)+". Une distance n'est jamais négative.",
+      {x,h,kind:"absolute_distance"});
+  }),
+  v("v35","equations",[5],r=>{
+    const a=pick(r,-8,8),b=pick(r,2,9),c=pick(r,-7,7),x=a+b*c;
+    return num("Résoudre (x−("+a+"))/"+b+" = "+c+". Donner x.",x,
+      "Multiplie les deux membres par "+b+" puis isole x.",
+      "x−("+a+")="+b+"×("+c+")="+(b*c)+" ; x="+a+"+"+(b*c)+"="+x+".",
+      {a,b,c,x,kind:"fractional_equation"});
+  }),
+  v("v36","equations",[6],r=>{
+    const x=pick(r,-7,7),y=pick(r,-7,7),a=3*x+2*y,b=x-y;
+    return num("Système : 3x+2y="+a+" ; x−y="+b+". Quelle est la valeur de y ?",y,
+      "De x−y="+b+", tire x=y+("+b+"), puis remplace dans la première équation.",
+      "3(y+("+b+"))+2y="+a+" ; 5y="+(a-3*b)+" ; y="+y+". On vérifie x="+x+".",
+      {a,b,x,y,kind:"two_by_two_system"});
+  }),
+  v("v37","equations",[8],r=>{
+    const a=pick(r,2,9),b=pick(r,-9,9),k=pick(r,-8,8),c=b-a*k;
+    return num("Résoudre −"+a+"x "+(b>=0?"+ ":"− ")+Math.abs(b)+" > "+c+". Quelle est la plus grande solution entière ?",k-1,
+      "Lorsque tu divises par un nombre négatif, inverse le sens de >.",
+      "−"+a+"x>"+(c-b)+" ; x<"+k+". L'inégalité est stricte : le plus grand entier est "+(k-1)+".",
+      {a,b,c,k,kind:"negative_inequality"});
+  }),
+  v("v38","limites",[11],r=>{
+    const a=pick(r,-6,6);
+    return num("Calculer lim quand x→"+a+" de (x²−("+a+")²)/(x−("+a+")).",2*a,
+      "Factorise la différence de deux carrés avant de passer à la limite.",
+      "Pour x≠"+a+", x²−("+a+")²=(x−("+a+"))(x+("+a+")). Le quotient vaut x+("+a+") ; sa limite est "+(2*a)+".",
+      {a,kind:"removable_limit"});
+  }),
+  v("v39","limites",[13],r=>{
+    const a=pick(r,2,9),b=-pick(r,1,9),c=pick(r,2,8),d=pick(r,1,8);
+    return num("Ordonnée de l'asymptote horizontale de f(x)=("+a+"x−"+Math.abs(b)+")/("+c+"x+"+d+") quand x→+∞ ?",a/c,
+      "Les numérateur et dénominateur sont de même degré ; compare leurs coefficients dominants.",
+      "En divisant par x, f(x)=("+a+"−"+Math.abs(b)+"/x)/("+c+"+"+d+"/x)→"+a+"/"+c+" = "+fmt(a/c)+". L'asymptote est y="+fmt(a/c)+".",
+      {a,b,c,d,kind:"horizontal_asymptote"});
+  }),
+  v("v40","explog",[16],r=>{
+    const a=pick(r,-5,5),b=pick(r,-5,5);
+    return num("Calculer ln(exp("+a+") × exp("+b+")).",a+b,
+      "Le produit d'exponentielles ajoute les exposants ; ln(exp(t))=t.",
+      "exp("+a+")×exp("+b+")=exp("+(a+b)+")>0 ; ln(exp("+(a+b)+"))="+(a+b)+".",
+      {a,b,kind:"log_exp_product"});
+  }),
+  v("v41","explog",[17],r=>{
+    const base=pick(r,2,6),n=pick(r,2,4),value=base**n;
+    return num("Calculer exp("+n+" × ln("+base+")).",value,
+      "Utilise n ln(a)=ln(aⁿ) pour a>0, puis exp(ln(t))=t.",
+      "Comme "+base+">0, exp("+n+"ln("+base+"))=exp(ln("+base+"^"+n+"))="+base+"^"+n+"="+value+".",
+      {base,n,kind:"exponential_log_power"});
   })
 ];
 
