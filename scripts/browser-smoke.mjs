@@ -632,14 +632,17 @@ try {
   await check(async()=>await offlineCourse.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
     "Navigation vers la pratique générale conservée hors ligne pour le complément");
   await offlineCourse.close();
+  const preservedRound=await page.evaluate(()=>
+    JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round??null);
   const offlinePractice=await context.newPage();
   await offlinePractice.goto(BASE+"/?topic=probas&mode=due#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
   await offlinePractice.waitForFunction(()=>document.querySelector("#topic")?.value==="probas"
     &&document.querySelectorAll("#topic option").length===14,null,{timeout:10000});
   await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas")
     &&await offlinePractice.locator("#mode").inputValue().then(v=>v==="due")
-    &&await offlinePractice.locator("#quiz").isVisible().then(v=>!v),
-    "Lien direct vers probabilités et rappels, sans démarrage automatique hors connexion");
+    &&await offlinePractice.evaluate(original=>
+       JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round??null)===JSON.stringify(original),preservedRound),
+    "Lien direct vers probabilités et rappels, sans remplacer la séance sauvegardée hors connexion");
   await offlinePractice.close();
   const offlineProblems=await context.newPage();
   await offlineProblems.goto(BASE+"/problems.html",{waitUntil:"domcontentloaded",timeout:12000});
