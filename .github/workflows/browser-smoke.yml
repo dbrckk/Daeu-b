@@ -5,12 +5,14 @@ on:
       - 'app/**'
       - '!app/README.md'
       - 'scripts/browser-smoke.mjs'
+      - 'scripts/browser-cloud.mjs'
       - '.github/workflows/browser-smoke.yml'
   pull_request:
     paths:
       - 'app/**'
       - '!app/README.md'
       - 'scripts/browser-smoke.mjs'
+      - 'scripts/browser-cloud.mjs'
       - '.github/workflows/browser-smoke.yml'
 permissions:
   contents: read

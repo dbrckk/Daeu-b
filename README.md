@@ -190,3 +190,6 @@ La page des examens propose un **sujet conseillé** à partir des 12 dernières 
 
 
 **Synchronisation cloud (v28) :** depuis l'application, connecter une adresse e-mail et un mot de passe à l'espace Supabase privé. Les résultats sont envoyés automatiquement après chaque modification et retrouvés sur un autre appareil avec la même connexion. La sauvegarde locale reste utilisable sans réseau ; en cas de conflit, une résolution explicite est demandée. Aucun export quotidien n'est nécessaire.
+
+
+**Confirmation du compte :** le service e-mail intégré gratuit de Supabase n'envoie actuellement qu'aux adresses des membres de l'organisation Supabase. Utiliser celle de ton compte Supabase ; un SMTP externe est nécessaire pour d'autres adresses. Voir [le réglage de confirmation](app/README.md#mise-en-service-de-la-confirmation-e-mail).
