@@ -12,9 +12,9 @@ from urllib.parse import urlparse
 
 ORIGIN = "https://daeu-b-maths-dbrckk.onrender.com"
 FILES = (
-    ("/", "text/html", b"DAEU B"),
-    ("/app.mjs", "javascript", b'import {TOPICS}'),
-    ("/sw.js", "javascript", b"daeu-b-maths-v"),
+    ("/", "text/html", b'id="firstStart"'),
+    ("/app.mjs", "javascript", b"function firstStart()"),
+    ("/sw.js", "javascript", b"daeu-b-maths-v27"),
     ("/manifest.json", "json", b"DAEU"),
     ("/robots.txt", "text/plain", b"Sitemap:"),
     ("/sitemap.xml", "xml", ORIGIN.encode()),
