@@ -189,8 +189,25 @@ export async function flushCloudSync(){
   if(timer!==null){clearTimeout(timer);timer=null;pending=false;queue=queue.then(syncQueue,syncQueue);}
   await queue;
 }
+async function consumeEmailRedirect(){
+  if(typeof location==="undefined"||typeof history==="undefined")return;
+  const hash=location.hash;
+  if(!hash.startsWith("#access_token=")&&!hash.includes("&access_token="))return;
+  // Éliminer immédiatement les jetons de l'URL, même si la session est refusée.
+  const params=new URLSearchParams(hash.slice(1));
+  history.replaceState(history.state,"",location.pathname+location.search);
+  const access_token=params.get("access_token"),refresh_token=params.get("refresh_token");
+  const expires_in=Number(params.get("expires_in"));
+  if(!access_token||!refresh_token||!Number.isFinite(expires_in))return;
+  try{
+    const user=await request("/auth/v1/user",{token:access_token});
+    const next=normalizeSession({access_token,refresh_token,expires_in,user});
+    storeSession(next);
+  }catch{report("session-expirée");}
+}
 export async function initCloudSync(localStorageObject,ids,{onRestored=()=>{}}={}){
   storage=localStorageObject;knownIds=ids;onRestore=onRestored;
+  await consumeEmailRedirect();
   onAutoBackupWrite(()=>{if(!importing)queueCloudWrite();});
   const candidate=jsonTry(storage.getItem(CLOUD_SESSION_KEY));
   const metadata=jsonTry(storage.getItem(CLOUD_BASE_KEY));
@@ -211,7 +228,9 @@ export async function signInCloud(email,password,{register=false}={}){
   if(!validEmail(email)||typeof password!=="string"||password.length<8||password.length>200)
     throw Error("Adresse e-mail ou mot de passe invalide (8 caractères minimum)");
   const cleanEmail=email.trim().toLowerCase();
-  const data=await request(register?"/auth/v1/signup":"/auth/v1/token?grant_type=password",{
+  const redirect=typeof location!=="undefined"&&location.origin.startsWith("https://")
+    ?"?redirect_to="+encodeURIComponent(location.origin+"/"):"";
+  const data=await request(register?"/auth/v1/signup"+redirect:"/auth/v1/token?grant_type=password",{
     method:"POST",token:null,body:{email:cleanEmail,password}
   });
   if(!data?.access_token){
@@ -262,7 +281,7 @@ export function initCloudInterface(){
   const submit=document.getElementById("cloudSubmit");
   const textStatus={
     "déconnecté":"Synchronisation cloud désactivée. Tes copies locales restent enregistrées.",
-    "confirmation-email":"E-mail envoyé : confirme ton adresse depuis ta messagerie, puis reconnecte-toi ici.",
+    "confirmation-email":"E-mail envoyé : confirme ton adresse depuis ta messagerie. Si le lien ne revient pas à l’atelier, rouvre cette page et reconnecte-toi.",
     "synchronisé":"Progression synchronisée et accessible après connexion sur un autre appareil.",
     "récupéré":"Progression retrouvée sur le cloud et restaurée sur cet appareil.",
     "conflit":"Deux progressions différentes détectées. Choisis celle à conserver ; rien n'est écrasé.",
