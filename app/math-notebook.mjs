@@ -5,6 +5,7 @@
  */
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
+import {renderMathPreview} from "./math-preview.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
@@ -86,6 +87,13 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   field.setAttribute("aria-label",title+" — étapes rédigées");
   field.placeholder="Exemple :\n2x + 5 = 17\n2x = 12\nx = 6\nVérification : 2 × 6 + 5 = 17";
   field.value=work.text;
+  const preview=document.createElement("details");preview.className="math-notebook-preview";preview.open=true;
+  const previewHeading=document.createElement("summary");
+  previewHeading.textContent="Aperçu mathématique comme sur une copie";
+  const previewBody=document.createElement("div");previewBody.className="math-notebook-preview-body";
+  previewBody.setAttribute("aria-label","Aperçu visuel des équations et calculs saisis");
+  preview.append(previewHeading,previewBody);
+  renderMathPreview(previewBody,field.value);
   const keypad=document.createElement("div");keypad.className="math-notebook-keypad";
   keypad.setAttribute("role","group");keypad.setAttribute("aria-label","Symboles mathématiques");
   function persist(next){
@@ -96,6 +104,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       work=next;status.textContent="Cahier enregistré automatiquement avec la progression.";
       // Ne jamais afficher un ancien verdict après une édition par touche ou modèle.
       if(typeof feedback!=="undefined")feedback.hidden=true;
+      renderMathPreview(previewBody,field.value);
       return true;
     }catch(error){
       status.textContent="Cahier non enregistré : "+error.message+". Recharge si la progression a changé dans un autre onglet.";
@@ -242,7 +251,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointerup",finish);
   canvas.addEventListener("pointercancel",finish);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
-  section.append(heading,help,keypad,templates,field,correction,drawLabel,controls,canvas,status);
+  section.append(heading,help,keypad,templates,field,preview,correction,drawLabel,controls,canvas,status);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }

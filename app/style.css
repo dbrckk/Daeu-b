@@ -317,3 +317,12 @@
 .math-notebook-review-list li[data-result="ok"]{color:var(--teal)}
 .math-notebook-review-list li[data-result="unsupported"]{color:var(--orange)}
 .math-notebook-review-list li[data-result="info"]{color:var(--muted)}
+
+/* Aperçu MathML sans réseau : les calculs restent éditables dans la zone texte. */
+.math-notebook-preview{margin:12px 0 16px;border:1px solid var(--stroke);border-radius:12px;overflow:hidden}
+.math-notebook-preview>summary{cursor:pointer;min-height:44px;padding:12px 14px;font-weight:650}
+.math-notebook-preview-body{display:grid;gap:6px;max-height:340px;overflow:auto;padding:10px 14px 14px;border-top:1px solid var(--stroke)}
+.math-preview-line{display:flex;align-items:center;gap:12px;min-height:32px;min-width:0}
+.math-preview-number{flex:none;width:2ch;text-align:right;opacity:.58;font-size:.78rem;font-variant-numeric:tabular-nums}
+.math-preview-line math{font-size:1.15rem;display:block;max-width:100%;overflow-x:auto;padding:3px 0}
+.math-preview-plain{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88rem}

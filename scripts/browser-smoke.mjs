@@ -41,6 +41,11 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook textarea").isVisible()
       &&await firstPage.locator("#quizNotebook .math-notebook-keypad button").count()>=16,
       "Cahier de calcul accessible dans le diagnostic, avec symboles tactiles");
+    await firstPage.locator("#quizNotebook textarea").fill("(x+1)/2 = 3/4\nx² = 4\n√(x) = 2");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-preview-body mfrac").count()>=2
+      &&await firstPage.locator("#quizNotebook .math-notebook-preview-body msup").count()>=1
+      &&await firstPage.locator("#quizNotebook .math-notebook-preview-body msqrt").count()>=1,
+      "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
     await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===9,
