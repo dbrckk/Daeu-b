@@ -14,7 +14,8 @@ ORIGIN = "https://daeu-b-maths-dbrckk.onrender.com"
 FILES = (
     ("/", "text/html", b'id="firstStart"'),
     ("/app.mjs", "javascript", b"function firstStart()"),
-    ("/sw.js", "javascript", b"daeu-b-maths-v27"),
+    ("/cloud-sync.mjs", "javascript", b"xxypyvzkciowwseldxhq"),
+    ("/sw.js", "javascript", b"daeu-b-maths-v28"),
     ("/manifest.json", "json", b"DAEU"),
     ("/robots.txt", "text/plain", b"Sitemap:"),
     ("/sitemap.xml", "xml", ORIGIN.encode()),

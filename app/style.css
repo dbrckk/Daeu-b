@@ -268,3 +268,14 @@
 .optional-backup{width:100%;border:1px solid var(--stroke);border-radius:10px;padding:10px}
 .optional-backup summary{cursor:pointer;font-weight:650}
 .optional-backup button,.optional-backup .file-button{margin:10px 6px 4px 0}
+
+/* v28 — synchronisation optionnelle gratuite et conflits explicitement arbitrés */
+.cloud-panel{margin:18px 0;padding:18px;border-radius:14px;border:1px solid var(--stroke);background:var(--panel)}
+.cloud-panel h2{margin-top:0}.cloud-panel>p{color:var(--muted)}
+.cloud-fields{display:flex;flex-wrap:wrap;align-items:end;gap:12px}
+.cloud-fields .field{min-width:185px;flex:1}
+.cloud-fields input{width:100%;max-width:100%;min-height:44px}
+.cloud-fields button{min-height:44px}
+.cloud-conflict{border:1px solid var(--orange);border-radius:10px;padding:14px;margin:14px 0}
+.cloud-conflict p{margin:6px 0 12px}.cloud-conflict button{margin:4px;min-height:44px}
+@media(max-width:560px){.cloud-panel{padding:12px}.cloud-fields{display:grid}.cloud-fields button{width:100%}}

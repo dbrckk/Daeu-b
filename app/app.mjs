@@ -438,7 +438,7 @@ el("persistStorage").addEventListener("click",async()=>{
   }
 });
 el("reset").addEventListener("click",()=>{
-  if(!confirm("Effacer volontairement toute la progression de cet appareil, y compris la copie de secours locale ? Cette action est irréversible sans sauvegarde distante."))return;
+  if(!confirm("Effacer toute ta progression ? Si ton compte cloud est connecté, la suppression sera également synchronisée sur tes autres appareils. Cette action est irréversible."))return;
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
     state=fresh.practice;round=null;transfers=fresh.transfers;clearExamProgress();refreshOverview();

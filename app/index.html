@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101b33">
   <meta name="description" content="Entraînement gratuit DAEU B mathématiques : questions, solutions et révisions espacées, sans compte ni frais.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://xxypyvzkciowwseldxhq.supabase.co; worker-src 'self'; manifest-src 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://daeu-b-maths-dbrckk.onrender.com/">
@@ -171,9 +171,32 @@
         <div class="section-header"><div><p class="eyebrow">COURS ET COMPÉTENCES</p><h2 id="catalog-title">Les domaines à maîtriser</h2></div></div>
         <div id="topicCards" class="topic-grid"></div>
       </section>
+      <section class="cloud-panel" aria-labelledby="cloudTitle">
+        <h2 id="cloudTitle">Ma progression sur tous mes appareils</h2>
+        <p>Crée un accès privé avec ton adresse e-mail et un mot de passe (8 caractères minimum). Une fois connecté, chaque réponse est synchronisée automatiquement dans un espace protégé. Sur un autre téléphone, reconnecte-toi avec la même adresse. Si deux progressions diffèrent, rien n'est écrasé sans ton choix. Les exercices restent disponibles hors connexion.</p>
+        <form id="cloudForm" autocomplete="on">
+          <div id="cloudCredentials" class="cloud-fields">
+            <div class="field"><label for="cloudEmail">Adresse e-mail</label><input id="cloudEmail" type="email" autocomplete="email" required maxlength="254"></div>
+            <div class="field"><label for="cloudPassword">Mot de passe</label><input id="cloudPassword" type="password" autocomplete="current-password" minlength="8" required></div>
+            <button id="cloudSubmit" class="primary" data-mode="login" type="submit">Me connecter</button>
+            <button id="cloudRegister" class="subtle" type="button">Créer un compte</button>
+          </div>
+          <div id="cloudSigned" hidden>
+            <p>Compte connecté : <strong id="cloudAccount"></strong></p>
+            <button id="cloudSignOut" type="button" class="subtle">Me déconnecter de ce navigateur</button>
+          </div>
+        </form>
+        <p id="cloudStatus" class="helper" role="status" aria-live="polite">Vérification de la connexion…</p>
+        <div id="cloudConflict" class="cloud-conflict" role="group" aria-label="Deux progressions différentes" hidden>
+          <strong>Deux progressions ont été retrouvées.</strong>
+          <p>Aucune n'est supprimée automatiquement. Choisis la version à conserver uniquement après vérification.</p>
+          <button id="cloudUseCloud" class="subtle" type="button">Récupérer la progression du cloud</button>
+          <button id="cloudUseDevice" class="subtle" type="button">Conserver celle de cet appareil</button>
+        </div>
+      </section>
       <section class="backup" aria-labelledby="backup-title">
         <h2 id="backup-title">Sauvegarde automatique et confidentialité</h2>
-        <p>Chaque réponse et chaque copie d’examen sont enregistrées automatiquement, sans export manuel. Une seconde copie indépendante est conservée dans IndexedDB et restaurée si la sauvegarde principale a disparu ou est endommagée. <strong>Les deux copies restent sur cet appareil :</strong> elles ne permettent pas de retrouver le progrès après une perte du téléphone ou l’effacement de toutes les données du site. Une synchronisation cloud avec identification sera nécessaire pour cela.</p>
+        <p>Chaque réponse et chaque copie d’examen sont enregistrées automatiquement, sans export manuel. Une seconde copie indépendante est conservée dans IndexedDB et restaurée si la sauvegarde principale a disparu ou est endommagée. <strong>Les deux copies restent sur cet appareil :</strong> elles ne permettent pas de retrouver le progrès après une perte du téléphone ou l’effacement de toutes les données du site. Pour récupérer tes données sur un autre téléphone, utilise la connexion cloud ci-dessus.</p>
         <div class="backup-actions"><button type="button" id="persistStorage" class="subtle">Protéger le stockage local</button>
           <details class="optional-backup"><summary>Options avancées et export facultatif</summary>
             <button type="button" id="export" class="subtle small">Exporter mes résultats (facultatif)</button>
