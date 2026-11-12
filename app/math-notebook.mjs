@@ -6,6 +6,26 @@
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT} from "./workbook.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
+/** Modèles de rédaction éditables, utilisables sans clavier physique. */
+export const MATH_TEMPLATES=Object.freeze([
+  {label:"Fraction",value:"(numérateur)/(dénominateur)",selection:"numérateur"},
+  {label:"Puissance",value:"(base)^(exposant)",selection:"base"},
+  {label:"Racine",value:"√(expression)",selection:"expression"},
+  {label:"Équation",value:"2x + 5 = 17\n2x = 12\nx = 6",selection:"2x + 5 = 17"},
+  {label:"Système",value:"{\n  2x + y = 7\n  x − y = 2\n}",selection:"2x + y = 7"},
+  {label:"Fonction",value:"f(x) = expression\nf'(x) = dérivée",selection:"expression"},
+  {label:"Limite",value:"lim(x → a) f(x) = résultat",selection:"a"},
+  {label:"Intégrale",value:"∫[a,b] f(x) dx = résultat",selection:"résultat"},
+  {label:"Conclusion",value:"Donc, la solution est : ",selection:""}
+]);
+export function insertTemplate(value,template,start,end){
+  if(!template||typeof template.value!=="string")throw Error("Modèle invalide");
+  const inserted=insertAtSelection(value,template.value,start,end);
+  const base=inserted.caret-template.value.length;
+  const offset=template.selection?template.value.indexOf(template.selection):-1;
+  if(offset<0)return {...inserted,start:inserted.caret,end:inserted.caret};
+  return {...inserted,start:base+offset,end:base+offset+template.selection.length};
+}
 const MAX_TEXT=6000;
 const MAX_POINTS=300;
 export function notebookKey(context){
@@ -92,6 +112,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       if(!persist({...work,text:field.value}))field.value=work.text;
     });keypad.append(button);
   }
+  const templates=document.createElement("div");templates.className="math-notebook-templates";
+  templates.setAttribute("role","group");templates.setAttribute("aria-label","Modèles de rédaction mathématique");
+  for(const template of MATH_TEMPLATES){
+    const button=document.createElement("button");button.type="button";button.className="subtle small";
+    button.textContent=template.label;button.setAttribute("aria-label","Insérer un modèle : "+template.label);
+    button.addEventListener("click",()=>{
+      const inserted=insertTemplate(field.value,template,field.selectionStart,field.selectionEnd);
+      field.value=inserted.value;field.focus();field.setSelectionRange(inserted.start,inserted.end);
+      if(!persist({...work,text:field.value}))field.value=work.text;
+    });templates.append(button);
+  }
   const newline=document.createElement("button");newline.type="button";newline.className="subtle small";newline.textContent="Nouvelle ligne";
   newline.addEventListener("click",()=>{
     const next=insertAtSelection(field.value,"\n",field.selectionStart,field.selectionEnd);
@@ -174,7 +205,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointerup",finish);
   canvas.addEventListener("pointercancel",finish);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
-  section.append(heading,help,keypad,field,drawLabel,controls,canvas,status);
+  section.append(heading,help,keypad,templates,field,drawLabel,controls,canvas,status);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }
