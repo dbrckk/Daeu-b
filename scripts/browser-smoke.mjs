@@ -428,6 +428,9 @@ try {
     }
     await eContext.setOffline(true);
     await ePage.reload({waitUntil:"domcontentloaded",timeout:12000});
+    // start.mjs restaure IndexedDB avant d'importer le moteur : attendre ce chargement asynchrone.
+    await ePage.waitForFunction(()=>document.querySelector("#examSectionTitle")?.textContent?.includes("irrationnelle")
+      &&document.querySelector("#examDraftSummary")?.textContent?.includes("1/16 réponses"),null,{timeout:10000});
     await check(async()=>await ePage.locator("#examSectionTitle").textContent().then(x=>x.includes("irrationnelle"))
       &&await ePage.locator("#examDraftSummary").textContent().then(x=>x.includes("1/16 réponses")),
       "Examen E : reprise sous cache hors connexion");
