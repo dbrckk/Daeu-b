@@ -38,6 +38,13 @@ try {
     await check(async()=>await firstPage.locator("#quiz").isVisible()
       &&await firstPage.locator("#quizCount").textContent().then(t=>t.includes("Question 1")),
       "Bouton d'accueil : diagnostic réellement démarré");
+    await check(async()=>await firstPage.locator("#quizNotebook textarea").isVisible()
+      &&await firstPage.locator("#quizNotebook .math-notebook-keypad button").count()>=16,
+      "Cahier de calcul accessible dans le diagnostic, avec symboles tactiles");
+    await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
+    await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
+    const savedMath=await firstPage.locator("#quizNotebook textarea").inputValue();
+    assert.ok(savedMath.includes("x = 6")&&savedMath.includes("√"));
     const firstQuestion=await firstPage.locator("#questionText").textContent();
     const storedRound=await firstPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
     assert.ok(storedRound?.ids?.length>=1&&storedRound.ids.length<=10,"Session initiale non enregistrée");
@@ -45,6 +52,8 @@ try {
     await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===firstQuestion)
       &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Reprendre ma séance")),
       "Première séance : reprise du même énoncé après rechargement");
+    await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(x=>x===savedMath),
+      "Calculs et équations du cahier retrouvés après rechargement");
     await firstPage.locator("#firstStart").click();
     await check(async()=>await firstPage.evaluate(expected=>
       JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(expected),storedRound),
