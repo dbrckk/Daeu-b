@@ -93,6 +93,7 @@
           <div class="quiz-top"><span id="quizCount">Question 1/10</span><span id="quizTopic">Chapitre</span></div>
           <progress id="quizProgress" max="10" value="0" aria-label="Progression dans la séance"></progress>
           <h3 id="questionText"></h3>
+          <div id="quizNotebook"></div>
           <p id="questionHelp" class="helper"></p>
           <form id="answerForm">
             <div id="numericAnswer"><label for="answer">Ta réponse (nombre, décimal ou fraction)</label><input id="answer" name="answer" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="Ex. 3/4 ou 0,75"></div>
@@ -139,6 +140,7 @@
           <h3 id="examSectionTitle"></h3>
           <p id="examContext" class="exam-context"></p>
           <div id="examQuestions"></div>
+          <div id="examNotebook"></div>
           <div class="exam-notes"><label for="examNotes">Mon raisonnement et mes justifications (non corrigés automatiquement)</label><textarea id="examNotes" rows="5" maxlength="3500" spellcheck="true"></textarea></div>
           <div class="exam-actions"><button id="examPrev" type="button" class="subtle">Exercice précédent</button><button id="examNext" type="button" class="subtle">Exercice suivant</button><button id="examSubmit" type="button" class="primary">Rendre ma copie</button></div>
         </div>

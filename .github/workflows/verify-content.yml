@@ -62,6 +62,7 @@ jobs:
           node --check app/start.mjs
           node --check app/auto-backup.mjs
           node --check app/cloud-sync.mjs
+          node --check app/math-notebook.mjs
           node --check app/app.mjs
           node --check app/engine.mjs
           node --check app/questions.mjs
@@ -93,4 +94,4 @@ jobs:
           node --check app/course-search.mjs
           node --check app/course-catalog.mjs
       - name: Vérifier notation, jalons, révisions et sauvegardes
-        run: node --test app/cloud-sync.test.mjs app/auto-backup.test.mjs app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/exam-applied.test.mjs app/exam-blueprint.test.mjs app/exam-recommendation.test.mjs app/exam-remediation.test.mjs app/exam-readiness.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs app/jalon-progress.test.mjs app/prerequisites.test.mjs app/transfer-progress.test.mjs
+        run: node --test app/cloud-sync.test.mjs app/math-notebook.test.mjs app/auto-backup.test.mjs app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/exam-applied.test.mjs app/exam-blueprint.test.mjs app/exam-recommendation.test.mjs app/exam-remediation.test.mjs app/exam-readiness.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs app/jalon-progress.test.mjs app/prerequisites.test.mjs app/transfer-progress.test.mjs

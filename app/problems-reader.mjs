@@ -1,4 +1,5 @@
 import {initReadingTools} from "./reading-tools.mjs";
+import {mountNotebook} from "./math-notebook.mjs";
 import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";
@@ -7,6 +8,7 @@ import {recordTransferReview,transferStatus,transferSummary,recommendedTransferS
 const el=id=>document.getElementById(id);
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
+mountNotebook(el("problemNotebook"),{context:"problems:"+(params.get("set")==="transferts"?"transferts":"generaux")+":"+(params.get("jalon")||"global")+":"+(params.get("variante")||"a"),title:"Ma résolution complète — sans papier"});
 const variant=transfers&&["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
 const selectedJalon=Number(params.get("jalon"));
 const jalonSuffix=Number.isInteger(selectedJalon)&&selectedJalon>=1&&selectedJalon<=20?"&jalon="+selectedJalon:"";

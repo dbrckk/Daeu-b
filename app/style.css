@@ -281,3 +281,10 @@
 @media(max-width:560px){.cloud-panel{padding:12px}.cloud-fields{display:grid}.cloud-fields button{width:100%}}
 
 .cloud-fields[hidden],#cloudSigned[hidden],#cloudConflict[hidden]{display:none!important}
+
+/* Cahier de mathématiques sur téléphone : rédaction en colonnes et clavier symbolique. */
+.math-notebook{margin:18px 0;padding:14px;border:1px solid var(--stroke);border-radius:14px;background:var(--panel)}
+.math-notebook h4{margin:0 0 6px}.math-notebook .helper{margin:6px 0 12px}
+.math-notebook-keypad{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.math-notebook-keypad button{min-width:44px;min-height:44px;padding:8px 10px}
+.math-notebook-editor{display:block;width:100%;min-height:210px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:16px;line-height:1.7;white-space:pre;tab-size:4}

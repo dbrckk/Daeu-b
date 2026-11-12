@@ -1,4 +1,5 @@
 import {TOPICS} from "./questions.mjs";
+import {mountNotebook} from "./math-notebook.mjs";
 import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
 import {COURSES,courseUrl} from "./course-catalog.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
@@ -288,6 +289,7 @@ function renderQuestion() {
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
+  mountNotebook(el("quizNotebook"),{context:"quiz:"+q.id,title:"Mon raisonnement — "+q.topicTitle});
   el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
   el("feedback").hidden=true;el("hint").hidden=true;
   el("hint").textContent="";
