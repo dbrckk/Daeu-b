@@ -118,7 +118,7 @@ export function classifyEquality(text){
   if(parts.length!==2||parts.some(x=>!x.trim()))
     throw new Error("utilise une seule égalité par ligne");
   const left=parseAffine(parts[0]),right=parseAffine(parts[1]);
-  if(left.a.n===0n&&right.a.n===0n){
+  if(!/[xX]/.test(parts[0]+parts[1])){
     return {kind:"calculation",correct:eq(left.b,right.b),
       left:formatRational(left.b),right:formatRational(right.b)};
   }
@@ -158,16 +158,15 @@ export function checkMathSteps(text){
     if(result.kind==="calculation"){
       const earlier=previous,fromLine=previousLine;
       previous=null;
-      if(!result.correct){
-        errors++;entries.push({line,kind:"error",message:"Erreur de calcul : le membre gauche vaut "+result.left+", le membre droit "+result.right+"."});
+      const currentKind=result.correct?"all":"none";
+      if(earlier&&earlier.kind===currentKind){
+        entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
+      }else if(!result.correct){
+        errors++;entries.push({line,kind:"error",message:"Égalité numérique fausse : le membre gauche vaut "+result.left+", le membre droit "+result.right+"."});
       }else if(earlier?.kind==="unique"){
         entries.push({line,kind:"info",message:"Égalité numérique correcte, mais elle ne prouve pas à elle seule l'équivalence avec la ligne "+fromLine+" ("+description(earlier)+"). Une vérification par substitution se rédige à part."});
       }else if(earlier){
-        if(earlier.kind==="all")
-          entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
-        else{
-          errors++;entries.push({line,kind:"error",message:"L'égalité numérique n'est pas équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
-        }
+        errors++;entries.push({line,kind:"error",message:"L'égalité numérique n'est pas équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
       }else{
         entries.push({line,kind:"ok",message:"Calcul correct : "+result.left+" = "+result.right+"."});
       }
