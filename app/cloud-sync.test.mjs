@@ -7,6 +7,7 @@ import {DATA_KEY,createPersistence,createVolatileStorage} from "./persistence.mj
 import {decideSync,initCloudSync,signInCloud,cloudConflict,cloudStatus,resolveCloudConflict,
   queueCloudWrite,flushCloudSync,CLOUD_SESSION_KEY,CLOUD_BASE_KEY} from "./cloud-sync.mjs";
 import {backedStorage,flushAutoBackup} from "./auto-backup.mjs";
+import {emptyWorkbook,changeWork,readWork,encodeStroke} from "./workbook.mjs";
 const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
 const uid="aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",email="eleve@example.org";
 const bundle=(n=1)=>{
@@ -109,5 +110,28 @@ test("Deux appareils éditent le même compte : refus d'écrasement silencieux",
    assert.equal(await resolveCloudConflict("device"),"synchronisé");
    assert.equal(api.row.revision,3);
    assert.equal(api.row.payload.revision,3);
+ }finally{api.close();}
+});
+
+test("Le cahier manuscrit est transmis puis restauré sur un nouveau téléphone sans export",async()=>{
+ const api=fakeApi();
+ try{
+   const oldPhone=createVolatileStorage();
+   await initCloudSync(oldPhone,ids);
+   assert.equal(await signInCloud(email,"12345678"),"en-attente-première-réponse");
+   const penStroke=encodeStroke([[25,25],[30,40],[45,55]]);
+   const work={text:"2x + 5 = 17\\n2x = 12\\nx = 6",pages:[[penStroke]]};
+   const oldStore=createPersistence(backedStorage(oldPhone),ids);
+   oldStore.updateWorkbook(changeWork(emptyWorkbook(),"quiz:q01",work));
+   await flushCloudSync();
+   assert.deepEqual(readWork(api.row.payload.workbook,"quiz:q01"),work);
+   assert.equal(api.postCount,1);
+
+   const newPhone=createVolatileStorage();
+   let restored=0;
+   await initCloudSync(newPhone,ids,{onRestored:()=>restored++});
+   assert.equal(await signInCloud(email,"12345678"),"récupéré");
+   assert.equal(restored,1);
+   assert.deepEqual(readWork(createPersistence(newPhone,ids).snapshot().workbook,"quiz:q01"),work);
  }finally{api.close();}
 });
