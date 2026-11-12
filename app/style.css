@@ -300,3 +300,8 @@
 .math-notebook-templates{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
 .math-notebook-templates button{min-height:44px;border:1px solid var(--stroke)}
 .math-notebook-templates button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+
+/* Ne pas masquer le début des cours par une grande feuille : ouverture à la demande. */
+.math-notebook-disclosure{margin:16px 0;border:1px solid var(--stroke);border-radius:12px;padding:12px;background:var(--panel)}
+.math-notebook-disclosure > summary{font-weight:700;cursor:pointer;min-height:44px;display:list-item;padding:8px;color:var(--teal)}
+.math-notebook-disclosure .math-notebook{margin:8px 0 0}
