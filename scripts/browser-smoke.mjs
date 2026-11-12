@@ -113,6 +113,14 @@ try {
       const record=JSON.parse(localStorage.getItem("daeu-b-data-v1")).practice.items[id];
       return record?.correct===1&&record?.assisted===1&&record?.confirmed===false&&record?.streak===0;
     },current.id),"Réponse correcte après aide : pas d'acquis autonome attribué");
+    const afterAnswerRound=await firstPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
+    const nextQuestion=await firstPage.evaluate(async()=>{
+      const [{TOPICS},{injectVariants},{flatten},{restoreRound}]=await Promise.all([
+        import("./questions.mjs"),import("./variants.mjs"),import("./engine.mjs"),import("./round.mjs")
+      ]);
+      const active=JSON.parse(localStorage.getItem("daeu-b-data-v1")).round;
+      return restoreRound(active,flatten(injectVariants(TOPICS)))[active.completed].prompt;
+    });
     await check(async()=>await firstPage.locator(".first-steps a[href*='01-calcul-numerique']").count()===1,
       "Première séance : lien direct vers les bases disponible");
     await check(async()=>await firstPage.locator("#autoBackupStatus").textContent().then(t=>t.includes("deux copies locales")),
@@ -129,17 +137,17 @@ try {
             get.onerror=()=>reject(get.error);
           };
         });
-        return record&&JSON.parse(record).round?.ids?.length>0;
+        return record&&JSON.parse(record).round?.completed===1;
       }catch{return false;}
     },null,{timeout:10000});
     await firstPage.evaluate(()=>localStorage.removeItem("daeu-b-data-v1"));
     await firstPage.reload({waitUntil:"networkidle"});
-    await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===firstQuestion)
+    await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===nextQuestion)
       &&await firstPage.locator("#autoBackupStatus").textContent().then(t=>t.includes("retrouvée et restaurée")),
       "Perte de la copie principale : IndexedDB restaure automatiquement la séance exacte");
     await check(async()=>await firstPage.evaluate(original=>
-      JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(original),storedRound),
-      "Les questions et graines de la séance sont restaurées sans fichier manuel");
+      JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(original),afterAnswerRound),
+      "La réponse assistée et la question suivante sont restaurées sans fichier manuel");
   }finally{await firstContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
