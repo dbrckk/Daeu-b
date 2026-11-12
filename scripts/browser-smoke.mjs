@@ -51,6 +51,31 @@ try {
       "Le bouton de reprise n'écrase ni la graine ni les réponses déjà sauvegardées");
     await check(async()=>await firstPage.locator(".first-steps a[href*='01-calcul-numerique']").count()===1,
       "Première séance : lien direct vers les bases disponible");
+    await check(async()=>await firstPage.locator("#autoBackupStatus").textContent().then(t=>t.includes("deux copies locales")),
+      "Copie automatique annoncée après initialisation d'IndexedDB");
+    await firstPage.waitForFunction(async()=>{
+      try{
+        const request=indexedDB.open("daeu-b-auto-backup-v1",1);
+        const record=await new Promise((resolve,reject)=>{
+          request.onerror=()=>reject(request.error);
+          request.onsuccess=()=>{
+            const tx=request.result.transaction("snapshots","readonly");
+            const get=tx.objectStore("snapshots").get("latest");
+            get.onsuccess=()=>resolve(get.result);
+            get.onerror=()=>reject(get.error);
+          };
+        });
+        return record&&JSON.parse(record).round?.ids?.length>0;
+      }catch{return false;}
+    },null,{timeout:10000});
+    await firstPage.evaluate(()=>localStorage.removeItem("daeu-b-data-v1"));
+    await firstPage.reload({waitUntil:"networkidle"});
+    await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===firstQuestion)
+      &&await firstPage.locator("#autoBackupStatus").textContent().then(t=>t.includes("retrouvée et restaurée")),
+      "Perte de la copie principale : IndexedDB restaure automatiquement la séance exacte");
+    await check(async()=>await firstPage.evaluate(original=>
+      JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(original),storedRound),
+      "Les questions et graines de la séance sont restaurées sans fichier manuel");
   }finally{await firstContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
