@@ -726,6 +726,8 @@ try {
   await offlinePractice.close();
   const offlineProblems=await context.newPage();
   await offlineProblems.goto(BASE+"/problems.html",{waitUntil:"domcontentloaded",timeout:12000});
+  // La restauration locale précède le chargement du lecteur : attendre son rendu asynchrone.
+  await offlineProblems.waitForFunction(()=>document.querySelectorAll("#problemBody h3").length===8,null,{timeout:12000});
   await check(async()=>await offlineProblems.locator("#problemBody h3").count()===8,
     "Huit problèmes disponibles hors connexion");
   await offlineProblems.locator("#problemSwitch").click();
