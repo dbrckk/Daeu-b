@@ -21,13 +21,15 @@ test("Sans copie, suggérer une famille fixe, sans inventer de niveau",()=>{
  assert.match(recommendation.reason,/non encore passé/);
 });
 test("Explorer les cinq familles avant de répéter un sujet",()=>{
- const history=[];
- for(const id of ["blanc-1","blanc-2","blanc-c","blanc-d"]){
+ const history=[],seen=new Set();
+ for(let i=0;i<5;i++){
    const suggestion=recommendNextExam(history);
-   assert.equal(suggestion.id,id);
-   history.push(done(id,id.startsWith("blanc-")&&["blanc-c","blanc-d","blanc-e"].includes(id)?7:undefined));
+   assert.equal(suggestion.attempts,0,"Un sujet non encore passé doit être prioritaire");
+   assert.equal(seen.has(suggestion.id),false,"Ne pas répéter un sujet tant que les autres sont inédits");
+   seen.add(suggestion.id);
+   history.push(done(suggestion.id,["blanc-c","blanc-d","blanc-e"].includes(suggestion.id)?7:undefined));
  }
- assert.equal(recommendNextExam(history).id,"blanc-e");
+ assert.equal(seen.size,5);
 });
 test("Après cinq familles, privilégier les points perdus et éviter le dernier sujet",()=>{
  const history=["blanc-1","blanc-2","blanc-c","blanc-d","blanc-e"].map(id=>
