@@ -518,6 +518,7 @@ try {
   await page.locator("#examHistory button").first().click();
   await check(async()=>await page.locator("#examReasoningStatus").textContent().then(x=>x.includes("1/16")),"Grille sauvegardée");
 
+  await page.locator(".optional-backup > summary").click();
   const promise=page.waitForEvent("download");
   await page.locator("#export").click();
   const download=await promise;
