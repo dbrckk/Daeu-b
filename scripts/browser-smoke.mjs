@@ -600,6 +600,7 @@ try {
   await page.reload({waitUntil:"networkidle"});
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
+  await page.waitForFunction(()=>document.querySelector("#totalQuestions")?.textContent?.trim()==="157",null,{timeout:10000});
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"Application chargée hors ligne");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Copies accessibles hors ligne");
   // La PWA doit aussi conserver les modules des examens et les nouvelles
