@@ -6,6 +6,7 @@ import {APPLIED_EXAM_ID} from "./exam-applied.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
 import {examOverview} from "./exam-blueprint.mjs";
+import {recommendNextExam} from "./exam-recommendation.mjs";
 import {inspectExamDraft} from "./exam-readiness.mjs";
 import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 import {StaleDataError} from "./persistence.mjs";
@@ -116,6 +117,19 @@ function renderAnalytics(){
   container.append(list,element("p","helper","Diagnostic des réponses objectives des 12 dernières copies au maximum, distinct de l'évaluation de la rédaction."));
 }
 
+function renderExamRecommendation(){
+  const node=byId("examRecommendation");
+  const recommendation=recommendNextExam(store.history);
+  node.textContent="Prochain sujet conseillé : examen "+recommendation.label+" — "+recommendation.reason+
+    " Conseil indicatif fondé sur les erreurs des questions objectives et la diversité des sujets.";
+  const select=byId("examSelect");
+  const suggested=byId("examChooseRecommended");
+  suggested.hidden=select.value===recommendation.id;
+  suggested.onclick=()=>{
+    select.value=recommendation.id;
+    renderExamBlueprint();
+  };
+}
 function renderExamBlueprint(){
   const profile=examOverview().profiles.find(p=>p.id===byId("examSelect").value);
   const summary=byId("examBlueprintSummary"),list=byId("examBlueprintSections");
@@ -127,6 +141,7 @@ function renderExamBlueprint(){
     profile.guidedSteps+" étapes de rédaction à comparer après remise.";
   for(const section of profile.sections)
     list.append(element("li","",section.title+" — "+section.questions+" questions, "+section.points+" points"));
+  renderExamRecommendation();
   byId("examBlueprintCourses").textContent="Notions explicitement ciblées : "+
     profile.courses.map(c=>c.label.split(" · ").slice(1).join(" · ")).join(" ; ")+
     ". D'autres compétences peuvent être nécessaires sans être étiquetées.";
@@ -144,6 +159,7 @@ function renderHistory(){
     row.append(label,open);container.append(row);
   }
   renderAnalytics();
+  renderExamRecommendation();
 }
 /** Indique les saisies manquantes sans juger leur justesse ni afficher de solution. */
 function renderDraftProgress(){

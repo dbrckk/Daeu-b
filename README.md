@@ -180,3 +180,8 @@ Un audit reproductible compare les cinq sujets A/B/C/D/E : questions numériques
 - [Audit des examens](AUDIT_EXAMENS.md) et [données des cinq gabarits](audits/exam-blueprints.json).
 - Dans l'application, la composition du sujet sélectionné est consultable avant de lancer le chronomètre ; ni réponses ni corrections ne sont exposées.
 - Vérification locale et CI : `node scripts/audit-exams.mjs --check`, puis tests Node et Chromium Android.
+
+
+## Prochain examen conseillé (v26.3)
+
+La page des examens propose un **sujet conseillé** à partir des 12 dernières copies : priorité aux familles jamais essayées, puis aux compétences où des points objectifs ont été perdus, en pénalisant la répétition du dernier sujet. Le choix reste manuel et les copies existantes sont conservées. Ce conseil n'est **pas une mesure de difficulté ni une estimation de réussite au DAEU B** ; les raisonnements rédigés ne sont pas évalués automatiquement.
