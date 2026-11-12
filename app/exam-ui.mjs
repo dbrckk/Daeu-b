@@ -5,6 +5,7 @@ import {ALTERNATIVE_EXAM_ID} from "./exam-alternative.mjs";
 import {APPLIED_EXAM_ID} from "./exam-applied.mjs";
 import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
+import {examOverview} from "./exam-blueprint.mjs";
 import {inspectExamDraft} from "./exam-readiness.mjs";
 import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 import {StaleDataError} from "./persistence.mjs";
@@ -115,6 +116,21 @@ function renderAnalytics(){
   container.append(list,element("p","helper","Diagnostic des réponses objectives des 12 dernières copies au maximum, distinct de l'évaluation de la rédaction."));
 }
 
+function renderExamBlueprint(){
+  const profile=examOverview().profiles.find(p=>p.id===byId("examSelect").value);
+  const summary=byId("examBlueprintSummary"),list=byId("examBlueprintSections");
+  list.replaceChildren();
+  if(!profile){summary.textContent="Sélectionne un sujet pour consulter sa composition.";return;}
+  summary.textContent="Examen "+profile.label+" : "+profile.questions+" questions · "+
+    profile.types.number+" réponses numériques · "+profile.types.choice+
+    " choix · "+profile.twoPointQuestions+" questions à 2 points · "+
+    profile.guidedSteps+" étapes de rédaction à comparer après remise.";
+  for(const section of profile.sections)
+    list.append(element("li","",section.title+" — "+section.questions+" questions, "+section.points+" points"));
+  byId("examBlueprintCourses").textContent="Notions explicitement ciblées : "+
+    profile.courses.map(c=>c.label.split(" · ").slice(1).join(" · ")).join(" ; ")+
+    ". D'autres compétences peuvent être nécessaires sans être étiquetées.";
+}
 function renderHistory(){
   const container=byId("examHistory");
   container.replaceChildren();
@@ -370,6 +386,8 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
   alternative.value=ALTERNATIVE_EXAM_ID;select.append(alternative);
   const applied=element("option","","Examen E — systèmes, trigonométrie, sans remise et fonctions à racine");
   applied.value=APPLIED_EXAM_ID;select.append(applied);
+  select.addEventListener("change",renderExamBlueprint);
+  renderExamBlueprint();
   byId("examStart").addEventListener("click",start);
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
   byId("examNext").addEventListener("click",()=>moveTo(Math.min(3,store.active.sectionIndex+1)));

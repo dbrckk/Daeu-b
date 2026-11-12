@@ -169,3 +169,11 @@ La première version considérée **complète pour l'objectif pédagogique** dev
 - Génération déterministe par graine : import/réouverture sans perdre la copie ; *aucune réécriture* de C/D qui casserait leurs anciennes graines.
 - 1000 sujets E vérifiés structurellement et 500 contrôles des formules ; tests de copie, notation, navigateur Android et cache hors ligne.
 - Suites : vérifier l'équilibre de difficulté de plusieurs familles de sujets et ajouter des modèles de preuve écrite sans prétendre qu'un QCM valide une démonstration.
+
+
+## v26.2 — calibration structurelle des épreuves, sans fausse difficulté
+
+- Le gabarit des cinq examens est contrôlé (4 exercices, 20 points, 16 rubriques de rédaction, types de réponse, compétences et répartition des points) ; échantillon de sept graines pour C/D/E.
+- Résultat : 11 des 13 chapitres de référence possèdent au moins une compétence explicitement évaluée. Le calcul numérique et le calcul littéral sont utilisés transversalement mais non évalués comme objectifs isolés dans les examens actuels.
+- Rapport inspectable versionné et interface de sélection enrichie, sans changement des copies ou de leurs notes. Aucun score de difficulté n'est inventé.
+- Prochaine priorité : ajouter des exercices d'examen ciblant explicitement ces deux chapitres, **sans modifier les générateurs historiques** ; évaluer ensuite les productions rédigées avec une grille supervisée plutôt qu'une note automatique trompeuse.

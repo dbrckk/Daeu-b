@@ -308,3 +308,8 @@ Le module pur `exam-readiness.mjs` calcule `inspectExamDraft(exam,session)` sans
 ## v26.1 — cinquième examen E, sans migration des sujets historiques
 
 `exam-applied.mjs` construit de façon déterministe quatre nouveaux exercices (`e-systeme`, `e-trigonometrie`, `e-sans-remise`, `e-racine`) et leurs grilles de raisonnement, 4 × 5 = 20 points. Le moteur `exam-engine.mjs` reconnaît l'ID `blanc-e` et restaure une copie E par sa graine, y compris via export/import historique. Les algorithmes des examens C et D restent strictement inchangés pour préserver les copies existantes. `exam-analytics.mjs` distingue les sujets E par graine et oriente les points perdus vers les nouveaux cours. Tests : 1000 graines E avec validation du barème, 500 recalculs mathématiques indépendants, sauvegarde/reprise/auto-évaluation et Chromium Android avec cache déconnecté.
+
+
+## v26.2 — profil des cinq examens et audit des compétences
+
+`exam-blueprint.mjs` construit un profil reproductible des examens A/B/C/D/E : quinze ou seize questions, 20 points, quatre exercices, 16 étapes guidées, compétences et cours explicitement visés. Il compare sept graines sur chacun des trois générateurs pour détecter les dérives du gabarit sans altérer leur logique. Le sélecteur d'examen affiche ces informations sans solution et sans classement artificiel de difficulté. Le rapport `AUDIT_EXAMENS.md` et `audits/exam-blueprints.json` sont issus des vraies banques et vérifiés par `scripts/audit-exams.mjs --check`. Les deux cours de base 01/02 n'ont pas de compétences autonomes dans ces examens : lacune de mesure déclarée, non cachée.

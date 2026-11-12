@@ -99,6 +99,13 @@
             <div class="field"><label for="examSelect">Choisir un examen blanc</label><select id="examSelect"></select></div>
             <button type="button" id="examStart" class="primary">Commencer l'examen (3 h)</button>
           </div>
+          <section class="exam-blueprint" aria-labelledby="examBlueprintTitle">
+            <h3 id="examBlueprintTitle">Composition du sujet sélectionné</h3>
+            <p id="examBlueprintSummary" class="helper" aria-live="polite"></p>
+            <ol id="examBlueprintSections"></ol>
+            <p id="examBlueprintCourses" class="helper"></p>
+            <p class="helper">Cette répartition décrit les questions du sujet, pas sa difficulté réelle. Les notes de calcul et les étapes de rédaction ne garantissent pas la maîtrise du programme.</p>
+          </section>
           <p class="helper">Chronomètre réel et sauvegarde locale : même sujet et mêmes valeurs après fermeture ou réimportation. Les examens C, D et E génèrent de nouvelles valeurs à chaque tentative. Solutions cachées jusqu’à la remise ou à la fin du temps.</p>
         </div>
         <div id="examActive" class="exam-active" hidden>

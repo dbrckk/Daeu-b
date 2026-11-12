@@ -6,6 +6,7 @@ on:
       - 'scripts/check_content.py'
       - 'scripts/verify_worked_cases.py'
       - 'scripts/audit-coverage.mjs'
+      - 'scripts/audit-exams.mjs'
       - 'scripts/audit-coverage.test.mjs'
       - 'scripts/coverage-map.mjs'
       - 'scripts/check_transfers.py'
@@ -20,6 +21,7 @@ on:
       - 'scripts/check_content.py'
       - 'scripts/verify_worked_cases.py'
       - 'scripts/audit-coverage.mjs'
+      - 'scripts/audit-exams.mjs'
       - 'scripts/audit-coverage.test.mjs'
       - 'scripts/coverage-map.mjs'
       - 'scripts/check_transfers.py'
@@ -49,9 +51,12 @@ jobs:
           python3 scripts/verify_transfer_math.py
       - name: Vérifier matrice v23 et détecter toute divergence des rapports
         run: node scripts/audit-coverage.mjs --check
+      - name: Vérifier les cinq examens et le rapport de couverture
+        run: node scripts/audit-exams.mjs --check
       - name: Vérifier syntaxe JS (sans dépendances npm)
         run: |
           node --check scripts/audit-coverage.mjs
+          node --check scripts/audit-exams.mjs
           node --check scripts/verify-transfer-math-ab.mjs
           node --check scripts/coverage-map.mjs
           node --check app/app.mjs
@@ -66,6 +71,7 @@ jobs:
           node --check app/exam-applied.mjs
           node --check app/reasoning.mjs
           node --check app/exam-analytics.mjs
+          node --check app/exam-blueprint.mjs
           node --check app/exam-readiness.mjs
           node --check app/persistence.mjs
           node --check app/jalons.mjs
@@ -82,4 +88,4 @@ jobs:
           node --check app/course-search.mjs
           node --check app/course-catalog.mjs
       - name: Vérifier notation, jalons, révisions et sauvegardes
-        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/exam-applied.test.mjs app/exam-readiness.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs app/jalon-progress.test.mjs app/prerequisites.test.mjs app/transfer-progress.test.mjs
+        run: node --test app/engine.test.mjs app/exam-engine.test.mjs app/reasoning.test.mjs app/exam-generator.test.mjs app/exam-alternative.test.mjs app/exam-applied.test.mjs app/exam-blueprint.test.mjs app/exam-readiness.test.mjs app/persistence.test.mjs app/round.test.mjs app/course-catalog.test.mjs app/reading-bookmark.test.mjs app/course-search.test.mjs scripts/audit-coverage.test.mjs app/jalon-progress.test.mjs app/prerequisites.test.mjs app/transfer-progress.test.mjs

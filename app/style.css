@@ -228,3 +228,12 @@
 .exam-draft-section{display:block;width:100%;text-align:left;min-height:44px;white-space:normal}
 .exam-draft-section[aria-current="step"]{outline:2px solid var(--teal);outline-offset:1px}
 @media(max-width:480px){.exam-draft-overview{padding:11px}.exam-draft-overview p{font-size:.84rem}}
+
+
+/* v26.2 — gabarit auditable avant de commencer l'examen. */
+.exam-blueprint{margin:12px 0 16px;padding:13px 16px;border-radius:13px;background:var(--panel2);border:1px solid var(--stroke)}
+.exam-blueprint h3{font-size:1rem;margin:0 0 8px}
+.exam-blueprint ol{margin:8px 0;padding-left:23px;line-height:1.55}
+.exam-blueprint li{padding:3px 0}
+.exam-blueprint .helper{font-size:.85rem;margin:8px 0}
+@media(max-width:480px){.exam-blueprint{padding:12px}.exam-blueprint li{font-size:.87rem}}

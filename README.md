@@ -171,3 +171,12 @@ La préparation des épreuves A/B/C/D intègre désormais un **tableau de compl�
 ## Examen E — familles complémentaires de mathématiques (v26.1)
 
 Un cinquième examen blanc a été ajouté : **E**, à quatre exercices de cinq points, trois heures et seize questions, avec de **nouveaux modèles d'énoncés**, distincts des exercices C et D. Il traite les systèmes de tarifs, la trigonométrie du triangle rectangle, les probabilités **sans remise** et les domaines de fonctions avec racine carrée. Chaque sujet E est généré à partir d'une graine uint32, conserve exactement ses valeurs et ses corrigés après fermeture ou import, et dispose de seize étapes guidées de raisonnement déclaratif après remise. Les anciens générateurs C/D et leurs copies ne sont pas modifiés. Le cache PWA comprend le nouveau moteur E. La réponse automatique sur 20 demeure **indicative** : elle ne note pas les preuves et justifications rédigées.
+
+
+## v26.2 — transparence sur la composition des examens
+
+Un audit reproductible compare les cinq sujets A/B/C/D/E : questions numériques ou à choix, barème par exercice, compétences étiquetées et étapes de rédaction. Sur les **13 chapitres principaux sélectionnés dans la bibliothèque**, **11 sont explicitement étiquetés** dans au moins un examen. Le calcul numérique et le calcul littéral ne sont pas encore évalués comme compétences autonomes dans les cinq épreuves ; ils interviennent toutefois transversalement. Le rapport ne prétend pas mesurer la difficulté réelle ni une équivalence officielle.
+
+- [Audit des examens](AUDIT_EXAMENS.md) et [données des cinq gabarits](audits/exam-blueprints.json).
+- Dans l'application, la composition du sujet sélectionné est consultable avant de lancer le chronomètre ; ni réponses ni corrections ne sont exposées.
+- Vérification locale et CI : `node scripts/audit-exams.mjs --check`, puis tests Node et Chromium Android.

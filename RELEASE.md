@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v26.2 — audit inspectable des cinq examens (12 novembre 2026)
+
+- Rapport structurel source-vérifiable : 5 gabarits, points, compétences, types de réponse, 16 rubriques de rédaction par épreuve et 7 graines par générateur.
+- Deux lacunes clairement identifiées dans les examens : calcul numérique et calcul littéral non ciblés en tant que compétences autonomes ; aucune affirmation non fondée de difficulté ou de maîtrise.
+- Détails des thèmes et barème affichés dans le sélecteur avant de commencer, offline compatible, anciens sujets et sauvegardes inchangés.
+
 ## v26.1 — nouvel examen E de quatre familles (11 novembre 2026)
 
 - Systèmes, trigonométrie, probabilités sans remise et racines carrées dans un cinquième sujet blanc reproductible (4 exercices, 16 questions, 20 points, 3 h).
