@@ -25,6 +25,7 @@ try {
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
+  await page.locator("#examSelect").selectOption("blanc-c");
   await check(async()=>await page.locator("#examBlueprintSections li").count()===4
     &&await page.locator("#examBlueprintSummary").textContent().then(t=>t.includes("Examen C")&&t.includes("16 étapes")),
     "Examen C : composition expliquée avant de démarrer, sans donner les solutions");
