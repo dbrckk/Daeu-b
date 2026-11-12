@@ -2,7 +2,7 @@
 
 **Site public :** https://daeu-b-maths-dbrckk.onrender.com
 
-Cette application complète les cours Markdown du dépôt. Elle contient **116 exercices fixes et 41 modèles à valeurs variables**, soit 157 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais pas encore dans la banque interactive.
+Cette application complète les cours Markdown du dépôt. Elle contient **116 exercices fixes et 41 modèles à valeurs variables**, soit 157 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais ne disposent pas tous d'une banque de quiz indépendante. Le chapitre de trigonométrie comporte notamment trois problèmes rédigés et corrigés.
 
 ## Utilisation sur Android ou PC
 

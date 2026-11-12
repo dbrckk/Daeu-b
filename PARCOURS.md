@@ -58,7 +58,7 @@ Quatorze chapitres du tronc commun possèdent désormais un atelier **détaillé
 1. Relire la méthode, puis **refermer le corrigé** et refaire les étapes de l'exemple sur papier.
 2. Résoudre les deux problèmes de transfert sans aide (incluant les hypothèses et unités, pas seulement le résultat).
 3. Comparer la démarche complète à la correction ; noter l'erreur de méthode éventuelle et reprendre le problème sept jours plus tard.
-4. Réviser les notions correspondantes sur [l'application interactive](https://daeu-b-maths-dbrckk.onrender.com), dont les 143 éléments et les quatre examens blancs sont inchangés.
+4. Réviser les notions correspondantes sur [l'application interactive](https://daeu-b-maths-dbrckk.onrender.com), dont les 157 éléments de pratique et les cinq examens blancs sont disponibles.
 
 Ces ateliers sont intégrés aux 18 cours de la PWA et sont consultables **hors connexion après la première mise en cache complète**. Les fichiers Markdown sources restent également disponibles sur GitHub ; les sujets et corrigés des 8 problèmes progressifs sont eux aussi préchargés.
 

@@ -1,5 +1,15 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## Version 27 — prête pour la première séance (12 novembre 2026)
+
+- Un parcours visible dès la page d'accueil : lancer le repérage de dix questions maximum, reprendre une séance existante sans l'écraser, lire le premier cours et suivre les jalons.
+- 18 cours dont 20 jalons principaux SONATE, 157 emplacements de quiz, 60 problèmes de transfert, cinq examens blancs A/B/C/D/E et révision espacée.
+- Trois problèmes rédigés supplémentaires en trigonométrie, avec corrigés justifiés et grille de rédaction, disponibles dans le cours et sa copie PWA hors ligne.
+- Métadonnées et guides actualisés, instructions concrètes dans `COMMENCER.md`. Les données restent sur cet appareil et sont exportables en JSON ; pas de compte ni d'achat.
+- Contrôles : vérification structurelle, contenu source/cache, tests Node et tests Chromium sur Android. Déclenchement automatique de l'audit du site Render après modifications de l'application.
+- Limites : ce cours ne délivre aucun diplôme et les résultats automatisés ne corrigent pas les raisonnements manuscrits. Les modalités d'examen restent celles de l'université d'inscription.
+
+
 ## v26.2 — audit inspectable des cinq examens (12 novembre 2026)
 
 - Rapport structurel source-vérifiable : 5 gabarits, points, compétences, types de réponse, 16 rubriques de rédaction par épreuve et 7 graines par générateur.

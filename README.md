@@ -8,14 +8,14 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 ## Application interactive gratuite
 
-**[Ouvrir l'Atelier de maths — site mobile et PC](https://daeu-b-maths-dbrckk.onrender.com)**
+**[Ouvrir l'Atelier de maths — commencer maintenant](https://daeu-b-maths-dbrckk.onrender.com/#commencer)**
 
 - **116 questions fixes + 41 modèles paramétriques (157 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **41 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
 - Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte ni serveur de données ; exporter régulièrement un JSON.
 - Site statique gratuit et léger (**sans dépendances à l'exécution**), hébergé sur **Render avec URL permanente**, déploiement automatique depuis `main` et vérification Node.js bloquante avant publication ; le code reste dans [app/](app/).
-- **[Quatre examens blancs interactifs](https://daeu-b-maths-dbrckk.onrender.com)** : A et B fixes, **C et D générés avec de nouvelles valeurs** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **grilles guidées de 16 étapes par sujet**, auto-évaluation et diagnostic des points perdus.
+- **[Cinq examens blancs interactifs](https://daeu-b-maths-dbrckk.onrender.com/#exam-title)** : A et B fixes, **C, D et E générés avec de nouvelles valeurs** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **grilles guidées de 16 étapes par sujet**, auto-évaluation et diagnostic des points perdus.
 - [Guide des examens chronométrés, sujets variables et limites de la correction automatique](examens/guide-interactif.md).
 - [Notice de fonctionnement et limites](app/README.md).
 - [Rapport de stabilisation, tests Chromium mobile et procédure d'installation](RELEASE.md).
@@ -25,6 +25,8 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 > La réussite à un QCM n'est pas la preuve d'une maîtrise. Les démonstrations, problèmes et examens sur papier restent indispensables.
 
 ## Démarrer ici
+
+**Première séance :** ouvrir [l'application](https://daeu-b-maths-dbrckk.onrender.com/#commencer), appuyer sur **Démarrer mon diagnostic**, répondre à dix questions maximum, puis lire le cours indiqué par le parcours. Pour travailler une démonstration, prévoir feuille et stylo. [Instructions pour le premier jour](COMMENCER.md).
 
 1. [Programme vérifié, sources et correspondance avec les universités](PROGRAMME.md)
 2. [Test de positionnement avec corrigé](maths/00-positionnement.md) — commencer sans consulter les réponses.

@@ -7,6 +7,9 @@ on:
     paths:
       - '.github/workflows/live-health.yml'
       - 'scripts/healthcheck.py'
+      - 'app/index.html'
+      - 'app/app.mjs'
+      - 'app/sw.js'
 permissions:
   contents: read
 concurrency:
