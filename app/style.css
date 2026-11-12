@@ -252,3 +252,15 @@
 .exam-consolidation>details{margin-top:8px}
 .exam-consolidation>details>summary{cursor:pointer;font-weight:700;padding:10px 0}
 .exam-consolidation>details>ol{list-style:decimal;margin:4px 0 12px;padding-left:25px;display:grid;gap:12px}
+
+/* v27 — accueil lisible sur Android et reprise sécurisée du premier entraînement. */
+.getting-started{margin:20px 0 26px;padding:20px;border:1px solid var(--stroke);border-radius:16px;background:var(--panel)}
+.getting-started h2{margin:0}.getting-started>.helper{margin:9px 0}
+.first-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;list-style:none;margin:16px 0;padding:0}
+.first-steps li{padding:15px;border:1px solid var(--stroke);border-radius:12px;background:var(--panel2);min-width:0}
+.first-steps strong{display:block}.first-steps li p{font-size:.88rem;line-height:1.5;color:var(--muted);min-height:66px;margin:10px 0}
+.first-steps button,.first-action{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:44px;border-radius:10px;padding:10px 12px;font-weight:700;text-decoration:none}
+.first-steps button{width:100%}
+.first-action{border:1px solid var(--stroke);background:var(--panel);color:var(--teal);width:100%}
+.first-action:hover{border-color:var(--teal)}
+@media(max-width:720px){.first-steps{grid-template-columns:1fr}.first-steps li p{min-height:0}.getting-started{padding:14px;margin:14px 0}}

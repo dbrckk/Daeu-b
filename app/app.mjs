@@ -63,8 +63,28 @@ function persist(practice,progressRound) {
 }
 
 const fmt=n=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:8}).format(n);
+function renderFirstStart(metrics=getMetrics(state,questions)){
+  const active=round&&round.completed<round.ids.length;
+  el("firstStart").textContent=active?"Reprendre ma séance en cours":
+    metrics.attempted>0?"Faire un nouveau repérage":"Démarrer mon diagnostic";
+  el("firstStatus").textContent=active?
+    "Une séance est sauvegardée sur cet appareil : reprends-la avant d'en commencer une autre.":
+    metrics.attempted>0?
+      metrics.attempted+" question(s) déjà travaillée(s), "+metrics.due+
+      " rappel(s) arrivé(s) à échéance. Poursuis selon ton parcours.":
+      "Tu n'as encore effectué aucun exercice. Le repérage initial est le meilleur point de départ.";
+}
+function firstStart(){
+  if(round&&round.completed<round.ids.length){
+    if(el("quiz").hidden)resumeSession();
+    el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
+    return;
+  }
+  startDiagnosticSession();
+}
 function refreshOverview() {
   const metrics=getMetrics(state,questions);
+  renderFirstStart(metrics);
   el("totalQuestions").textContent=fmt(metrics.total);
   el("attempted").textContent=fmt(metrics.attempted);
   el("mastered").textContent=fmt(metrics.mastered);
@@ -227,6 +247,7 @@ function startSelectedSession(selected){
   el("results").hidden=true;
   el("quiz").hidden=false;
   notification("");
+  renderFirstStart();
   renderQuestion();
 }
 function startJalonSession(jalon,mode="all"){
@@ -371,6 +392,8 @@ renderCourseLibrary();
 refreshOverview();
 initExams(dataStore,conflictWarning);
 resumeSession();
+renderFirstStart();
+el("firstStart").addEventListener("click",firstStart);
 el("start").addEventListener("click",startSession);
 el("diagnosticStart").addEventListener("click",startDiagnosticSession);
 el("restart").addEventListener("click",startSession);
