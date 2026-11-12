@@ -92,6 +92,27 @@ try {
     await check(async()=>await firstPage.evaluate(expected=>
       JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(expected),storedRound),
       "Le bouton de reprise n'écrase ni la graine ni les réponses déjà sauvegardées");
+    await check(async()=>await firstPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.assistedIds.length===1),
+      "Assistance conservée après une fermeture et une reprise");
+    const current=await firstPage.evaluate(async()=>{
+      const [{TOPICS},{injectVariants},{flatten},{restoreRound}]=await Promise.all([
+        import("./questions.mjs"),import("./variants.mjs"),import("./engine.mjs"),import("./round.mjs")
+      ]);
+      const currentRound=JSON.parse(localStorage.getItem("daeu-b-data-v1")).round;
+      const q=restoreRound(currentRound,flatten(injectVariants(TOPICS)))[currentRound.completed];
+      return {id:q.id,type:q.type,answer:q.answer};
+    });
+    if(current.type==="number")await firstPage.locator("#answer").fill(String(current.answer));
+    else await firstPage.locator("#choiceList input").evaluateAll((nodes,answer)=>{
+      const found=nodes.find(x=>x.value===answer);
+      if(!found)throw Error("Réponse correcte absente du QCM");
+      found.click();
+    },current.answer);
+    await firstPage.locator("#submit").click();
+    await check(async()=>await firstPage.evaluate(id=>{
+      const record=JSON.parse(localStorage.getItem("daeu-b-data-v1")).practice.items[id];
+      return record?.correct===1&&record?.assisted===1&&record?.confirmed===false&&record?.streak===0;
+    },current.id),"Réponse correcte après aide : pas d'acquis autonome attribué");
     await check(async()=>await firstPage.locator(".first-steps a[href*='01-calcul-numerique']").count()===1,
       "Première séance : lien direct vers les bases disponible");
     await check(async()=>await firstPage.locator("#autoBackupStatus").textContent().then(t=>t.includes("deux copies locales")),

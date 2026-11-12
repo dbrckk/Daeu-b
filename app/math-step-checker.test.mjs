@@ -58,3 +58,13 @@ test("borne le travail, interdit les entrées dangereuses et la division nulle",
  assert.equal(checkMathSteps("x-x=0\nx=2").errors,1);
  assert.equal(checkMathSteps("x=5\n0=0").entries[1].kind,"info","une vérité numérique ne prouve pas une équation");
 });
+
+test("En cas d'erreur, indique une méthode de transformation concrète sans notation fictive",()=>{
+ const s=checkMathSteps("2x + 5 = 17\n2x = 14");
+ assert.equal(s.errors,1);
+ assert.match(s.entries[1].message,/2x = 12/);
+ assert.match(s.entries[1].message,/x = 6/);
+ const n=checkMathSteps("x - x = 0\nx = 7");
+ assert.equal(n.errors,1);
+ assert.match(n.entries[1].message,/identité/);
+});

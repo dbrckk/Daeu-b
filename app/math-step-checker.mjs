@@ -125,7 +125,7 @@ export function classifyEquality(text){
   const coeff=sub(left.a,right.a),target=sub(right.b,left.b);
   if(coeff.n===0n)return {kind:target.n===0n?"all":"none"};
   return {kind:"unique",solution:formatRational(div(target,coeff)),
-    solutionRatio:div(target,coeff)};
+    solutionRatio:div(target,coeff),coefficient:formatRational(coeff),target:formatRational(target)};
 }
 const description=result=>result.kind==="unique"?"x = "+result.solution:
   result.kind==="all"?"tous les nombres réels":
@@ -177,7 +177,11 @@ export function checkMathSteps(text){
     }else if(sameSolution(previous,result)){
       entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+previousLine+" : même ensemble de solutions ("+description(result)+")."});
     }else{
-      errors++;entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+" : précédemment "+description(previous)+", maintenant "+description(result)+". Vérifie les signes et l'opération appliquée aux deux membres."});
+      errors++;
+      const method=previous.kind==="unique"
+        ?" Méthode depuis la ligne "+previousLine+" : regroupe les termes en x, puis les constantes pour obtenir "+(previous.coefficient==="1"?"x":previous.coefficient+"x")+" = "+previous.target+", et divise par "+previous.coefficient+" pour trouver x = "+previous.solution+"."
+        :" Reprends la simplification : une identité doit rester vraie pour tout x et une équation impossible ne doit pas gagner de solution.";
+      entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+" : précédemment "+description(previous)+", maintenant "+description(result)+". Vérifie les signes et les opérations appliquées aux deux membres."+method});
     }
     previous=result;previousLine=line;
   }
