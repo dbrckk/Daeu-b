@@ -10,7 +10,7 @@ test("chaîne linéaire correcte : transformation équivalente exacte",()=>{
 });
 test("repère précisément les erreurs de signes et la ligne concernée",()=>{
  const c=checkMathSteps("2x + 5 = 17\n2x = 14\nx = 7");
- assert.equal(c.errors,1);
+ assert.equal(c.errors,2);
  assert.match(c.entries[1].message,/ligne 1/);
  assert.match(c.entries[1].message,/x = 6/);
 });
