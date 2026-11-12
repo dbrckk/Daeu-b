@@ -93,3 +93,69 @@ $f'(x)=2\cos x-\sin x$. Pour une représentation graphique ou une étude, garder
 
 ## Maîtrise
 Savoir tracer mentalement le cercle des angles usuels, donner les deux solutions dans un tour et **ne pas mélanger degrés et radians**.
+
+## Atelier de rédaction complémentaire — trois problèmes notés sur 5
+
+**Consigne :** résoudre à la main avant de regarder les corrections ci-dessous. Écrire chaque hypothèse, formule, calcul et conclusion. Les points proposés servent d'auto-évaluation, pas de notation automatique.
+
+### Sujet T1 — Triangle rectangle et agrandissement (5 pts)
+
+Un terrain ABC est rectangle en A, avec AB = 9 m et AC = 12 m. On note \(\alpha=\widehat{ABC}\).
+
+1. (2 pts) Démontrer que BC = 15 m, en précisant le théorème utilisé.
+2. (1 pt) Calculer l'aire du terrain et donner l'unité.
+3. (1 pt) Donner les valeurs exactes de \(\sin\alpha\) et \(\cos\alpha\).
+4. (1 pt) Si toutes les longueurs sont multipliées par deux, quelle sera la nouvelle aire ? Justifier.
+
+### Sujet T2 — Équation trigonométrique et dérivée (5 pts)
+
+On étudie \(\sin x=-\sqrt3/2\) sur \([0;2\pi[\).
+
+1. (2 pts) Résoudre l'équation en justifiant les quadrants retenus.
+2. (1 pt) Convertir \(240^\circ\) en radians et comparer avec les solutions précédentes.
+3. (1 pt) Dériver \(h(x)=2\sin x+3\cos x\), avec \(x\) en radians.
+4. (1 pt) Calculer exactement \(h'(4\pi/3)\).
+
+### Sujet T3 — Fonction trigonométrique et justification (5 pts)
+
+On pose \(f(x)=2\sin x+\cos x\) sur \(\mathbb R\), avec les angles en radians.
+
+1. (1 pt) Calculer \(f(0)\).
+2. (1 pt) Exprimer \(f'(x)\).
+3. (2 pts) Montrer que \(f\) est strictement croissante *au voisinage de zéro*, mais sans généraliser abusivement à tout \(\mathbb R\).
+4. (1 pt) Calculer \(f(\pi/2)\), puis démontrer \(f(x+2\pi)=f(x)\).
+
+---
+
+## Corrections détaillées de l'atelier
+
+### T1 — Corrigé
+
+1. Comme ABC est rectangle en A, **Pythagore** donne \(BC^2=AB^2+AC^2=9^2+12^2=225\). Une longueur étant positive, \(\boxed{BC=15\ \mathrm m}\).
+2. La base et la hauteur sont les deux côtés perpendiculaires : \(\mathcal A=AB\times AC/2=9\times12/2=\boxed{54\ \mathrm{m}^2}\).
+3. Pour l'angle en B, le côté opposé est AC, le côté adjacent est AB : \(\boxed{\sin\alpha=12/15=4/5}\) et \(\boxed{\cos\alpha=9/15=3/5}\). Contrôle : \((4/5)^2+(3/5)^2=1\).
+4. Une homothétie de rapport 2 multiplie les aires par \(2^2=4\) : \(\boxed{216\ \mathrm{m}^2}\). Une multiplication par 2 de l'aire serait incorrecte.
+
+**Erreur à éviter :** inverser les côtés adjacent et opposé, ou exprimer l'aire en mètres au lieu de mètres carrés.
+
+### T2 — Corrigé
+
+1. L'angle de référence vaut \(\pi/3\), et le sinus est négatif aux troisième et quatrième quadrants. Dans \([0;2\pi[\), on obtient \(\boxed{\{4\pi/3;5\pi/3\}}\). Les deux bornes de l'intervalle sont respectées.
+2. \(240^\circ\times\pi/180^\circ=\boxed{4\pi/3}\) : c'est la première des solutions.
+3. En radians, \(\boxed{h'(x)=2\cos x-3\sin x}\).
+4. \(\cos(4\pi/3)=-1/2\) et \(\sin(4\pi/3)=-\sqrt3/2\) ; ainsi \(h'(4\pi/3)=2(-1/2)-3(-\sqrt3/2)=\boxed{-1+3\sqrt3/2}\).
+
+**Erreur à éviter :** oublier une solution ou utiliser sans conversion les formules de dérivation avec les degrés.
+
+### T3 — Corrigé
+
+1. \(f(0)=2\sin0+\cos0=\boxed1\).
+2. \(\boxed{f'(x)=2\cos x-\sin x}\).
+3. \(f'(0)=2>0\). Comme \(f'\) est continue, elle reste strictement positive sur un intervalle ouvert autour de 0. Par le signe de la dérivée, \(f\) y est strictement croissante. Rien ne prouve une croissance sur tout \(\mathbb R\).
+4. \(f(\pi/2)=2\sin(\pi/2)+\cos(\pi/2)=\boxed2\). Grâce à la périodicité du sinus et du cosinus, \(f(x+2\pi)=2\sin(x+2\pi)+\cos(x+2\pi)=\boxed{f(x)}\).
+
+**Erreur à éviter :** confondre croissance locale et croissance sur tout le domaine.
+
+### Grille commune d'auto-évaluation
+
+Pour chaque problème, vérifier quatre éléments indépendamment du résultat : (1) hypothèses ou intervalle explicités ; (2) théorème nommé et applicable ; (3) calculs exacts et unités correctes ; (4) conclusion clairement liée à la question. Une réponse exacte sans explication n'est pas une démonstration complète.
