@@ -648,6 +648,7 @@ try {
   const offlineCourse=await context.newPage();
   offlineCourse.on("pageerror",e=>errors.push("Cours hors ligne : "+e.message));
   await offlineCourse.goto(BASE+"/course.html?course=12-probabilites",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineCourse.waitForFunction(()=>document.querySelectorAll("#courseBody h2").length>=5,null,{timeout:12000});
   await check(async()=>await offlineCourse.locator("#courseBody h2").count()>=5,
     "Cours de probabilités accessible par URL directe hors ligne");
   await check(async()=>await offlineCourse.locator("#courseBody math").count()>=4,
