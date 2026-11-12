@@ -63,10 +63,17 @@ async function request(path,{method="GET",body,token=session?.access_token,prefe
     let data=null;
     try{data=await response.json();}catch{}
     if(!response.ok){
-      const error=new Error(response.status===401?"Session expirée ou connexion non autorisée":
+      const code=typeof data?.code==="string"?data.code:"";
+      const detail=code==="email_address_not_authorized"?
+        "E-mail non autorisé par le service gratuit Supabase : utilise l'adresse de membre de l'organisation ou configure un fournisseur SMTP gratuit.":
+        code==="over_email_send_rate_limit"?"Limite d'e-mails atteinte : réessaie plus tard.":
+        code==="email_not_confirmed"?"Adresse non confirmée : consulte l'e-mail de validation, puis reconnecte-toi.":
+        code==="invalid_credentials"?"Adresse ou mot de passe incorrect.":
+        response.status===401?"Session expirée ou connexion non autorisée":
         response.status===409?"Conflit de version serveur":
-        "Service indisponible (HTTP "+response.status+")");
-      error.status=response.status;throw error;
+        "Service indisponible (HTTP "+response.status+")";
+      const error=new Error(detail);
+      error.status=response.status;error.code=code;throw error;
     }
     return data;
   }finally{clearTimeout(timeout);}
