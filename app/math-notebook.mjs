@@ -16,7 +16,7 @@ export function notebookKey(context){
 export function insertAtSelection(value,symbol,start,end){
   const text=String(value).slice(0,MAX_TEXT);
   const a=Math.max(0,Math.min(text.length,Number(start)||0));
-  const b=Math.max(a,Math.min(text.length,Number(end)??a||a));
+  const b=Math.max(a,Math.min(text.length,(Number.isFinite(Number(end))?Number(end):a)));
   const addition=String(symbol).slice(0,MAX_TEXT);
   const result=(text.slice(0,a)+addition+text.slice(b)).slice(0,MAX_TEXT);
   return {value:result,caret:Math.min(result.length,a+addition.length)};
