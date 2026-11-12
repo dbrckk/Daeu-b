@@ -4,6 +4,7 @@
  * Les traits sont des coordonnées, jamais du HTML, SVG fourni par l'utilisateur ou du code.
  */
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT} from "./workbook.mjs";
+import {checkMathSteps} from "./math-step-checker.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
@@ -56,7 +57,7 @@ function path(ctx,points){
   if(points.length===1){ctx.lineTo(points[0][0]+0.05,points[0][1]+0.05);}
   ctx.stroke();
 }
-export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul"}){
+export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{}}){
   if(!host)throw new Error("Emplacement de cahier absent");
   const legacyKey=notebookKey(context);
   if(!adapter||typeof adapter.snapshot!=="function"||typeof adapter.updateWorkbook!=="function")
@@ -129,6 +130,40 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     field.value=next.value;field.focus();field.setSelectionRange(next.caret,next.caret);
     if(!persist({...work,text:field.value}))field.value=work.text;
   });keypad.append(newline);
+  const correction=document.createElement("section");correction.className="math-notebook-checker";
+  correction.setAttribute("aria-label","Correction guidée des lignes");
+  const correctionTitle=document.createElement("h5");correctionTitle.textContent="Correction guidée des étapes";
+  const explanation=document.createElement("p");explanation.className="helper";
+  explanation.textContent="Vérifie uniquement les calculs numériques et les équations du premier degré en x (une égalité par ligne). Les fractions sont exactes. Les puissances de x, courbes et démonstrations ne sont pas évaluées. Une ligne vide sépare deux exercices.";
+  const verify=document.createElement("button");verify.type="button";verify.className="subtle";
+  verify.textContent="Vérifier mes étapes";
+  const feedback=document.createElement("div");feedback.className="math-notebook-feedback";feedback.hidden=true;
+  feedback.setAttribute("role","status");feedback.setAttribute("aria-live","polite");
+  verify.addEventListener("click",()=>{
+    const review=checkMathSteps(field.value);
+    feedback.replaceChildren();
+    const summary=document.createElement("p");
+    summary.textContent=review.checked
+      ?review.checked+" ligne(s) analysée(s), "+review.errors+" erreur(s) détectée(s) dans le périmètre pris en charge."
+      :"Aucune égalité exploitable trouvée. Écris par exemple : 2x + 5 = 17, puis 2x = 12, puis x = 6.";
+    feedback.append(summary);
+    if(review.entries.length){
+      const list=document.createElement("ol");list.className="math-notebook-review-list";
+      for(const entry of review.entries){
+        const item=document.createElement("li");item.dataset.result=entry.kind;
+        item.textContent=(entry.line?"Ligne "+entry.line+" — ":"")+entry.message;
+        list.append(item);
+      }
+      feedback.append(list);
+    }
+    const caveat=document.createElement("p");caveat.className="helper";
+    caveat.textContent="Ce contrôle ne certifie ni la justesse du raisonnement complet ni la maîtrise de la notion. Les lignes non prises en charge restent à vérifier avec le corrigé.";
+    feedback.append(caveat);feedback.hidden=false;
+    if(review.checked>0)onGuidance();
+  });
+  correction.append(correctionTitle,explanation,verify,feedback);
+  if(!checkingEnabled)correction.hidden=true;
+  field.addEventListener("input",()=>{feedback.hidden=true;});
   const drawLabel=document.createElement("strong");drawLabel.textContent="Feuille quadrillée — écrire au doigt ou au stylet";
   const controls=document.createElement("div");controls.className="math-notebook-pages";
   const prev=document.createElement("button");prev.type="button";prev.className="subtle small";prev.textContent="Page précédente";
@@ -205,7 +240,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointerup",finish);
   canvas.addEventListener("pointercancel",finish);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
-  section.append(heading,help,keypad,templates,field,drawLabel,controls,canvas,status);
+  section.append(heading,help,keypad,templates,field,correction,drawLabel,controls,canvas,status);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }
