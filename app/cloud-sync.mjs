@@ -160,6 +160,7 @@ async function reconcile(){
 }
 async function syncQueue(){
   if(busy||!session||conflict)return;
+  if(typeof navigator!=="undefined"&&navigator.onLine===false){report("en-attente-réseau");return;}
   busy=true;
   try{await reconcile();}
   catch(e){report(e.status===401?"session-expirée":"en-attente-réseau");}
@@ -189,6 +190,7 @@ export async function initCloudSync(localStorageObject,ids,{onRestored=()=>{}}={
   base=metadata?.userId===candidate?.user?.id?metadata:null;
   if(candidate?.user?.id&&UUID.test(candidate.user.id)&&candidate.refresh_token&&candidate.access_token){
     session=candidate;
+    if(typeof navigator!=="undefined"&&navigator.onLine===false){report("en-attente-réseau");return {signedIn:true,status};}
     try{await reconcile();}
     catch{report("en-attente-réseau");}
   }else report("déconnecté");
