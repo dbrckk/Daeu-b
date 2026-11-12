@@ -149,7 +149,8 @@ function renderExamBlueprint(){
 }
 function renderConsolidation(){
   const panel=byId("examConsolidationPanel"),list=byId("examConsolidationList");
-  list.replaceChildren();panel.hidden=true;
+  const more=byId("examConsolidationExtra"),extra=byId("examConsolidationExtraList");
+  list.replaceChildren();extra.replaceChildren();more.hidden=true;panel.hidden=true;
   if(!store.history.length)return;
   let practice;
   try{practice=adapter.snapshot().practice;}
@@ -163,7 +164,7 @@ function renderConsolidation(){
   byId("examConsolidationSummary").textContent=
     plan.length+" chapitre(s) concernés par des points perdus dans les 12 dernières copies. "+
     "Les questions du module de pratique ont un suivi distinct : une bonne note d'examen ne les valide pas.";
-  for(const item of plan.slice(0,5)){
+  for(const [index,item] of plan.entries()){
     const row=element("li","exam-consolidation-item");
     row.append(element("strong","",item.label));
     row.append(element("p","helper",item.lost+" point(s) perdu(s) sur "+item.possible+
@@ -182,11 +183,13 @@ function renderConsolidation(){
     }else{
       row.append(element("p","helper","Ce chapitre n'a pas de quiz dédié : étudier le cours et rédiger une démonstration sur papier."));
     }
-    row.append(actions);list.append(row);
+    row.append(actions);(index<5?list:extra).append(row);
   }
-  byId("examConsolidationMore").textContent=plan.length>5?
-    "Afficher les cinq chapitres prioritaires sur "+plan.length+" ; les autres restent accessibles dans le diagnostic ci-dessus.":"";
-
+  if(plan.length>5){
+    more.hidden=false;
+    byId("examConsolidationMore").textContent=
+      "Afficher les "+(plan.length-5)+" autres chapitres à consolider";
+  }
 }
 function renderHistory(){
   const container=byId("examHistory");

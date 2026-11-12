@@ -318,3 +318,5 @@ Le module pur `exam-readiness.mjs` calcule `inspectExamDraft(exam,session)` sans
 ## v26.4 — parcours ciblé après une épreuve
 
 Les points perdus aux examens A/B/C/D/E sont regroupés par cours via `SKILL_LESSONS`, puis reliés au **vrai chapitre et au vrai domaine d'exercices**, avec les variantes effectivement présentes dans la banque. Le plan présente l'état séparé de la pratique (questions confirmées, erreurs non confirmées, rappels dus). Quand aucun quiz spécialisé n'existe (par exemple trigonométrie), seul le cours est proposé, sans faux lien. Les URL `?topic=...&mode=due#practice-title` présélectionnent le bon chapitre et les rappels, mais **ne démarrent pas automatiquement** de séance : cela protège une séance éventuellement sauvegardée. Cache PWA versionné, schéma de sauvegarde inchangé.
+
+Les cinq premiers chapitres du plan sont visibles directement ; tous les chapitres supplémentaires restent accessibles dans la section déroulante « autres chapitres » avec leurs liens de cours et leurs éventuels exercices dédiés. Aucun chapitre signalé par le diagnostic n'est volontairement masqué ou inaccessible.

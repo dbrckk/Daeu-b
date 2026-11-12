@@ -248,3 +248,7 @@
 .exam-consolidation-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px}
 .exam-consolidation-actions a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;overflow-wrap:anywhere}
 @media(max-width:480px){.exam-consolidation{padding:11px}.exam-consolidation-actions{display:grid;gap:4px}}
+
+.exam-consolidation>details{margin-top:8px}
+.exam-consolidation>details>summary{cursor:pointer;font-weight:700;padding:10px 0}
+.exam-consolidation>details>ol{list-style:decimal;margin:4px 0 12px;padding-left:25px;display:grid;gap:12px}
