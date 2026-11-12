@@ -43,6 +43,11 @@ try {
       "Cahier de calcul accessible dans le diagnostic, avec symboles tactiles");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
     await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===9,
+      "Neuf modèles mathématiques utilisables sans clavier physique");
+    await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
+    await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
+      "Modèle de fraction inséré et sauvegardé");
     const savedMath=await firstPage.locator("#quizNotebook textarea").inputValue();
     assert.ok(savedMath.includes("x = 6")&&savedMath.includes("√"));
     const firstQuestion=await firstPage.locator("#questionText").textContent();

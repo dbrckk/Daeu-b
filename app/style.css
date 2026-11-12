@@ -296,3 +296,7 @@
 .math-notebook-canvas{display:block;width:100%;max-width:480px;height:auto;aspect-ratio:3 / 4;background:white;border:2px solid #8398b0;border-radius:8px;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
 .math-notebook-status{min-height:1.3em}
 @media(max-width:440px){.math-notebook{padding:10px}.math-notebook-keypad button{min-width:41px}.math-notebook-page-indicator{margin:0 auto}}
+
+.math-notebook-templates{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.math-notebook-templates button{min-height:44px;border:1px solid var(--stroke)}
+.math-notebook-templates button:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
