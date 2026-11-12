@@ -2,7 +2,7 @@
 
 **Accès direct :** https://daeu-b-maths-dbrckk.onrender.com/#commencer
 
-Prévoir un smartphone Android (ou un PC), une feuille, un stylo et environ 20 à 30 minutes. Aucun compte, paiement ou installation n'est requis. Il s'agit d'une préparation, pas d'une inscription administrative ni d'une délivrance du diplôme.
+Prévoir un smartphone Android (ou un PC) et environ 20 à 30 minutes. Le cahier de calcul intégré permet de poser les opérations sans papier. Aucun compte, paiement ou installation n'est requis. Il s'agit d'une préparation, pas d'une inscription administrative ni d'une délivrance du diplôme.
 
 ## Première séance
 
@@ -37,3 +37,7 @@ Ce rythme est indicatif : des séances de 10 à 20 minutes avec pauses peuvent �
 **Important :** la note automatique ne mesure pas la qualité des démonstrations écrites. Les comptes de progression ne certifient pas un niveau officiel ; les sujets et modalités varient selon les universités.
 
 [Programme et référentiel](PROGRAMME.md) · [Parcours progressif](PARCOURS.md) · [Application de mathématiques](https://daeu-b-maths-dbrckk.onrender.com/#commencer)
+
+## Rédiger sans papier
+
+Dans les quiz et examens blancs, le **cahier de calcul** propose une zone de rédaction multilignes et des touches pour les symboles (√, π, ×, ÷, ≤, ≥, ², etc.). Dans les problèmes, un cahier distinct permet de rédiger les étapes. Les brouillons sont enregistrés automatiquement **sur cet appareil** par exercice et restaurés à la réouverture. Ils ne sont pas encore synchronisés par le compte cloud et ne sont pas corrigés automatiquement. La prochaine étape du produit consiste à les intégrer à la sauvegarde cloud et à ajouter un éditeur structuré de fractions, puissances, équations et graphiques, puis une correction guidée étape par étape. Il ne faut pas considérer la rédaction entièrement évaluée à ce stade.
