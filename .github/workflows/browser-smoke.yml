@@ -40,3 +40,4 @@ jobs:
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 --directory app > /tmp/daeu-http.log 2>&1 &
           node scripts/browser-smoke.mjs
+          node scripts/browser-cloud.mjs
