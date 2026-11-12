@@ -25,6 +25,11 @@ try {
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
+  await check(async()=>await page.locator("#examRecommendation").textContent().then(t=>t.includes("examen A")&&t.includes("non encore passé")),
+    "Recommandation initiale : varier les familles, sans afficher de note inventée");
+  await page.locator("#examChooseRecommended").click();
+  await check(async()=>await page.locator("#examSelect").inputValue().then(t=>t==="blanc-1"),
+    "Le bouton sélectionne le sujet conseillé sans démarrer l'épreuve");
   await page.locator("#examSelect").selectOption("blanc-c");
   await check(async()=>await page.locator("#examBlueprintSections li").count()===4
     &&await page.locator("#examBlueprintSummary").textContent().then(t=>t.includes("Examen C")&&t.includes("16 étapes")),
