@@ -89,3 +89,52 @@ export function examOverview(){
   }));
   return {profiles,errors,covered:EXAM_COURSE_BASE.length-missing.length,total:EXAM_COURSE_BASE.length,missing,perCourse};
 }
+
+/** Rapport inspectable : chaque tableau indique des compétences ciblées,
+ * jamais une réussite présumée ni une équivalence avec un sujet officiel. */
+export function renderExamAudit(audit=examOverview()){
+  const out=[
+    "# Audit des cinq examens blancs — couverture et structure",
+    "",
+    "Ce rapport est recalculé depuis les banques et les générateurs réels du dépôt. Il décrit des **compétences explicitement étiquetées**, et non toutes les méthodes implicitement mobilisées. Les résultats ne sont ni une évaluation psychométrique de difficulté, ni une preuve d'équivalence avec les épreuves officielles des universités.",
+    "",
+    "## Structure mesurée",
+    "",
+    "| Sujet | Format | Questions | Numériques / choix | Questions à 2 points | Rubrique de rédaction | Compétences distinctes |",
+    "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
+    ...audit.profiles.map(p=>"| "+p.label+" | "+(p.generated?"Généré":"Fixe")+" | "+p.questions+
+      " | "+p.types.number+" / "+p.types.choice+" | "+p.twoPointQuestions+
+      " | "+p.guidedSteps+" étapes | "+p.skills.length+" |"),
+    "",
+    "**Interprétation :** les questions à deux points et le nombre de compétences sont des indicateurs de composition, non des niveaux de difficulté. Les copies conservent une note automatique indicative /20 ; les preuves rédigées restent non notées automatiquement.",
+    "",
+    "## Familles d'exercices réellement présentes",
+    ""
+  ];
+  for(const p of audit.profiles){
+    out.push("### Examen "+p.label+(p.generated?" — valeurs régénérées à chaque nouveau sujet":" — valeurs fixes"));
+    for(const section of p.sections){
+      out.push("- "+section.title+" ("+section.questions+" questions ; "+section.points+" points ; "+section.steps+" étapes de rédaction)");
+    }
+    out.push("Notions étiquetées : "+p.courses.map(c=>c.label.replace(/^\\d{2} · /,"")).join(", ")+".","");
+  }
+  out.push("## Couverture des 13 chapitres de référence","","| Cours | Examens qui le ciblent |",
+    "| --- | --- |",...audit.perCourse.map(c=>"| "+c.label+" | "+(c.examLabels.join(", ")||"Aucun ciblage explicite")+" |"),
+    "",
+    "**Couverture explicite : "+audit.covered+"/"+audit.total+" cours de référence.**",
+    "Cours non ciblés explicitement : "+(audit.missing.map(c=>courseLabels.get(c)).join(" ; ")||"aucun")+
+    ". Ces techniques peuvent être nécessaires à d'autres questions, sans identification comme objectif principal.",
+    "",
+    "Les chapitres complémentaires (trigonométrie, vecteurs et complexes) et la rédaction possèdent une place variable dans le cursus selon l'université ; cette matrice ne certifie pas leur caractère obligatoire.",
+    "",
+    "## Validation reproductible",
+    "",
+    "- Source : banques A/B et générateurs C/D/E, même moteur que les copies du navigateur.",
+    "- Graines contrôlées : "+EXAM_SEEDS.join(", ")+".",
+    "- Intégrité : quatre exercices de cinq points, 16 étapes de raisonnement, compétences reliées à un cours et gabarits constants pour les sujets générés.",
+    "- Aucune estimation empirique de difficulté : il faudrait des résultats d'élèves sur des sujets indépendants et une calibration externe.",
+    "- Reproduction : `node scripts/audit-exams.mjs --check` (ou `--write` pour régénérer les rapports).",
+    ""
+  );
+  return out.join("\\n");
+}
