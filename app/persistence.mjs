@@ -14,6 +14,7 @@ import {emptyState,sanitizeState} from "./engine.mjs";
 import {emptyExamStore,sanitizeExamStore} from "./exam-engine.mjs";
 import {sanitizeRound} from "./round.mjs";
 import {emptyTransferStore,sanitizeTransferStore} from "./transfer-progress.mjs";
+import {emptyWorkbook,sanitizeWorkbook} from "./workbook.mjs";
 
 export const DATA_KEY="daeu-b-data-v1";
 export const OLD_PRACTICE_KEY="daeu-b-maths-progress-v2";
@@ -37,7 +38,8 @@ function normalizeBundle(raw,knownIds){
     practice:sanitizeState(raw.practice,knownIds),
     exams:sanitizeExamStore(raw.exams),
     round:sanitizeRound(raw.round,knownIds),
-    transfers:sanitizeTransferStore(raw.transfers)
+    transfers:sanitizeTransferStore(raw.transfers),
+    workbook:sanitizeWorkbook(raw.workbook)
   };
 }
 function parse(value,label){
@@ -56,7 +58,8 @@ export function createPersistence(storage,knownIds){
     practice:legacyPracticeRaw===null?emptyState():sanitizeState(parse(legacyPracticeRaw,"du suivi"),knownIds),
     exams:legacyExamsRaw===null?emptyExamStore():sanitizeExamStore(parse(legacyExamsRaw,"des copies")),
     round:null,
-    transfers:emptyTransferStore()
+    transfers:emptyTransferStore(),
+    workbook:emptyWorkbook()
   }:normalizeBundle(parse(startRaw,"unifiées"),knownIds);
   let fingerprint=startRaw;
 
@@ -76,7 +79,8 @@ export function createPersistence(storage,knownIds){
       practice:updated.practice,
       exams:updated.exams,
       round:updated.round??null,
-      transfers:sanitizeTransferStore(updated.transfers??current.transfers)
+      transfers:sanitizeTransferStore(updated.transfers??current.transfers),
+      workbook:sanitizeWorkbook(updated.workbook??current.workbook)
     };
     if(next.revision>1e12)throw new InvalidStorageError("Le compteur de sauvegarde a atteint sa limite");
     const encoded=JSON.stringify(next);
@@ -114,6 +118,9 @@ export function createPersistence(storage,knownIds){
     updateTransfers(transfers){
       return save({...current,transfers:sanitizeTransferStore(transfers)});
     },
+    updateWorkbook(workbook){
+      return save({...current,workbook:sanitizeWorkbook(workbook)});
+    },
     updateRound(round){
       return save({...current,round:sanitizeRound(round,knownIds)});
     },
@@ -123,13 +130,14 @@ export function createPersistence(storage,knownIds){
       const cleanRound=sanitizeRound(round,knownIds);
       return save({...current,practice:cleanPractice,round:cleanRound});
     },
-    replaceAll(practice,exams,round=null,transfers=emptyTransferStore()){
+    replaceAll(practice,exams,round=null,transfers=emptyTransferStore(),workbook=emptyWorkbook()){
       // Import et remise à zéro remplacent toutes les données ensemble.
       const cleanPractice=sanitizeState(practice,knownIds);
       const cleanExams=sanitizeExamStore(exams);
       const cleanRound=sanitizeRound(round,knownIds);
       const cleanTransfers=sanitizeTransferStore(transfers);
-      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,transfers:cleanTransfers});
+      const cleanWorkbook=sanitizeWorkbook(workbook);
+      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,transfers:cleanTransfers,workbook:cleanWorkbook});
     },
     storageKey:DATA_KEY
   };
