@@ -94,6 +94,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const updated=changeWork(current,context,next);
       adapter.updateWorkbook(updated);
       work=next;status.textContent="Cahier enregistré automatiquement avec la progression.";
+      // Ne jamais afficher un ancien verdict après une édition par touche ou modèle.
+      if(typeof feedback!=="undefined")feedback.hidden=true;
       return true;
     }catch(error){
       status.textContent="Cahier non enregistré : "+error.message+". Recharge si la progression a changé dans un autre onglet.";
