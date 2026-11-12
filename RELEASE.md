@@ -1,5 +1,13 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v27.1 — redondance automatique de progression (12 novembre 2026)
+
+- Sauvegarde automatique à chaque modification, avec copie principale localStorage et miroir indépendant IndexedDB ; récupération d'une révision intacte avant le chargement du moteur et conservation des sauvegardes historiques.
+- Compatibilité inchangée du schéma `daeu-b-data-v1`, export JSON facultatif dans les options avancées, fonctionnement sans compte et hors connexion.
+- Limite explicite : les deux copies sont locales. **Aucune récupération après effacement complet des données du site ou perte du téléphone** sans une synchronisation cloud ultérieure, qui n'est pas encore configurée.
+- Tests unitaires sur les versions, données corrompues et récupération, et tests Chromium d'une suppression simulée de la copie principale.
+
+
 ## Version 27 — prête pour la première séance (12 novembre 2026)
 
 - Un parcours visible dès la page d'accueil : lancer le repérage de dix questions maximum, reprendre une séance existante sans l'écraser, lire le premier cours et suivre les jalons.

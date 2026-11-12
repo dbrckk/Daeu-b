@@ -425,20 +425,20 @@ el("importFile").addEventListener("change",async event=>{
 });
 el("persistStorage").addEventListener("click",async()=>{
   if(!navigator.storage?.persist){
-    notification("Ton navigateur ne propose pas le stockage persistant. Exporte régulièrement ta sauvegarde JSON.");
+    notification("Le stockage persistant n’est pas proposé. Les deux copies locales automatiques continuent si IndexedDB est disponible. Une sauvegarde distante serait nécessaire en cas de perte du téléphone.");
     return;
   }
   try{
     const granted=await navigator.storage.persist();
     notification(granted
-      ? "Le navigateur a accordé la persistance du stockage local. Cela ne protège pas contre un changement de domaine, une suppression volontaire ou une perte du téléphone : exporte aussi le JSON."
-      : "Le navigateur n’a pas accordé la persistance. Les révisions restent utilisables, mais exporte régulièrement une sauvegarde JSON.");
+      ? "Le stockage persistant a été accepté. La double copie locale ne protège toutefois ni la perte du téléphone ni l’effacement complet des données."
+      : "La persistance renforcée n’a pas été acceptée. Les sauvegardes locales automatiques restent utilisables, mais une perte d’appareil nécessite une sauvegarde cloud.");
   }catch(error){
-    notification("La demande de persistance n’a pas abouti. Tu peux continuer et exporter les résultats en JSON.");
+    notification("La demande de persistance n’a pas abouti. La sauvegarde automatique locale continue si elle est disponible.");
   }
 });
 el("reset").addEventListener("click",()=>{
-  if(!confirm("Effacer tous les résultats enregistrés sur cet appareil ? Pense à exporter d'abord."))return;
+  if(!confirm("Effacer volontairement toute la progression de cet appareil, y compris la copie de secours locale ? Cette action est irréversible sans sauvegarde distante."))return;
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
     state=fresh.practice;round=null;transfers=fresh.transfers;clearExamProgress();refreshOverview();

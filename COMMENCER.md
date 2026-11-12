@@ -10,7 +10,7 @@ Prévoir un smartphone Android (ou un PC), une feuille, un stylo et environ 20 �
 2. À chaque réponse, lire la correction et identifier pourquoi la méthode a fonctionné ou non. La progression est enregistrée localement. Après rechargement, le bouton initial reprend la séance inachevée plutôt que de la remplacer.
 3. Consulter **« Mes 20 jalons de mathématiques »** et le parcours conseillé. On peut aussi commencer directement par [le cours 01 — Calcul numérique](https://daeu-b-maths-dbrckk.onrender.com/course.html?course=01-calcul-numerique).
 4. Choisir une séance d'exercices en mode « Découverte et consolidation », puis revenir plus tard en mode « Révisions à effectuer » lorsque des rappels arrivent à échéance.
-5. Exporter régulièrement la progression avec **« Exporter mes résultats »**, notamment avant de changer de téléphone ou d'effacer les données du navigateur.
+5. **La progression est enregistrée automatiquement** à chaque réponse dans le navigateur et copiée dans IndexedDB. Il n'est pas nécessaire d'exporter un fichier pour une utilisation quotidienne. En revanche, ces deux copies restent sur le même appareil : un transfert automatique vers un autre téléphone demandera une future synchronisation cloud.
 
 ## Premier cycle de 7 jours (adaptable)
 

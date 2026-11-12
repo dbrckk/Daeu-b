@@ -11,7 +11,7 @@ Cette application complète les cours Markdown du dépôt. Elle contient **116 e
 3. Répondre sans aide ; utiliser papier et stylo pour les calculs.
 4. Lire la correction seulement après validation. Un indice ou l'option « Je ne sais pas » sont disponibles.
 5. Revenir en mode « Révisions à effectuer » pour revoir les questions arrivées à échéance.
-6. Utiliser « Exporter mes résultats » pour obtenir un fichier JSON avant de changer d'appareil, puis « Importer une sauvegarde JSON ».
+6. La progression est enregistrée automatiquement en deux exemplaires locaux. Les options JSON restent facultatives (anciens appareils ou migration) ; une récupération après perte du téléphone exige encore un stockage cloud.
 
 ## Validation et rappels
 
@@ -47,7 +47,7 @@ L'outil accepte pour les questions numériques les écritures 3/4, 0,75, -1/2, 0
 - Pas de compte, de publicité, de jeton, de bibliothèque externe ni de télémétrie.
 - Les résultats sont dans le stockage local du navigateur, sans synchronisation.
 - Le service worker précharge l'interface, les 18 cours, le moteur Markdown et le rendu MathML après la première visite HTTPS. Les annexes externes sur GitHub ne sont pas incluses.
-- Si le navigateur efface les données du site, les résultats non exportés sont perdus.
+- Une corruption ou disparition de la copie localStorage peut être réparée automatiquement depuis IndexedDB, si la seconde copie subsiste. **L'effacement complet des données du site supprime les deux copies** ; la récupération sur un autre appareil n'est pas encore prise en charge.
 - Import JSON : version 2, remplacement de la progression existante après confirmation.
 - Le parcours Chromium simulant Android et le cache hors ligne ont été vérifiés automatiquement ; un test matériel sur téléphone Android et un audit complet d'accessibilité au clavier restent nécessaires.
 
@@ -320,3 +320,8 @@ Le module pur `exam-readiness.mjs` calcule `inspectExamDraft(exam,session)` sans
 Les points perdus aux examens A/B/C/D/E sont regroupés par cours via `SKILL_LESSONS`, puis reliés au **vrai chapitre et au vrai domaine d'exercices**, avec les variantes effectivement présentes dans la banque. Le plan présente l'état séparé de la pratique (questions confirmées, erreurs non confirmées, rappels dus). Quand aucun quiz spécialisé n'existe (par exemple trigonométrie), seul le cours est proposé, sans faux lien. Les URL `?topic=...&mode=due#practice-title` présélectionnent le bon chapitre et les rappels, mais **ne démarrent pas automatiquement** de séance : cela protège une séance éventuellement sauvegardée. Cache PWA versionné, schéma de sauvegarde inchangé.
 
 Les cinq premiers chapitres du plan sont visibles directement ; tous les chapitres supplémentaires restent accessibles dans la section déroulante « autres chapitres » avec leurs liens de cours et leurs éventuels exercices dédiés. Aucun chapitre signalé par le diagnostic n'est volontairement masqué ou inaccessible.
+
+
+## v27.1 — double sauvegarde automatique locale
+
+L'application démarre avec `start.mjs`, qui compare la révision de la progression principale à une copie IndexedDB `daeu-b-auto-backup-v1`, toutes deux soumises à la validation stricte de `persistence.mjs`. La plus récente **valide** est restaurée avant l'initialisation de l'interface. Après chaque validation de question, modification de copie, transfert ou révision, l'écriture locale atomique déclenche une copie asynchrone dans IndexedDB. L'export JSON est conservé dans les options avancées mais n'est plus une étape du fonctionnement quotidien. L'absence d'IndexedDB ne bloque pas l'application. La double copie est propre à l'origine et au navigateur : elle ne protège **ni la perte de l'appareil ni l'effacement complet des données du site** ; un service cloud avec authentification et contrôle d'accès reste nécessaire pour cela.
