@@ -617,6 +617,7 @@ try {
     "Vérification d'examen disponible hors connexion");
   const offlineContext=await page.locator("#examContext").textContent();
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
+  await page.waitForFunction(expected=>document.querySelector("#examContext")?.textContent===expected,offlineContext,{timeout:10000});
   await check(async()=>await page.locator("#examContext").textContent().then(x=>x===offlineContext),
     "Graine et énoncé conservés après recharge hors ligne");
   // Ouvrir une ancienne correction ne doit pas supprimer la copie courante.
