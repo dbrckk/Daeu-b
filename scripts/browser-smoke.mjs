@@ -22,6 +22,36 @@ const check=async (fn,label)=>{
 
 try {
   await page.goto(BASE,{waitUntil:"networkidle",timeout:30000});
+  // Version prête à commencer : première séance autonome sur un téléphone vierge.
+  const firstContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const firstPage=await firstContext.newPage();
+    firstPage.on("pageerror",e=>errors.push("Première séance : "+e.message));
+    await firstPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await check(async()=>await firstPage.locator("#firstStart").isVisible()
+      &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Démarrer mon diagnostic"))
+      &&await firstPage.locator("#firstStatus").textContent().then(t=>t.includes("aucun exercice")),
+      "Accueil : démarrage clair sans compte sur un appareil vierge");
+    await firstPage.locator("#firstStart").click();
+    await check(async()=>await firstPage.locator("#quiz").isVisible()
+      &&await firstPage.locator("#quizCount").textContent().then(t=>t.includes("Question 1")),
+      "Bouton d'accueil : diagnostic réellement démarré");
+    const firstQuestion=await firstPage.locator("#questionText").textContent();
+    const storedRound=await firstPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
+    assert.ok(storedRound?.ids?.length>=1&&storedRound.ids.length<=10,"Session initiale non enregistrée");
+    await firstPage.reload({waitUntil:"networkidle"});
+    await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===firstQuestion)
+      &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Reprendre ma séance")),
+      "Première séance : reprise du même énoncé après rechargement");
+    await firstPage.locator("#firstStart").click();
+    await check(async()=>await firstPage.evaluate(expected=>
+      JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(expected),storedRound),
+      "Le bouton de reprise n'écrase ni la graine ni les réponses déjà sauvegardées");
+    await check(async()=>await firstPage.locator(".first-steps a[href*='01-calcul-numerique']").count()===1,
+      "Première séance : lien direct vers les bases disponible");
+  }finally{await firstContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
@@ -220,6 +250,10 @@ try {
   await check(async()=>await courseOnline.locator("#quiz").isVisible().then(v=>!v),
     "Navigation depuis le cours sans démarrage intempestif d'une séance");
   await courseOnline.goto(BASE+"/course.html?course=13-trigonometrie",{waitUntil:"networkidle"});
+  await check(async()=>await courseOnline.locator("#courseBody").textContent().then(t=>
+     t.includes("Atelier de rédaction complémentaire")&&t.includes("Sujet T1")&&
+     t.includes("Sujet T2")&&t.includes("Sujet T3")&&t.includes("Corrections détaillées")),
+    "Trigonométrie : trois nouveaux problèmes complets et leurs corrections disponibles en ligne");
   await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
     "Complément facultatif : accès honnête à l'entraînement général");
   await courseOnline.close();
