@@ -34,8 +34,8 @@ test("identités, impossibilités et calculs numériques vérifiés sans approxi
  assert.match(checkMathSteps("3/4=0,75\n2×3=7").entries[1].message,/6/);
  assert.equal(checkMathSteps("x=1/3\nx=0,333333").errors,1,"l'arrondi n'est pas une preuve d'égalité");
 });
-test("ne prétend pas corriger les équations quadratiques ou les fonctions",()=>{
- for(const expression of ["x²=4","x*x=4","1/x=2","sin(x)=1","x^2=4","√(x)=2","x=2=2","1/(2-2)=4"]){
+test("rejette les degrés supérieurs, fonctions et divisions non polynomiales",()=>{
+ for(const expression of ["x^3=4","x²*x=4","1/x=2","sin(x)=1","√(x)=2","x=2=2","1/(2-2)=4"]){
   const c=checkMathSteps(expression);
   assert.equal(c.checked,0,expression);
   assert.equal(c.unsupported,1,expression);
@@ -75,4 +75,28 @@ test("Une ligne erronée ne contamine pas la référence des étapes suivantes",
  assert.equal(c.errors,2);
  assert.match(c.entries[2].message,/ligne 1/);
  assert.match(c.entries[3].message,/ligne 1/);
+});
+
+test("second degré : reconnaît exactement les deux racines, sans perte",()=>{
+ const correct=checkMathSteps("x²-5x+6=0\n(x-2)(x-3)=0\n2x²-10x+12=0");
+ assert.deepEqual(correct.entries.map(e=>e.kind),["info","ok","ok"]);
+ assert.equal(correct.errors,0);
+ assert.match(correct.entries[0].message,/Δ = 1/);
+ const lost=checkMathSteps("x²=4\nx=2\nx=-2\n(x-2)(x+2)=0");
+ assert.deepEqual(lost.entries.map(e=>e.kind),["info","error","error","ok"]);
+ assert.match(lost.entries[1].message,/deux racines/);
+ assert.match(lost.entries[1].message,/x = -2 ou x = 2/);
+});
+test("second degré : double racine, discriminant négatif et radicaux exacts",()=>{
+ assert.deepEqual(checkMathSteps("(x-1)^2=0\nx=1").entries.map(e=>e.kind),["info","ok"]);
+ assert.deepEqual(checkMathSteps("x²+1=0\nx²+2=0").entries.map(e=>e.kind),["info","ok"]);
+ assert.deepEqual(checkMathSteps("x²=2\n2x²=4").entries.map(e=>e.kind),["info","ok"]);
+ assert.equal(checkMathSteps("x²=2\nx=1,41421356237").errors,1);
+ assert.equal(checkMathSteps("x²+1=0\nx=0").errors,1);
+});
+test("second degré : rejette les saisies non sûres sans perdre la référence valide",()=>{
+ const review=checkMathSteps("x²=4\nx^3=8\n(x-2)(x+2)=0");
+ assert.deepEqual(review.entries.map(e=>e.kind),["info","unsupported","info"]);
+ assert.equal(review.unsupported,1);
+ assert.equal(review.errors,0);
 });

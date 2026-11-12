@@ -1,11 +1,13 @@
 /**
- * Contrôle pédagogique strict des calculs numériques et équations affines en x.
+ * Contrôle exact des calculs, équations affines et équations quadratiques en x.
  * Aucune exécution de texte utilisateur ni appels externes : arithmétique
  * rationnelle exacte (BigInt), sans heuristique flottante pour les réponses.
  *
  * Périmètre volontairement limité : les expressions non affines ou ambiguës
  * sont signalées comme non vérifiées et JAMAIS validées par approximation.
  */
+import {classifyPolynomialEquality,sameRealSolutions} from "./quadratic-checker.mjs";
+
 const MAX_LINE=180;
 const MAX_LINES=40;
 const MAX_TOKENS=90;
@@ -117,7 +119,16 @@ export function classifyEquality(text){
   const parts=text.split("=");
   if(parts.length!==2||parts.some(x=>!x.trim()))
     throw new Error("utilise une seule égalité par ligne");
-  const left=parseAffine(parts[0]),right=parseAffine(parts[1]);
+  let left,right;
+  try{
+    left=parseAffine(parts[0]);right=parseAffine(parts[1]);
+  }catch(error){
+    // Le parseur affine demeure la référence pour les expressions existantes.
+    // Un polynôme quadratique valide est traité à part ; fonctions, degrés
+    // supérieurs et divisions par x restent expressément non vérifiés.
+    try{return classifyPolynomialEquality(text);}
+    catch{throw error;}
+  }
   if(!/[xX]/.test(parts[0]+parts[1])){
     return {kind:"calculation",correct:eq(left.b,right.b),
       left:formatRational(left.b),right:formatRational(right.b)};
@@ -127,13 +138,13 @@ export function classifyEquality(text){
   return {kind:"unique",solution:formatRational(div(target,coeff)),
     solutionRatio:div(target,coeff),coefficient:formatRational(coeff),target:formatRational(target)};
 }
-const description=result=>result.kind==="unique"?"x = "+result.solution:
+const description=result=>result.kind==="two"
+  ?result.solutions?"deux solutions réelles : x = "+result.solutions.join(" ou x = ")
+    :"deux solutions réelles : "+result.radical:
+  result.kind==="unique"?"x = "+result.solution+(result.repeated?" (racine double)":""):
   result.kind==="all"?"tous les nombres réels":
-  result.kind==="none"?"aucune solution":"un calcul numérique";
-function sameSolution(a,b){
-  return a.kind===b.kind&&
-    (a.kind!=="unique"||eq(a.solutionRatio,b.solutionRatio));
-}
+  result.kind==="none"?"aucune solution réelle":"un calcul numérique";
+function sameSolution(a,b){return sameRealSolutions(a,b);}
 /**
  * Les lignes non mathématiques séparent les chaînes (plusieurs exercices).
  * Les lignes contenant un = inconnu ne servent JAMAIS à confirmer une étape.
@@ -173,14 +184,18 @@ export function checkMathSteps(text){
       continue;
     }
     if(!previous){
-      entries.push({line,kind:"info",message:"Équation du premier degré reconnue. Les transformations suivantes seront comparées à cette ligne."});
+      entries.push({line,kind:"info",message:result.quadratic
+        ?"Équation du second degré reconnue (Δ = "+result.discriminant+"). Les lignes suivantes seront comparées selon leur ensemble de solutions réelles."
+        :"Équation du premier degré reconnue. Les transformations suivantes seront comparées à cette ligne."});
     }else if(sameSolution(previous,result)){
       entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+previousLine+" : même ensemble de solutions ("+description(result)+")."});
     }else{
       errors++;
-      const method=previous.kind==="unique"
-        ?" Méthode depuis la ligne "+previousLine+" : regroupe les termes en x, puis les constantes pour obtenir "+(previous.coefficient==="1"?"x":previous.coefficient+"x")+" = "+previous.target+", et divise par "+previous.coefficient+" pour trouver x = "+previous.solution+"."
-        :" Reprends la simplification : une identité doit rester vraie pour tout x et une équation impossible ne doit pas gagner de solution.";
+      const method=previous.quadratic
+        ?" Méthode depuis la ligne "+previousLine+" : mets l'équation sous la forme ax² + bx + c = 0 (a ≠ 0), puis calcule Δ = b² − 4ac = "+previous.discriminant+". "+(previous.kind==="two"?"Tu dois conserver les deux racines : "+description(previous)+".":previous.kind==="unique"?"Conserve la racine double : "+description(previous)+".":"Comme Δ < 0, il n'y a aucune racine réelle.") 
+        :previous.kind==="unique"
+          ?" Méthode depuis la ligne "+previousLine+" : regroupe les termes en x, puis les constantes pour obtenir "+(previous.coefficient==="1"?"x":previous.coefficient+"x")+" = "+previous.target+", et divise par "+previous.coefficient+" pour trouver x = "+previous.solution+"."
+          :" Reprends la simplification : une identité doit rester vraie pour tout x et une équation impossible ne doit pas gagner de solution.";
       entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+" : précédemment "+description(previous)+", maintenant "+description(result)+". Vérifie les signes et les opérations appliquées aux deux membres."+method});
     }
     // Une étape incorrecte ne devient jamais le nouveau point de référence.

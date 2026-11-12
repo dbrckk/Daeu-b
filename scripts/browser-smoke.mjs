@@ -48,8 +48,8 @@ try {
       "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
     await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
-    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===9,
-      "Neuf modèles mathématiques utilisables sans clavier physique");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===10,
+      "Dix modèles mathématiques utilisables sans clavier physique");
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");
@@ -66,6 +66,13 @@ try {
       const pages=Object.entries(stored.workbook.entries).find(([k])=>k.startsWith("quiz:"))?.[1]?.pages;
       return pages?.[0]?.length===1;
     }),"Écriture manuscrite au doigt conservée dans le stockage cloud unifié");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===10,
+      "Dix modèles de rédaction, dont le second degré, sur Android");
+    await firstPage.locator("#quizNotebook textarea").fill("x² = 4\nx = 2\n(x - 2)(x + 2) = 0");
+    await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
+      &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
+      "Second degré Android : racine oubliée signalée et factorisation équivalente validée");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 13\nx = 6");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()>=1,
