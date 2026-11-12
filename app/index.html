@@ -52,7 +52,8 @@
         <p id="firstStatus" class="helper" role="status" aria-live="polite">Progression enregistrée sur cet appareil après chaque réponse.</p>
       </section>
       <section aria-labelledby="overview-title" class="overview">
-        <div class="section-header"><div><p class="eyebrow">TABLEAU DE BORD</p><h2 id="overview-title">Ma progression</h2></div><button type="button" class="subtle small" id="export">Exporter mes résultats</button></div>
+        <div class="section-header"><div><p class="eyebrow">TABLEAU DE BORD</p><h2 id="overview-title">Ma progression</h2></div></div>
+        <p id="autoBackupStatus" class="helper" role="status" aria-live="polite">Préparation des copies locales automatiques…</p>
         <div class="metrics">
           <div class="metric"><span class="metric-label">Modèles de questions</span><strong id="totalQuestions">—</strong></div>
           <div class="metric"><span class="metric-label">Questions travaillées</span><strong id="attempted">0</strong></div>
@@ -171,13 +172,19 @@
         <div id="topicCards" class="topic-grid"></div>
       </section>
       <section class="backup" aria-labelledby="backup-title">
-        <h2 id="backup-title">Sauvegarde et confidentialité</h2>
-        <p>Les réponses et le suivi restent dans le navigateur (stockage local). Aucune donnée n’est envoyée vers un serveur. En cas de changement de téléphone ou d’effacement du navigateur, importe une sauvegarde. Tu peux demander au navigateur de préserver le stockage local, mais seule une exportation JSON protège la progression lors d’un changement de domaine ou d’appareil.</p>
-        <div class="backup-actions"><input id="importFile" type="file" accept="application/json,.json"><label class="file-button" for="importFile">Importer une sauvegarde JSON</label><button type="button" id="persistStorage" class="subtle">Protéger le stockage local</button><button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
+        <h2 id="backup-title">Sauvegarde automatique et confidentialité</h2>
+        <p>Chaque réponse et chaque copie d’examen sont enregistrées automatiquement, sans export manuel. Une seconde copie indépendante est conservée dans IndexedDB et restaurée si la sauvegarde principale a disparu ou est endommagée. <strong>Les deux copies restent sur cet appareil :</strong> elles ne permettent pas de retrouver le progrès après une perte du téléphone ou l’effacement de toutes les données du site. Une synchronisation cloud avec identification sera nécessaire pour cela.</p>
+        <div class="backup-actions"><button type="button" id="persistStorage" class="subtle">Protéger le stockage local</button>
+          <details class="optional-backup"><summary>Options avancées et export facultatif</summary>
+            <button type="button" id="export" class="subtle small">Exporter mes résultats (facultatif)</button>
+            <input id="importFile" type="file" accept="application/json,.json">
+            <label class="file-button" for="importFile">Importer un ancien fichier JSON</label>
+          </details>
+          <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
     <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p></footer>
   </div>
-  <script type="module" src="./app.mjs"></script>
+  <script type="module" src="./start.mjs"></script>
 </body>
 </html>

@@ -264,3 +264,7 @@
 .first-action{border:1px solid var(--stroke);background:var(--panel);color:var(--teal);width:100%}
 .first-action:hover{border-color:var(--teal)}
 @media(max-width:720px){.first-steps{grid-template-columns:1fr}.first-steps li p{min-height:0}.getting-started{padding:14px;margin:14px 0}}
+
+.optional-backup{width:100%;border:1px solid var(--stroke);border-radius:10px;padding:10px}
+.optional-backup summary{cursor:pointer;font-weight:650}
+.optional-backup button,.optional-backup .file-button{margin:10px 6px 4px 0}

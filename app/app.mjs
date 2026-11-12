@@ -1,4 +1,5 @@
 import {TOPICS} from "./questions.mjs";
+import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
 import {COURSES,courseUrl} from "./course-catalog.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
@@ -38,7 +39,7 @@ function notification(message) {
 }
 
 try {
-  dataStore=createPersistence(localStorage,knownIds);
+  dataStore=createPersistence(backedStorage(localStorage),knownIds);
   const initial=dataStore.snapshot();state=initial.practice;round=initial.round;transfers=initial.transfers;
 } catch(err) {
   storageWorks=false;
@@ -378,6 +379,16 @@ async function importProgress(file) {
   }
 }
 
+onAutoBackupStatus(value=>{
+  const messages={
+    "initialisation":"Initialisation de la sauvegarde automatique…",
+    "sauvegarde-automatique":"Enregistrement automatique : deux copies locales (navigateur + IndexedDB).",
+    "restauree":"Une copie locale a été retrouvée et restaurée automatiquement.",
+    "stockage-secondaire-indisponible":"Une seule copie locale disponible : le stockage secondaire est indisponible.",
+    "copie-secondaire-en-echec":"La copie principale reste enregistrée ; la seconde copie automatique n’a pas abouti."
+  };
+  el("autoBackupStatus").textContent=messages[value]||"Progression sauvegardée localement.";
+});
 buildTopicSelector();
 // Les liens issus des cours sélectionnent uniquement le chapitre autorisé.
 // Aucune nouvelle séance n'est créée sans action explicite.
