@@ -10,6 +10,7 @@ import {createGeneratedExam} from "./exam-generator.mjs";
 import {createAlternativeExam} from "./exam-alternative.mjs";
 import {createAppliedExam} from "./exam-applied.mjs";
 import {SKILL_LESSONS} from "./exam-analytics.mjs";
+import {rubricForSection} from "./reasoning.mjs";
 import {COURSES} from "./course-catalog.mjs";
 
 export const EXAM_SEEDS=Object.freeze([0,1,7,29,257,65535,0xffffffff]);
@@ -46,7 +47,7 @@ export function profileExam(exam){
       courses.set(key,(courses.get(key)||0)+q.points);
     }
     if(sectionPoints!==5||sectionQuestions<3)throw Error("Exercice mal équilibré : "+section.id);
-    const steps=section.rubric?.steps?.length??0;
+    const steps=rubricForSection(section)?.steps?.length??0;
     guidedSteps+=steps;
     sections.push({id:section.id,title:section.title,questions:sectionQuestions,points:sectionPoints,steps});
   }
