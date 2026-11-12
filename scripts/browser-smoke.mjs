@@ -314,6 +314,18 @@ try {
     return exams?.history?.length===1&&exams.history[0].examId==="blanc-d"
       &&Number.isInteger(exams.history[0].seed);
   }),"D : copie et graine sauvegardées");
+  await check(async()=>await dPage.locator("#examConsolidationPanel").isVisible()
+    &&await dPage.locator("#examConsolidationList li").count()>=3,
+    "D : plan de consolidation visible après remise, groupé par cours");
+  const direct=dPage.locator("#examConsolidationList a[data-practice-topic]").first();
+  const directTopic=await direct.getAttribute("data-practice-topic");
+  assert.ok(directTopic,"Le plan doit pointer vers un domaine de questions réellement existant");
+  await direct.click();
+  await dPage.waitForFunction(topic=>document.querySelector("#topic")?.value===topic
+    &&document.querySelectorAll("#topic option").length===14,directTopic,{timeout:10000});
+  await check(async()=>await dPage.locator("#topic").inputValue().then(x=>x===directTopic)
+    &&await dPage.locator("#quiz").isVisible().then(v=>!v),
+    "D : exercices ciblés accessibles sans effacer la copie ni démarrer un quiz");
   await dContext.close();
 
   // Examen E : famille de problèmes différente de C et D, graine inchangée
@@ -366,6 +378,10 @@ try {
       "Examen E : résultat de la réponse fausse sans point fictif");
     await check(async()=>await ePage.locator("#examReview .exam-reasoning-step").count()===16,
       "Examen E : seize critères de rédaction et quatre corrigés");
+    const tri=ePage.locator("#examConsolidationList li").filter({hasText:"Trigonométrie"});
+    await check(async()=>await tri.count()===1&&await tri.locator("a").count()===1
+      &&await tri.textContent().then(x=>x.includes("pas de quiz dédié")),
+      "E : trigonométrie renvoyée vers son cours sans faux quiz spécialisé");
   }finally{await eContext.close();}
 
   // Séance rétablie après fermeture de l'onglet et reprise du contexte.
@@ -617,11 +633,13 @@ try {
     "Navigation vers la pratique générale conservée hors ligne pour le complément");
   await offlineCourse.close();
   const offlinePractice=await context.newPage();
-  await offlinePractice.goto(BASE+"/?topic=probas#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlinePractice.goto(BASE+"/?topic=probas&mode=due#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
   await offlinePractice.waitForFunction(()=>document.querySelector("#topic")?.value==="probas"
     &&document.querySelectorAll("#topic option").length===14,null,{timeout:10000});
-  await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas"),
-    "Lien direct vers les probabilités utilisable hors connexion");
+  await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas")
+    &&await offlinePractice.locator("#mode").inputValue().then(v=>v==="due")
+    &&await offlinePractice.locator("#quiz").isVisible().then(v=>!v),
+    "Lien direct vers probabilités et rappels, sans démarrage automatique hors connexion");
   await offlinePractice.close();
   const offlineProblems=await context.newPage();
   await offlineProblems.goto(BASE+"/problems.html",{waitUntil:"domcontentloaded",timeout:12000});
