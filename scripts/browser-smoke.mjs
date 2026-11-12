@@ -48,6 +48,19 @@ try {
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");
+    const pen=firstPage.locator("#quizNotebook canvas");
+    await pen.scrollIntoViewIfNeeded();
+    const bounds=await pen.boundingBox();
+    assert.ok(bounds?.width>150&&bounds?.height>200,"Feuille de calcul invisible sur mobile");
+    await firstPage.mouse.move(bounds.x+bounds.width*0.25,bounds.y+bounds.height*0.30);
+    await firstPage.mouse.down();
+    await firstPage.mouse.move(bounds.x+bounds.width*0.45,bounds.y+bounds.height*0.40,{steps:8});
+    await firstPage.mouse.up();
+    await check(async()=>await firstPage.evaluate(()=>{
+      const stored=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const pages=Object.entries(stored.workbook.entries).find(([k])=>k.startsWith("quiz:"))?.[1]?.pages;
+      return pages?.[0]?.length===1;
+    }),"Écriture manuscrite au doigt conservée dans le stockage cloud unifié");
     const savedMath=await firstPage.locator("#quizNotebook textarea").inputValue();
     assert.ok(savedMath.includes("x = 6")&&savedMath.includes("√"));
     const firstQuestion=await firstPage.locator("#questionText").textContent();
@@ -59,6 +72,9 @@ try {
       "Première séance : reprise du même énoncé après rechargement");
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(x=>x===savedMath),
       "Calculs et équations du cahier retrouvés après rechargement");
+    await check(async()=>await firstPage.evaluate(()=>Object.values(
+      JSON.parse(localStorage.getItem("daeu-b-data-v1")).workbook.entries
+    ).some(entry=>entry.pages[0]?.length===1)),"Tracé manuscrit restauré après rechargement");
     await firstPage.locator("#firstStart").click();
     await check(async()=>await firstPage.evaluate(expected=>
       JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(expected),storedRound),
