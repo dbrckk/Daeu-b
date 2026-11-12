@@ -4,6 +4,7 @@ import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
 import {COURSES,courseUrl} from "./course-catalog.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
+import {sanitizeWorkbook,emptyWorkbook} from "./workbook.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from "./persistence.mjs";
 import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound} from "./round.mjs";
@@ -346,7 +347,7 @@ function exportProgress(){
   let snapshot;
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
-  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,transfers:snapshot.transfers};
+  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,transfers:snapshot.transfers,workbook:snapshot.workbook};
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
@@ -358,18 +359,19 @@ function exportProgress(){
 
 async function importProgress(file) {
   if(!file) return;
-  if(file.size>500_000){notification("Sauvegarde refusée : fichier trop volumineux.");return;}
+  if(file.size>1_000_000){notification("Sauvegarde refusée : fichier trop volumineux.");return;}
   try {
     const raw=JSON.parse(await file.text());
     const bundled=raw?.backupVersion===1;
     const imported=sanitizeState(bundled?raw.practice:raw,knownIds);
     const importedExams=bundled?sanitizeExamStore(raw.exams):null;
     const importedTransfers=bundled?sanitizeTransferStore(raw.transfers):emptyTransferStore();
+    const importedWorkbook=bundled?sanitizeWorkbook(raw.workbook):emptyWorkbook();
     const importedCount=Object.keys(imported.items).length;
     if(!confirm("Importer "+importedCount+" résultat(s) ? Cela remplace la progression de cet appareil.")) return;
     // Une seule écriture atomique contient les révisions ET les examens.
     const prior=dataStore.snapshot();
-    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null,importedTransfers);
+    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null,importedTransfers,importedWorkbook);
     state=updated.practice;round=updated.round;transfers=updated.transfers;
     restoreExamBackup(updated.exams);
     el("quiz").hidden=true;el("results").hidden=true;session=[];

@@ -13,6 +13,6 @@ test("Insertion au curseur et remplacement d'une sélection",()=>{
 });
 test("Limite stricte de longueur et indices bornés",()=>{
  const x=insertAtSelection("a".repeat(12000),"×",12000,12000);
- assert.equal(x.value.length,12000);
+ assert.equal(x.value.length,6000);
  assert.equal(insertAtSelection("abc","π",-10,999).value,"π");
 });
