@@ -27,6 +27,7 @@ try {
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
   await check(async()=>await page.locator("#examRecommendation").textContent().then(t=>t.includes("examen A")&&t.includes("non encore passé")),
     "Recommandation initiale : varier les familles, sans afficher de note inventée");
+  await page.locator("#examSelect").selectOption("blanc-c");
   await page.locator("#examChooseRecommended").click();
   await check(async()=>await page.locator("#examSelect").inputValue().then(t=>t==="blanc-1"),
     "Le bouton sélectionne le sujet conseillé sans démarrer l'épreuve");
