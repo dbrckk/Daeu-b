@@ -25,6 +25,6 @@ test("Modèles : fraction, équation et système insérés à la sélection",()=
   assert.equal(inserted.value,"Calcul : (numérateur)/(dénominateur)");
   assert.equal(inserted.value.slice(inserted.start,inserted.end),"numérateur");
   const eq=insertTemplate("",MATH_TEMPLATES.find(x=>x.label==="Équation"),0,0);
-  assert.ok(eq.value.includes("\\nx = 6"));
+  assert.ok(eq.value.includes(String.fromCharCode(10)+"x = 6"));
   assert.equal(eq.value.slice(eq.start,eq.end),"2x + 5 = 17");
 });
