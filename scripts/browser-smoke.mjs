@@ -61,6 +61,19 @@ try {
       const pages=Object.entries(stored.workbook.entries).find(([k])=>k.startsWith("quiz:"))?.[1]?.pages;
       return pages?.[0]?.length===1;
     }),"Écriture manuscrite au doigt conservée dans le stockage cloud unifié");
+    await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 13\nx = 6");
+    await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()>=1,
+      "Correction mathématique guidée : erreur de transformation repérée sur Android");
+    await check(async()=>await firstPage.evaluate(()=>{
+      const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      return s.round.assistedIds.includes(s.round.ids[0]);
+    }),"Aide mathématique sauvegardée et exercice exclu de la maîtrise autonome");
+    await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
+    await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===0
+      &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===2,
+      "Transformations équivalentes reconnues avec des nombres exacts");
     const savedMath=await firstPage.locator("#quizNotebook textarea").inputValue();
     assert.ok(savedMath.includes("x = 6")&&savedMath.includes("√"));
     const firstQuestion=await firstPage.locator("#questionText").textContent();

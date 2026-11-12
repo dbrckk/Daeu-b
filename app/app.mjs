@@ -282,15 +282,28 @@ function resumeSession(){
   }
 }
 
+function markGuidedQuestion(){
+  if(done||!round||!session[index])return;
+  const id=session[index].id;
+  hintUsed=true;
+  if(round.assistedIds?.includes(id))return;
+  try{
+    const saved=dataStore.updateRound({...round,assistedIds:[...(round.assistedIds??[]),id]});
+    round=saved.round;
+  }catch(error){
+    if(error instanceof StaleDataError)conflictWarning();
+    else notification("L'aide a été consultée, mais son enregistrement a échoué. Termine ta réponse avant de quitter.");
+  }
+}
 function renderQuestion() {
   const q=session[index]; if(!q) return finish();
-  done=false;hintUsed=false;
+  done=false;hintUsed=!!round?.assistedIds?.includes(q.id);
   el("quizCount").textContent="Question "+(index+1)+" / "+session.length;
   el("quizTopic").textContent=q.topicTitle;
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
-  mountNotebook(el("quizNotebook"),{context:"quiz:"+q.id,adapter:dataStore,title:"Mon raisonnement — "+q.topicTitle});
+  mountNotebook(el("quizNotebook"),{context:"quiz:"+q.id,adapter:dataStore,title:"Mon raisonnement — "+q.topicTitle,onGuidance:markGuidedQuestion});
   el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
   el("feedback").hidden=true;el("hint").hidden=true;
   el("hint").textContent="";
@@ -420,7 +433,7 @@ el("answerForm").addEventListener("submit",evt=>{
 });
 el("unknownButton").addEventListener("click",()=>submit(null,true));
 el("hintButton").addEventListener("click",()=>{
-  if(done)return;hintUsed=true;el("hint").hidden=false;el("hint").textContent=session[index].hint;
+  if(done)return;markGuidedQuestion();el("hint").hidden=false;el("hint").textContent=session[index].hint;
 });
 el("next").addEventListener("click",()=>{index++;renderQuestion();});
 el("export").addEventListener("click",exportProgress);

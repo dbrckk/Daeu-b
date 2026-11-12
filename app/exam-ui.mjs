@@ -239,7 +239,7 @@ function renderExamSection(){
   byId("examPosition").textContent="Exercice "+(session.sectionIndex+1)+" sur 4 · 5 points";
   byId("examSectionTitle").textContent=section.title;
   byId("examContext").textContent=section.context;
-  mountNotebook(byId("examNotebook"),{context:"exam:"+session.examId+":"+session.startedAt+":"+section.id,adapter,title:"Mes calculs détaillés — exercice "+(session.sectionIndex+1)});
+  mountNotebook(byId("examNotebook"),{context:"exam:"+session.examId+":"+session.startedAt+":"+section.id,adapter,title:"Mes calculs détaillés — exercice "+(session.sectionIndex+1),checkingEnabled:false});
   const form=byId("examQuestions");form.replaceChildren();
   section.questions.forEach((q,i)=>{
     const field=element("fieldset","exam-question");

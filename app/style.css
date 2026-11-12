@@ -305,3 +305,15 @@
 .math-notebook-disclosure{margin:16px 0;border:1px solid var(--stroke);border-radius:12px;padding:12px;background:var(--panel)}
 .math-notebook-disclosure > summary{font-weight:700;cursor:pointer;min-height:44px;display:list-item;padding:8px;color:var(--teal)}
 .math-notebook-disclosure .math-notebook{margin:8px 0 0}
+
+/* Vérification pédagogique locale : états explicités et lisibles sur Android. */
+.math-notebook-checker{margin:14px 0;padding:12px;border:1px solid var(--stroke);border-radius:12px;background:var(--panel2)}
+.math-notebook-checker h5{font-size:1rem;margin:0 0 5px}
+.math-notebook-checker button{min-height:44px}
+.math-notebook-feedback{margin-top:10px}
+.math-notebook-review-list{padding-left:23px;display:grid;gap:9px}
+.math-notebook-review-list li{line-height:1.5;overflow-wrap:anywhere}
+.math-notebook-review-list li[data-result="error"]{color:var(--bad)}
+.math-notebook-review-list li[data-result="ok"]{color:var(--teal)}
+.math-notebook-review-list li[data-result="unsupported"]{color:var(--orange)}
+.math-notebook-review-list li[data-result="info"]{color:var(--muted)}
