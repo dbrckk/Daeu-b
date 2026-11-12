@@ -11,7 +11,8 @@ export const MIRROR_STORE="snapshots";
 const MIRROR_KEY="latest";
 const MAX_BYTES=2_000_000;
 
-let activeBackend=null,queue=Promise.resolve(),listener=()=>{},state="initialisation";
+let activeBackend=null,queue=Promise.resolve(),listener=()=>{},state="initialisation",writeHook=()=>{};
+export function onAutoBackupWrite(callback){writeHook=typeof callback==="function"?callback:()=>{};}
 function status(value){state=value;try{listener(value);}catch{/* ne jamais bloquer une sauvegarde */}}
 export function onAutoBackupStatus(callback){
   listener=typeof callback==="function"?callback:()=>{};
@@ -108,6 +109,7 @@ export function backedStorage(storage){
       // L'écriture synchrone principale est la seule qui conditionne le
       // succès d'une réponse ; la copie secondaire ne peut pas l'annuler.
       storage.setItem(key,value);
+      if(key===DATA_KEY){try{writeHook(String(value));}catch{/* Secondary sync must never fail primary write */}}
       if(key!==DATA_KEY||!activeBackend)return;
       const saved=String(value);
       queue=queue.catch(()=>{}).then(async()=>{
