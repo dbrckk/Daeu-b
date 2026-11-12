@@ -92,3 +92,15 @@ test("anciens JSON sans séance acceptés et remise à zéro supprime aussi la s
   storage.setItem(DATA_KEY,JSON.stringify(raw));
   assert.equal(createPersistence(storage,known).snapshot().round,null);
 });
+
+test("Une aide guidée est conservée après rechargement, sans changer les réponses",()=>{
+  const storage=createVolatileStorage(),p=createPersistence(storage,known);
+  const original=buildRound([byId.get("n01"),byId.get("v01")],emptyState(),{now}).round;
+  const assisted=p.updateRound({...original,assistedIds:["n01"]}).round;
+  assert.deepEqual(assisted.assistedIds,["n01"]);
+  assert.deepEqual(createPersistence(storage,known).snapshot().round.assistedIds,["n01"]);
+  assert.deepEqual(advanceRound(assisted,true).assistedIds,["n01"]);
+  assert.deepEqual(sanitizeRound({...original,assistedIds:undefined},known).assistedIds,[]);
+  assert.throws(()=>sanitizeRound({...original,assistedIds:["n01","n01"]},known));
+  assert.throws(()=>sanitizeRound({...original,assistedIds:["inconnu"]},known));
+});

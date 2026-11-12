@@ -56,4 +56,5 @@ test("borne le travail, interdit les entrées dangereuses et la division nulle",
  assert.equal(checkMathSteps(Array(41).fill("x=2").join("\n")).unsupported,1);
  assert.equal(checkMathSteps("x=1\nx=3").errors,1);
  assert.equal(checkMathSteps("x-x=0\nx=2").errors,1);
+ assert.equal(checkMathSteps("x=5\n0=0").entries[1].kind,"info","une vérité numérique ne prouve pas une équation");
 });

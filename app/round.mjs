@@ -20,6 +20,11 @@ export function sanitizeRound(raw,knownIds){
     ||!Number.isInteger(raw.score)||raw.score<0||raw.score>raw.completed
     ||!raw.seeds||typeof raw.seeds!=="object"||Array.isArray(raw.seeds))
     throw new Error("Séance de révision invalide");
+  const assistedIds=raw.assistedIds??[];
+  if(!Array.isArray(assistedIds)||assistedIds.length>raw.ids.length
+    ||new Set(assistedIds).size!==assistedIds.length
+    ||assistedIds.some(id=>typeof id!=="string"||!raw.ids.includes(id)))
+    throw new Error("Aides de séance invalides");
   const seeds={};
   const expected=new Set(raw.ids.filter(id=>variantIds.has(id)));
   if(Object.keys(raw.seeds).length!==expected.size)
@@ -28,7 +33,7 @@ export function sanitizeRound(raw,knownIds){
     if(!expected.has(id)||!isUInt32(seed))throw new Error("Graine de révision invalide");
     Object.defineProperty(seeds,id,{value:seed,enumerable:true,configurable:true,writable:true});
   }
-  return {version:ROUND_VERSION,ids:[...raw.ids],seeds,startedAt:raw.startedAt,completed:raw.completed,score:raw.score};
+  return {version:ROUND_VERSION,ids:[...raw.ids],seeds,startedAt:raw.startedAt,completed:raw.completed,score:raw.score,assistedIds:[...assistedIds]};
 }
 export function buildRound(selection,practice,{random=Math.random,now=Date.now()}={}){
   if(!Array.isArray(selection)||!selection.length||selection.length>10)

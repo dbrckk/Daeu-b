@@ -156,11 +156,20 @@ export function checkMathSteps(text){
     }
     checked++;
     if(result.kind==="calculation"){
+      const earlier=previous,fromLine=previousLine;
       previous=null;
-      if(result.correct){
-        entries.push({line,kind:"ok",message:"Calcul correct : "+result.left+" = "+result.right+"."});
-      }else{
+      if(!result.correct){
         errors++;entries.push({line,kind:"error",message:"Erreur de calcul : le membre gauche vaut "+result.left+", le membre droit "+result.right+"."});
+      }else if(earlier?.kind==="unique"){
+        entries.push({line,kind:"info",message:"Égalité numérique correcte, mais elle ne prouve pas à elle seule l'équivalence avec la ligne "+fromLine+" ("+description(earlier)+"). Une vérification par substitution se rédige à part."});
+      }else if(earlier){
+        if(earlier.kind==="all")
+          entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
+        else{
+          errors++;entries.push({line,kind:"error",message:"L'égalité numérique n'est pas équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
+        }
+      }else{
+        entries.push({line,kind:"ok",message:"Calcul correct : "+result.left+" = "+result.right+"."});
       }
       continue;
     }
