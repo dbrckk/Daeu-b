@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101b33">
 <meta name="description" content="18 cours de mathématiques pour le DAEU B, disponibles hors connexion.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self';base-uri 'self';object-src 'none';script-src 'self';style-src 'self';img-src 'self' data:;font-src 'self';connect-src 'self';worker-src 'self';manifest-src 'self';form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self';base-uri 'self';object-src 'none';script-src 'self';style-src 'self';img-src 'self' data:;font-src 'self';connect-src 'self' https://xxypyvzkciowwseldxhq.supabase.co;worker-src 'self';manifest-src 'self';form-action 'self'">
 <link rel="stylesheet" href="./style.css"><link rel="manifest" href="./manifest.json"><link rel="icon" href="./icon.svg" type="image/svg+xml">
 <title>Cours de maths · DAEU B</title>
 <script defer src="./vendor/showdown-2.1.0.min.js"></script>
 <script defer src="./vendor/dompurify.min.js"></script>
 <script defer src="./vendor/temml.min.js"></script>
-<script type="module" src="./course-reader.mjs"></script>
+<script type="module" src="./reader-start.mjs"></script>
 </head>
 <body>
 <a class="skip" href="#courseBody">Aller au cours</a>
@@ -50,6 +50,7 @@
 <a class="course-secondary-link" href="./problems.html">Problèmes rédigés</a>
 </div>
 </nav>
+<section id="courseNotebook" aria-label="Cahier personnel du chapitre"></section>
 <article class="course-document" id="courseBody" tabindex="-1"><p>Chargement des explications et des exercices…</p></article>
 <nav class="course-footer-nav" aria-label="Navigation du cours"><a href="#readerTop">Retour au sommaire</a><a id="coursePrevious" href="./">Cours précédent</a><a id="courseNext" href="./">Cours suivant</a></nav>
 </main>

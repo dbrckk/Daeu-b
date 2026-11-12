@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101b33">
 <meta name="description" content="8 problèmes de mathématiques DAEU B et leurs 37 corrections détaillées, consultables hors ligne.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self';base-uri 'self';object-src 'none';script-src 'self';style-src 'self';img-src 'self' data:;font-src 'self';connect-src 'self';worker-src 'self';manifest-src 'self';form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self';base-uri 'self';object-src 'none';script-src 'self';style-src 'self';img-src 'self' data:;font-src 'self';connect-src 'self' https://xxypyvzkciowwseldxhq.supabase.co;worker-src 'self';manifest-src 'self';form-action 'self'">
 <link rel="stylesheet" href="./style.css"><link rel="manifest" href="./manifest.json"><link rel="icon" href="./icon.svg" type="image/svg+xml">
 <title>Problèmes progressifs · DAEU B</title>
 <script defer src="./vendor/showdown-2.1.0.min.js"></script>
 <script defer src="./vendor/dompurify.min.js"></script>
 <script defer src="./vendor/temml.min.js"></script>
-<script type="module" src="./problems-reader.mjs"></script>
+<script type="module" src="./reader-start.mjs"></script>
 </head>
 <body>
 <a class="skip" href="#problemBody">Aller aux problèmes</a>
@@ -56,7 +56,7 @@
 </form>
 <p id="transferNotice" role="status" aria-live="polite"></p>
 <p id="transferGlobal" class="helper"></p>
-<a href="./" class="transfer-back">Exporter la sauvegarde depuis l’atelier</a>
+<a href="./" class="transfer-back">Retour au tableau de bord</a>
 </section>
 <section id="problemNotebook" aria-label="Cahier de résolution numérique"></section>
 <article class="course-document" id="problemBody" tabindex="-1"><p>Chargement des problèmes…</p></article>

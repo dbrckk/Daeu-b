@@ -288,3 +288,11 @@
 .math-notebook-keypad{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .math-notebook-keypad button{min-width:44px;min-height:44px;padding:8px 10px}
 .math-notebook-editor{display:block;width:100%;min-height:210px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:16px;line-height:1.7;white-space:pre;tab-size:4}
+
+/* Cahier au doigt/stylet : pages à proportions de feuille, quadrillage réel. */
+.math-notebook-pages{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:10px 0}
+.math-notebook-pages button{min-height:42px}
+.math-notebook-page-indicator{margin-left:auto}
+.math-notebook-canvas{display:block;width:100%;max-width:480px;height:auto;aspect-ratio:3 / 4;background:white;border:2px solid #8398b0;border-radius:8px;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.math-notebook-status{min-height:1.3em}
+@media(max-width:440px){.math-notebook{padding:10px}.math-notebook-keypad button{min-width:41px}.math-notebook-page-indicator{margin:0 auto}}

@@ -1,14 +1,25 @@
 import {initReadingTools} from "./reading-tools.mjs";
 import {mountNotebook} from "./math-notebook.mjs";
+import {backedStorage} from "./auto-backup.mjs";
 import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";
 import {createPersistence,DATA_KEY,StaleDataError} from "./persistence.mjs";
 import {recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries} from "./transfer-progress.mjs";
 const el=id=>document.getElementById(id);
+const knownIds=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
+let sharedData=null;
+try{sharedData=createPersistence(backedStorage(localStorage),knownIds);}catch{/* Afficher une erreur sans modifier le stockage. */}
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
-mountNotebook(el("problemNotebook"),{context:"problems:"+(params.get("set")==="transferts"?"transferts":"generaux")+":"+(params.get("jalon")||"global")+":"+(params.get("variante")||"a"),title:"Ma résolution complète — sans papier"});
+try{
+  mountNotebook(el("problemNotebook"),{
+    context:"problems:"+(transfers?"transferts":"generaux")+":"+
+      (params.get("jalon")&&/^([1-9]|1[0-9]|20)$/.test(params.get("jalon"))?params.get("jalon"):"global")+":"+
+      (["b","c"].includes(params.get("variante"))?params.get("variante"):"a"),
+    adapter:sharedData,title:"Ma résolution complète — sans papier"
+  });
+}catch{el("problemNotebook").textContent="Cahier indisponible : vérifie le stockage du navigateur et recharge cette page.";} 
 const variant=transfers&&["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
 const selectedJalon=Number(params.get("jalon"));
 const jalonSuffix=Number.isInteger(selectedJalon)&&selectedJalon>=1&&selectedJalon<=20?"&jalon="+selectedJalon:"";
@@ -43,8 +54,8 @@ function initTransferTracker(){
   const attest=el("transferAttest");
   let data=null;
   try {
-    const knownIds=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
-    data=createPersistence(localStorage,knownIds);
+    data=sharedData;
+    if(!data)throw Error("Stockage indisponible");
   }catch(err){
     notice.textContent="Stockage indisponible ou sauvegarde illisible : aucun historique n'est modifié. Utilise l'atelier pour vérifier tes données.";
     form.hidden=true;

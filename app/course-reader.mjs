@@ -1,5 +1,11 @@
 import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
 import {initReadingTools} from "./reading-tools.mjs";
+import {mountNotebook} from "./math-notebook.mjs";
+import {createPersistence} from "./persistence.mjs";
+import {backedStorage} from "./auto-backup.mjs";
+import {TOPICS} from "./questions.mjs";
+import {injectVariants} from "./variants.mjs";
+import {flatten} from "./engine.mjs";
 import {validSearchQuery,searchCourseDocs} from "./course-search.mjs";
 const byId=id=>document.getElementById(id);
 let slug=new URL(location.href).searchParams.get("course")||"00-positionnement";
@@ -9,6 +15,13 @@ for(const [key,title] of COURSES){
   const option=document.createElement("option");option.value=key;option.textContent=title;selector.append(option);
 }
 selector.value=slug;
+try{
+  const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
+  const notebookStore=createPersistence(backedStorage(localStorage),ids);
+  mountNotebook(byId("courseNotebook"),{context:"cours:"+slug,adapter:notebookStore,
+    title:"Ma prise de notes et mes calculs — "+courseInfo(slug)});
+}catch{byId("courseNotebook").textContent="Le cahier ne peut pas être ouvert : vérifie le stockage du navigateur.";}
+
 const practice=byId("coursePractice");
 practice.href=practiceUrlForCourse(slug);
 practice.textContent=practiceTopicForCourse(slug)
