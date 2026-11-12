@@ -10,7 +10,11 @@ import {initCloudSync,initCloudInterface} from "./cloud-sync.mjs";
 const knownIds=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
 try{await initializeAutoBackup(localStorage,knownIds);}
 catch{/* Le module principal dispose d'un repli mémoire propre. */}
-try{await initCloudSync(localStorage,knownIds);}
-catch{/* La synchronisation distante ne bloque jamais les exercices locaux. */}
+// Le réseau ou le service cloud ne doivent JAMAIS retarder les cours hors connexion.
+// Une récupération distante déclenche un rechargement sécurisé de l'interface.
+const cloudReady=initCloudSync(localStorage,knownIds,{onRestored:()=>location.reload()})
+  .catch(()=>{/* L'application reste disponible même si le cloud ne répond pas. */});
 await import("./app.mjs");
 initCloudInterface();
+// Ne pas await cloudReady : l'interface est immédiatement utilisable hors ligne.
+void cloudReady;
