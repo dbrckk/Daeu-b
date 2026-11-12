@@ -7,10 +7,10 @@ import {examOverview,renderExamAudit} from "../app/exam-blueprint.mjs";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
 const audit=examOverview();
-if(audit.errors.length)throw Error(audit.errors.join("\\n"));
+if(audit.errors.length)throw Error(audit.errors.join("\n"));
 const outputs=[
   ["AUDIT_EXAMENS.md",renderExamAudit(audit)],
-  ["audits/exam-blueprints.json",JSON.stringify(audit,null,2)+"\\n"]
+  ["audits/exam-blueprints.json",JSON.stringify(audit,null,2)+"\n"]
 ];
 if(process.argv.includes("--write")){
   for(const [path,content] of outputs)writeFileSync(resolve(root,path),content,"utf8");

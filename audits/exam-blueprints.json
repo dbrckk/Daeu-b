@@ -1,0 +1,797 @@
+{
+  "profiles": [
+    {
+      "id": "blanc-1",
+      "title": "Examen blanc A — analyse, suites et probabilités",
+      "questions": 16,
+      "points": 20,
+      "types": {
+        "number": 13,
+        "choice": 3
+      },
+      "twoPointQuestions": 4,
+      "guidedSteps": 16,
+      "sections": [
+        {
+          "id": "a-analyse",
+          "title": "Étude d'un bénéfice",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "a-suites",
+          "title": "Prévisions de croissance",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "a-probas",
+          "title": "Tirages indépendants",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "a-integrales",
+          "title": "Intégration et logarithmes",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        }
+      ],
+      "skills": [
+        {
+          "skill": "complémentaire",
+          "points": 1
+        },
+        {
+          "skill": "dérivation",
+          "points": 1
+        },
+        {
+          "skill": "domaines",
+          "points": 1
+        },
+        {
+          "skill": "espérance",
+          "points": 1
+        },
+        {
+          "skill": "intégrales",
+          "points": 2
+        },
+        {
+          "skill": "logarithmes",
+          "points": 3
+        },
+        {
+          "skill": "loi binomiale",
+          "points": 2
+        },
+        {
+          "skill": "optimisation",
+          "points": 1
+        },
+        {
+          "skill": "primitives",
+          "points": 1
+        },
+        {
+          "skill": "probabilités",
+          "points": 1
+        },
+        {
+          "skill": "second degré",
+          "points": 2
+        },
+        {
+          "skill": "somme de suites",
+          "points": 1
+        },
+        {
+          "skill": "suites",
+          "points": 2
+        },
+        {
+          "skill": "variations",
+          "points": 1
+        }
+      ],
+      "courses": [
+        {
+          "course": "04-second-degre",
+          "label": "04 · Second degré",
+          "points": 2
+        },
+        {
+          "course": "05-fonctions",
+          "label": "05 · Fonctions et domaines",
+          "points": 1
+        },
+        {
+          "course": "06-derivation",
+          "label": "06 · Dérivation",
+          "points": 3
+        },
+        {
+          "course": "09-exponentielle-logarithme",
+          "label": "09 · Exponentielle et logarithme",
+          "points": 3
+        },
+        {
+          "course": "10-suites",
+          "label": "10 · Suites",
+          "points": 3
+        },
+        {
+          "course": "12-probabilites",
+          "label": "12 · Probabilités",
+          "points": 5
+        },
+        {
+          "course": "15-primitives-integrales",
+          "label": "15 · Primitives et intégrales",
+          "points": 3
+        }
+      ],
+      "label": "A",
+      "generated": false
+    },
+    {
+      "id": "blanc-2",
+      "title": "Examen blanc B — fonctions, algèbre et statistiques",
+      "questions": 15,
+      "points": 20,
+      "types": {
+        "number": 12,
+        "choice": 3
+      },
+      "twoPointQuestions": 5,
+      "guidedSteps": 16,
+      "sections": [
+        {
+          "id": "b-fonction",
+          "title": "Fonction rationnelle",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "b-systeme",
+          "title": "Billetterie : deux tarifs",
+          "questions": 3,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "b-stats",
+          "title": "Résultats d'un groupe",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "b-expo",
+          "title": "Une équation avec exponentielle",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        }
+      ],
+      "skills": [
+        {
+          "skill": "asymptotes",
+          "points": 1
+        },
+        {
+          "skill": "calcul de fonction",
+          "points": 1
+        },
+        {
+          "skill": "dérivation",
+          "points": 2
+        },
+        {
+          "skill": "dispersion",
+          "points": 1
+        },
+        {
+          "skill": "exponentielle",
+          "points": 1
+        },
+        {
+          "skill": "limites",
+          "points": 2
+        },
+        {
+          "skill": "logarithmes",
+          "points": 2
+        },
+        {
+          "skill": "médiane",
+          "points": 1
+        },
+        {
+          "skill": "modélisation",
+          "points": 1
+        },
+        {
+          "skill": "moyenne",
+          "points": 1
+        },
+        {
+          "skill": "systèmes",
+          "points": 4
+        },
+        {
+          "skill": "TVI",
+          "points": 1
+        },
+        {
+          "skill": "variance",
+          "points": 2
+        }
+      ],
+      "courses": [
+        {
+          "course": "03-equations-inequations-systemes",
+          "label": "03 · Équations, inéquations et systèmes",
+          "points": 4
+        },
+        {
+          "course": "05-fonctions",
+          "label": "05 · Fonctions et domaines",
+          "points": 1
+        },
+        {
+          "course": "06-derivation",
+          "label": "06 · Dérivation",
+          "points": 2
+        },
+        {
+          "course": "07-limites-asymptotes",
+          "label": "07 · Limites et asymptotes",
+          "points": 3
+        },
+        {
+          "course": "08-continuite-tvi",
+          "label": "08 · Continuité et TVI",
+          "points": 1
+        },
+        {
+          "course": "09-exponentielle-logarithme",
+          "label": "09 · Exponentielle et logarithme",
+          "points": 3
+        },
+        {
+          "course": "11-statistiques",
+          "label": "11 · Statistiques",
+          "points": 5
+        },
+        {
+          "course": "17-raisonnement-modelisation",
+          "label": "17 · Rédaction et modélisation",
+          "points": 1
+        }
+      ],
+      "label": "B",
+      "generated": false
+    },
+    {
+      "id": "blanc-c",
+      "title": "Examen C — sujet inédit à valeurs variables",
+      "questions": 16,
+      "points": 20,
+      "types": {
+        "number": 15,
+        "choice": 1
+      },
+      "twoPointQuestions": 4,
+      "guidedSteps": 16,
+      "sections": [
+        {
+          "id": "c-optimisation",
+          "title": "Optimiser une activité",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "c-suites",
+          "title": "Prévoir un stock",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "c-probabilites",
+          "title": "Analyser des tirages indépendants",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "c-integrales",
+          "title": "Calculer une accumulation",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        }
+      ],
+      "skills": [
+        {
+          "skill": "complémentaire",
+          "points": 1
+        },
+        {
+          "skill": "dérivation",
+          "points": 2
+        },
+        {
+          "skill": "espérance",
+          "points": 1
+        },
+        {
+          "skill": "intégrales",
+          "points": 3
+        },
+        {
+          "skill": "logarithmes",
+          "points": 2
+        },
+        {
+          "skill": "loi binomiale",
+          "points": 2
+        },
+        {
+          "skill": "optimisation",
+          "points": 1
+        },
+        {
+          "skill": "primitives",
+          "points": 1
+        },
+        {
+          "skill": "probabilités",
+          "points": 1
+        },
+        {
+          "skill": "second degré",
+          "points": 3
+        },
+        {
+          "skill": "somme de suites",
+          "points": 1
+        },
+        {
+          "skill": "suites",
+          "points": 2
+        }
+      ],
+      "courses": [
+        {
+          "course": "04-second-degre",
+          "label": "04 · Second degré",
+          "points": 3
+        },
+        {
+          "course": "06-derivation",
+          "label": "06 · Dérivation",
+          "points": 3
+        },
+        {
+          "course": "09-exponentielle-logarithme",
+          "label": "09 · Exponentielle et logarithme",
+          "points": 2
+        },
+        {
+          "course": "10-suites",
+          "label": "10 · Suites",
+          "points": 3
+        },
+        {
+          "course": "12-probabilites",
+          "label": "12 · Probabilités",
+          "points": 5
+        },
+        {
+          "course": "15-primitives-integrales",
+          "label": "15 · Primitives et intégrales",
+          "points": 4
+        }
+      ],
+      "label": "C",
+      "generated": true
+    },
+    {
+      "id": "blanc-d",
+      "title": "Examen D — nouvelles familles de problèmes",
+      "questions": 16,
+      "points": 20,
+      "types": {
+        "number": 14,
+        "choice": 2
+      },
+      "twoPointQuestions": 4,
+      "guidedSteps": 16,
+      "sections": [
+        {
+          "id": "d-rationnelle",
+          "title": "Étudier une fonction rationnelle",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "d-conditionnelles",
+          "title": "Interpréter un test",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "d-statistiques",
+          "title": "Étudier une série de mesures",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "d-exponentielle",
+          "title": "Résoudre une équation exponentielle",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        }
+      ],
+      "skills": [
+        {
+          "skill": "asymptotes",
+          "points": 2
+        },
+        {
+          "skill": "Bayes",
+          "points": 1
+        },
+        {
+          "skill": "calcul de fonction",
+          "points": 1
+        },
+        {
+          "skill": "complémentaire",
+          "points": 1
+        },
+        {
+          "skill": "dérivation",
+          "points": 2
+        },
+        {
+          "skill": "dispersion",
+          "points": 1
+        },
+        {
+          "skill": "domaines",
+          "points": 1
+        },
+        {
+          "skill": "exponentielle",
+          "points": 1
+        },
+        {
+          "skill": "logarithmes",
+          "points": 2
+        },
+        {
+          "skill": "médiane",
+          "points": 1
+        },
+        {
+          "skill": "moyenne",
+          "points": 2
+        },
+        {
+          "skill": "probabilités",
+          "points": 1
+        },
+        {
+          "skill": "probabilités totales",
+          "points": 2
+        },
+        {
+          "skill": "TVI",
+          "points": 1
+        },
+        {
+          "skill": "variance",
+          "points": 1
+        }
+      ],
+      "courses": [
+        {
+          "course": "05-fonctions",
+          "label": "05 · Fonctions et domaines",
+          "points": 2
+        },
+        {
+          "course": "06-derivation",
+          "label": "06 · Dérivation",
+          "points": 2
+        },
+        {
+          "course": "07-limites-asymptotes",
+          "label": "07 · Limites et asymptotes",
+          "points": 2
+        },
+        {
+          "course": "08-continuite-tvi",
+          "label": "08 · Continuité et TVI",
+          "points": 1
+        },
+        {
+          "course": "09-exponentielle-logarithme",
+          "label": "09 · Exponentielle et logarithme",
+          "points": 3
+        },
+        {
+          "course": "11-statistiques",
+          "label": "11 · Statistiques",
+          "points": 5
+        },
+        {
+          "course": "12-probabilites",
+          "label": "12 · Probabilités",
+          "points": 5
+        }
+      ],
+      "label": "D",
+      "generated": true
+    },
+    {
+      "id": "blanc-e",
+      "title": "Examen E — algèbre, trigonométrie et applications",
+      "questions": 16,
+      "points": 20,
+      "types": {
+        "number": 14,
+        "choice": 2
+      },
+      "twoPointQuestions": 4,
+      "guidedSteps": 16,
+      "sections": [
+        {
+          "id": "e-systeme",
+          "title": "Déterminer deux tarifs",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "e-trigonometrie",
+          "title": "Triangle rectangle et mesures",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "e-sans-remise",
+          "title": "Probabilités sans remise",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        },
+        {
+          "id": "e-racine",
+          "title": "Domaine et zéro d'une fonction irrationnelle",
+          "questions": 4,
+          "points": 5,
+          "steps": 4
+        }
+      ],
+      "skills": [
+        {
+          "skill": "aires",
+          "points": 1
+        },
+        {
+          "skill": "budget",
+          "points": 1
+        },
+        {
+          "skill": "calcul de fonction",
+          "points": 1
+        },
+        {
+          "skill": "domaines",
+          "points": 3
+        },
+        {
+          "skill": "équations",
+          "points": 1
+        },
+        {
+          "skill": "géométrie",
+          "points": 1
+        },
+        {
+          "skill": "modélisation",
+          "points": 1
+        },
+        {
+          "skill": "probabilités",
+          "points": 1
+        },
+        {
+          "skill": "systèmes",
+          "points": 3
+        },
+        {
+          "skill": "tirages sans remise",
+          "points": 4
+        },
+        {
+          "skill": "trigonométrie",
+          "points": 3
+        }
+      ],
+      "courses": [
+        {
+          "course": "03-equations-inequations-systemes",
+          "label": "03 · Équations, inéquations et systèmes",
+          "points": 4
+        },
+        {
+          "course": "05-fonctions",
+          "label": "05 · Fonctions et domaines",
+          "points": 4
+        },
+        {
+          "course": "12-probabilites",
+          "label": "12 · Probabilités",
+          "points": 5
+        },
+        {
+          "course": "13-trigonometrie",
+          "label": "13 · Trigonométrie (complément)",
+          "points": 5
+        },
+        {
+          "course": "17-raisonnement-modelisation",
+          "label": "17 · Rédaction et modélisation",
+          "points": 2
+        }
+      ],
+      "label": "E",
+      "generated": true
+    }
+  ],
+  "errors": [],
+  "covered": 11,
+  "total": 13,
+  "missing": [
+    "01-calcul-numerique",
+    "02-calcul-litteral"
+  ],
+  "perCourse": [
+    {
+      "course": "01-calcul-numerique",
+      "label": "01 · Calcul numérique",
+      "examCount": 0,
+      "examLabels": []
+    },
+    {
+      "course": "02-calcul-litteral",
+      "label": "02 · Calcul littéral",
+      "examCount": 0,
+      "examLabels": []
+    },
+    {
+      "course": "03-equations-inequations-systemes",
+      "label": "03 · Équations, inéquations et systèmes",
+      "examCount": 2,
+      "examLabels": [
+        "B",
+        "E"
+      ]
+    },
+    {
+      "course": "04-second-degre",
+      "label": "04 · Second degré",
+      "examCount": 2,
+      "examLabels": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "course": "05-fonctions",
+      "label": "05 · Fonctions et domaines",
+      "examCount": 4,
+      "examLabels": [
+        "A",
+        "B",
+        "D",
+        "E"
+      ]
+    },
+    {
+      "course": "06-derivation",
+      "label": "06 · Dérivation",
+      "examCount": 4,
+      "examLabels": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "course": "07-limites-asymptotes",
+      "label": "07 · Limites et asymptotes",
+      "examCount": 2,
+      "examLabels": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "course": "08-continuite-tvi",
+      "label": "08 · Continuité et TVI",
+      "examCount": 2,
+      "examLabels": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "course": "09-exponentielle-logarithme",
+      "label": "09 · Exponentielle et logarithme",
+      "examCount": 4,
+      "examLabels": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "course": "10-suites",
+      "label": "10 · Suites",
+      "examCount": 2,
+      "examLabels": [
+        "A",
+        "C"
+      ]
+    },
+    {
+      "course": "11-statistiques",
+      "label": "11 · Statistiques",
+      "examCount": 2,
+      "examLabels": [
+        "B",
+        "D"
+      ]
+    },
+    {
+      "course": "12-probabilites",
+      "label": "12 · Probabilités",
+      "examCount": 4,
+      "examLabels": [
+        "A",
+        "C",
+        "D",
+        "E"
+      ]
+    },
+    {
+      "course": "15-primitives-integrales",
+      "label": "15 · Primitives et intégrales",
+      "examCount": 2,
+      "examLabels": [
+        "A",
+        "C"
+      ]
+    }
+  ]
+}

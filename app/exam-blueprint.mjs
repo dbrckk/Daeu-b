@@ -116,7 +116,7 @@ export function renderExamAudit(audit=examOverview()){
     for(const section of p.sections){
       out.push("- "+section.title+" ("+section.questions+" questions ; "+section.points+" points ; "+section.steps+" étapes de rédaction)");
     }
-    out.push("Notions étiquetées : "+p.courses.map(c=>c.label.replace(/^\\d{2} · /,"")).join(", ")+".","");
+    out.push("Notions étiquetées : "+p.courses.map(c=>c.label.replace(/^\d{2} · /,"")).join(", ")+".","");
   }
   out.push("## Couverture des 13 chapitres de référence","","| Cours | Examens qui le ciblent |",
     "| --- | --- |",...audit.perCourse.map(c=>"| "+c.label+" | "+(c.examLabels.join(", ")||"Aucun ciblage explicite")+" |"),
@@ -136,5 +136,5 @@ export function renderExamAudit(audit=examOverview()){
     "- Reproduction : `node scripts/audit-exams.mjs --check` (ou `--write` pour régénérer les rapports).",
     ""
   );
-  return out.join("\\n");
+  return out.join("\n");
 }
