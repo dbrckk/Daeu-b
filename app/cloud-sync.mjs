@@ -4,18 +4,19 @@
  * Les conflits ne sont jamais résolus par une écriture silencieuse.
  */
 import {DATA_KEY} from "./persistence.mjs";
-import {parseValidatedBundle,backedStorage,flushAutoBackup} from "./auto-backup.mjs";
+import {parseValidatedBundle,backedStorage,flushAutoBackup,onAutoBackupWrite} from "./auto-backup.mjs";
 
 export const CLOUD_URL="https://xxypyvzkciowwseldxhq.supabase.co";
 export const CLOUD_KEY="sb_publishable_NimmaIaGu7fQbT356QkxWQ_R91HHhBf";
 export const CLOUD_SESSION_KEY="daeu-b-cloud-session-v1";
 export const CLOUD_BASE_KEY="daeu-b-cloud-base-v1";
+export const CLOUD_OWNER_KEY="daeu-b-cloud-owner-v1";
 const TABLE="/rest/v1/daeu_b_progress";
 const HEADERS={"apikey":CLOUD_KEY,"Content-Type":"application/json"};
 const MAX_BODY=1_000_000;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 let session=null,knownIds=null,storage=null,base=null,conflict=null;
-let onChange=()=>{},onRestore=()=>{},status="déconnecté",busy=false,pending=false,timer=null,queue=Promise.resolve();
+let onChange=()=>{},onRestore=()=>{},status="déconnecté",busy=false,pending=false,timer=null,queue=Promise.resolve(),importing=false;
 const clone=value=>JSON.parse(JSON.stringify(value));
 function report(label){status=label;try{onChange(label);}catch{}}
 export function cloudStatus(){return status;}
@@ -39,11 +40,12 @@ function storeSession(next){
 function saveBase(localRevision,remoteRevision){
   base={userId:session.user.id,localRevision,remoteRevision};
   storage.setItem(CLOUD_BASE_KEY,JSON.stringify(base));
+  storage.setItem(CLOUD_OWNER_KEY,session.user.id);
 }
 export function decideSync(local,remote,marker,userId){
   // Ne jamais transférer les données d'un utilisateur précédent.
   const own=marker?.userId===userId?marker:null;
-  if(!remote)return "upload-initial";
+  if(!remote)return local?"upload-initial":"empty";
   if(!local)return "download";
   if(own&&local.revision===own.localRevision&&remote.revision===own.remoteRevision)return "synced";
   if(own&&local.revision===own.localRevision)return "download";
@@ -107,8 +109,9 @@ async function adoptRemote(row){
   const raw=JSON.stringify(next);
   if(raw.length>MAX_BODY)throw Error("Copie distante trop volumineuse");
   const safe=backedStorage(storage);
-  safe.setItem(DATA_KEY,raw);
-  await flushAutoBackup();
+  importing=true;
+  try{safe.setItem(DATA_KEY,raw);await flushAutoBackup();}
+  finally{importing=false;}
   saveBase(next.revision,row.revision);
   report("récupéré");
   onRestore();
@@ -126,7 +129,8 @@ async function updateRemote(local,version){
     body:{payload:local,revision:version+1,updated_at:new Date().toISOString()}});
   if(!Array.isArray(response))throw Error("Accusé serveur invalide");
   if(response.length!==1||response[0].revision!==version+1){
-    report("conflit");conflict={};return false;
+    const fresh=await readRemote();
+    report("conflit");conflict={remote:fresh,local:localSnapshot()};return false;
   }
   saveBase(local.revision,version+1);report("synchronisé");return true;
 }
@@ -139,8 +143,13 @@ async function reconcile(){
   if(remote&&localEmpty(local)&&!base){await adoptRemote(remote);return;}
   if(decision==="synced"){conflict=null;report("synchronisé");return;}
   if(decision==="download"){await adoptRemote(remote);conflict=null;return;}
+  if(decision==="empty"){report("en-attente-première-réponse");return;}
   if(decision==="upload-initial"){
-    await createRemote(local||defaultBundle());conflict=null;return;
+    const previousOwner=storage.getItem(CLOUD_OWNER_KEY);
+    if(previousOwner&&previousOwner!==session.user.id){
+      conflict={remote:null,local};report("conflit");return;
+    }
+    await createRemote(local);conflict=null;return;
   }
   if(decision==="upload"){
     if(await updateRemote(local,remote.revision))conflict=null;
@@ -148,11 +157,6 @@ async function reconcile(){
   }
   conflict={remote,local};
   report("conflit");
-}
-function defaultBundle(){
-  // Aucun bundle local : demander une saisie / une copie initiale valide
-  // plutôt que publier un faux objet vide.
-  throw Error("Aucune progression locale à publier");
 }
 async function syncQueue(){
   if(busy||!session||conflict)return;
@@ -179,6 +183,7 @@ export async function flushCloudSync(){
 }
 export async function initCloudSync(localStorageObject,ids,{onRestored=()=>{}}={}){
   storage=localStorageObject;knownIds=ids;onRestore=onRestored;
+  onAutoBackupWrite(()=>{if(!importing)queueCloudWrite();});
   const candidate=jsonTry(storage.getItem(CLOUD_SESSION_KEY));
   const metadata=jsonTry(storage.getItem(CLOUD_BASE_KEY));
   base=metadata?.userId===candidate?.user?.id?metadata:null;
@@ -219,9 +224,9 @@ export async function resolveCloudConflict(choice){
   if(!conflict||!session)throw Error("Aucun conflit à résoudre");
   if(!["cloud","device"].includes(choice))throw Error("Choix de résolution invalide");
   const {remote}=conflict;
-  if(!remote)throw Error("Version distante à récupérer");
+  if(!remote&&choice==="cloud")throw Error("Aucune copie distante disponible");
   const fresh=await readRemote();
-  if(fresh.revision!==remote.revision){
+  if(fresh?.revision!==remote?.revision){
     conflict={remote:fresh,local:localSnapshot()};
     report("conflit");throw Error("La copie distante a changé. Actualise et recommence.");
   }
@@ -231,7 +236,7 @@ export async function resolveCloudConflict(choice){
   }
   const local=localSnapshot();
   if(!local)throw Error("Aucune copie locale valide");
-  const ok=await updateRemote(local,fresh.revision);
+  const ok=fresh?await updateRemote(local,fresh.revision):await createRemote(local).then(()=>true);
   if(ok)conflict=null;
   return ok?"synchronisé":"conflit";
 }
@@ -251,11 +256,13 @@ export function initCloudInterface(){
     "conflit":"Deux progressions différentes détectées. Choisis celle à conserver ; rien n'est écrasé.",
     "en-cours":"Enregistrement dans le cloud en cours…",
     "en-attente-réseau":"Hors connexion ou service indisponible : les copies locales restent enregistrées. La synchronisation réessaiera.",
-    "session-expirée":"Connexion expirée : reconnecte-toi pour reprendre la synchronisation."
+    "session-expirée":"Connexion expirée : reconnecte-toi pour reprendre la synchronisation.",
+    "en-attente-première-réponse":"Connexion active. La première réponse créera la sauvegarde cloud automatique."
   };
   function render(next){
     const logged=cloudEnabled();
     fields.hidden=logged;signed.hidden=!logged;conflictNode.hidden=!cloudConflict();
+    document.getElementById("cloudUseCloud").disabled=!!conflict&&!conflict.remote;
     document.getElementById("cloudAccount").textContent=cloudUser()??"";
     statusNode.textContent=textStatus[next]??next;
   }
