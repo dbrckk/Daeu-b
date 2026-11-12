@@ -183,7 +183,12 @@ export function checkMathSteps(text){
         :" Reprends la simplification : une identité doit rester vraie pour tout x et une équation impossible ne doit pas gagner de solution.";
       entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+" : précédemment "+description(previous)+", maintenant "+description(result)+". Vérifie les signes et les opérations appliquées aux deux membres."+method});
     }
-    previous=result;previousLine=line;
+    // Une étape incorrecte ne devient jamais le nouveau point de référence.
+    // Cela évite qu'une seconde ligne cohérente avec une erreur précédente
+    // soit annoncée comme valide alors qu'elle ne l'est pas.
+    if(!previous||sameSolution(previous,result)){
+      previous=result;previousLine=line;
+    }
   }
   return {entries,checked,errors,unsupported};
 }

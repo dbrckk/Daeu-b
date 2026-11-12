@@ -68,3 +68,11 @@ test("En cas d'erreur, indique une méthode de transformation concrète sans not
  assert.equal(n.errors,1);
  assert.match(n.entries[1].message,/identité/);
 });
+
+test("Une ligne erronée ne contamine pas la référence des étapes suivantes",()=>{
+ const c=checkMathSteps("2x + 5 = 17\n2x = 14\nx = 7\n2x = 12\nx = 6");
+ assert.deepEqual(c.entries.map(e=>e.kind),["info","error","error","ok","ok"]);
+ assert.equal(c.errors,2);
+ assert.match(c.entries[2].message,/ligne 1/);
+ assert.match(c.entries[3].message,/ligne 1/);
+});
