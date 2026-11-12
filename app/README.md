@@ -313,3 +313,8 @@ Le module pur `exam-readiness.mjs` calcule `inspectExamDraft(exam,session)` sans
 ## v26.2 — profil des cinq examens et audit des compétences
 
 `exam-blueprint.mjs` construit un profil reproductible des examens A/B/C/D/E : quinze ou seize questions, 20 points, quatre exercices, 16 étapes guidées, compétences et cours explicitement visés. Il compare sept graines sur chacun des trois générateurs pour détecter les dérives du gabarit sans altérer leur logique. Le sélecteur d'examen affiche ces informations sans solution et sans classement artificiel de difficulté. Le rapport `AUDIT_EXAMENS.md` et `audits/exam-blueprints.json` sont issus des vraies banques et vérifiés par `scripts/audit-exams.mjs --check`. Les deux cours de base 01/02 n'ont pas de compétences autonomes dans ces examens : lacune de mesure déclarée, non cachée.
+
+
+## v26.4 — parcours ciblé après une épreuve
+
+Les points perdus aux examens A/B/C/D/E sont regroupés par cours via `SKILL_LESSONS`, puis reliés au **vrai chapitre et au vrai domaine d'exercices**, avec les variantes effectivement présentes dans la banque. Le plan présente l'état séparé de la pratique (questions confirmées, erreurs non confirmées, rappels dus). Quand aucun quiz spécialisé n'existe (par exemple trigonométrie), seul le cours est proposé, sans faux lien. Les URL `?topic=...&mode=due#practice-title` présélectionnent le bon chapitre et les rappels, mais **ne démarrent pas automatiquement** de séance : cela protège une séance éventuellement sauvegardée. Cache PWA versionné, schéma de sauvegarde inchangé.

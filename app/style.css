@@ -237,3 +237,14 @@
 .exam-blueprint li{padding:3px 0}
 .exam-blueprint .helper{font-size:.85rem;margin:8px 0}
 @media(max-width:480px){.exam-blueprint{padding:12px}.exam-blueprint li{font-size:.87rem}}
+
+
+/* v26.4 — parcours de consolidation relié aux banques d'exercices réellement présentes. */
+.exam-consolidation{border:1px solid var(--stroke);background:var(--panel2);border-radius:14px;padding:16px;margin:16px 0}
+.exam-consolidation h3{margin:0 0 10px;font-size:1.02rem}
+.exam-consolidation>ol{list-style:decimal;margin:10px 0;padding-left:25px;display:grid;gap:12px}
+.exam-consolidation-item{padding:12px 14px;border:1px solid var(--stroke);background:var(--panel);border-radius:10px;overflow-wrap:anywhere}
+.exam-consolidation-item>p{margin:8px 0;font-size:.85rem}
+.exam-consolidation-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px}
+.exam-consolidation-actions a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;overflow-wrap:anywhere}
+@media(max-width:480px){.exam-consolidation{padding:11px}.exam-consolidation-actions{display:grid;gap:4px}}

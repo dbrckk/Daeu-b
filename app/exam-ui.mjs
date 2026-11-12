@@ -7,6 +7,7 @@ import {getRubric,rubricForSection,countChecks} from "./reasoning.mjs";
 import {analyzeExamHistory} from "./exam-analytics.mjs";
 import {examOverview} from "./exam-blueprint.mjs";
 import {recommendNextExam} from "./exam-recommendation.mjs";
+import {buildExamRemediation} from "./exam-remediation.mjs";
 import {inspectExamDraft} from "./exam-readiness.mjs";
 import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
 import {StaleDataError} from "./persistence.mjs";
@@ -146,10 +147,52 @@ function renderExamBlueprint(){
     profile.courses.map(c=>c.label.split(" · ").slice(1).join(" · ")).join(" ; ")+
     ". D'autres compétences peuvent être nécessaires sans être étiquetées.";
 }
+function renderConsolidation(){
+  const panel=byId("examConsolidationPanel"),list=byId("examConsolidationList");
+  list.replaceChildren();panel.hidden=true;
+  if(!store.history.length)return;
+  let practice;
+  try{practice=adapter.snapshot().practice;}
+  catch(error){
+    if(error instanceof StaleDataError)onStale();
+    return;
+  }
+  const plan=buildExamRemediation(store.history,practice);
+  if(!plan.length)return;
+  panel.hidden=false;
+  byId("examConsolidationSummary").textContent=
+    plan.length+" chapitre(s) concernés par des points perdus dans les 12 dernières copies. "+
+    "Les questions du module de pratique ont un suivi distinct : une bonne note d'examen ne les valide pas.";
+  for(const item of plan.slice(0,5)){
+    const row=element("li","exam-consolidation-item");
+    row.append(element("strong","",item.label));
+    row.append(element("p","helper",item.lost+" point(s) perdu(s) sur "+item.possible+
+      " point(s) évalué(s) dans les compétences ciblées : "+item.skills.join(", ")+"."));
+    const actions=element("div","exam-consolidation-actions");
+    const lesson=element("a","","1. Revoir le cours");
+    lesson.href=item.courseUrl;actions.append(lesson);
+    if(item.practiceUrl){
+      row.append(element("p","helper","Entraînement : "+item.confirmed+"/"+item.practiceTotal+
+        " question(s) confirmée(s), "+item.due+" rappel(s) à échéance, "+item.wrong+
+        " question(s) avec erreur non confirmées. Ces résultats viennent des séances, pas des examens."));
+      const practiceLink=element("a","","2. "+(item.due?"Faire les rappels":"Faire des exercices"));
+      practiceLink.href=item.practiceUrl;
+      practiceLink.dataset.practiceTopic=item.topic;
+      actions.append(practiceLink);
+    }else{
+      row.append(element("p","helper","Ce chapitre n'a pas de quiz dédié : étudier le cours et rédiger une démonstration sur papier."));
+    }
+    row.append(actions);list.append(row);
+  }
+  byId("examConsolidationMore").textContent=plan.length>5?
+    "Afficher les cinq chapitres prioritaires sur "+plan.length+" ; les autres restent accessibles dans le diagnostic ci-dessus.":"";
+
+}
 function renderHistory(){
   const container=byId("examHistory");
   container.replaceChildren();
-  if(!store.history.length){container.append(element("p","helper","Aucun examen terminé pour le moment."));renderAnalytics();return;}
+  renderConsolidation();
+  if(!store.history.length){container.append(element("p","helper","Aucun examen terminé pour le moment."));renderAnalytics();renderExamRecommendation();return;}
   for(const result of [...store.history].reverse()){
     const row=element("div","exam-history-row");
     const label=element("span","",result.title+" · "+new Date(result.finishedAt).toLocaleDateString("fr-FR")+" · "+result.score+"/20");

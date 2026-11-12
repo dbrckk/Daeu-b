@@ -360,8 +360,13 @@ async function importProgress(file) {
 buildTopicSelector();
 // Les liens issus des cours sélectionnent uniquement le chapitre autorisé.
 // Aucune nouvelle séance n'est créée sans action explicite.
-const requestedTopic=new URLSearchParams(location.search).get("topic");
-if(fullTopics.some(topic=>topic.slug===requestedTopic))el("topic").value=requestedTopic;
+const practiceParams=new URLSearchParams(location.search);
+const requestedTopic=practiceParams.get("topic");
+if(fullTopics.some(topic=>topic.slug===requestedTopic)){
+  el("topic").value=requestedTopic;
+  const requestedMode=practiceParams.get("mode");
+  if(["due","wrong"].includes(requestedMode))el("mode").value=requestedMode;
+}
 renderCourseLibrary();
 refreshOverview();
 initExams(dataStore,conflictWarning);
