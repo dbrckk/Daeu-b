@@ -241,6 +241,9 @@ export async function resolveCloudConflict(choice){
   return ok?"synchronisé":"conflit";
 }
 export function initCloudInterface(){
+  // Les restaurations effectuées après un login remplacent la copie en mémoire :
+  // recharger l’interface afin de ne pas afficher une ancienne progression.
+  onRestore=()=>location.reload();
   const form=document.getElementById("cloudForm");
   if(!form)return;
   const statusNode=document.getElementById("cloudStatus");
