@@ -14,6 +14,10 @@ const reply=async(route,status,json)=>route.fulfill({status,headers:responses,bo
 async function mockSupabase(route){
  const req=route.request(),url=new URL(req.url());
  if(req.method()==="OPTIONS"){await route.fulfill({status:204,headers:responses});return;}
+ if(url.pathname==="/auth/v1/signup"){
+   await reply(route,200,{user:{id:user,email},session:null});
+   return;
+ }
  if(url.pathname.startsWith("/auth/v1/token")){
    await reply(route,200,{access_token:"test-token",refresh_token:"test-refresh",
      expires_in:3600,user:{id:user,email}});
@@ -53,6 +57,12 @@ try{
  assert.equal(posts,0,"Aucune donnée envoyée sans connexion explicite");
  await first.locator("#cloudEmail").fill(email);
  await first.locator("#cloudPassword").fill("motdepassefort");
+ await first.locator("#cloudRegister").click();
+ assert.equal(await first.locator("#cloudSubmit").textContent(),"Créer mon accès");
+ await first.locator("#cloudSubmit").click();
+ await first.waitForFunction(()=>document.querySelector("#cloudStatus")?.textContent.includes("E-mail envoyé"));
+ console.log("OK Inscription sécurisée : confirmation d'e-mail demandée");
+ await first.locator("#cloudRegister").click();
  await first.locator("#cloudSubmit").click();
  await first.waitForFunction(()=>document.querySelector("#cloudStatus")?.textContent.includes("synchronisée"));
  assert.equal(posts,1,"La progression locale a été envoyée dès la première connexion");
