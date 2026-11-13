@@ -1,6 +1,6 @@
 # DAEU B — Parcours de maîtrise (mathématiques)
 
-**Plan d'évolution actif (v23–v28) : [feuille de route de progression](ROADMAP_V23.md)** · **[Audit v23 de couverture des 20 jalons](AUDIT_COUVERTURE.md)** — audit de couverture, corrections pédagogiques, maîtrise par jalon et examens enrichis.
+**Priorité immédiate : [stabilisation de la version 1.0](STABILISATION_V1.md)** · **Plan d'évolution actif (v23–v28) : [feuille de route de progression](ROADMAP_V23.md)** · **[Audit v23 de couverture des 20 jalons](AUDIT_COUVERTURE.md)** — audit de couverture, corrections pédagogiques, maîtrise par jalon et examens enrichis.
 
 Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Documents originaux en français, conçus pour maîtriser les mathématiques du **DAEU B** et non uniquement apprendre des formules. Aucun prérequis informatique, compte ni logiciel payant.
 
@@ -13,7 +13,7 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 - **116 questions fixes + 41 modèles paramétriques (157 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **41 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
-- Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte ni serveur de données : une seconde copie locale IndexedDB est créée automatiquement, sans export manuel pour l'utilisation courante. La perte de l'appareil ou l'effacement intégral du site nécessitera une sauvegarde cloud qui n'est pas encore activée.
+- Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte ni serveur de données : une seconde copie locale IndexedDB est créée automatiquement, sans export manuel pour l'utilisation courante. Une synchronisation cloud par compte est désormais disponible et facultative dans l'application ; sans connexion cloud effectivement activée, la perte de l'appareil ou l'effacement complet des données du site fait perdre les deux copies locales.
 - Site statique gratuit et léger (**sans dépendances à l'exécution**), hébergé sur **Render avec URL permanente**, déploiement automatique depuis `main` et vérification Node.js bloquante avant publication ; le code reste dans [app/](app/).
 - **[Cinq examens blancs interactifs](https://daeu-b-maths-dbrckk.onrender.com/#exam-title)** : A et B fixes, **C, D et E générés avec de nouvelles valeurs** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **grilles guidées de 16 étapes par sujet**, auto-évaluation et diagnostic des points perdus.
 - [Guide des examens chronométrés, sujets variables et limites de la correction automatique](examens/guide-interactif.md).

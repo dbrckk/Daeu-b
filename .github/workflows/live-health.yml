@@ -1,5 +1,10 @@
 name: Disponibilité du site DAEU B permanent
 on:
+  pull_request:
+    paths:
+      - '.github/workflows/live-health.yml'
+      - 'scripts/healthcheck.py'
+      - 'scripts/test_healthcheck.py'
   workflow_dispatch:
   schedule:
     - cron: '37 6 * * *'
@@ -7,6 +12,7 @@ on:
     paths:
       - '.github/workflows/live-health.yml'
       - 'scripts/healthcheck.py'
+      - 'scripts/test_healthcheck.py'
       - 'app/index.html'
       - 'app/app.mjs'
       - 'app/sw.js'
@@ -24,5 +30,8 @@ jobs:
       - name: Attendre la fin du déploiement Render après un push
         if: github.event_name == 'push'
         run: sleep 35
+      - name: Tester le contrôle de publication sans réseau
+        run: python3 -m unittest discover -s scripts -p 'test_healthcheck.py'
       - name: Vérifier le domaine, les ressources PWA et la sécurité
+        if: github.event_name != 'pull_request'
         run: python3 scripts/healthcheck.py
