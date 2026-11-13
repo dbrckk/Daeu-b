@@ -47,6 +47,6 @@ test("Dérivation exacte jusqu'au degré 6, produits et puissances",()=>{
 test("Fractions exactes de degré supérieur, fonctions inconnues rejetées",()=>{
  assert.equal(compare("f(x)=1/3x³+1/2x²","f'(x)=x²+x").correct,true);
  assert.equal(compare("f(x)=1/3x³","f'(x)=0,999999x²").correct,false);
- for(const line of ["f(x)=x^7","f(x)=1/x","f(x)=ln(x)","f(x)=sin(x)","f(x)=x^(-2)","f(x)=x³=1"])
+ for(const line of ["f(x)=x^7","f(x)=1/x","f(x)=sin(x²)","f(x)=sin(x)+x","f(x)=x^(-2)","f(x)=x³=1"])
    assert.throws(()=>parseFunctionLine(line),line);
 });
