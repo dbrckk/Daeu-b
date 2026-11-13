@@ -28,3 +28,11 @@ test("Modèles : fraction, équation et système insérés à la sélection",()=
   assert.ok(eq.value.includes(String.fromCharCode(10)+"x = 6"));
   assert.equal(eq.value.slice(eq.start,eq.end),"2x + 5 = 17");
 });
+
+test("Modèle de dérivation avancée insérable sans clavier physique",()=>{
+ const model=MATH_TEMPLATES.find(x=>x.label==="Dérivée avancée");
+ assert.ok(model);
+ const result=insertTemplate("",model,0,0);
+ assert.ok(result.value.includes("f'(x) = 3x² + 6x + 3"));
+ assert.equal(result.value.slice(result.start,result.end),"(x+1)^3");
+});

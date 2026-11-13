@@ -46,3 +46,14 @@ test("Fonctions et dérivées affichables en MathML sûr",()=>{
  assert.equal(parseMathLine("f'(x)=sin(x)"),null);
  assert.equal(parseMathLine("f''(x)=2"),null);
 });
+
+test("Aperçu de fonctions cubiques à sextiques avec dérivée au format MathML",()=>{
+ const f=parseMathLine("f(x)=x³-2x+1");
+ const p=parseMathLine("f'(x)=3x²-2");
+ assert.equal(f.type,"functionDefinition");
+ assert.equal(p.type,"functionDefinition");
+ assert.equal(p.prime,true);
+ assert.equal(parseMathLine("g(x)=x⁶-2x⁴").type,"functionDefinition");
+ assert.equal(parseMathLine("f(x)=x^7"),null);
+ assert.equal(parseMathLine("f(x)=sin(x)"),null);
+});

@@ -17,6 +17,7 @@ export const MATH_TEMPLATES=Object.freeze([
   {label:"Second degré",value:"x² - 5x + 6 = 0\n(x - 2)(x - 3) = 0",selection:"x² - 5x + 6 = 0"},
   {label:"Système",value:"{\n  2x + y = 7\n  x − y = 2\n}",selection:"2x + y = 7"},
   {label:"Fonction",value:"f(x) = 3x² - 2x + 1\nf'(x) = 6x - 2",selection:"3x² - 2x + 1"},
+  {label:"Dérivée avancée",value:"f(x) = (x+1)^3\nf'(x) = 3x² + 6x + 3",selection:"(x+1)^3"},
   {label:"Limite",value:"lim(x → a) f(x) = résultat",selection:"a"},
   {label:"Intégrale",value:"∫[a,b] f(x) dx = résultat",selection:"résultat"},
   {label:"Conclusion",value:"Donc, la solution est : ",selection:""}
@@ -146,7 +147,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   correction.setAttribute("aria-label","Correction guidée des lignes");
   const correctionTitle=document.createElement("h5");correctionTitle.textContent="Correction guidée des étapes";
   const explanation=document.createElement("p");explanation.className="helper";
-  explanation.textContent="Vérifie les calculs numériques, les équations du premier et du second degré en x et les dérivées de polynômes de degré 0, 1 ou 2. Pour une dérivée, écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont exacts ; les fonctions non polynomiales et les démonstrations restent non vérifiées.";
+  explanation.textContent="Vérifie les calculs numériques, les équations du premier et du second degré en x et les dérivées de polynômes de degré 0 à 6 (produits et puissances développables). Pour une dérivée, écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont exacts ; les fonctions non polynomiales et les démonstrations restent non vérifiées.";
   const verify=document.createElement("button");verify.type="button";verify.className="subtle";
   verify.textContent="Vérifier mes étapes";
   const feedback=document.createElement("div");feedback.className="math-notebook-feedback";feedback.hidden=true;

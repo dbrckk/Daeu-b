@@ -3,13 +3,13 @@
  * exécution, aucun réseau. Il s'agit d'un aperçu, PAS d'un correcteur.
  * Un énoncé trop complexe reste affiché tel qu'il a été saisi.
  */
-import {parsePolynomial} from "./quadratic-checker.mjs";
+import {parseDerivativePolynomial} from "./polynomial-derivative.mjs";
 
 const MATH_NS="http://www.w3.org/1998/Math/MathML";
 const MAX_LINES=24,MAX_LINE_LENGTH=180,MAX_TOKENS=100,MAX_DEPTH=22;
 const RELATIONS=new Set(["=","<",">","≤","≥","≠"]);
 const PRIMARY=new Set(["number","name","(","[","√","π"]);
-const OP=/[π√²=+\-−×·÷/^()[\]<>≤≥≠]/u;
+const OP=/[π√²³⁴⁵⁶=+\-−×·÷/^()[\]<>≤≥≠]/u;
 const NUMBER=/^\d+(?:[.,]\d+)?/u;
 const NAME=/^[A-Za-zÀ-ÖØ-öø-ÿ_][A-Za-zÀ-ÖØ-öø-ÿ_0-9]*/u;
 function tokenize(text){
@@ -34,7 +34,7 @@ export function parseMathLine(line){
     if(definition){
       // Ne jamais représenter sin(x), 1/x ou des expressions de degré > 2
       // comme une multiplication implicite f(x) : valider le polynôme d'abord.
-      try{parsePolynomial(definition[3]);}
+      try{parseDerivativePolynomial(definition[3]);}
       catch{return null;}
       const expression=parseMathLine(definition[3]);
       return expression?{type:"functionDefinition",name:definition[1],prime:!!definition[2],expression}:null;
@@ -71,9 +71,12 @@ export function parseMathLine(line){
     }
     function power(){
       let base=primary();
-      while(peek()==="²"||peek()==="^"){
-        if(peek()==="²"){take("²");base={type:"power",base,exponent:{type:"number",value:"2"}};}
-        else{take("^");const exponent=nested(unary);base={type:"power",base,exponent};}
+      const superscript={"²":"2","³":"3","⁴":"4","⁵":"5","⁶":"6"};
+      while(Object.hasOwn(superscript,peek())||peek()==="^"){
+        if(Object.hasOwn(superscript,peek())){
+          const value=superscript[peek()];take(peek());
+          base={type:"power",base,exponent:{type:"number",value}};
+        }else{take("^");const exponent=nested(unary);base={type:"power",base,exponent};}
       }
       return base;
     }
