@@ -6,8 +6,8 @@ import {emptyState} from "./engine.mjs";
 import {emptyExamStore} from "./exam-engine.mjs";
 const known=new Set(["q01","v01"]);
 test("Cahier : traits vectoriels et texte multi-lignes reprennent exactement",()=>{
- const stroke=encodeStroke([[0,0],[100,70],[600,800]]);
- assert.deepEqual(parseStroke(stroke),[[0,0],[100,70],[600,800]]);
+ const stroke=encodeStroke([[0,0],[100,70],[600,800],[900,1200]]);
+ assert.deepEqual(parseStroke(stroke),[[0,0],[100,70],[600,800],[900,1200]]);
  const work={text:"2x + 3 = 7\\n2x = 4\\nx = 2",pages:[[stroke],[],[]]};
  const changed=changeWork(emptyWorkbook(),"quiz:q01:0",work);
  assert.deepEqual(readWork(changed,"quiz:q01:0"),work);
@@ -15,7 +15,7 @@ test("Cahier : traits vectoriels et texte multi-lignes reprennent exactement",()
  assert.deepEqual(sanitizeWorkbook(changed),changed);
 });
 test("Refuser les cahiers corrompus, chemins arbitraires et dépassements",()=>{
- for(const invalid of ["1,2;999,0","-1,2","1,2;Infinity,0","<svg>","1,2;","1e3,2"])
+ for(const invalid of ["1,2;901,0","0,1201","-1,2","1,2;Infinity,0","<svg>","1,2;","1e3,2"])
    assert.throws(()=>parseStroke(invalid));
  for(const key of ["","../","quiz:<script>","a".repeat(131)])assert.throws(()=>changeWork(emptyWorkbook(),key,blankWork()));
  assert.throws(()=>changeWork(emptyWorkbook(),"cours:1",{text:"a".repeat(6001),pages:[[]]}));
@@ -42,4 +42,12 @@ test("Ancien bundle sans cahier : migration transparente et reset explicite",()=
  assert.deepEqual(restored.snapshot().workbook,emptyWorkbook());
  restored.updateWorkbook(changeWork(emptyWorkbook(),"cours:01-calcul-numerique",{text:"ok",pages:[[]]}));
  assert.equal(Object.keys(restored.replaceAll(emptyState(),emptyExamStore()).workbook.entries).length,0);
+});
+
+test("Cahier agrandi : anciens traits et nouvelles coordonnées coexistent sans migration",()=>{
+ const legacy="600,800;0,0";
+ const expanded=encodeStroke([[0,0],[900,1200]]);
+ const value=changeWork(emptyWorkbook(),"quiz:q01",{text:"",pages:[[legacy,expanded]]});
+ assert.deepEqual(parseStroke(readWork(value,"quiz:q01").pages[0][0]),[[600,800],[0,0]]);
+ assert.deepEqual(parseStroke(readWork(value,"quiz:q01").pages[0][1]),[[0,0],[900,1200]]);
 });
