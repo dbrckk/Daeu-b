@@ -43,7 +43,7 @@ test("Fonctions et dérivées affichables en MathML sûr",()=>{
  assert.equal(f.prime,false);
  assert.equal(p.type,"functionDefinition");
  assert.equal(p.prime,true);
- assert.equal(parseMathLine("f'(x)=sin(x)"),null);
+ assert.equal(parseMathLine("f'(x)=sin(x)").type,"functionDefinition");
  assert.equal(parseMathLine("f''(x)=2"),null);
 });
 
@@ -55,5 +55,18 @@ test("Aperçu de fonctions cubiques à sextiques avec dérivée au format MathML
  assert.equal(p.prime,true);
  assert.equal(parseMathLine("g(x)=x⁶-2x⁴").type,"functionDefinition");
  assert.equal(parseMathLine("f(x)=x^7"),null);
- assert.equal(parseMathLine("f(x)=sin(x)"),null);
+ assert.equal(parseMathLine("f(x)=sin(x)").type,"functionDefinition");
+});
+
+test("Fonctions usuelles composées : aperçu structuré et limites de sécurité",()=>{
+ const source=parseMathLine("f(x)=2sin(3x+1)");
+ assert.equal(source.type,"functionDefinition");
+ assert.equal(source.expression.type,"binary");
+ assert.equal(source.expression.right.type,"call");
+ assert.equal(source.expression.right.name,"sin");
+ assert.equal(parseMathLine("f'(x)=2/(2x+1)").type,"functionDefinition");
+ assert.equal(parseMathLine("exp(x)").type,"call");
+ assert.equal(parseMathLine("ln(x)").type,"call");
+ assert.equal(parseMathLine("f(x)=sin(x²)"),null);
+ assert.equal(parseMathLine("f'(x)=1/(x²+1)"),null);
 });
