@@ -6,6 +6,7 @@
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
+import {recognizeNumericInk} from "./numeric-ink.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
@@ -71,9 +72,10 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const section=document.createElement("section");section.className="math-notebook";
   const heading=document.createElement("h4");heading.textContent=title;
   const help=document.createElement("p");help.className="helper";
-  help.textContent="Écris toute ta réponse sur la feuille agrandie au doigt ou au stylet ; fais défiler pour les équations longues. Tu peux valider cette réponse sans la recopier dans le champ classique. Tu peux aussi utiliser le clavier mathématique plus bas. Chaque trait est sauvegardé automatiquement. Une copie manuscrite se valide par comparaison au corrigé, sans reconnaissance automatique des tracés.";
+  help.textContent="Écris toute ta réponse sur la feuille agrandie au doigt ou au stylet ; fais défiler pour les équations longues. Tu peux valider cette réponse sans la recopier dans le champ classique. Tu peux aussi utiliser le clavier mathématique plus bas. Chaque trait est sauvegardé automatiquement. Une copie manuscrite se valide par comparaison au corrigé, avec lecture expérimentale des nombres isolés ; les longues équations manuscrites ne sont pas reconnues automatiquement.";
   const status=document.createElement("p");status.className="helper math-notebook-status";status.setAttribute("role","status");
   let work=blankWork(),pageIndex=0;
+  let invalidateRecognition=()=>{};
   try{
     const book=adapter.snapshot().workbook;
     work=readWork(book,context);
@@ -106,7 +108,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const current=adapter.snapshot().workbook;
       const updated=changeWork(current,context,next);
       adapter.updateWorkbook(updated);
-      work=next;status.textContent="Cahier enregistré automatiquement avec la progression.";
+      work=next;invalidateRecognition();status.textContent="Cahier enregistré automatiquement avec la progression.";
       // Ne jamais afficher un ancien verdict après une édition par touche ou modèle.
       if(typeof feedback!=="undefined")feedback.hidden=true;
       renderMathPreview(previewBody,field.value);
@@ -234,6 +236,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(drawing)path(ctx,drawing);
   }
   function renderPages(){
+    invalidateRecognition();
     prev.disabled=pageIndex===0;nextPage.disabled=pageIndex===work.pages.length-1;
     addPage.disabled=work.pages.length>=8;
     undo.disabled=work.pages[pageIndex].length===0;
@@ -288,6 +291,61 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointerup",finish);
   canvas.addEventListener("pointercancel",finish);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
+  const recognition=document.createElement("section");recognition.className="math-notebook-recognition";
+  recognition.hidden=typeof handwrittenReview?.onRecognized!=="function";
+  const recognitionTitle=document.createElement("h5");recognitionTitle.textContent="Lire ma réponse manuscrite (expérimental)";
+  const recognitionHelp=document.createElement("p");recognitionHelp.className="helper";
+  recognitionHelp.textContent="Pour les questions numériques : écris le résultat final seul sur la page actuelle (ex. 12, −7 ou 3/4). Le calcul complet peut rester sur les pages précédentes. Cette lecture locale n'est pas fiable sur les équations ou écritures complexes.";
+  const readButton=document.createElement("button");readButton.type="button";readButton.className="subtle";
+  readButton.textContent="Reconnaître le nombre écrit";
+  const recognitionStatus=document.createElement("p");recognitionStatus.className="helper";
+  recognitionStatus.setAttribute("role","status");
+  const recognitionCandidate=document.createElement("div");recognitionCandidate.className="math-notebook-recognition-candidate";
+  recognitionCandidate.hidden=true;
+  const recognitionValue=document.createElement("strong");
+  const recognitionCaveat=document.createElement("p");recognitionCaveat.className="helper";
+  recognitionCaveat.textContent="Vérifie impérativement que les chiffres correspondent à ta feuille avant de corriger : l'analyse peut se tromper.";
+  const acceptReading=document.createElement("button");acceptReading.type="button";acceptReading.className="primary";
+  acceptReading.textContent="Oui, vérifier ce résultat";
+  const rejectReading=document.createElement("button");rejectReading.type="button";rejectReading.className="subtle";
+  rejectReading.textContent="Non, la lecture est incorrecte";
+  let recognizedText=null;
+  invalidateRecognition=()=>{
+    recognizedText=null;recognitionCandidate.hidden=true;
+    recognitionStatus.textContent="";
+  };
+  readButton.addEventListener("click",()=>{
+    if(recognition.hidden)return;
+    invalidateRecognition();
+    const result=recognizeNumericInk(work.pages[pageIndex]);
+    if(result.status!=="recognized"){
+      recognitionStatus.textContent=result.message;
+      return;
+    }
+    recognizedText=result.text;
+    recognitionValue.textContent="Lecture proposée : "+result.text;
+    recognitionCandidate.hidden=false;
+    recognitionStatus.textContent="Valeur détectée localement, non encore corrigée. Confirme seulement si elle correspond exactement au nombre écrit.";
+  });
+  acceptReading.addEventListener("click",()=>{
+    if(recognizedText===null)return;
+    try{
+      if(handwrittenReview?.onRecognized?.(recognizedText)===false){
+        recognitionStatus.textContent="La réponse n'a pas été enregistrée. Vérifie la sauvegarde, puis réessaie.";
+        return;
+      }
+      readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
+      recognitionStatus.textContent="Résultat reconnu et corrigé avec le moteur des exercices. Progression enregistrée.";
+    }catch(error){recognitionStatus.textContent="Correction impossible : "+error.message;}
+  });
+  rejectReading.addEventListener("click",()=>{
+    invalidateRecognition();
+    recognitionStatus.textContent="Lecture rejetée. Réécris le nombre en grand sur la page ou compare ta copie au corrigé.";
+  });
+  const recognitionButtons=document.createElement("div");recognitionButtons.className="math-notebook-recognition-actions";
+  recognitionButtons.append(acceptReading,rejectReading);
+  recognitionCandidate.append(recognitionValue,recognitionCaveat,recognitionButtons);
+  recognition.append(recognitionTitle,recognitionHelp,readButton,recognitionStatus,recognitionCandidate);
   const quickValidate=document.createElement("button");quickValidate.type="button";
   quickValidate.className="primary math-notebook-quick-validate";
   quickValidate.textContent="Valider ma réponse sur la feuille";
@@ -300,7 +358,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       throw Error("Correction manuscrite mal configurée");
     const manualTitle=document.createElement("h5");manualTitle.textContent="Valider ma réponse écrite sur la feuille";
     const manualIntro=document.createElement("p");manualIntro.className="helper";
-    manualIntro.textContent="Après avoir écrit, affiche le corrigé et compare-le à tes propres lignes. Pas besoin de remplir le champ de réponse. L'application ne lit pas encore les tracés manuscrits : cette validation est une auto-évaluation et ne confirme pas la maîtrise.";
+    manualIntro.textContent="Après avoir écrit, affiche le corrigé et compare-le à tes propres lignes. Pas besoin de remplir le champ de réponse. La comparaison au corrigé reste une auto-évaluation. La reconnaissance locale des nombres simples est proposée plus haut lorsqu'elle est disponible ; elle ne corrige pas les équations complètes.";
     const reveal=document.createElement("button");reveal.type="button";reveal.className="primary";
     reveal.textContent="Afficher le corrigé et valider ma feuille";
     const manualStatus=document.createElement("p");manualStatus.className="helper";manualStatus.setAttribute("role","status");
@@ -340,7 +398,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         manualStatus.textContent="Impossible de sauvegarder la consultation du corrigé. Réessaie avant de poursuivre.";
         return;
       }
-      reveal.disabled=true;quickValidate.disabled=true;
+      reveal.disabled=true;quickValidate.disabled=true;readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
       comparison.hidden=false;
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });
@@ -356,7 +414,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const editorDetails=document.createElement("details");editorDetails.className="math-notebook-editor-disclosure";editorDetails.open=true;
   const editorSummary=document.createElement("summary");editorSummary.textContent="Clavier mathématique et vérification des étapes (facultatif)";
   editorDetails.append(editorSummary,keypad,templates,field,preview,correction);
-  section.append(heading,help,drawLabel,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,manual,status,editorDetails);
+  section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }

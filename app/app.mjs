@@ -312,7 +312,14 @@ function renderQuestion() {
       expected:q.type==="number"?fmt(q.answer):String(q.answer),
       explanation:q.explanation,
       onRevealed:markGuidedQuestion,
-      onDecision:submitHandwritten
+      onDecision:submitHandwritten,
+      // Lecture géométrique locale : même correcteur objectif qu'une saisie numérique.
+      // Le résultat n'est soumis qu'après confirmation visuelle par l'élève.
+      onRecognized:q.type==="number"?value=>{
+        if(done)return false;
+        submit(value);
+        return done;
+      }:null
     }
   });
   el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";

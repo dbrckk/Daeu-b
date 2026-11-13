@@ -6,16 +6,19 @@ Prévoir un smartphone Android (ou un PC) et environ 20 à 30 minutes. Le cahier
 
 ## Valider en écrivant uniquement sur la feuille virtuelle
 
-Le questionnaire contient maintenant une **grande feuille quadrillée** (840 px de largeur d'affichage, défilante horizontalement sur téléphone). Écris tes opérations ou tes longues équations directement au doigt/stylet ; déplace la feuille avec les flèches ou active **Déplacer au doigt**, puis reviens à **Reprendre le stylo**. Chaque trait et chaque page sont sauvegardés automatiquement.
+Le questionnaire contient maintenant une **grande feuille quadrillée** (900 × 1 200 unités et 1 260 px de largeur d'affichage, défilante horizontalement et verticalement sur téléphone). Écris tes opérations ou tes longues équations directement au doigt/stylet ; déplace la feuille avec les flèches ou active **Déplacer au doigt**, puis reviens à **Reprendre le stylo**. Chaque trait et chaque page sont sauvegardés automatiquement.
 
 Pour remettre une réponse **sans recopier le résultat dans un autre champ** :
 
 1. Trace au moins un trait de réponse sur la feuille.
-2. Appuie sur **Valider ma feuille manuscrite** sous la feuille.
+2. Appuie sur **Valider ma réponse sur la feuille** au-dessus de la feuille.
 3. Compare ton travail avec la réponse attendue et son explication.
 4. Choisis **Oui, ma réponse correspond** ou **Non, je dois retravailler** ; la question est validée dans la séance et la progression est enregistrée.
 
-**Limite essentielle :** le navigateur ne reconnaît pas automatiquement la valeur mathématique des traits manuscrits. Cette validation est une **auto-évaluation**, comptabilisée comme assistée après consultation du corrigé et **jamais comme une maîtrise autonome confirmée**. Pour une correction automatique objective des questions de quiz, la saisie numérique ou le QCM reste disponible sous la feuille. La saisie de texte et le vérificateur de certaines étapes sont facultatifs. Aucun abonnement ni service OCR payant.
+### Première lecture automatique : réponses numériques
+Pour une question demandant **un nombre** : écris la réponse finale **seule** sur la page courante, ou ajoute une page pour ne pas mélanger les calculs avec la valeur finale. Appuie sur **« Reconnaître le nombre écrit »**. L'application propose une transcription locale expérimentale (chiffres 0–9, nombres signés, décimaux simples et fractions écrites avec un trait oblique). **Vérifie la transcription**, puis appuie sur **« Oui, vérifier ce résultat »** : le moteur habituel corrige la valeur, sans la recopier dans un champ. Si la lecture est incorrecte ou impossible, rejette-la et recommence, ou utilise la comparaison au corrigé.
+
+**Limite essentielle :** il ne s'agit **pas** encore d'un modèle de reconnaissance générale des mathématiques : équations sur plusieurs lignes, fractions empilées, dérivées et démonstrations manuscrites ne sont pas corrigées depuis les traits. Un résultat n'est jamais noté sans confirmation de la transcription. Le bouton **« Valider ma réponse sur la feuille »** continue d'afficher le corrigé et permet une **auto-évaluation assistée**, jamais une maîtrise autonome confirmée. Le clavier numérique et les QCM restent facultatifs selon l'exercice. Aucun abonnement ni service OCR payant.
 
 ## Première séance
 
@@ -53,7 +56,7 @@ Ce rythme est indicatif : des séances de 10 à 20 minutes avec pauses peuvent �
 
 ## Rédiger sans papier
 
-**Répondre uniquement sur la feuille :** dans un quiz, trace la réponse au doigt ou au stylet sur la grande feuille quadrillée (900 × 1200 unités, 1 260 px de largeur d'affichage). Le bouton **« Valider ma réponse sur la feuille »**, placé juste au-dessus de la feuille, affiche le corrigé sans exiger de recopier la réponse dans le champ. Compare ensuite les calculs et sélectionne « Oui, ma réponse correspond » ou « Non, je dois retravailler ». Il s'agit d'une **auto-évaluation** : les traits ne sont pas reconnus automatiquement et ce résultat ne certifie pas la maîtrise. Pour les longues équations, fais défiler la feuille horizontalement et verticalement, utilise « Déplacer au doigt » ou ajoute une page. Les anciennes feuilles restent lisibles.
+**Répondre uniquement sur la feuille :** dans un quiz, trace la réponse au doigt ou au stylet sur la grande feuille quadrillée (900 × 1200 unités, 1 260 px de largeur d'affichage). Le bouton **« Valider ma réponse sur la feuille »**, placé juste au-dessus de la feuille, affiche le corrigé sans exiger de recopier la réponse dans le champ. Compare ensuite les calculs et sélectionne « Oui, ma réponse correspond » ou « Non, je dois retravailler ». Il s'agit d'une **auto-évaluation** : les expressions complexes tracées au doigt ne sont pas lues automatiquement et ce résultat ne certifie pas la maîtrise. Sur les questions numériques, le lecteur expérimental peut proposer un nombre isolé, à vérifier visuellement avant que le correcteur automatique ne le note. Pour les longues équations, fais défiler la feuille horizontalement et verticalement, utilise « Déplacer au doigt » ou ajoute une page. Les anciennes feuilles restent lisibles.
 
 Dans les quiz et examens blancs, le **cahier de calcul** propose une zone de rédaction multilignes et des touches pour les symboles (√, π, ×, ÷, ≤, ≥, ², etc.). Dans les problèmes, un cahier distinct permet de rédiger les étapes. Les brouillons, tracés au doigt et notes sont enregistrés automatiquement avec la progression. Lorsque la synchronisation cloud est activée avec un compte, ils sont inclus dans les sauvegardes du compte ; sans connexion cloud, ils restent sur cet appareil. L’**aperçu MathML** affiche les fractions superposées, puissances et racines comme sur une copie, mais la zone texte reste la source éditable. Le vérificateur corrige les calculs numériques, compare exactement les solutions réelles des équations du premier et du second degré et contrôle les **dérivées de polynômes de degré 0 à 6** : écris `f(x) = ...`, puis `f'(x) = ...` sur des lignes consécutives. Les coefficients rationnels sont comparés exactement. Il vérifie aussi certaines dérivées usuelles de sin, cos, exp et ln d'un argument affine, avec coefficients rationnels exacts. Il ne certifie pas les démonstrations, les compositions non affines, les puissances polynomiales supérieures à 6, les fonctions rationnelles générales ni la qualité des tracés.
 
