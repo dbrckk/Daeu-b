@@ -296,6 +296,8 @@
 .math-notebook-sheet-viewport{width:100%;max-width:100%;height:min(78vh,1000px);min-height:420px;overflow:auto;overscroll-behavior:contain;border:2px solid #8398b0;border-radius:8px;background:#fff;scrollbar-width:thin}
 .math-notebook-canvas{display:block;width:1260px;max-width:none;height:auto;aspect-ratio:3 / 4;background:white;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
 .math-notebook-canvas.is-panning{touch-action:pan-x pan-y;cursor:grab}
+.math-notebook-canvas.is-erasing{cursor:cell}
+
 .math-notebook-view-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .math-notebook-view-tools button{min-height:44px}
 .math-notebook-view-tools button[aria-pressed="true"]{background:var(--teal);color:#0d2434}
@@ -308,6 +310,16 @@
 .math-notebook-equations-final button{width:100%;min-height:54px;font-weight:700}
 .math-notebook-equations-final p{margin:0 0 10px}
 
+.math-notebook-ink-edit-toggle{display:block;width:100%;min-height:48px;margin:12px 0}
+.math-notebook-ink-editor{margin:12px 0;padding:12px;border:1px solid #65849e;border-radius:10px;background:#20394e}
+.math-notebook-ink-chars,.math-notebook-ink-symbols,.math-notebook-ink-edit-tools{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.math-notebook-ink-chars button{min-width:35px;min-height:45px;padding:6px 8px;font-size:1.05rem;font-family:monospace}
+.math-notebook-ink-chars button[aria-pressed=true]{outline:3px solid #ffcf70;outline-offset:1px}
+.math-notebook-ink-chars button.unreadable{color:#301800;background:#ffcf70;font-weight:900}
+.math-notebook-ink-symbols button{min-width:44px;min-height:46px;font-size:1.1rem}
+.math-notebook-ink-edit-tools button{min-height:44px}
+.math-notebook-ink-edit-tools [aria-pressed=true]{background:var(--teal);color:#0d2434}
+@media(max-width:550px){.math-notebook-ink-edit-tools button{flex:1 1 100%}}
 .math-notebook-equations-transcript{background:#f5f9ff;color:#18283c;border-radius:8px;border:1px solid #9faec3;padding:12px;overflow:auto;max-width:100%;font:600 1.05rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
 .math-notebook-equations-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}
 .math-notebook-equations-actions button{min-height:48px}
