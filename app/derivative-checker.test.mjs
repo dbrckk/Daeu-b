@@ -1,3 +1,4 @@
+import "./elementary-derivative.test.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {parseFunctionLine,checkDerivativeCandidate,formatPolynomial,derivativeCoefficients,isFunctionNotation} from "./derivative-checker.mjs";
