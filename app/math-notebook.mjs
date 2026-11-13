@@ -8,6 +8,8 @@ import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
 import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
+import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-transcript.mjs";
+import {nearestInkStroke} from "./ink-eraser.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
@@ -73,7 +75,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const section=document.createElement("section");section.className="math-notebook";
   const heading=document.createElement("h4");heading.textContent=title;
   const help=document.createElement("p");help.className="helper";
-  help.textContent="Écris toute ta réponse sur la feuille agrandie au doigt ou au stylet ; fais défiler pour les équations longues. Tu peux valider cette réponse sans la recopier dans le champ classique. Tu peux aussi utiliser le clavier mathématique plus bas. Chaque trait est sauvegardé automatiquement. Une copie manuscrite se valide par comparaison au corrigé, avec lecture expérimentale des nombres isolés ; les longues équations manuscrites ne sont pas reconnues automatiquement.";
+  help.textContent="Écris sur la grande feuille au doigt ou au stylet. Tu peux corriger un trait avec la gomme, puis vérifier tes équations. Si un symbole est mal lu, corrige la transcription en touchant les symboles proposés, sans clavier ni ressaisie de la copie. Chaque modification de la feuille est sauvegardée automatiquement. La reconnaissance reste expérimentale : vérifie-la avant toute notation.";
   const status=document.createElement("p");status.className="helper math-notebook-status";status.setAttribute("role","status");
   let work=blankWork(),pageIndex=0;
   let invalidateRecognition=()=>{};
@@ -190,6 +192,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const addPage=document.createElement("button");addPage.type="button";addPage.className="subtle small";addPage.textContent="Ajouter une page";
   const undo=document.createElement("button");undo.type="button";undo.className="subtle small";undo.textContent="Annuler le dernier trait";
   const clear=document.createElement("button");clear.type="button";clear.className="subtle small";clear.textContent="Effacer cette page";
+  const eraser=document.createElement("button");eraser.type="button";eraser.className="subtle small";
+  eraser.textContent="Gomme : effacer un trait";eraser.setAttribute("aria-pressed","false");
   const indicator=document.createElement("span");indicator.className="helper math-notebook-page-indicator";
   const canvas=document.createElement("canvas");canvas.className="math-notebook-canvas";
   const sheetViewport=document.createElement("div");sheetViewport.className="math-notebook-sheet-viewport";
@@ -209,20 +213,35 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   moveDown.textContent="↓ Descendre";
   moveMode.textContent="Déplacer au doigt";
   moveMode.setAttribute("aria-pressed","false");
-  let panMode=false;
+  let panMode=false,eraserMode=false,lastErasure=null;
   moveLeft.addEventListener("click",()=>sheetViewport.scrollBy({left:-Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
   moveRight.addEventListener("click",()=>sheetViewport.scrollBy({left:Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
   moveUp.addEventListener("click",()=>sheetViewport.scrollBy({top:-Math.max(180,sheetViewport.clientHeight*.75),behavior:"smooth"}));
   moveDown.addEventListener("click",()=>sheetViewport.scrollBy({top:Math.max(180,sheetViewport.clientHeight*.75),behavior:"smooth"}));
+  function enableEraser(enabled){
+    eraserMode=enabled;
+    eraser.setAttribute("aria-pressed",String(enabled));
+    eraser.textContent=enabled?"Reprendre le stylo":"Gomme : effacer un trait";
+    canvas.classList.toggle("is-erasing",enabled);
+  }
+  eraser.addEventListener("click",()=>{
+    const enabled=!eraserMode;
+    if(enabled && panMode){
+      panMode=false;canvas.classList.remove("is-panning");
+      moveMode.setAttribute("aria-pressed","false");moveMode.textContent="Déplacer au doigt";
+    }
+    enableEraser(enabled);
+  });
   moveMode.addEventListener("click",()=>{
+    if(eraserMode)enableEraser(false);
     panMode=!panMode;
     canvas.classList.toggle("is-panning",panMode);
     moveMode.setAttribute("aria-pressed",String(panMode));
     moveMode.textContent=panMode?"Reprendre le stylo":"Déplacer au doigt";
   });
-  sheetControls.append(moveLeft,moveRight,moveUp,moveDown,moveMode);
+  sheetControls.append(moveLeft,moveRight,moveUp,moveDown,moveMode,eraser);
   const sheetHelp=document.createElement("p");sheetHelp.className="helper";
-  sheetHelp.textContent="Grande feuille 900 × 1200 : utilise les flèches pour te déplacer horizontalement et verticalement. Active « Déplacer au doigt », puis « Reprendre le stylo » pour continuer à écrire. Tu peux ajouter jusqu’à huit pages.";
+  sheetHelp.textContent="Grande feuille 900 × 1200. Déplace-toi avec les flèches ou le mode déplacement. Pour corriger un symbole ancien, active « Gomme : effacer un trait », touche uniquement le trait concerné, puis reprends le stylo. Tu peux annuler cet effacement. Jusqu’à huit pages disponibles.";
   canvas.width=PAPER_WIDTH;canvas.height=PAPER_HEIGHT;
   canvas.tabIndex=0;
   canvas.setAttribute("role","img");canvas.setAttribute("aria-label","Feuille de calcul quadrillée. Trace les équations avec le doigt ou un stylet.");
@@ -240,8 +259,9 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     invalidateRecognition();
     prev.disabled=pageIndex===0;nextPage.disabled=pageIndex===work.pages.length-1;
     addPage.disabled=work.pages.length>=8;
-    undo.disabled=work.pages[pageIndex].length===0;
-    clear.disabled=undo.disabled;
+    undo.disabled=work.pages[pageIndex].length===0&&!lastErasure;
+    undo.textContent=lastErasure?"Annuler l’effacement":"Annuler le dernier trait";
+    clear.disabled=work.pages[pageIndex].length===0;
     indicator.textContent="Page "+(pageIndex+1)+"/"+work.pages.length;
     paint();
   }
@@ -250,17 +270,27 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     fn(updated);
     if(persist(updated))renderPages();
   }
-  prev.addEventListener("click",()=>{if(pageIndex>0){pageIndex--;renderPages();}});
-  nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1){pageIndex++;renderPages();}});
+  prev.addEventListener("click",()=>{if(pageIndex>0){lastErasure=null;pageIndex--;renderPages();}});
+  nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1){lastErasure=null;pageIndex++;renderPages();}});
   addPage.addEventListener("click",()=>{
     if(work.pages.length>=8)return;
-    editPage(w=>w.pages.push([]));
+    lastErasure=null;editPage(w=>w.pages.push([]));
     if(work.pages.length>pageIndex+1){pageIndex=work.pages.length-1;renderPages();}
   });
-  undo.addEventListener("click",()=>editPage(w=>{w.pages[pageIndex].pop();}));
+  undo.addEventListener("click",()=>{
+    if(lastErasure){
+      const erased=lastErasure;
+      const before=work;
+      editPage(w=>w.pages[pageIndex].splice(erased.index,0,erased.stroke));
+      if(work!==before)lastErasure=null;
+      renderPages();
+      return;
+    }
+    editPage(w=>{w.pages[pageIndex].pop();});
+  });
   clear.addEventListener("click",()=>{
     if(!confirm("Effacer tous les traits de cette page ? Le texte et les autres pages seront conservés."))return;
-    editPage(w=>{w.pages[pageIndex]=[];});
+    lastErasure=null;editPage(w=>{w.pages[pageIndex]=[];});
   });
   function pointOf(event){
     const rect=canvas.getBoundingClientRect();
@@ -270,7 +300,22 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     ];
   }
   canvas.addEventListener("pointerdown",event=>{
-    if(panMode||activePointer!==null||event.button!==0||work.pages[pageIndex].length>=100)return;
+    if(panMode||activePointer!==null||event.button!==0)return;
+    if(eraserMode){
+      event.preventDefault();
+      const index=nearestInkStroke(work.pages[pageIndex],pointOf(event));
+      if(index===null){status.textContent="Aucun trait assez proche : touche le symbole à effacer.";return;}
+      const erased=work.pages[pageIndex][index],before=work;
+      editPage(w=>w.pages[pageIndex].splice(index,1));
+      if(work!==before){
+        lastErasure={index,stroke:erased};
+        status.textContent="Un trait effacé. Tu peux annuler ou reprendre le stylo.";
+        renderPages();
+      }
+      return;
+    }
+    if(work.pages[pageIndex].length>=100)return;
+    lastErasure=null;
     event.preventDefault();activePointer=event.pointerId;drawing=[pointOf(event)];
     canvas.setPointerCapture(event.pointerId);paint();
   });
