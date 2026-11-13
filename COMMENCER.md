@@ -6,7 +6,7 @@ Prévoir un smartphone Android (ou un PC) et environ 20 à 30 minutes. Le cahier
 
 ## Valider en écrivant uniquement sur la feuille virtuelle
 
-Le questionnaire contient maintenant une **grande feuille quadrillée** (840 px de largeur logique à l'écran, défilante horizontalement sur téléphone). Écris tes opérations ou tes longues équations directement au doigt/stylet ; déplace la feuille avec les flèches ou active **Déplacer au doigt**, puis reviens à **Reprendre le stylo**. Chaque trait et chaque page sont sauvegardés automatiquement.
+Le questionnaire contient maintenant une **grande feuille quadrillée** (840 px de largeur d'affichage, défilante horizontalement sur téléphone). Écris tes opérations ou tes longues équations directement au doigt/stylet ; déplace la feuille avec les flèches ou active **Déplacer au doigt**, puis reviens à **Reprendre le stylo**. Chaque trait et chaque page sont sauvegardés automatiquement.
 
 Pour remettre une réponse **sans recopier le résultat dans un autre champ** :
 
