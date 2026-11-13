@@ -240,6 +240,10 @@ try {
     await manualPage.waitForFunction(()=>document.querySelector("#quizNotebook .math-notebook-sheet-viewport")?.scrollLeft>40);
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport")
       .evaluate(el=>el.scrollLeft>40),"La navigation horizontale révèle la suite d'une longue équation");
+    await manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Descendre"}).click();
+    await manualPage.waitForFunction(()=>document.querySelector("#quizNotebook .math-notebook-sheet-viewport")?.scrollTop>40);
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport")
+      .evaluate(el=>el.scrollTop>40),"Navigation verticale : les longues résolutions restent accessibles sur petit écran");
     const moveButton=manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Déplacer au doigt"});
     await moveButton.click();
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-view-tools button[aria-pressed=true]").count()===1
