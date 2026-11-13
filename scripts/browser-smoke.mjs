@@ -34,6 +34,10 @@ try {
       &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Démarrer mon diagnostic"))
       &&await firstPage.locator("#firstStatus").textContent().then(t=>t.includes("aucun exercice")),
       "Accueil : démarrage clair sans compte sur un appareil vierge");
+    await check(async()=>await firstPage.locator("#problems-title").textContent().then(t=>t.includes("8 problèmes")&&t.includes("60 transferts"))
+      &&await firstPage.locator('.problems-actions a[href="./problems.html"]').isVisible()
+      &&await firstPage.locator('.problems-actions a[href="./problems.html?set=transferts"]').isVisible(),
+      "Accueil : accès direct aux huit problèmes guidés et aux 60 transferts");
     await firstPage.locator("#firstStart").click();
     await check(async()=>await firstPage.locator("#quiz").isVisible()
       &&await firstPage.locator("#quizCount").textContent().then(t=>t.includes("Question 1")),
@@ -91,8 +95,6 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-preview-body mi").count()>=3,
       "Dérivée trigonométrique : notation de fonction structurée en MathML");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
-    const trigReview=await firstPage.locator("#quizNotebook .math-notebook-review-list li").evaluateAll(items=>items.map(item=>({kind:item.dataset.result,text:item.textContent})));
-    console.log("TRACE dérivation trigonométrique Android :",JSON.stringify(trigReview));
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
       &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
       "Règle de chaîne Android : coefficient manquant détecté puis corrigé");
