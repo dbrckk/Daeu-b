@@ -367,7 +367,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   inkEquationsConfirm.textContent="Oui, vérifier ces étapes";
   const inkEquationsReject=document.createElement("button");inkEquationsReject.type="button";inkEquationsReject.className="subtle";
   inkEquationsReject.textContent="La transcription est incorrecte";
-  const inkEquationsActions=document.createElement("div");inkEquationsActions.className="math-notebook-recognition-actions";
+  const inkEquationsActions=document.createElement("div");inkEquationsActions.className="math-notebook-equations-actions";
   inkEquationsActions.append(inkEquationsConfirm,inkEquationsReject);
   const inkEquationsReport=document.createElement("div");inkEquationsReport.className="math-notebook-feedback";inkEquationsReport.hidden=true;
   inkEquationsReport.setAttribute("role","status");
