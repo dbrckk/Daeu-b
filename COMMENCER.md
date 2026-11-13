@@ -20,6 +20,12 @@ Pour une question demandant **un nombre** : écris la réponse finale **seule** 
 
 **Limite essentielle :** il ne s'agit **pas** encore d'un modèle de reconnaissance générale des mathématiques : équations sur plusieurs lignes, fractions empilées, dérivées et démonstrations manuscrites ne sont pas corrigées depuis les traits. Un résultat n'est jamais noté sans confirmation de la transcription. Le bouton **« Valider ma réponse sur la feuille »** continue d'afficher le corrigé et permet une **auto-évaluation assistée**, jamais une maîtrise autonome confirmée. Le clavier numérique et les QCM restent facultatifs selon l'exercice. Aucun abonnement ni service OCR payant.
 
+### Lire et vérifier une chaîne d'équations manuscrites (expérimental)
+
+Sur une **même page** du cahier, écris une égalité par ligne, par exemple : `2x+5=17`, `2x=12`, puis `x=6`. Utilise de grands symboles séparés. Appuie sur **« Lire mes équations manuscrites »**, puis relis attentivement la transcription proposée. Si elle est fidèle à ton écriture, appuie sur **« Oui, vérifier ces étapes »** : le contrôleur algébrique existant analyse les transformations et signale certaines erreurs d'équivalence. Si un symbole est incorrect, rejette la proposition et réécris-le, ou utilise le clavier mathématique facultatif.
+
+Ce premier lecteur local ne reconnaît que les chiffres, `x`, `+`, `−`, `=` et `/` pour des égalités simples. **Parenthèses, exposants, racines, fractions empilées et démonstrations manuscrites ne sont pas pris en charge.** La transcription doit être confirmée avant l'analyse ; une erreur non détectée ne prouve pas que la réponse convient à l'énoncé, et cette analyse **ne note pas la question**. La consultation d'une vérification en cours de quiz est comptée comme une aide, pas comme une maîtrise autonome. Le lecteur fonctionne hors ligne après mise en cache.
+
 ## Première séance
 
 1. Ouvrir le site et toucher **« Démarrer mon diagnostic »**. Jusqu'à dix questions sont proposées ; faire les calculs sans corrigé. Une erreur n'empêche pas de continuer.
