@@ -1,5 +1,8 @@
 # Atelier de maths — application web
 
+> **État réel au 13 novembre 2026 :** voir [le plan de stabilisation 1.0](../STABILISATION_V1.md). Les paragraphes historiques v2 à v27 décrivent les anciennes versions ; ils ne remplacent pas ce statut actuel. La synchronisation cloud facultative a été ajoutée après les sections historiques ; elle nécessite une connexion et une confirmation de synchronisation, et son inscription dépend des restrictions d'e-mail du service Supabase.
+
+
 **Site public :** https://daeu-b-maths-dbrckk.onrender.com
 
 Cette application complète les cours Markdown du dépôt. Elle contient **116 exercices fixes et 41 modèles à valeurs variables**, soit 157 éléments suivis dans 13 domaines couvrant les 20 jalons obligatoires du syllabus DAEU B SONATE Côte d'Azur 2026-2027. Les 3 jalons facultatifs sont traités dans les cours Markdown, mais ne disposent pas tous d'une banque de quiz indépendante. Le chapitre de trigonométrie comporte notamment trois problèmes rédigés et corrigés.
@@ -11,7 +14,7 @@ Cette application complète les cours Markdown du dépôt. Elle contient **116 e
 3. Répondre sans aide ; utiliser le cahier de calcul numérique pour poser les calculs, les équations et les rédactions directement dans l'application.
 4. Lire la correction seulement après validation. Un indice ou l'option « Je ne sais pas » sont disponibles.
 5. Revenir en mode « Révisions à effectuer » pour revoir les questions arrivées à échéance.
-6. La progression est enregistrée automatiquement en deux exemplaires locaux. Les options JSON restent facultatives (anciens appareils ou migration) ; une récupération après perte du téléphone exige encore un stockage cloud.
+6. La progression est enregistrée automatiquement en deux exemplaires locaux. Aucun export JSON n'est nécessaire au quotidien. Une connexion facultative depuis « Ma progression sur tous mes appareils » permet une synchronisation cloud lorsqu'elle est réellement active ; sans cette connexion, la perte du téléphone ou l'effacement complet des données du site efface les deux copies locales.
 
 ## Validation et rappels
 
@@ -46,8 +49,8 @@ L'outil accepte pour les questions numériques les écritures 3/4, 0,75, -1/2, 0
 
 ## Vie privée et hors ligne
 
-- Pas de compte, de publicité, de jeton, de bibliothèque externe ni de télémétrie.
-- Les résultats sont dans le stockage local du navigateur, sans synchronisation.
+- Aucun compte nécessaire pour étudier : pas de publicité, télémétrie ou SDK commercial. La clé publique Supabase est embarquée uniquement pour la synchronisation facultative.
+- La progression est conservée automatiquement localement (localStorage + IndexedDB) ; en cas de connexion volontaire à un compte, une copie cloud privée peut être synchronisée. La synchronisation effective doit être confirmée par son statut dans l'interface. Sans compte connecté, les données restent seulement sur cet appareil.
 - Le service worker précharge l'interface, les 18 cours, le moteur Markdown et le rendu MathML après la première visite HTTPS. Les annexes externes sur GitHub ne sont pas incluses.
 - Une corruption ou disparition de la copie localStorage peut être réparée automatiquement depuis IndexedDB, si la seconde copie subsiste. **L'effacement complet des données du site supprime les deux copies** ; la récupération sur un autre appareil n'est pas encore prise en charge.
 - Import JSON : version 2, remplacement de la progression existante après confirmation.
