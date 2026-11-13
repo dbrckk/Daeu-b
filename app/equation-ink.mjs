@@ -157,7 +157,7 @@ function transcription(parts){
     const value=readGlyph(group);
     if(!value)return null;
     const b=group.box;
-    const upper=previous&&value==="2"&&["x",")"].includes(previous.value)
+    const upper=previous&&/^\d$/.test(value)&&/^[0-9x)]$/.test(previous.value)
       &&height(b)>=15&&height(b)<height(previous.box)*.72
       &&b.bottom<previous.box.top+height(previous.box)*.62
       &&b.top<=previous.box.top+height(previous.box)*.24
