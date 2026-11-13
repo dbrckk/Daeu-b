@@ -23,7 +23,7 @@ export function parseFunctionLine(line){
   try{
     return {name:match[1],type,coefficients:parseDerivativePolynomial(match[3])};
   }catch(error){
-    if(/\b(?:sin|cos|exp|ln)\s*\(/iu.test(match[3]))
+    if(/(?:sin|cos|exp|ln)\s*\(/iu.test(match[3]))
       return {name:match[1],type,elementary:parseElementaryFunction(match[3])};
     if(type==="derivative"&&match[3].includes("/"))
       return {name:match[1],type,elementary:parseElementaryQuotient(match[3])};
