@@ -91,6 +91,8 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-preview-body mi").count()>=3,
       "Dérivée trigonométrique : notation de fonction structurée en MathML");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    const trigReview=await firstPage.locator("#quizNotebook .math-notebook-review-list li").evaluateAll(items=>items.map(item=>({kind:item.dataset.result,text:item.textContent})));
+    console.log("TRACE dérivation trigonométrique Android :",JSON.stringify(trigReview));
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
       &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
       "Règle de chaîne Android : coefficient manquant détecté puis corrigé");
