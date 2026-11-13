@@ -4,11 +4,11 @@
  * édition / reprise déterministes et sauvegarde cloud de la même progression.
  */
 export const WORKBOOK_VERSION=1;
-export const PAPER_WIDTH=600;
-export const PAPER_HEIGHT=800;
+export const PAPER_WIDTH=900;
+export const PAPER_HEIGHT=1200;
 export const MAX_WORKBOOK_BYTES=650_000;
 const KEY_PATTERN=/^[A-Za-z0-9:_.-]{1,130}$/;
-const STROKE_PATTERN=/^\d{1,3},\d{1,3}(;\d{1,3},\d{1,3}){0,299}$/;
+const STROKE_PATTERN=/^\d{1,4},\d{1,4}(;\d{1,4},\d{1,4}){0,299}$/;
 
 export const emptyWorkbook=()=>({version:WORKBOOK_VERSION,entries:{}});
 export const blankWork=()=>({text:"",pages:[[]]});
