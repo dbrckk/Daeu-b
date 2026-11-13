@@ -293,7 +293,7 @@
 .math-notebook-pages{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:10px 0}
 .math-notebook-pages button{min-height:42px}
 .math-notebook-page-indicator{margin-left:auto}
-.math-notebook-sheet-viewport{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:2px solid #8398b0;border-radius:8px;background:#fff;scrollbar-width:thin}
+.math-notebook-sheet-viewport{width:100%;max-width:100%;max-height:min(74vh,760px);overflow:auto;overscroll-behavior:contain;border:2px solid #8398b0;border-radius:8px;background:#fff;scrollbar-width:thin}
 .math-notebook-canvas{display:block;width:840px;max-width:none;height:auto;aspect-ratio:3 / 4;background:white;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
 .math-notebook-canvas.is-panning{touch-action:pan-x pan-y;cursor:grab}
 .math-notebook-view-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
