@@ -168,12 +168,15 @@ export function checkMathSteps(text){
       catch(error){
         unsupported++;
         if(!/^\s*[fgh]\s*['’′]/u.test(input))definition=null;
-        entries.push({line,kind:"unsupported",message:"Fonction non vérifiée : "+error.message+". Utilise un polynôme de degré 0 à 6 en x."});
+        entries.push({line,kind:"unsupported",message:"Fonction non vérifiée : "+error.message+". Utilise un polynôme de degré 0 à 6, ou c·sin(ax+b), c·cos(ax+b), c·exp(ax+b), c·ln(ax+b) avec une constante facultative."});
         continue;
       }
       if(statement.type==="definition"){
         definition=statement;checked++;
-        entries.push({line,kind:"info",message:"Fonction "+statement.name+" reconnue. Règle : (a·x^n)' = n·a·x^(n−1). Écris ensuite "+statement.name+"'(x) = ... pour vérifier ta dérivée."});
+        const scope=statement.elementary
+          ?"Fonction élémentaire reconnue. La règle de chaîne et le domaine éventuel seront contrôlés lors de la vérification de sa dérivée."
+          :"Polynôme reconnu. Règle : (a·x^n)' = n·a·x^(n−1).";
+        entries.push({line,kind:"info",message:scope+" Écris ensuite "+statement.name+"'(x) = ... pour vérifier ta dérivée."});
       }else if(!definition||definition.name!==statement.name){
         unsupported++;
         entries.push({line,kind:"unsupported",message:"Dérivée non vérifiée : écris d'abord "+statement.name+"(x) = ... puis "+statement.name+"'(x) = ... sans ligne vide."});
