@@ -1,5 +1,14 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## Candidat 1.0 — priorité au démarrage (13 novembre 2026)
+
+- Déploiement Render v34 confirmé `live` sur `c250579`, avec 163 tests Node réussis et parcours Chromium mobile/hors ligne réussi avant fusion.
+- Contrôle public corrigé : comparaison de la version du cache PWA publiée à celle de `app/sw.js`, au lieu de l'ancien numéro `v33` codé en dur. Tests unitaires du moniteur ajoutés.
+- Projet Supabase de progression **actif**, table `daeu_b_progress` protégée par trois politiques RLS de propriété utilisateur, aucun avis de sécurité à l'inspection. Le fonctionnement de l'inscription e-mail et la restauration sur un second téléphone ne sont **pas encore validés en production** ; la configuration SMTP gratuite peut limiter les inscriptions.
+- Cette version est **prête pour commencer les mathématiques maintenant**. La qualification `1.0 stable vérifiée` exige encore la clôture des critères P0 documentés dans [STABILISATION_V1.md](STABILISATION_V1.md).
+- Les sections historiques ci-dessous décrivent leur état à leur date respective ; les notes antérieures à la fonctionnalité cloud ne doivent pas être lues comme le statut actuel.
+
+
 ## v34 — dérivées usuelles sur Android (13 novembre 2026)
 
 - Le cahier numérique conserve les contrôles polynomiaux exacts et ajoute un **périmètre limité de dérivées élémentaires** : sin, cos, exp et ln d'un argument affine, multipliés par un rationnel, avec constante facultative.
