@@ -7,6 +7,7 @@
  * sont signalées comme non vérifiées et JAMAIS validées par approximation.
  */
 import {classifyPolynomialEquality,sameRealSolutions} from "./quadratic-checker.mjs";
+import {isFunctionNotation,parseFunctionLine,checkDerivativeCandidate} from "./derivative-checker.mjs";
 
 const MAX_LINE=180;
 const MAX_LINES=40;
@@ -153,11 +154,41 @@ export function checkMathSteps(text){
   const lines=String(text??"").split(/\r?\n/);
   if(lines.length>MAX_LINES)
     return {entries:[{line:0,kind:"unsupported",message:"Vérifie au maximum 40 lignes à la fois ; sépare ton travail en plusieurs séances."}],checked:0,errors:0,unsupported:1};
-  const entries=[];let previous=null,previousLine=0,checked=0,errors=0,unsupported=0;
+  const entries=[];let previous=null,previousLine=0,checked=0,errors=0,unsupported=0,definition=null;
   for(let i=0;i<lines.length;i++){
     const input=lines[i].trim(),line=i+1;
-    if(!input){previous=null;continue;}
-    if(!input.includes("=")){previous=null;continue;}
+    if(!input){previous=null;definition=null;continue;}
+    if(!input.includes("=")){previous=null;definition=null;continue;}
+    if(isFunctionNotation(input)){
+      // Conserver la définition valide comme seule référence, y compris
+      // après une tentative de dérivation incorrecte.
+      previous=null;
+      let statement;
+      try{statement=parseFunctionLine(input);}
+      catch(error){
+        unsupported++;
+        if(!/^\s*[fgh]\s*['’′]/u.test(input))definition=null;
+        entries.push({line,kind:"unsupported",message:"Fonction non vérifiée : "+error.message+". Utilise un polynôme de degré 0, 1 ou 2 en x."});
+        continue;
+      }
+      if(statement.type==="definition"){
+        definition=statement;checked++;
+        entries.push({line,kind:"info",message:"Fonction "+statement.name+" reconnue. Règle : (ax² + bx + c)' = 2ax + b. Écris ensuite "+statement.name+"'(x) = ... pour vérifier ta dérivée."});
+      }else if(!definition||definition.name!==statement.name){
+        unsupported++;
+        entries.push({line,kind:"unsupported",message:"Dérivée non vérifiée : écris d'abord "+statement.name+"(x) = ... puis "+statement.name+"'(x) = ... sans ligne vide."});
+      }else{
+        const review=checkDerivativeCandidate(definition,statement);checked++;
+        if(review.correct)
+          entries.push({line,kind:"ok",message:"Dérivée exacte : "+review.expected+". "+review.rule});
+        else{
+          errors++;
+          entries.push({line,kind:"error",message:"Dérivée incorrecte : "+review.actual+". Résultat attendu : "+review.expected+". "+review.rule+" Vérifie le coefficient de x², les signes et la disparition de la constante."});
+        }
+      }
+      continue;
+    }
+    definition=null;
     let result;
     try{result=classifyEquality(input);}
     catch(error){

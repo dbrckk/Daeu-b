@@ -100,3 +100,23 @@ test("second degré : rejette les saisies non sûres sans perdre la référence 
  assert.equal(review.unsupported,1);
  assert.equal(review.errors,0);
 });
+
+test("Dérivées : erreur, correction et référence non contaminée",()=>{
+ const result=checkMathSteps("f(x) = 3x² - 2x + 1\nf'(x)=3x-2\nf'(x)=6x-2");
+ assert.deepEqual(result.entries.map(e=>e.kind),["info","error","ok"]);
+ assert.equal(result.errors,1);
+ assert.match(result.entries[1].message,/6x − 2/);
+});
+test("Dérivées rationnelles et fonctions constantes",()=>{
+ assert.deepEqual(checkMathSteps("g(x) = x²/2 + 3x\ng'(x) = x + 3").entries.map(e=>e.kind),["info","ok"]);
+ assert.deepEqual(checkMathSteps("f(x) = 8\nf'(x) = 0").entries.map(e=>e.kind),["info","ok"]);
+ assert.deepEqual(checkMathSteps("f(x) = -x² + 5\nf'(x) = -2x").entries.map(e=>e.kind),["info","ok"]);
+});
+test("Dérivées sans définition, séparées ou non polynomiales non validées",()=>{
+ assert.equal(checkMathSteps("f'(x)=6x-2").unsupported,1);
+ assert.equal(checkMathSteps("f(x)=x²\n\nf'(x)=2x").unsupported,1);
+ assert.equal(checkMathSteps("f(x)=x^3\nf'(x)=3x²").unsupported,2);
+ assert.equal(checkMathSteps("f(x)=x²\ng'(x)=2x").unsupported,1);
+ assert.equal(checkMathSteps("f(x)=x²\nx=2\nf'(x)=2x").unsupported,1);
+ assert.deepEqual(checkMathSteps("f(x)=x²\nf'(x)=2x\nf'(x)=x").entries.map(e=>e.kind),["info","ok","error"]);
+});
