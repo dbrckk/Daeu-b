@@ -282,6 +282,53 @@ try {
       return s.round.completed===1&&s.practice.items[s.round.ids[0]]?.assisted===1;
     }),"La progression manuscrite auto-évaluée est restaurée après rechargement");
   }finally{await manualContext.close();}
+  // Lecteur numérique réel : écriture au doigt sur la grande feuille,
+  // transcription confirmée et correction sans toucher au champ de réponse.
+  const inkContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const inkPage=await inkContext.newPage();
+    inkPage.on("pageerror",error=>errors.push("Reconnaissance numérique : "+error.message));
+    await inkPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await inkPage.locator("#topic").selectOption("nombres");
+    await inkPage.locator("#start").click();
+    await check(async()=>await inkPage.locator("#numericAnswer").isVisible()
+      &&await inkPage.locator("#quizNotebook .math-notebook-recognition").isVisible()
+      &&await inkPage.locator("#answer").inputValue().then(t=>t===""),
+      "Réponse numérique : lecture manuscrite proposée sans clavier ni compte");
+    await inkPage.locator("#quizNotebook .math-notebook-recognition>button").click();
+    await check(async()=>await inkPage.locator("#quizNotebook .math-notebook-recognition [role=status]")
+      .textContent().then(t=>t.includes("Feuille vide"))
+      &&await inkPage.locator("#quizNotebook .math-notebook-recognition-candidate").isHidden(),
+      "Reconnaissance : une feuille vierge ne donne jamais une réponse inventée");
+    await inkPage.locator("#quizNotebook .math-notebook-sheet-viewport")
+      .scrollIntoViewIfNeeded();
+    const inkBox=await inkPage.locator("#quizNotebook .math-notebook-sheet-viewport").boundingBox();
+    assert.ok(inkBox&&inkBox.width>150,"Feuille de lecture numérique inaccessible sur Android");
+    await inkPage.mouse.move(inkBox.x+85,inkBox.y+56);
+    await inkPage.mouse.down();
+    await inkPage.mouse.move(inkBox.x+85,inkBox.y+194,{steps:12});
+    await inkPage.mouse.up();
+    await inkPage.locator("#quizNotebook .math-notebook-recognition>button").click();
+    await check(async()=>await inkPage.locator("#quizNotebook .math-notebook-recognition-candidate>strong")
+      .textContent().then(t=>t.includes("Lecture proposée : 1"))
+      &&await inkPage.locator("#quizNotebook .math-notebook-manual-comparison").isHidden()
+      &&await inkPage.evaluate(()=>{
+        const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        return state.round.completed===0;
+      }),
+      "Nombre manuscrit lu sur Android : transcription proposée sans révéler le corrigé ni noter d'office");
+    await inkPage.locator("#quizNotebook .math-notebook-recognition-actions .primary").click();
+    await check(async()=>await inkPage.evaluate(()=>{
+      const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const id=state.round.ids[0],answer=state.practice.items[id];
+      return state.round.completed===1&&answer?.attempts===1
+        &&state.workbook.entries["quiz:"+id]?.pages[0]?.length===1;
+    })&&await inkPage.locator("#answer").inputValue().then(t=>t==="")
+      &&await inkPage.locator("#feedback").isVisible(),
+      "Correction réelle d'un chiffre manuscrit confirmé, avec trace et progression enregistrées");
+  }finally{await inkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
