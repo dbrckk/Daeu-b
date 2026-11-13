@@ -331,7 +331,7 @@ function renderQuestion() {
       label.append(input,text);el("choiceList").appendChild(label);
     });
     el("choiceList").querySelector("input")?.focus();
-  } else el("answer").focus();
+  } else el("quizNotebook").querySelector("canvas")?.focus({preventScroll:true});
 }
 
 function showFeedback(correct,wasUnknown=false,manual=false) {
@@ -341,7 +341,7 @@ function showFeedback(correct,wasUnknown=false,manual=false) {
     correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
   const expected=q.type==="number"?fmt(q.answer):q.answer;
   el("feedbackText").textContent=manual?
-    "Auto-évaluation enregistrée : le tracé manuscrit n'a pas été reconnu par ordinateur et cette réponse n'attribue pas de maîtrise autonome.\\n\\nRéponse attendue : "+expected+"\\n\\n"+q.explanation:
+    "Auto-évaluation enregistrée : le tracé manuscrit n'a pas été reconnu par ordinateur et cette réponse n'attribue pas de maîtrise autonome.\n\nRéponse attendue : "+expected+"\n\n"+q.explanation:
     (correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\\n\\n")+q.explanation;
   el("lessonLink").href=courseUrl(q.lesson);
   el("answerForm").hidden=true;
