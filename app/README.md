@@ -8,7 +8,7 @@ Cette application complète les cours Markdown du dépôt. Elle contient **116 e
 
 1. Ouvrir le site dans Chrome ou un navigateur récent.
 2. Choisir un chapitre ou « Tous les chapitres », puis « Découverte et consolidation ».
-3. Répondre sans aide ; utiliser papier et stylo pour les calculs.
+3. Répondre sans aide ; utiliser le cahier de calcul numérique pour poser les calculs, les équations et les rédactions directement dans l'application.
 4. Lire la correction seulement après validation. Un indice ou l'option « Je ne sais pas » sont disponibles.
 5. Revenir en mode « Révisions à effectuer » pour revoir les questions arrivées à échéance.
 6. La progression est enregistrée automatiquement en deux exemplaires locaux. Les options JSON restent facultatives (anciens appareils ou migration) ; une récupération après perte du téléphone exige encore un stockage cloud.
@@ -39,6 +39,8 @@ Depuis la v11, la page comprend **deux sujets fixes originaux A et B, ainsi que 
 **Tolérance des approximations :** 1e-6 × max(1, |réponse|) ; pour les valeurs irrationnelles, fournir au moins 6 décimales (par ex. ln 3 ≈ 1,098612).
 
 ## Réponses acceptées
+
+Le cahier de calcul vérifie les dérivées de polynômes de degré 0 à 6 et certaines fonctions usuelles : c·sin(ax+b), c·cos(ax+b), c·exp(ax+b), c·ln(ax+b) + constante, avec coefficients rationnels et argument affine. Pour ln, le domaine ax+b > 0 doit être respecté. Les autres expressions, les démonstrations et la rédaction ne sont pas corrigées automatiquement. Des modèles tactiles permettent de saisir ces dérivées sans papier.
 
 L'outil accepte pour les questions numériques les écritures 3/4, 0,75, -1/2, 0.5 et les entiers. Tolérance : 1e-6 fois le maximum de 1 et de la valeur absolue de la réponse. Les questions symboliques sont proposées en QCM : il n'y a **pas de moteur d'algèbre symbolique**.
 
