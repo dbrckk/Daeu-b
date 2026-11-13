@@ -20,6 +20,14 @@ Pour une question demandant **un nombre** : écris la réponse finale **seule** 
 
 **Limite essentielle :** il ne s'agit **pas** encore d'un modèle de reconnaissance générale des mathématiques : équations sur plusieurs lignes, fractions empilées, dérivées et démonstrations manuscrites ne sont pas corrigées depuis les traits. Un résultat n'est jamais noté sans confirmation de la transcription. Le bouton **« Valider ma réponse sur la feuille »** continue d'afficher le corrigé et permet une **auto-évaluation assistée**, jamais une maîtrise autonome confirmée. Le clavier numérique et les QCM restent facultatifs selon l'exercice. Aucun abonnement ni service OCR payant.
 
+### Correction de la feuille et des symboles reconnus (v41)
+
+La **gomme à un trait** permet de toucher un trait erroné pour l'effacer sans effacer le reste de la page. Utilise « Annuler l'effacement » si nécessaire, puis « Reprendre le stylo ». Le cahier est sauvegardé automatiquement.
+
+Quand l'analyse des équations ne comprend pas une partie de la copie, la transcription apparaît avec des **□** pour les symboles illisibles. Ouvre **« Corriger les symboles reconnus sans clavier »** : touche le caractère erroné, puis le bon symbole proposé à l'écran. Des boutons permettent de supprimer un caractère, d'en insérer un à droite ou de commencer une nouvelle ligne. Le manuscrit original est conservé.
+
+**Aucune formule partiellement reconnue n'est notée.** Après la correction tactile, relis chaque ligne avant de faire analyser tes étapes ou de faire corriger la réponse finale. Les fractions générales, racines et démonstrations restent hors du périmètre de reconnaissance. La correction tactile n'est pas un modèle de reconnaissance universelle.
+
 ### Lire et vérifier une chaîne d'équations manuscrites (expérimental)
 
 Sur une **même page** du cahier, écris une égalité par ligne, par exemple : `2x+5=17`, `2x=12`, puis `x=6`. Utilise de grands symboles séparés. Appuie sur **« Lire mes équations manuscrites »**, puis relis attentivement la transcription proposée. Si elle est fidèle à ton écriture, appuie sur **« Oui, vérifier ces étapes »** : le contrôleur algébrique existant analyse les transformations et signale certaines erreurs d'équivalence. Si un symbole est incorrect, rejette la proposition et réécris-le, ou utilise le clavier mathématique facultatif.
