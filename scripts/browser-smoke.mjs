@@ -376,6 +376,19 @@ try {
         return state.round.completed===0&&state.round.assistedIds.includes(state.round.ids[0]);
       })&&await equationPage.locator("#answer").inputValue().then(t=>t===""),
       "Vérification manuscrite : retour algébrique, aide persistée et quiz non validé à tort");
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations-final").isVisible()
+      &&await equationPage.locator("#quizNotebook .math-notebook-equations-final button")
+        .textContent().then(t=>t.includes("x = 1")),
+      "Résultat final manuscrit x=1 proposé sans nouveau champ de saisie");
+    await equationPage.locator("#quizNotebook .math-notebook-equations-final button").click();
+    await check(async()=>await equationPage.evaluate(()=>{
+      const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const id=state.round.ids[0],row=state.practice.items[id];
+      return state.round.completed===1&&row?.attempts===1&&row?.assisted===Number(row.correct>0)
+        &&state.workbook.entries["quiz:"+id]?.pages[0]?.length===5;
+    })&&await equationPage.locator("#answer").inputValue().then(t=>t==="")
+      &&await equationPage.locator("#feedback").isVisible(),
+      "Le résultat final écrit uniquement au doigt est corrigé et sauvegardé sans ressaisie");
   }finally{await equationContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
