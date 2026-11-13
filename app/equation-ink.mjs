@@ -144,7 +144,7 @@ function foldFractions(paths){
     const a=recognizeNumericInk([encodeStroke(upper[0].paths[0])]);
     const b=recognizeNumericInk([encodeStroke(lower[0].paths[0])]);
     if(a.status!=="recognized"||b.status!=="recognized"
-      ||!/^\\d$/.test(a.text)||!/^\\d$/.test(b.text)||b.text==="0")continue;
+      ||!/^\d$/.test(a.text)||!/^\d$/.test(b.text)||b.text==="0")continue;
     used.add(bar.id);used.add(upper[0].id);used.add(lower[0].id);
     found.push({paths:[...upper[0].paths,...bar.paths,...lower[0].paths],
       preRead:a.text+"/"+b.text});
@@ -183,11 +183,11 @@ export function recognizeEquationInk(page){
     if(parts.length>MAX_GLYPHS)return {status:"unsupported",message:"Ligne trop longue pour le lecteur actuel (32 caractères maximum)."};
     const text=transcription(parts);
     if(!text)return {status:"uncertain",message:"Un symbole est ambigu : réécris-le en grand ou utilise le clavier facultatif. Aucun corrigé n'a été dévoilé."};
-    if(!/^[0-9x+\\-=./()^]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean))
+    if(!/^[0-9x+=./()^-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean))
       return {status:"unsupported",message:"Écris une égalité simple par ligne avec chiffres, x, +, −, =, /, parenthèses et exposant 2."};
     let depth=0;
     for(const ch of text){if(ch==="(")depth++;if(ch===")")depth--;if(depth<0)break;}
-    if(depth!==0||/\\^(?!2(?:[^0-9]|$))/.test(text))
+    if(depth!==0||(text.match(/\^[0-9]+/g)||[]).some(power=>power!=="^2"))
       return {status:"unsupported",message:"Parenthèses ou exposant ambigus : réécris la ligne."};
     texts.push(text);
   }
