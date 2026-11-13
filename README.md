@@ -13,16 +13,17 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 - **116 questions fixes + 41 modèles paramétriques (157 emplacements)**, répartis entre 13 domaines couvrant les **20 jalons obligatoires** de SONATE 2026-2027.
 - Réponses numériques (fractions ou décimaux) et choix multiples, indices et correction immédiate. Les **41 modèles variables** régénèrent de nouveaux nombres et de nouvelles corrections aux rappels.
 - Révisions espacées J+1, J+3, J+7, J+14 et J+30 ; acquisition uniquement après des réponses autonomes sur des jours distincts, **sans indice**, avec énoncés différents pour les exercices variables.
-- Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte ni serveur de données : une seconde copie locale IndexedDB est créée automatiquement, sans export manuel pour l'utilisation courante. Une synchronisation cloud par compte est désormais disponible et facultative dans l'application ; sans connexion cloud effectivement activée, la perte de l'appareil ou l'effacement complet des données du site fait perdre les deux copies locales.
+- Suivi et copies enregistrés **dans une même transaction locale** : import et réinitialisation tout-ou-rien, migration des anciennes données, avertissement lorsqu'un autre onglet modifie la progression. Aucun compte obligatoire : une seconde copie locale IndexedDB est créée automatiquement, sans export manuel pour l'utilisation courante. Une synchronisation cloud par compte est désormais disponible et facultative dans l'application ; sans connexion cloud effectivement activée, la perte de l'appareil ou l'effacement complet des données du site fait perdre les deux copies locales.
 - Site statique gratuit et léger (**sans dépendances à l'exécution**), hébergé sur **Render avec URL permanente**, déploiement automatique depuis `main` et vérification Node.js bloquante avant publication ; le code reste dans [app/](app/).
 - **[Cinq examens blancs interactifs](https://daeu-b-maths-dbrckk.onrender.com/#exam-title)** : A et B fixes, **C, D et E générés avec de nouvelles valeurs** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **grilles guidées de 16 étapes par sujet**, auto-évaluation et diagnostic des points perdus.
 - [Guide des examens chronométrés, sujets variables et limites de la correction automatique](examens/guide-interactif.md).
+- **Problèmes rédigés sur téléphone :** [8 problèmes guidés](https://daeu-b-maths-dbrckk.onrender.com/problems.html) et [60 situations de transfert A/B/C](https://daeu-b-maths-dbrckk.onrender.com/problems.html?set=transferts), accessibles depuis l'accueil et avec cahier numérique.
 - [Notice de fonctionnement et limites](app/README.md).
 - [Rapport de stabilisation, tests Chromium mobile et procédure d'installation](RELEASE.md).
 - [Contrôle automatique quotidien de disponibilité](.github/workflows/live-health.yml) de l'URL permanente, du manifeste PWA et des ressources principales.
 - **Progression :** si tu arrives d'une ancienne adresse ShipStatic, [exporte puis importe ton suivi JSON](app/README.md#changer-dadresse-ou-de-téléphone). Ensuite, toutes les prochaines mises à jour Render conservent **le même domaine** et donc le même stockage local. Les copies d'examen sont incluses.
 
-> La réussite à un QCM n'est pas la preuve d'une maîtrise. Les démonstrations, problèmes et examens sur papier restent indispensables.
+> La réussite à un QCM n'est pas la preuve d'une maîtrise. Pendant la préparation, rédiger les démonstrations, problèmes et examens blancs dans le cahier numérique intégré, sans papier. La notation automatique ne certifie pas la qualité d'une preuve libre ; à l'épreuve officielle, suivre les consignes de l'université.
 
 ## Démarrer ici
 
