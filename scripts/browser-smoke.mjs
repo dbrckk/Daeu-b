@@ -329,6 +329,54 @@ try {
       &&await inkPage.locator("#feedback").isVisible(),
       "Correction réelle d'un chiffre manuscrit confirmé, avec trace et progression enregistrées");
   }finally{await inkContext.close();}
+  // Analyse d'une véritable écriture multi-traits au doigt : x=1.
+  const equationContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const equationPage=await equationContext.newPage();
+    equationPage.on("pageerror",error=>errors.push("Équations manuscrites : "+error.message));
+    await equationPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await equationPage.locator("#firstStart").click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations>button").isVisible()
+      &&await equationPage.locator("#quizNotebook .math-notebook-equations-candidate").isHidden(),
+      "Équations manuscrites : vérification disponible sans renseigner le champ de réponse");
+    await equationPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations [role=status]").first()
+      .textContent().then(t=>t.includes("aucun tracé")),
+      "Une feuille vierge ne produit aucune transcription d'équation");
+    const viewport=equationPage.locator("#quizNotebook .math-notebook-sheet-viewport");
+    await viewport.scrollIntoViewIfNeeded();
+    const bounds=await viewport.boundingBox();
+    assert.ok(bounds&&bounds.width>=200,"Feuille d'équations invisible");
+    const stroke=async(points)=>{
+      await equationPage.mouse.move(bounds.x+points[0][0],bounds.y+points[0][1]);
+      await equationPage.mouse.down();
+      for(const [x,y] of points.slice(1))
+        await equationPage.mouse.move(bounds.x+x,bounds.y+y,{steps:8});
+      await equationPage.mouse.up();
+    };
+    await stroke([[35,56],[81,130]]);
+    await stroke([[81,56],[35,130]]);
+    await stroke([[105,80],[151,80]]);
+    await stroke([[105,101],[151,101]]);
+    await stroke([[180,56],[180,130]]);
+    await equationPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=1")
+      &&await equationPage.locator("#quizNotebook .math-notebook-equations-candidate").isVisible()
+      &&await equationPage.locator("#feedback").isHidden(),
+      "Le stylet trace x=1 ; la transcription est présentée sans dévoiler la réponse");
+    await equationPage.locator("#quizNotebook .math-notebook-equations-candidate button.primary").click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback").isVisible()
+      &&await equationPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
+        .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)"))
+      &&await equationPage.evaluate(()=>{
+        const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        return state.round.completed===0&&state.round.assistedIds.includes(state.round.ids[0]);
+      })&&await equationPage.locator("#answer").inputValue().then(t=>t===""),
+      "Vérification manuscrite : retour algébrique, aide persistée et quiz non validé à tort");
+  }finally{await equationContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
