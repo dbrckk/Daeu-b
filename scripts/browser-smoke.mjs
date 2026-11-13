@@ -367,7 +367,7 @@ try {
       &&await equationPage.locator("#quizNotebook .math-notebook-equations-candidate").isVisible()
       &&await equationPage.locator("#feedback").isHidden(),
       "Le stylet trace x=1 ; la transcription est présentée sans dévoiler la réponse");
-    await equationPage.locator("#quizNotebook .math-notebook-equations-candidate button.primary").click();
+    await equationPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
     await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback").isVisible()
       &&await equationPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
         .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)"))
