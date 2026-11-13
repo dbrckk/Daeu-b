@@ -29,7 +29,7 @@ test("Constantes, identifiant de fonction et limites de syntaxe",()=>{
  assert.equal(formatPolynomial(parsePolynomial("-x²+2x-1")),"−x² + 2x − 1");
  assert.equal(isFunctionNotation("f'(x) = 2x"),true);
  assert.equal(isFunctionNotation("2x = 4"),false);
- for(const line of ["f(x)=x^7","f(x)=sin(x)","f'(x)=1/x","f''(x)=2","f(x)=eval(1)","f(y)=x²","f(x)=x²=2"])
+ for(const line of ["f(x)=x^7","f(x)=sin(x²)","f'(x)=1/(x²+1)","f''(x)=2","f(x)=eval(1)","f(y)=x²","f(x)=x²=2"])
   assert.throws(()=>parseFunctionLine(line),line);
  assert.throws(()=>checkDerivativeCandidate(parseFunctionLine("f(x)=x²"),parseFunctionLine("g'(x)=2x")));
 });
