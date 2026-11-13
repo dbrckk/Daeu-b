@@ -196,6 +196,82 @@ try {
       JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(original),afterAnswerRound),
       "La réponse assistée et la question suivante sont restaurées sans fichier manuel");
   }finally{await firstContext.close();}
+  // Sur mobile, remettre une copie tracée au doigt SANS saisir une réponse
+  // dans le formulaire ; la comparaison reste une auto-évaluation non certifiée.
+  const manualContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const manualPage=await manualContext.newPage();
+    manualPage.on("pageerror",error=>errors.push("Feuille manuscrite : "+error.message));
+    await manualPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await manualPage.locator("#firstStart").click();
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual>button").isVisible()
+      &&await manualPage.locator("#answer").inputValue().then(value=>value==="")
+      &&await manualPage.locator("#choiceList input:checked").count()===0,
+      "Manuscrit : bouton de validation disponible sans saisie de réponse séparée");
+    await check(async()=>await manualPage.evaluate(()=>{
+      const viewport=document.querySelector("#quizNotebook .math-notebook-sheet-viewport");
+      const canvas=viewport?.querySelector("canvas");
+      return viewport&&canvas&&canvas.getBoundingClientRect().width>=800
+        &&viewport.clientWidth<400&&viewport.scrollWidth>viewport.clientWidth*1.5;
+    }),"Grande feuille : surface de 840 px, défilement horizontal sans réduire l'écriture");
+    await manualPage.locator("#quizNotebook .math-notebook-manual>button").click();
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual [role=status]")
+      .textContent().then(text=>text.includes("Trace d'abord"))
+      &&await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").isHidden(),
+      "Validation manuscrite : une feuille encore vide ne révèle pas le corrigé");
+    await manualPage.evaluate(()=>{
+      document.querySelector("#quizNotebook .math-notebook-sheet-viewport")
+        .scrollIntoView({block:"start",behavior:"instant"});
+    });
+    const sheetBox=await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport").boundingBox();
+    assert.ok(sheetBox&&sheetBox.width>200,"Surface manuscrite non affichée");
+    await manualPage.mouse.move(sheetBox.x+38,sheetBox.y+65);
+    await manualPage.mouse.down();
+    await manualPage.mouse.move(sheetBox.x+180,sheetBox.y+116,{steps:8});
+    await manualPage.mouse.up();
+    await check(async()=>await manualPage.evaluate(()=>{
+      const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const firstId=s.round.ids[0];
+      return s.workbook.entries["quiz:"+firstId]?.pages[0]?.length===1;
+    }),"Une équation tracée sur la grande feuille est enregistrée automatiquement");
+    await manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Vers la droite"}).click();
+    await manualPage.waitForFunction(()=>document.querySelector("#quizNotebook .math-notebook-sheet-viewport")?.scrollLeft>40);
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport")
+      .evaluate(el=>el.scrollLeft>40),"La navigation horizontale révèle la suite d'une longue équation");
+    await manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Descendre"}).click();
+    await manualPage.waitForFunction(()=>document.querySelector("#quizNotebook .math-notebook-sheet-viewport")?.scrollTop>40);
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport")
+      .evaluate(el=>el.scrollTop>40),"Navigation verticale : les longues résolutions restent accessibles sur petit écran");
+    const moveButton=manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Déplacer au doigt"});
+    await moveButton.click();
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-view-tools button[aria-pressed=true]").count()===1
+      &&await manualPage.locator("#quizNotebook canvas.is-panning").count()===1,
+      "Le mode déplacement permet de parcourir la feuille sans nouveau trait");
+    await manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Reprendre le stylo"}).click();
+    await manualPage.locator("#quizNotebook .math-notebook-manual>button").click();
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").isVisible()
+      &&await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").textContent()
+        .then(t=>t.includes("Réponse attendue")&&t.includes("Correction détaillée")),
+      "Validation sur feuille : corrigé dévoilé après le tracé uniquement");
+    await manualPage.locator("#quizNotebook .math-notebook-manual-decisions button").filter({hasText:"Oui, ma réponse correspond"}).click();
+    await check(async()=>await manualPage.evaluate(()=>{
+      const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const id=s.round.ids[0],row=s.practice.items[id];
+      return s.round.completed===1&&s.round.assistedIds.includes(id)
+        &&row?.attempts===1&&row?.correct===1&&row?.assisted===1
+        &&!row?.confirmed&&row?.streak===0
+        &&s.workbook.entries["quiz:"+id]?.pages[0]?.length===1;
+    })&&await manualPage.locator("#feedbackTitle").textContent().then(t=>t.includes("manuscrite déclarée correcte"))
+      &&await manualPage.locator("#answer").inputValue().then(t=>t===""),
+      "Réponse manuscrite validée et conservée sans ressaisie ni maîtrise automatique fictive");
+    await manualPage.reload({waitUntil:"networkidle"});
+    await check(async()=>await manualPage.evaluate(()=>{
+      const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      return s.round.completed===1&&s.practice.items[s.round.ids[0]]?.assisted===1;
+    }),"La progression manuscrite auto-évaluée est restaurée après rechargement");
+  }finally{await manualContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");

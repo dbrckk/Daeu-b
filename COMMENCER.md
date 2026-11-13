@@ -4,6 +4,19 @@
 
 Prévoir un smartphone Android (ou un PC) et environ 20 à 30 minutes. Le cahier de calcul intégré permet de poser les opérations sans papier. Aucun compte, paiement ou installation n'est requis. Il s'agit d'une préparation, pas d'une inscription administrative ni d'une délivrance du diplôme.
 
+## Valider en écrivant uniquement sur la feuille virtuelle
+
+Le questionnaire contient maintenant une **grande feuille quadrillée** (840 px de largeur d'affichage, défilante horizontalement sur téléphone). Écris tes opérations ou tes longues équations directement au doigt/stylet ; déplace la feuille avec les flèches ou active **Déplacer au doigt**, puis reviens à **Reprendre le stylo**. Chaque trait et chaque page sont sauvegardés automatiquement.
+
+Pour remettre une réponse **sans recopier le résultat dans un autre champ** :
+
+1. Trace au moins un trait de réponse sur la feuille.
+2. Appuie sur **Valider ma feuille manuscrite** sous la feuille.
+3. Compare ton travail avec la réponse attendue et son explication.
+4. Choisis **Oui, ma réponse correspond** ou **Non, je dois retravailler** ; la question est validée dans la séance et la progression est enregistrée.
+
+**Limite essentielle :** le navigateur ne reconnaît pas automatiquement la valeur mathématique des traits manuscrits. Cette validation est une **auto-évaluation**, comptabilisée comme assistée après consultation du corrigé et **jamais comme une maîtrise autonome confirmée**. Pour une correction automatique objective des questions de quiz, la saisie numérique ou le QCM reste disponible sous la feuille. La saisie de texte et le vérificateur de certaines étapes sont facultatifs. Aucun abonnement ni service OCR payant.
+
 ## Première séance
 
 1. Ouvrir le site et toucher **« Démarrer mon diagnostic »**. Jusqu'à dix questions sont proposées ; faire les calculs sans corrigé. Une erreur n'empêche pas de continuer.

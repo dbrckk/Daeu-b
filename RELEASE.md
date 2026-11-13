@@ -1,5 +1,14 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v36 — grande feuille et remise manuscrite sans ressaisie (13 novembre 2026)
+
+- Sur les quiz, le cahier propose une surface d'écriture de 840 px, débordant horizontalement dans une zone de défilement, avec flèches et mode déplacement tactile. Le format de sauvegarde des traits reste 600 × 800 pour conserver les copies existantes ; seule leur échelle affichée change. Huit pages par activité restent disponibles.
+- Écrire au doigt/stylet, puis toucher « Valider ma feuille manuscrite » : l'application refuse une feuille entièrement vierge, révèle la réponse attendue et son explication, puis propose deux boutons d'auto-évaluation. Le formulaire de réponse numérique et les QCM ne sont pas requis pour cette remise.
+- Une réponse déclarée correcte ou incorrecte est inscrite dans la séance et dans la sauvegarde automatique ; la consultation du corrigé compte comme assistance et ne valide **jamais** un acquis autonome. Le navigateur n'effectue ni OCR ni notation automatique de l'écriture manuscrite.
+- Le clavier mathématique et la vérification de certaines étapes restent utilisables après la feuille, dans un volet facultatif. Les quiz numériques et QCM conservent leurs contrôles automatiques.
+- Tests automatisés ciblés : tracé, grande surface, déplacement, refus de feuille vide, révélation différée, remise sans second champ, exclusion de maîtrise, reprise après rechargement. Les tests Chromium ne remplacent pas un essai sur appareil Android réel.
+
+
 ## Candidat 1.0 — priorité au démarrage (13 novembre 2026)
 
 - Déploiement Render v34 confirmé `live` sur `c250579`, avec 163 tests Node réussis et parcours Chromium mobile/hors ligne réussi avant fusion.
