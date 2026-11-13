@@ -300,6 +300,13 @@
 .math-notebook-view-tools button{min-height:44px}
 .math-notebook-view-tools button[aria-pressed="true"]{background:var(--teal);color:#0d2434}
 @media(max-width:440px){.math-notebook-view-tools button{flex:1 1 auto}}
+.math-notebook-equations{margin:16px 0;padding:15px;border:1px solid #486b8a;border-radius:12px;background:#182b45}
+.math-notebook-equations h5{margin:0;color:var(--teal);font-size:1rem}
+.math-notebook-equations>button{min-height:48px;margin-top:12px}
+.math-notebook-equations-candidate{border-top:1px solid var(--stroke);padding-top:13px;margin-top:12px}
+.math-notebook-equations-transcript{background:#f5f9ff;color:#18283c;border-radius:8px;border:1px solid #9faec3;padding:12px;overflow:auto;max-width:100%;font:600 1.05rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.math-notebook-equations .math-notebook-feedback{margin-top:15px}
+@media(max-width:550px){.math-notebook-equations>button,.math-notebook-equations .math-notebook-recognition-actions button{width:100%}}
 .math-notebook-recognition{border:1px solid #45687b;border-radius:12px;padding:14px;margin:15px 0;background:#183346}
 .math-notebook-recognition h5{margin:0 0 5px;color:var(--teal);font-size:1rem}
 .math-notebook-recognition>button{margin-top:12px;min-height:48px}
