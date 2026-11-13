@@ -1,3 +1,5 @@
+# Rapport de stabilisation — DAEU B mathématiques
+
 ## v34 — dérivées usuelles sur Android (13 novembre 2026)
 
 - Le cahier numérique conserve les contrôles polynomiaux exacts et ajoute un **périmètre limité de dérivées élémentaires** : sin, cos, exp et ln d'un argument affine, multipliés par un rationnel, avec constante facultative.
@@ -6,7 +8,6 @@
 - Nouveau module embarqué dans le cache hors ligne v34 ; les anciens brouillons et la progression sont préservés.
 - La validation automatisée nécessite CI et test dans un navigateur Android réel avant d'affirmer une publication mobile totalement vérifiée.
 
-# Rapport de stabilisation — DAEU B mathématiques
 
 ## v27.1 — redondance automatique de progression (12 novembre 2026)
 
