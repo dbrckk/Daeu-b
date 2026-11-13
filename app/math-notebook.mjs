@@ -63,7 +63,7 @@ function path(ctx,points){
   if(points.length===1){ctx.lineTo(points[0][0]+0.05,points[0][1]+0.05);}
   ctx.stroke();
 }
-export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{}}){
+export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null}){
   if(!host)throw new Error("Emplacement de cahier absent");
   const legacyKey=notebookKey(context);
   if(!adapter||typeof adapter.snapshot!=="function"||typeof adapter.updateWorkbook!=="function")
@@ -71,7 +71,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const section=document.createElement("section");section.className="math-notebook";
   const heading=document.createElement("h4");heading.textContent=title;
   const help=document.createElement("p");help.className="helper";
-  help.textContent="Rédige les égalités et justifications au clavier, ou trace les opérations avec le doigt ou un stylet. Le cahier est enregistré avec ta progression et synchronisé si ton compte cloud est connecté. Les étapes ne sont pas notées automatiquement.";
+  help.textContent="Écris directement sur la grande feuille au doigt ou au stylet ; déplace-toi horizontalement pour les longues équations. Tu peux aussi utiliser le clavier mathématique plus bas. Chaque trait est sauvegardé automatiquement. Une copie manuscrite se valide par comparaison au corrigé, sans reconnaissance automatique des tracés.";
   const status=document.createElement("p");status.className="helper math-notebook-status";status.setAttribute("role","status");
   let work=blankWork(),pageIndex=0;
   try{
@@ -189,6 +189,31 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const clear=document.createElement("button");clear.type="button";clear.className="subtle small";clear.textContent="Effacer cette page";
   const indicator=document.createElement("span");indicator.className="helper math-notebook-page-indicator";
   const canvas=document.createElement("canvas");canvas.className="math-notebook-canvas";
+  const sheetViewport=document.createElement("div");sheetViewport.className="math-notebook-sheet-viewport";
+  sheetViewport.tabIndex=0;
+  sheetViewport.setAttribute("role","region");
+  sheetViewport.setAttribute("aria-label","Grande feuille quadrillée défilante pour longues équations");
+  sheetViewport.append(canvas);
+  const sheetControls=document.createElement("div");sheetControls.className="math-notebook-view-tools";
+  const moveLeft=document.createElement("button");moveLeft.type="button";moveLeft.className="subtle small";
+  moveLeft.textContent="← Vers la gauche";
+  const moveRight=document.createElement("button");moveRight.type="button";moveRight.className="subtle small";
+  moveRight.textContent="Vers la droite →";
+  const moveMode=document.createElement("button");moveMode.type="button";moveMode.className="subtle small";
+  moveMode.textContent="Déplacer au doigt";
+  moveMode.setAttribute("aria-pressed","false");
+  let panMode=false;
+  moveLeft.addEventListener("click",()=>sheetViewport.scrollBy({left:-Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
+  moveRight.addEventListener("click",()=>sheetViewport.scrollBy({left:Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
+  moveMode.addEventListener("click",()=>{
+    panMode=!panMode;
+    canvas.classList.toggle("is-panning",panMode);
+    moveMode.setAttribute("aria-pressed",String(panMode));
+    moveMode.textContent=panMode?"Reprendre le stylo":"Déplacer au doigt";
+  });
+  sheetControls.append(moveLeft,moveRight,moveMode);
+  const sheetHelp=document.createElement("p");sheetHelp.className="helper";
+  sheetHelp.textContent="Feuille large : utilise les flèches pour voir toute une équation, ou active « Déplacer au doigt » pour faire glisser la feuille, puis « Reprendre le stylo » pour écrire.";
   canvas.width=PAPER_WIDTH;canvas.height=PAPER_HEIGHT;
   canvas.setAttribute("role","img");canvas.setAttribute("aria-label","Feuille de calcul quadrillée. Trace les équations avec le doigt ou un stylet.");
   const ctx=canvas.getContext("2d");
@@ -234,7 +259,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     ];
   }
   canvas.addEventListener("pointerdown",event=>{
-    if(activePointer!==null||event.button!==0||work.pages[pageIndex].length>=100)return;
+    if(panMode||activePointer!==null||event.button!==0||work.pages[pageIndex].length>=100)return;
     event.preventDefault();activePointer=event.pointerId;drawing=[pointOf(event)];
     canvas.setPointerCapture(event.pointerId);paint();
   });
@@ -256,7 +281,65 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointerup",finish);
   canvas.addEventListener("pointercancel",finish);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
-  section.append(heading,help,keypad,templates,field,preview,correction,drawLabel,controls,canvas,status);
+  const manual=document.createElement("section");manual.className="math-notebook-manual";
+  if(handwrittenReview){
+    if(typeof handwrittenReview.expected!=="string"||typeof handwrittenReview.explanation!=="string"
+      ||typeof handwrittenReview.onDecision!=="function")
+      throw Error("Correction manuscrite mal configurée");
+    const manualTitle=document.createElement("h5");manualTitle.textContent="Valider ma réponse écrite sur la feuille";
+    const manualIntro=document.createElement("p");manualIntro.className="helper";
+    manualIntro.textContent="Après avoir écrit, affiche le corrigé et compare-le à tes propres lignes. Pas besoin de remplir le champ de réponse. L'application ne lit pas encore les tracés manuscrits : cette validation est une auto-évaluation et ne confirme pas la maîtrise.";
+    const reveal=document.createElement("button");reveal.type="button";reveal.className="primary";
+    reveal.textContent="Valider ma feuille manuscrite";
+    const manualStatus=document.createElement("p");manualStatus.className="helper";manualStatus.setAttribute("role","status");
+    const comparison=document.createElement("div");comparison.className="math-notebook-manual-comparison";comparison.hidden=true;
+    const answerTitle=document.createElement("strong");answerTitle.textContent="Réponse attendue :";
+    const answer=document.createElement("p");answer.className="math-notebook-expected";
+    answer.textContent=handwrittenReview.expected;
+    const explanationTitle=document.createElement("strong");explanationTitle.textContent="Correction détaillée :";
+    const detail=document.createElement("p");detail.className="math-notebook-explanation";
+    detail.textContent=handwrittenReview.explanation;
+    const compareInstruction=document.createElement("p");compareInstruction.className="helper";
+    compareInstruction.textContent="Sur la feuille, avais-tu trouvé cette réponse, avec le bon raisonnement ? Ta déclaration ne comptera pas comme une maîtrise autonome vérifiée.";
+    const decisions=document.createElement("div");decisions.className="math-notebook-manual-decisions";
+    const success=document.createElement("button");success.type="button";success.className="subtle";
+    success.textContent="Oui, ma réponse correspond";
+    const failure=document.createElement("button");failure.type="button";failure.className="subtle";
+    failure.textContent="Non, je dois retravailler";
+    const decide=correct=>{
+      try{
+        if(handwrittenReview.onDecision(correct)===false){
+          manualStatus.textContent="La validation n'a pas été enregistrée. Vérifie la sauvegarde et réessaie.";
+          return;
+        }
+        success.disabled=true;failure.disabled=true;
+        manualStatus.textContent="Auto-évaluation de la feuille enregistrée avec ta progression.";
+      }catch(error){manualStatus.textContent="Validation impossible : "+error.message;}
+    };
+    success.addEventListener("click",()=>decide(true));
+    failure.addEventListener("click",()=>decide(false));
+    reveal.addEventListener("click",()=>{
+      if(!work.pages.some(page=>page.length)){
+        manualStatus.textContent="Trace d'abord ta réponse sur la feuille quadrillée (au moins un trait), puis valide.";
+        return;
+      }
+      const proceed=handwrittenReview.onRevealed?.();
+      if(proceed===false){
+        manualStatus.textContent="Impossible de sauvegarder la consultation du corrigé. Réessaie avant de poursuivre.";
+        return;
+      }
+      reveal.disabled=true;
+      comparison.hidden=false;
+      manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
+    });
+    decisions.append(success,failure);
+    comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);
+    manual.append(manualTitle,manualIntro,reveal,manualStatus,comparison);
+  }
+  const editorDetails=document.createElement("details");editorDetails.className="math-notebook-editor-disclosure";
+  const editorSummary=document.createElement("summary");editorSummary.textContent="Clavier mathématique et vérification des étapes (facultatif)";
+  editorDetails.append(editorSummary,keypad,templates,field,preview,correction);
+  section.append(heading,help,drawLabel,controls,sheetControls,sheetViewport,sheetHelp,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }
