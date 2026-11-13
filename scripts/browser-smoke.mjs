@@ -58,12 +58,15 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");
     const pen=firstPage.locator("#quizNotebook canvas");
-    await pen.scrollIntoViewIfNeeded();
-    const bounds=await pen.boundingBox();
+    const viewport=firstPage.locator("#quizNotebook .math-notebook-sheet-viewport");
+    await viewport.scrollIntoViewIfNeeded();
+    const bounds=await viewport.boundingBox();
     assert.ok(bounds?.width>150&&bounds?.height>200,"Feuille de calcul invisible sur mobile");
-    await firstPage.mouse.move(bounds.x+bounds.width*0.25,bounds.y+bounds.height*0.30);
+    // Pointer dans la partie visible du viewport : le canvas agrandi dépasse
+    // volontairement la fenêtre et son centre n'est pas forcément cliquable.
+    await firstPage.mouse.move(bounds.x+35,bounds.y+45);
     await firstPage.mouse.down();
-    await firstPage.mouse.move(bounds.x+bounds.width*0.45,bounds.y+bounds.height*0.40,{steps:8});
+    await firstPage.mouse.move(bounds.x+145,bounds.y+105,{steps:8});
     await firstPage.mouse.up();
     await check(async()=>await firstPage.evaluate(()=>{
       const stored=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
