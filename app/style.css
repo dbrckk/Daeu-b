@@ -293,7 +293,23 @@
 .math-notebook-pages{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:10px 0}
 .math-notebook-pages button{min-height:42px}
 .math-notebook-page-indicator{margin-left:auto}
-.math-notebook-canvas{display:block;width:100%;max-width:480px;height:auto;aspect-ratio:3 / 4;background:white;border:2px solid #8398b0;border-radius:8px;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.math-notebook-sheet-viewport{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border:2px solid #8398b0;border-radius:8px;background:#fff;scrollbar-width:thin}
+.math-notebook-canvas{display:block;width:840px;max-width:none;height:auto;aspect-ratio:3 / 4;background:white;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.math-notebook-canvas.is-panning{touch-action:pan-x pan-y;cursor:grab}
+.math-notebook-view-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.math-notebook-view-tools button{min-height:44px}
+.math-notebook-view-tools button[aria-pressed="true"]{background:var(--teal);color:#0d2434}
+@media(max-width:440px){.math-notebook-view-tools button{flex:1 1 auto}}
+.math-notebook-manual{margin:16px 0;padding:14px;border:1px solid var(--stroke);border-radius:12px;background:var(--panel2)}
+.math-notebook-manual h5{margin:0 0 6px;font-size:1rem}
+.math-notebook-manual button{min-height:46px}
+.math-notebook-manual-comparison{padding-top:14px;border-top:1px solid var(--stroke);margin-top:12px}
+.math-notebook-expected,.math-notebook-explanation{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 16px;line-height:1.6}
+.math-notebook-expected{font-size:1.15rem;color:var(--teal);font-weight:700}
+.math-notebook-manual-decisions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+@media(max-width:550px){.math-notebook-manual-decisions{flex-direction:column}.math-notebook-manual-decisions button,.math-notebook-manual>button{width:100%}}
+.math-notebook-editor-disclosure{margin-top:18px;border:1px solid var(--stroke);border-radius:12px;padding:12px}
+.math-notebook-editor-disclosure>summary{min-height:44px;cursor:pointer;font-weight:700;padding:7px 0;color:var(--teal)}
 .math-notebook-status{min-height:1.3em}
 @media(max-width:440px){.math-notebook{padding:10px}.math-notebook-keypad button{min-width:41px}.math-notebook-page-indicator{margin:0 auto}}
 
