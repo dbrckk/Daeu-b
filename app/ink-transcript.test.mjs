@@ -22,7 +22,7 @@ test("insertion d'un caractère manquant, effacement et nouvelle ligne",()=>{
   const inserted=editInkTranscript(missing,2,"insert","+");
   assert.equal(inserted,"2x+5=17");
   assert.equal(editInkTranscript(inserted,2,"delete"),missing);
-  assert.equal(editInkTranscript("x=3",0,"newline"),"x\n=3");
+  assert.equal(editInkTranscript("x=3",1,"newline"),"x\n=3");
   assert.equal(validateInkTranscript("x\n=3"),false);
 });
 test("syntaxique : seules les égalités complètes et équilibrées sont évaluables",()=>{
