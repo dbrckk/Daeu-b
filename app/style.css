@@ -293,14 +293,14 @@
 .math-notebook-pages{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:10px 0}
 .math-notebook-pages button{min-height:42px}
 .math-notebook-page-indicator{margin-left:auto}
-.math-notebook-sheet-viewport{width:100%;max-width:100%;max-height:min(74vh,760px);overflow:auto;overscroll-behavior:contain;border:2px solid #8398b0;border-radius:8px;background:#fff;scrollbar-width:thin}
-.math-notebook-canvas{display:block;width:840px;max-width:none;height:auto;aspect-ratio:3 / 4;background:white;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.math-notebook-sheet-viewport{width:100%;max-width:100%;height:min(78vh,1000px);min-height:420px;overflow:auto;overscroll-behavior:contain;border:2px solid #8398b0;border-radius:8px;background:#fff;scrollbar-width:thin}
+.math-notebook-canvas{display:block;width:1260px;max-width:none;height:auto;aspect-ratio:3 / 4;background:white;touch-action:none;cursor:crosshair;user-select:none;-webkit-user-select:none}
 .math-notebook-canvas.is-panning{touch-action:pan-x pan-y;cursor:grab}
 .math-notebook-view-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .math-notebook-view-tools button{min-height:44px}
 .math-notebook-view-tools button[aria-pressed="true"]{background:var(--teal);color:#0d2434}
 @media(max-width:440px){.math-notebook-view-tools button{flex:1 1 auto}}
-.math-notebook-manual{margin:16px 0;padding:14px;border:1px solid var(--stroke);border-radius:12px;background:var(--panel2)}
+.math-notebook-quick-validate{display:block;width:100%;margin:12px 0 16px;min-height:54px}.math-notebook-manual{margin:16px 0;padding:14px;border:1px solid var(--stroke);border-radius:12px;background:var(--panel2)}
 .math-notebook-manual h5{margin:0 0 6px;font-size:1rem}
 .math-notebook-manual button{min-height:46px}
 .math-notebook-manual-comparison{padding-top:14px;border-top:1px solid var(--stroke);margin-top:12px}

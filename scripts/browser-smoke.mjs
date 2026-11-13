@@ -58,12 +58,15 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");
     const pen=firstPage.locator("#quizNotebook canvas");
-    await pen.scrollIntoViewIfNeeded();
-    const bounds=await pen.boundingBox();
+    const viewport=firstPage.locator("#quizNotebook .math-notebook-sheet-viewport");
+    await viewport.scrollIntoViewIfNeeded();
+    const bounds=await viewport.boundingBox();
     assert.ok(bounds?.width>150&&bounds?.height>200,"Feuille de calcul invisible sur mobile");
-    await firstPage.mouse.move(bounds.x+bounds.width*0.25,bounds.y+bounds.height*0.30);
+    // Pointer dans la partie visible du viewport : le canvas agrandi dépasse
+    // volontairement la fenêtre et son centre n'est pas forcément cliquable.
+    await firstPage.mouse.move(bounds.x+35,bounds.y+45);
     await firstPage.mouse.down();
-    await firstPage.mouse.move(bounds.x+bounds.width*0.45,bounds.y+bounds.height*0.40,{steps:8});
+    await firstPage.mouse.move(bounds.x+145,bounds.y+105,{steps:8});
     await firstPage.mouse.up();
     await check(async()=>await firstPage.evaluate(()=>{
       const stored=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
@@ -206,17 +209,17 @@ try {
     manualPage.on("pageerror",error=>errors.push("Feuille manuscrite : "+error.message));
     await manualPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
     await manualPage.locator("#firstStart").click();
-    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual>button").isVisible()
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-quick-validate").isVisible()
       &&await manualPage.locator("#answer").inputValue().then(value=>value==="")
       &&await manualPage.locator("#choiceList input:checked").count()===0,
       "Manuscrit : bouton de validation disponible sans saisie de réponse séparée");
     await check(async()=>await manualPage.evaluate(()=>{
       const viewport=document.querySelector("#quizNotebook .math-notebook-sheet-viewport");
       const canvas=viewport?.querySelector("canvas");
-      return viewport&&canvas&&canvas.getBoundingClientRect().width>=800
+      return viewport&&canvas&&canvas.getBoundingClientRect().width>=1200
         &&viewport.clientWidth<400&&viewport.scrollWidth>viewport.clientWidth*1.5;
-    }),"Grande feuille : surface de 840 px, défilement horizontal sans réduire l'écriture");
-    await manualPage.locator("#quizNotebook .math-notebook-manual>button").click();
+    }),"Grande feuille : surface de 1260 px, défilement horizontal sans réduire l'écriture");
+    await manualPage.locator("#quizNotebook .math-notebook-quick-validate").click();
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual [role=status]")
       .textContent().then(text=>text.includes("Trace d'abord"))
       &&await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").isHidden(),
@@ -225,6 +228,11 @@ try {
       document.querySelector("#quizNotebook .math-notebook-sheet-viewport")
         .scrollIntoView({block:"start",behavior:"instant"});
     });
+    await check(async()=>await manualPage.evaluate(()=>{
+      const sheet=document.querySelector("#quizNotebook .math-notebook-canvas");
+      const viewport=document.querySelector("#quizNotebook .math-notebook-sheet-viewport");
+      return sheet?.width===900&&sheet?.height===1200&&viewport?.clientHeight>=420;
+    }),"Surface manuscrite : feuille vectorielle 900 × 1200 et fenêtre de dessin haute");
     const sheetBox=await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport").boundingBox();
     assert.ok(sheetBox&&sheetBox.width>200,"Surface manuscrite non affichée");
     await manualPage.mouse.move(sheetBox.x+38,sheetBox.y+65);
@@ -250,11 +258,13 @@ try {
       &&await manualPage.locator("#quizNotebook canvas.is-panning").count()===1,
       "Le mode déplacement permet de parcourir la feuille sans nouveau trait");
     await manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Reprendre le stylo"}).click();
-    await manualPage.locator("#quizNotebook .math-notebook-manual>button").click();
+    await manualPage.locator("#quizNotebook .math-notebook-quick-validate").click();
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").isVisible()
       &&await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").textContent()
         .then(t=>t.includes("Réponse attendue")&&t.includes("Correction détaillée")),
       "Validation sur feuille : corrigé dévoilé après le tracé uniquement");
+    await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-quick-validate").isDisabled(),
+      "Validation manuscrite : impossible de révéler deux fois le corrigé");
     await manualPage.locator("#quizNotebook .math-notebook-manual-decisions button").filter({hasText:"Oui, ma réponse correspond"}).click();
     await check(async()=>await manualPage.evaluate(()=>{
       const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
