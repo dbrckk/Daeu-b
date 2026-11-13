@@ -3,6 +3,8 @@
  * exécution, aucun réseau. Il s'agit d'un aperçu, PAS d'un correcteur.
  * Un énoncé trop complexe reste affiché tel qu'il a été saisi.
  */
+import {parsePolynomial} from "./quadratic-checker.mjs";
+
 const MATH_NS="http://www.w3.org/1998/Math/MathML";
 const MAX_LINES=24,MAX_LINE_LENGTH=180,MAX_TOKENS=100,MAX_DEPTH=22;
 const RELATIONS=new Set(["=","<",">","≤","≥","≠"]);
@@ -30,6 +32,10 @@ export function parseMathLine(line){
     const definition=typeof line==="string"&&line.length<=MAX_LINE_LENGTH?
       line.match(/^\s*([fgh])\s*(['’′])?\s*\(\s*x\s*\)\s*=\s*(.+?)\s*$/u):null;
     if(definition){
+      // Ne jamais représenter sin(x), 1/x ou des expressions de degré > 2
+      // comme une multiplication implicite f(x) : valider le polynôme d'abord.
+      try{parsePolynomial(definition[3]);}
+      catch{return null;}
       const expression=parseMathLine(definition[3]);
       return expression?{type:"functionDefinition",name:definition[1],prime:!!definition[2],expression}:null;
     }
