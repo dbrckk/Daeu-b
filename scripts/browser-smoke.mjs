@@ -48,7 +48,7 @@ try {
       "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
     await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
-    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===10,
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===11,
       "Dix modèles mathématiques utilisables sans clavier physique");
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
@@ -66,8 +66,8 @@ try {
       const pages=Object.entries(stored.workbook.entries).find(([k])=>k.startsWith("quiz:"))?.[1]?.pages;
       return pages?.[0]?.length===1;
     }),"Écriture manuscrite au doigt conservée dans le stockage cloud unifié");
-    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===10,
-      "Dix modèles de rédaction, dont le second degré, sur Android");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===11,
+      "Onze modèles de rédaction, dont la dérivée avancée, sur Android");
     await firstPage.locator("#quizNotebook textarea").fill("x² = 4\nx = 2\n(x - 2)(x + 2) = 0");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
@@ -80,6 +80,18 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
       &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
       "Dérivation : erreur de coefficient corrigée exactement sur Android");
+    await firstPage.locator("#quizNotebook textarea").fill("f(x)=(x+1)^3\nf'(x)=3x²+6x+3");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-preview-body msup").count()>=2,
+      "Aperçu MathML : puissance cubique et dérivée avancée");
+    await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1
+      &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===0,
+      "Dérivée cubique factorisée reconnue exactement sur Android");
+    await firstPage.locator("#quizNotebook textarea").fill("f(x)=x⁴+1\nf'(x)=3x³\nf'(x)=4x³");
+    await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
+      &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
+      "Dérivée de degré quatre : erreur localisée et correction reconnue");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 13\nx = 6");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()>=1,
