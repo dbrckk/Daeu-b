@@ -355,7 +355,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const inkEquationsTitle=document.createElement("h5");
   inkEquationsTitle.textContent="Vérifier mes équations écrites sur la feuille (expérimental)";
   const inkEquationsHelp=document.createElement("p");inkEquationsHelp.className="helper";
-  inkEquationsHelp.textContent="Écris une égalité par ligne sur la page affichée, par exemple 2x+5=17, puis 2x=12 et x=6. Signes reconnus : chiffres, x, +, −, = et / ; les parenthèses, fractions empilées et puissances ne sont pas encore prises en charge.";
+  inkEquationsHelp.textContent="Écris une égalité par ligne sur la page affichée, par exemple 2x+5=17, puis 2x=12 et x=6. Lecture expérimentale : chiffres, x, +, −, =, /, parenthèses courbes, petits exposants 2 surélevés et fractions empilées à un chiffre par terme. Écris une égalité par ligne et vérifie chaque symbole reconnu. Les racines, exposants supérieurs et écritures complexes restent non pris en charge.";
   const inkEquationsRead=document.createElement("button");inkEquationsRead.type="button";inkEquationsRead.className="subtle";
   inkEquationsRead.textContent="Lire mes équations manuscrites";
   const inkEquationsStatus=document.createElement("p");inkEquationsStatus.className="helper";
