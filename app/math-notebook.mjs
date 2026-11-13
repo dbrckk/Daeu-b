@@ -215,6 +215,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const sheetHelp=document.createElement("p");sheetHelp.className="helper";
   sheetHelp.textContent="Feuille large : utilise les flèches pour voir toute une équation, ou active « Déplacer au doigt » pour faire glisser la feuille, puis « Reprendre le stylo » pour écrire.";
   canvas.width=PAPER_WIDTH;canvas.height=PAPER_HEIGHT;
+  canvas.tabIndex=0;
   canvas.setAttribute("role","img");canvas.setAttribute("aria-label","Feuille de calcul quadrillée. Trace les équations avec le doigt ou un stylet.");
   const ctx=canvas.getContext("2d");
   let drawing=null,activePointer=null;
