@@ -73,6 +73,13 @@ try {
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
       &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
       "Second degré Android : racine oubliée signalée et factorisation équivalente validée");
+    await firstPage.locator("#quizNotebook textarea").fill("f(x) = 3x² - 2x + 1\nf'(x) = 3x - 2\nf'(x) = 6x - 2");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-preview-body msup").count()>=2,
+      "Dérivation : notation f prime visible et équations en MathML sur Android");
+    await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
+      &&await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=ok]").count()===1,
+      "Dérivation : erreur de coefficient corrigée exactement sur Android");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 13\nx = 6");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()>=1,

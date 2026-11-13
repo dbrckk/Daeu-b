@@ -15,7 +15,7 @@ FILES = (
     ("/", "text/html", b'id="firstStart"'),
     ("/app.mjs", "javascript", b"function firstStart()"),
     ("/cloud-sync.mjs", "javascript", b"xxypyvzkciowwseldxhq"),
-    ("/sw.js", "javascript", b"daeu-b-maths-v31"),
+    ("/sw.js", "javascript", b"daeu-b-maths-v32"),
     ("/manifest.json", "json", b"DAEU"),
     ("/robots.txt", "text/plain", b"Sitemap:"),
     ("/sitemap.xml", "xml", ORIGIN.encode()),

@@ -35,3 +35,14 @@ test("Priorité des fractions, somme et signes",()=>{
   assert.equal(ast.left.arg.type,"power");
   assert.equal(ast.right.type,"fraction");
 });
+
+test("Fonctions et dérivées affichables en MathML sûr",()=>{
+ const f=parseMathLine("f(x)=3x²-2x+1");
+ const p=parseMathLine("f'(x)=6x-2");
+ assert.equal(f.type,"functionDefinition");
+ assert.equal(f.prime,false);
+ assert.equal(p.type,"functionDefinition");
+ assert.equal(p.prime,true);
+ assert.equal(parseMathLine("f'(x)=sin(x)"),null);
+ assert.equal(parseMathLine("f''(x)=2"),null);
+});

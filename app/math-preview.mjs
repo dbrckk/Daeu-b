@@ -27,6 +27,12 @@ function tokenize(text){
 }
 export function parseMathLine(line){
   try{
+    const definition=typeof line==="string"&&line.length<=MAX_LINE_LENGTH?
+      line.match(/^\s*([fgh])\s*(['’′])?\s*\(\s*x\s*\)\s*=\s*(.+?)\s*$/u):null;
+    if(definition){
+      const expression=parseMathLine(definition[3]);
+      return expression?{type:"functionDefinition",name:definition[1],prime:!!definition[2],expression}:null;
+    }
     const tokens=tokenize(line),end=tokens.length;
     if(!end)return null;
     let i=0,depth=0;
@@ -112,6 +118,16 @@ function node(doc,tag,contents){
 }
 export function mathNode(doc,ast){
   if(!ast||typeof ast!=="object")throw Error("Formule invalide");
+  if(ast.type==="functionDefinition"){
+    const row=node(doc,"mrow");
+    if(ast.prime){
+      const name=node(doc,"msup");
+      name.append(node(doc,"mi",ast.name),node(doc,"mo","′"));
+      row.append(name);
+    }else row.append(node(doc,"mi",ast.name));
+    row.append(node(doc,"mo","("),node(doc,"mi","x"),node(doc,"mo",")"),node(doc,"mo","="),mathNode(doc,ast.expression));
+    return row;
+  }
   if(ast.type==="number")return node(doc,"mn",ast.value);
   if(ast.type==="name")return node(doc,"mi",ast.value);
   if(ast.type==="power"){
