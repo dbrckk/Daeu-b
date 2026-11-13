@@ -168,3 +168,15 @@ test("Petites variations géométriques déterministes : pas de notation implici
   assert.equal(read.status,"recognized",JSON.stringify(read));
   assert.equal(read.text,"2x+5=17\n2x=12\nx=6");
 });
+
+test("Un symbole composite inconnu rend un brouillon partiel, sans note inventée",()=>{
+  const strange=[
+    [[290,75],[321,75]],[[305,52],[305,99]],
+    [[292,59],[318,91]],[[292,90],[318,59]]
+  ].map(encodeStroke);
+  const page=[...ink(["x=1"]),...strange];
+  const draft=recognizeEquationInk(page,{draft:true});
+  assert.equal(draft.status,"partial",JSON.stringify(draft));
+  assert.ok(draft.text.includes("□"),JSON.stringify(draft));
+  assert.equal(recognizeEquationInk(page).status,"uncertain");
+});

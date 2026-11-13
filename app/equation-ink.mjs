@@ -154,11 +154,14 @@ function foldFractions(paths){
   }
   return [...entries.filter(e=>!used.has(e.id)),...found];
 }
-function transcription(parts){
-  let text="",previous=null;
+function transcription(parts,{draft=false}={}){
+  let text="",previous=null,unreadable=0;
   for(const group of parts){
-    const value=readGlyph(group);
-    if(!value)return null;
+    let value=readGlyph(group);
+    if(!value){
+      if(!draft)return null;
+      value="□";unreadable++;
+    }
     const b=group.box;
     const upper=previous&&/^\d$/.test(value)&&/^[0-9x)]$/.test(previous.value)
       &&height(b)>=15&&height(b)<height(previous.box)*.72
@@ -168,10 +171,13 @@ function transcription(parts){
     text+=(upper?"^":"")+value;
     previous={value,box:b};
   }
-  return text;
+  return {text,unreadable};
 }
-/** La valeur renvoyée est une proposition, pas une vérité ou une note. */
-export function recognizeEquationInk(page){
+/**
+ * En mode draft, une expression partiellement illisible conserve les symboles
+ * reconnaissables et marque les autres par □ ; elle n'est jamais notée.
+ */
+export function recognizeEquationInk(page,{draft=false}={}){
   if(!Array.isArray(page)||!page.length)return {status:"empty",message:"Cette page ne contient aucun tracé."};
   if(page.length>MAX_STROKES)return {status:"unsupported",message:"Trop de tracés pour ce lecteur expérimental : utilise une page avec les seules équations à vérifier."};
   let paths;
@@ -180,22 +186,32 @@ export function recognizeEquationInk(page){
   }
   const lines=sortedLines(foldFractions(paths));
   if(!lines||!lines.length)return {status:"unsupported",message:"Impossible de séparer les lignes manuscrites."};
-  const texts=[];
+  const texts=[];let uncertain=0,unsupported=0;
   for(const line of lines){
     const parts=glyphs(line);
     if(parts.length>MAX_GLYPHS)return {status:"unsupported",message:"Ligne trop longue pour le lecteur actuel (32 caractères maximum)."};
-    const text=transcription(parts);
-    if(!text)return {status:"uncertain",message:"Un symbole est ambigu : réécris-le en grand ou utilise le clavier facultatif. Aucun corrigé n'a été dévoilé."};
-    if(!/^[0-9x+=./()^-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean))
+    const current=transcription(parts,{draft});
+    if(!current)return {status:"uncertain",message:"Un symbole est ambigu : réécris-le en grand ou utilise la correction tactile. Aucun corrigé n'a été dévoilé."};
+    const {text,unreadable}=current;
+    uncertain+=unreadable;
+    if(draft&&unreadable>0){texts.push(text);continue;}
+    if(!/^[0-9x+=./()^-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean)){
+      if(draft){unsupported++;texts.push(text);continue;}
       return {status:"unsupported",message:"Écris une égalité simple par ligne avec chiffres, x, +, −, =, /, parenthèses et exposant 2."};
+    }
     let depth=0;
     for(const ch of text){if(ch==="(")depth++;if(ch===")")depth--;if(depth<0)break;}
-    if(depth!==0||(text.match(/\^[0-9]+/g)||[]).some(power=>power!=="^2"))
+    if(depth!==0||(text.match(/\^[0-9]+/g)||[]).some(power=>power!=="^2")){
+      if(draft){unsupported++;texts.push(text);continue;}
       return {status:"unsupported",message:"Parenthèses ou exposant ambigus : réécris la ligne."};
+    }
     texts.push(text);
   }
-  return {status:"recognized",text:texts.join("\n"),lines:texts.length,
-    message:"Transcription proposée : contrôle chaque symbole avant l'analyse des étapes."};
+  return {status:uncertain||unsupported?"partial":"recognized",
+    text:texts.join("\n"),lines:texts.length,uncertain,unsupported,
+    message:uncertain||unsupported
+      ?"Lecture partielle : les symboles □ et les lignes incomplètes doivent être corrigés au toucher avant toute évaluation."
+      :"Transcription proposée : contrôle chaque symbole avant l'analyse des étapes."};
 }
 
 /**

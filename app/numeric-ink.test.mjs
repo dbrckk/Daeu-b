@@ -52,3 +52,14 @@ test("Ne pas inventer une lecture des brouillons complexes ou corrompus",()=>{
   assert.notEqual(recognizeNumericInk(Array(21).fill("1,2;3,4")).status,"recognized");
   assert.notEqual(recognizeNumericInk(["1,1;1,500"]).status,"recognized");
 });
+
+test("Le classement de 300 points manuscrits reste borné sur téléphone",()=>{
+  const stroke=encodeStroke(Array.from({length:300},(_,i)=>{
+    const t=2*Math.PI*i/299;
+    return [Math.round(130+62*Math.cos(t)),Math.round(145+82*Math.sin(t))];
+  }));
+  const start=performance.now();
+  const result=recognizeNumericInk([stroke]);
+  assert.ok(["recognized","uncertain","unsupported"].includes(result.status));
+  assert.ok(performance.now()-start<1500,"Un trait long ne doit pas bloquer le navigateur");
+});

@@ -35,7 +35,11 @@ function sample(paths){
       ]);
     }
   }
-  return samples;
+  // Les longs tracés au stylet peuvent produire des milliers de segments.
+  // Borner à 160 échantillons protège le navigateur Android contre les
+  // comparaisons quadratiques tout en conservant la forme du tracé.
+  if(samples.length<=160)return samples;
+  return Array.from({length:160},(_,i)=>samples[Math.round(i*(samples.length-1)/159)]);
 }
 function distance(a,b){
   const nearest=(src,dst)=>src.reduce((sum,p)=>{
