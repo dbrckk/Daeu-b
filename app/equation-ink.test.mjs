@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {encodeStroke} from "./workbook.mjs";
-import {recognizeEquationInk} from "./equation-ink.mjs";
+import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 
 // Tracés d'essai dessinés comme des gestes séparés, pas du texte OCR préencodé.
@@ -118,4 +118,53 @@ test("Fraction empilée (un chiffre de chaque côté) dans une égalité",()=>{
 test("Refuser les parenthèses non fermées sans transmettre un calcul trompeur",()=>{
   const result=recognizeEquationInk(ink(["2(x+1=8"]));
   assert.notEqual(result.status,"recognized",JSON.stringify(result));
+});
+
+test("Résultat numérique final d'une solution manuscrite : aucune ressaisie",()=>{
+  const read=recognizeEquationInk(ink(["2x+5=17","2x=12","x=6"]));
+  assert.equal(read.status,"recognized");
+  assert.equal(extractFinalNumericAnswer(read.text),"6");
+  assert.equal(extractFinalNumericAnswer("x=1/2"),"1/2");
+  assert.equal(extractFinalNumericAnswer("x=-3"),"-3");
+  assert.equal(extractFinalNumericAnswer("3x=9\nx=3"),"3");
+  assert.equal(extractFinalNumericAnswer("x = 0.75"),"0.75");
+  assert.equal(extractFinalNumericAnswer("x=0"),"0");
+});
+test("Ne jamais déduire une réponse d'un brouillon partiel ou d'une identité",()=>{
+  for(const text of [
+    "2x+5=17","x^2=4","x=3+2","x=1/0","2x=12","6=6","x=abc",
+    "x=3\n2x=6","x=Infinity","x=1e9","x=1\nx=3/0",
+    "x=1\n", 1, "", "x=1\n".repeat(20)
+  ]){
+    // Le retour à la ligne final est sans risque et doit rester accepté.
+    if(text==="x=1\n"){assert.equal(extractFinalNumericAnswer(text),"1");continue;}
+    assert.equal(extractFinalNumericAnswer(text),null,"Input "+JSON.stringify(text));
+  }
+});
+test("Les parenthèses sont reconnues même tracées du bas vers le haut",()=>{
+  const lines=["2(x+1)=8","x=3"];
+  const strokes=lines.flatMap((line,j)=>[...line].flatMap((symbol,i)=>
+    GLYPHS[symbol].map(path=>encodeStroke(
+      (symbol==="("||symbol===")"?[...path].reverse():path).map(([x,y])=>[
+        Math.round(35+i*70+x*.62),Math.round(35+j*165+y*.62)
+      ])
+    ))
+  ));
+  const read=recognizeEquationInk(strokes);
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"2(x+1)=8\nx=3");
+  assert.equal(checkMathSteps(read.text).errors,0);
+});
+test("Petites variations géométriques déterministes : pas de notation implicite",()=>{
+  const baseline=ink(["2x+5=17","2x=12","x=6"]);
+  const perturbed=baseline.map((encoded,k)=>{
+    const pts=encoded.split(";").map((p,j)=>{
+      const [x,y]=p.split(",").map(Number);
+      return [x+(j%3===0?1:0),y+(j%2===0?1:0)];
+    });
+    return encodeStroke(pts);
+  });
+  const read=recognizeEquationInk(perturbed);
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"2x+5=17\n2x=12\nx=6");
 });
