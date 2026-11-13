@@ -411,6 +411,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const inkEquationsEditToggle=document.createElement("button");
   inkEquationsEditToggle.type="button";inkEquationsEditToggle.className="subtle math-notebook-ink-edit-toggle";
   inkEquationsEditToggle.textContent="Corriger les symboles reconnus sans clavier";
+  inkEquationsEditToggle.setAttribute("aria-expanded","false");
   const inkEquationsEditor=document.createElement("div");inkEquationsEditor.className="math-notebook-ink-editor";
   inkEquationsEditor.hidden=true;
   const inkEquationsEditHelp=document.createElement("p");inkEquationsEditHelp.className="helper";
@@ -535,6 +536,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       }
       inkEquationsGrade.disabled=true;inkEquationsRead.disabled=true;
       inkEquationsConfirm.disabled=true;inkEquationsReject.disabled=true;
+      inkEquationsEditToggle.disabled=true;inkEquationsEditor.hidden=true;
       inkEquationsStatus.textContent="Résultat final vérifié avec le correcteur du quiz et progression enregistrée.";
     }catch(error){inkEquationsStatus.textContent="Correction non enregistrée : "+error.message;}
   });
