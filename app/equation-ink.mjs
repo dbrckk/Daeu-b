@@ -91,12 +91,15 @@ function parenthesis(path){
   if(path.length<5)return null;
   const b=rect([path]),w=width(b),h=height(b);
   if(h<35||w<10||w>h*.62)return null;
-  const first=path[0],last=path.at(-1);
+  // Un même arc peut être dessiné du haut vers le bas OU à l'envers.
+  const forward=path[0][1]<=path.at(-1)[1];
+  const ordered=forward?path:[...path].reverse();
+  const first=ordered[0],last=ordered.at(-1);
   if(first[1]>b.top+h*.22||last[1]<b.bottom-h*.22)return null;
   let backwards=0;
-  for(let i=1;i<path.length;i++)if(path[i][1]<path[i-1][1]-h*.06)backwards++;
+  for(let i=1;i<ordered.length;i++)if(ordered[i][1]<ordered[i-1][1]-h*.06)backwards++;
   if(backwards>1)return null;
-  const middle=path.filter(p=>p[1]>=b.top+h*.33&&p[1]<=b.bottom-h*.33);
+  const middle=ordered.filter(p=>p[1]>=b.top+h*.33&&p[1]<=b.bottom-h*.33);
   if(!middle.length)return null;
   const mx=middle.reduce((n,p)=>n+p[0],0)/middle.length;
   const endpoints=(first[0]+last[0])/2;
@@ -193,4 +196,26 @@ export function recognizeEquationInk(page){
   }
   return {status:"recognized",text:texts.join("\n"),lines:texts.length,
     message:"Transcription proposée : contrôle chaque symbole avant l'analyse des étapes."};
+}
+
+/**
+ * Utilisable pour les exercices demandant la valeur numérique de x.
+ * Seule une dernière ligne explicite « x = nombre » est candidate.
+ * Aucune équation intermédiaire, racine carrée ou expression algébrique
+ * n'est convertie en résultat autonome. La valeur doit être confirmée
+ * visuellement par l'élève avant le correcteur du quiz.
+ */
+export function extractFinalNumericAnswer(transcript){
+  if(typeof transcript!=="string"||transcript.length>1200)return null;
+  const lines=transcript.trim().split(/\r?\n/).map(line=>line.replace(/\s/g,""));
+  if(!lines.length||lines.length>12)return null;
+  const match=lines.at(-1).match(/^x=([+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:\/[+-]?(?:\d+(?:\.\d+)?|\.\d+))?)$/);
+  if(!match)return null;
+  const value=match[1].replace(/^\+/,"");
+  const fraction=value.split("/");
+  if(fraction.length===2 && Number(fraction[1])===0)return null;
+  // Garde la notation rationnelle exacte : ne pas arrondir ni inventer de chiffre.
+  if(!Number.isFinite(Number(fraction[0]))||fraction.length===2&&!Number.isFinite(Number(fraction[1])))
+    return null;
+  return value;
 }
