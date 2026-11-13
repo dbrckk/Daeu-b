@@ -283,16 +283,18 @@ function resumeSession(){
 }
 
 function markGuidedQuestion(){
-  if(done||!round||!session[index])return;
+  if(done||!round||!session[index])return false;
   const id=session[index].id;
   hintUsed=true;
-  if(round.assistedIds?.includes(id))return;
+  if(round.assistedIds?.includes(id))return true;
   try{
     const saved=dataStore.updateRound({...round,assistedIds:[...(round.assistedIds??[]),id]});
     round=saved.round;
+    return true;
   }catch(error){
     if(error instanceof StaleDataError)conflictWarning();
     else notification("L'aide a été consultée, mais son enregistrement a échoué. Termine ta réponse avant de quitter.");
+    return false;
   }
 }
 function renderQuestion() {
@@ -303,7 +305,16 @@ function renderQuestion() {
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
-  mountNotebook(el("quizNotebook"),{context:"quiz:"+q.id,adapter:dataStore,title:"Mon raisonnement — "+q.topicTitle,onGuidance:markGuidedQuestion});
+  mountNotebook(el("quizNotebook"),{
+    context:"quiz:"+q.id,adapter:dataStore,title:"Ma feuille de réponse — "+q.topicTitle,
+    onGuidance:markGuidedQuestion,
+    handwrittenReview:{
+      expected:q.type==="number"?fmt(q.answer):String(q.answer),
+      explanation:q.explanation,
+      onRevealed:markGuidedQuestion,
+      onDecision:submitHandwritten
+    }
+  });
   el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
   el("feedback").hidden=true;el("hint").hidden=true;
   el("hint").textContent="";
@@ -323,16 +334,35 @@ function renderQuestion() {
   } else el("answer").focus();
 }
 
-function showFeedback(correct,wasUnknown=false) {
+function showFeedback(correct,wasUnknown=false,manual=false) {
   const q=session[index];
   el("feedback").hidden=false;el("feedback").dataset.result=correct?"correct":"wrong";
-  el("feedbackTitle").textContent=correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
+  el("feedbackTitle").textContent=manual?(correct?"Réponse manuscrite déclarée correcte":"Réponse manuscrite à retravailler"):
+    correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
   const expected=q.type==="number"?fmt(q.answer):q.answer;
-  el("feedbackText").textContent=(correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\n\n")+q.explanation;
+  el("feedbackText").textContent=manual?
+    "Auto-évaluation enregistrée : le tracé manuscrit n'a pas été reconnu par ordinateur et cette réponse n'attribue pas de maîtrise autonome.\\n\\nRéponse attendue : "+expected+"\\n\\n"+q.explanation:
+    (correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\\n\\n")+q.explanation;
   el("lessonLink").href=courseUrl(q.lesson);
   el("answerForm").hidden=true;
   el("next").textContent=index===session.length-1?"Terminer la séance":"Question suivante";
   el("next").focus();
+}
+
+function submitHandwritten(correct){
+  if(done||!round||!session[index])return false;
+  // Dès que le corrigé est révélé, la réponse manuscrite est auto-évaluée
+  // et ne constitue jamais une preuve de maîtrise autonome.
+  if(!markGuidedQuestion())return false;
+  const q=session[index];
+  const next=recordAnswer(state,q.id,Boolean(correct),Date.now(),{
+    signature:q.isVariant?q.prompt:null,hinted:true
+  });
+  if(!persist(next,advanceRound(round,Boolean(correct))))return false;
+  done=true;hintUsed=true;score=round.score;notification("");
+  refreshOverview();
+  showFeedback(Boolean(correct),false,true);
+  return true;
 }
 
 function submit(raw,unknown=false) {
