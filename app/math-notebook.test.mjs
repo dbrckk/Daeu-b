@@ -36,3 +36,13 @@ test("Modèle de dérivation avancée insérable sans clavier physique",()=>{
  assert.ok(result.value.includes("f'(x) = 3x² + 6x + 3"));
  assert.equal(result.value.slice(result.start,result.end),"(x+1)^3");
 });
+
+test("Modèles tactiles : sinus, exponentielle et logarithme avec numérateur/domaine",()=>{
+ for(const name of ["Dérivée sin/cos","Dérivée exp","Dérivée ln"]){
+  const model=MATH_TEMPLATES.find(x=>x.label===name);
+  assert.ok(model,name);
+  const inserted=insertTemplate("",model,0,0);
+  assert.ok(inserted.value.includes("f'(x) = "),name);
+  assert.equal(inserted.value.slice(inserted.start,inserted.end),model.selection);
+ }
+});
