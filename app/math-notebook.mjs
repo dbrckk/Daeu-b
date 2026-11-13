@@ -336,7 +336,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);
     manual.append(manualTitle,manualIntro,reveal,manualStatus,comparison);
   }
-  const editorDetails=document.createElement("details");editorDetails.className="math-notebook-editor-disclosure";
+  const editorDetails=document.createElement("details");editorDetails.className="math-notebook-editor-disclosure";editorDetails.open=true;
   const editorSummary=document.createElement("summary");editorSummary.textContent="Clavier mathématique et vérification des étapes (facultatif)";
   editorDetails.append(editorSummary,keypad,templates,field,preview,correction);
   section.append(heading,help,drawLabel,controls,sheetControls,sheetViewport,sheetHelp,manual,status,editorDetails);
