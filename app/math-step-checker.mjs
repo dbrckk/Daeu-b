@@ -168,12 +168,12 @@ export function checkMathSteps(text){
       catch(error){
         unsupported++;
         if(!/^\s*[fgh]\s*['’′]/u.test(input))definition=null;
-        entries.push({line,kind:"unsupported",message:"Fonction non vérifiée : "+error.message+". Utilise un polynôme de degré 0, 1 ou 2 en x."});
+        entries.push({line,kind:"unsupported",message:"Fonction non vérifiée : "+error.message+". Utilise un polynôme de degré 0 à 6 en x."});
         continue;
       }
       if(statement.type==="definition"){
         definition=statement;checked++;
-        entries.push({line,kind:"info",message:"Fonction "+statement.name+" reconnue. Règle : (ax² + bx + c)' = 2ax + b. Écris ensuite "+statement.name+"'(x) = ... pour vérifier ta dérivée."});
+        entries.push({line,kind:"info",message:"Fonction "+statement.name+" reconnue. Règle : (a·x^n)' = n·a·x^(n−1). Écris ensuite "+statement.name+"'(x) = ... pour vérifier ta dérivée."});
       }else if(!definition||definition.name!==statement.name){
         unsupported++;
         entries.push({line,kind:"unsupported",message:"Dérivée non vérifiée : écris d'abord "+statement.name+"(x) = ... puis "+statement.name+"'(x) = ... sans ligne vide."});
@@ -183,7 +183,7 @@ export function checkMathSteps(text){
           entries.push({line,kind:"ok",message:"Dérivée exacte : "+review.expected+". "+review.rule});
         else{
           errors++;
-          entries.push({line,kind:"error",message:"Dérivée incorrecte : "+review.actual+". Résultat attendu : "+review.expected+". "+review.rule+" Vérifie le coefficient de x², les signes et la disparition de la constante."});
+          entries.push({line,kind:"error",message:"Dérivée incorrecte : "+review.actual+". Résultat attendu : "+review.expected+". "+review.rule+" "+review.detail+" Vérifie les exposants, les signes et la dérivée des constantes."});
         }
       }
       continue;

@@ -115,8 +115,18 @@ test("Dérivées rationnelles et fonctions constantes",()=>{
 test("Dérivées sans définition, séparées ou non polynomiales non validées",()=>{
  assert.equal(checkMathSteps("f'(x)=6x-2").unsupported,1);
  assert.equal(checkMathSteps("f(x)=x²\n\nf'(x)=2x").unsupported,1);
- assert.equal(checkMathSteps("f(x)=x^3\nf'(x)=3x²").unsupported,2);
+ assert.equal(checkMathSteps("f(x)=x^7\nf'(x)=7x⁶").unsupported,2);
  assert.equal(checkMathSteps("f(x)=x²\ng'(x)=2x").unsupported,1);
  assert.equal(checkMathSteps("f(x)=x²\nx=2\nf'(x)=2x").unsupported,1);
  assert.deepEqual(checkMathSteps("f(x)=x²\nf'(x)=2x\nf'(x)=x").entries.map(e=>e.kind),["info","ok","error"]);
+});
+
+test("Dérivées supérieures : correction exacte et explication du coefficient",()=>{
+ const a=checkMathSteps("f(x)=(x+1)^3\nf'(x)=3x²+6x+3");
+ assert.deepEqual(a.entries.map(e=>e.kind),["info","ok"]);
+ const b=checkMathSteps("f(x)=x⁴+1\nf'(x)=3x³\nf'(x)=4x³");
+ assert.deepEqual(b.entries.map(e=>e.kind),["info","error","ok"]);
+ assert.match(b.entries[1].message,/coefficient attendu 4, obtenu 3/);
+ const c=checkMathSteps("f(x)=x⁶\nf'(x)=6x⁵");
+ assert.deepEqual(c.entries.map(e=>e.kind),["info","ok"]);
 });

@@ -29,7 +29,24 @@ test("Constantes, identifiant de fonction et limites de syntaxe",()=>{
  assert.equal(formatPolynomial(parsePolynomial("-x²+2x-1")),"−x² + 2x − 1");
  assert.equal(isFunctionNotation("f'(x) = 2x"),true);
  assert.equal(isFunctionNotation("2x = 4"),false);
- for(const line of ["f(x)=x^3","f(x)=sin(x)","f'(x)=1/x","f''(x)=2","f(x)=eval(1)","f(y)=x²","f(x)=x²=2"])
+ for(const line of ["f(x)=x^7","f(x)=sin(x)","f'(x)=1/x","f''(x)=2","f(x)=eval(1)","f(y)=x²","f(x)=x²=2"])
   assert.throws(()=>parseFunctionLine(line),line);
  assert.throws(()=>checkDerivativeCandidate(parseFunctionLine("f(x)=x²"),parseFunctionLine("g'(x)=2x")));
+});
+
+test("Dérivation exacte jusqu'au degré 6, produits et puissances",()=>{
+ assert.equal(compare("f(x)=x³-4x²+2x-1","f'(x)=3x²-8x+2").correct,true);
+ assert.equal(compare("f(x)=(x+1)^3","f'(x)=3(x+1)^2").correct,true);
+ assert.equal(compare("g(x)=(x²+1)(x-1)","g'(x)=3x²-2x+1").correct,true);
+ assert.equal(compare("h(x)=x⁶-2x⁴","h'(x)=6x⁵-8x³").correct,true);
+ const wrong=compare("f(x)=x⁴+1","f'(x)=3x³");
+ assert.equal(wrong.correct,false);
+ assert.match(wrong.detail,/Terme x³/);
+ assert.match(wrong.detail,/attendu 4, obtenu 3/);
+});
+test("Fractions exactes de degré supérieur, fonctions inconnues rejetées",()=>{
+ assert.equal(compare("f(x)=1/3x³+1/2x²","f'(x)=x²+x").correct,true);
+ assert.equal(compare("f(x)=1/3x³","f'(x)=0,999999x²").correct,false);
+ for(const line of ["f(x)=x^7","f(x)=1/x","f(x)=ln(x)","f(x)=sin(x)","f(x)=x^(-2)","f(x)=x³=1"])
+   assert.throws(()=>parseFunctionLine(line),line);
 });
