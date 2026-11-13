@@ -408,6 +408,27 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const inkEquationsCandidate=document.createElement("div");inkEquationsCandidate.className="math-notebook-equations-candidate";inkEquationsCandidate.hidden=true;
   const inkEquationsLabel=document.createElement("strong");inkEquationsLabel.textContent="Transcription proposée — relis chaque symbole :";
   const inkEquationsText=document.createElement("pre");inkEquationsText.className="math-notebook-equations-transcript";
+  const inkEquationsEditToggle=document.createElement("button");
+  inkEquationsEditToggle.type="button";inkEquationsEditToggle.className="subtle math-notebook-ink-edit-toggle";
+  inkEquationsEditToggle.textContent="Corriger les symboles reconnus sans clavier";
+  const inkEquationsEditor=document.createElement("div");inkEquationsEditor.className="math-notebook-ink-editor";
+  inkEquationsEditor.hidden=true;
+  const inkEquationsEditHelp=document.createElement("p");inkEquationsEditHelp.className="helper";
+  inkEquationsEditHelp.textContent="Touche le symbole erroné (□ signifie illisible), puis le bon symbole ci-dessous. « Insérer à droite » ajoute un caractère au lieu d'en remplacer un. Il n'est pas nécessaire de ressaisir toute l'équation.";
+  const inkEquationsChars=document.createElement("div");inkEquationsChars.className="math-notebook-ink-chars";
+  inkEquationsChars.setAttribute("role","group");inkEquationsChars.setAttribute("aria-label","Symboles de la transcription à corriger");
+  const inkEquationsSymbols=document.createElement("div");inkEquationsSymbols.className="math-notebook-ink-symbols";
+  inkEquationsSymbols.setAttribute("role","group");inkEquationsSymbols.setAttribute("aria-label","Choisir un symbole manuscrit");
+  const inkEquationsEditTools=document.createElement("div");inkEquationsEditTools.className="math-notebook-ink-edit-tools";
+  const inkEquationsInsert=document.createElement("button");inkEquationsInsert.type="button";
+  inkEquationsInsert.className="subtle";inkEquationsInsert.textContent="Insérer à droite";
+  inkEquationsInsert.setAttribute("aria-pressed","false");
+  const inkEquationsDelete=document.createElement("button");inkEquationsDelete.type="button";
+  inkEquationsDelete.className="subtle";inkEquationsDelete.textContent="Supprimer le symbole";
+  const inkEquationsNewline=document.createElement("button");inkEquationsNewline.type="button";
+  inkEquationsNewline.className="subtle";inkEquationsNewline.textContent="Nouvelle ligne";
+  inkEquationsEditTools.append(inkEquationsInsert,inkEquationsDelete,inkEquationsNewline);
+  inkEquationsEditor.append(inkEquationsEditHelp,inkEquationsChars,inkEquationsSymbols,inkEquationsEditTools);
   const inkEquationsConfirm=document.createElement("button");inkEquationsConfirm.type="button";inkEquationsConfirm.className="primary";
   inkEquationsConfirm.textContent="Oui, vérifier ces étapes";
   const inkEquationsReject=document.createElement("button");inkEquationsReject.type="button";inkEquationsReject.className="subtle";
@@ -422,30 +443,86 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   inkEquationsActions.append(inkEquationsConfirm,inkEquationsReject);
   const inkEquationsReport=document.createElement("div");inkEquationsReport.className="math-notebook-feedback";inkEquationsReport.hidden=true;
   inkEquationsReport.setAttribute("role","status");
-  let currentEquationText=null,currentFinalAnswer=null;
+  let currentEquationText=null,currentFinalAnswer=null,editCursor=0,insertMode=false;
+  function syncEquationCandidate(){
+    inkEquationsText.textContent=currentEquationText??"";
+    const valid=currentEquationText!==null&&validateInkTranscript(currentEquationText);
+    inkEquationsConfirm.disabled=!valid;
+    currentFinalAnswer=valid&&typeof handwrittenReview?.onRecognized==="function"
+      ?extractFinalNumericAnswer(currentEquationText):null;
+    inkEquationsFinal.hidden=currentFinalAnswer===null;
+    if(currentFinalAnswer!==null)
+      inkEquationsGrade.textContent="Corriger mon résultat final : x = "+currentFinalAnswer;
+    inkEquationsGrade.disabled=currentFinalAnswer===null;
+    inkEquationsReport.hidden=true;
+    inkEquationsChars.replaceChildren();
+    if(currentEquationText===null)return;
+    for(let i=0;i<currentEquationText.length;i++){
+      const symbol=currentEquationText[i],button=document.createElement("button");
+      button.type="button";button.className="subtle";
+      button.textContent=symbol==="\n"?"↵":symbol;
+      button.setAttribute("aria-label","Symbole "+(i+1)+" : "+(symbol==="\n"?"nouvelle ligne":symbol));
+      button.setAttribute("aria-pressed",String(i===editCursor));
+      if(symbol==="□")button.classList.add("unreadable");
+      button.addEventListener("click",()=>{editCursor=i;syncEquationCandidate();});
+      inkEquationsChars.append(button);
+    }
+  }
+  function applyInkEdit(mode,symbol=""){
+    if(currentEquationText===null)return;
+    try{
+      const index=mode==="insert"||mode==="newline"
+        ?Math.min(currentEquationText.length,editCursor+1):editCursor;
+      const result=editInkTranscript(currentEquationText,index,mode,symbol);
+      currentEquationText=result;
+      editCursor=Math.max(0,Math.min(result.length-1,index+(mode==="insert"?1:0)));
+      syncEquationCandidate();
+      inkEquationsStatus.textContent=validateInkTranscript(result)
+        ?"Transcription corrigée. Relis-la entièrement avant de vérifier."
+        :"Transcription incomplète : corrige les □ et les équations avant toute vérification.";
+    }catch(error){inkEquationsStatus.textContent="Modification refusée : "+error.message;}
+  }
+  for(const symbol of INK_EDIT_SYMBOLS){
+    const button=document.createElement("button");button.type="button";
+    button.className="subtle";button.textContent=symbol;
+    button.setAttribute("aria-label","Écrire le symbole "+symbol);
+    button.addEventListener("click",()=>applyInkEdit(insertMode?"insert":"replace",symbol));
+    inkEquationsSymbols.append(button);
+  }
+  inkEquationsEditToggle.addEventListener("click",()=>{
+    inkEquationsEditor.hidden=!inkEquationsEditor.hidden;
+    inkEquationsEditToggle.setAttribute("aria-expanded",String(!inkEquationsEditor.hidden));
+    if(!inkEquationsEditor.hidden)syncEquationCandidate();
+  });
+  inkEquationsInsert.addEventListener("click",()=>{
+    insertMode=!insertMode;
+    inkEquationsInsert.setAttribute("aria-pressed",String(insertMode));
+    inkEquationsInsert.textContent=insertMode?"Remplacer le symbole":"Insérer à droite";
+  });
+  inkEquationsDelete.addEventListener("click",()=>applyInkEdit("delete"));
+  inkEquationsNewline.addEventListener("click",()=>applyInkEdit("newline"));
   const previousInvalidateRecognition=invalidateRecognition;
   invalidateRecognition=()=>{
     previousInvalidateRecognition();
     currentEquationText=null;currentFinalAnswer=null;
     inkEquationsFinal.hidden=true;
+    inkEquationsEditor.hidden=true;
     inkEquationsCandidate.hidden=true;
     inkEquationsReport.hidden=true;
     inkEquationsStatus.textContent="";
   };
   inkEquationsRead.addEventListener("click",()=>{
     invalidateRecognition();
-    inkEquationsConfirm.disabled=false;inkEquationsGrade.disabled=false;
-    const read=recognizeEquationInk(work.pages[pageIndex]);
-    if(read.status!=="recognized"){inkEquationsStatus.textContent=read.message;return;}
+    const read=recognizeEquationInk(work.pages[pageIndex],{draft:true});
+    if(read.status!=="recognized"&&read.status!=="partial"){
+      inkEquationsStatus.textContent=read.message;return;
+    }
     currentEquationText=read.text;
-    currentFinalAnswer=typeof handwrittenReview?.onRecognized==="function"
-      ?extractFinalNumericAnswer(read.text):null;
-    inkEquationsFinal.hidden=currentFinalAnswer===null;
-    if(currentFinalAnswer!==null)
-      inkEquationsGrade.textContent="Corriger mon résultat final : x = "+currentFinalAnswer;
-    inkEquationsText.textContent=read.text;
+    editCursor=Math.max(0,read.text.indexOf("□"));
+    inkEquationsEditor.hidden=read.status!=="partial";
     inkEquationsCandidate.hidden=false;
-    inkEquationsStatus.textContent="La reconnaissance est expérimentale. Vérifie les nombres et les opérateurs : aucune correction ne sera affichée sans ton accord.";
+    syncEquationCandidate();
+    inkEquationsStatus.textContent=read.message;
   });
   inkEquationsGrade.addEventListener("click",()=>{
     if(currentEquationText===null||currentFinalAnswer===null)return;
@@ -466,7 +543,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsStatus.textContent="Transcription rejetée. Corrige le tracé ou utilise le clavier mathématique facultatif pour vérifier tes étapes.";
   });
   inkEquationsConfirm.addEventListener("click",()=>{
-    if(currentEquationText===null)return;
+    if(currentEquationText===null||!validateInkTranscript(currentEquationText))return;
     const review=checkMathSteps(currentEquationText);
     if(review.checked>0&&onGuidance()===false){
       inkEquationsStatus.textContent="La consultation de la correction n'a pas pu être enregistrée. Réessaie sans quitter cette page.";
@@ -488,7 +565,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsConfirm.disabled=true;
     inkEquationsStatus.textContent="Étapes examinées sur la transcription que tu as confirmée.";
   });
-  inkEquationsCandidate.append(inkEquationsLabel,inkEquationsText,inkEquationsFinal,inkEquationsActions);
+  inkEquationsCandidate.append(inkEquationsLabel,inkEquationsText,inkEquationsEditToggle,inkEquationsEditor,inkEquationsFinal,inkEquationsActions);
   inkEquations.append(inkEquationsTitle,inkEquationsHelp,inkEquationsRead,inkEquationsStatus,inkEquationsCandidate,inkEquationsReport);
   const quickValidate=document.createElement("button");quickValidate.type="button";
   quickValidate.className="primary math-notebook-quick-validate";
@@ -544,6 +621,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       }
       reveal.disabled=true;quickValidate.disabled=true;readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
       inkEquationsRead.disabled=true;inkEquationsConfirm.disabled=true;inkEquationsGrade.disabled=true;
+      inkEquationsEditToggle.disabled=true;inkEquationsEditor.hidden=true;
       comparison.hidden=false;
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });
