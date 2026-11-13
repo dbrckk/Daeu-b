@@ -1,5 +1,14 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v34 — dérivées usuelles sur Android (13 novembre 2026)
+
+- Le cahier numérique conserve les contrôles polynomiaux exacts et ajoute un **périmètre limité de dérivées élémentaires** : sin, cos, exp et ln d'un argument affine, multipliés par un rationnel, avec constante facultative.
+- Le contrôle applique la règle de chaîne, vérifie les coefficients rationnels exactement et précise la condition de domaine pour ln ; les compositions non affines et raisonnements libres restent non vérifiés.
+- Trois modèles de rédaction tactiles et aperçu MathML adapté, sans changement du schéma de sauvegarde ni service externe.
+- Nouveau module embarqué dans le cache hors ligne v34 ; les anciens brouillons et la progression sont préservés.
+- La validation automatisée nécessite CI et test dans un navigateur Android réel avant d'affirmer une publication mobile totalement vérifiée.
+
+
 ## v27.1 — redondance automatique de progression (12 novembre 2026)
 
 - Sauvegarde automatique à chaque modification, avec copie principale localStorage et miroir indépendant IndexedDB ; récupération d'une révision intacte avant le chargement du moteur et conservation des sauvegardes historiques.

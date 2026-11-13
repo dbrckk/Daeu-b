@@ -4,6 +4,7 @@
  * Un énoncé trop complexe reste affiché tel qu'il a été saisi.
  */
 import {parseDerivativePolynomial} from "./polynomial-derivative.mjs";
+import {parseElementaryFunction,parseElementaryQuotient} from "./elementary-derivative.mjs";
 
 const MATH_NS="http://www.w3.org/1998/Math/MathML";
 const MAX_LINES=24,MAX_LINE_LENGTH=180,MAX_TOKENS=100,MAX_DEPTH=22;
@@ -32,10 +33,16 @@ export function parseMathLine(line){
     const definition=typeof line==="string"&&line.length<=MAX_LINE_LENGTH?
       line.match(/^\s*([fgh])\s*(['’′])?\s*\(\s*x\s*\)\s*=\s*(.+?)\s*$/u):null;
     if(definition){
-      // Ne jamais représenter sin(x), 1/x ou des expressions de degré > 2
-      // comme une multiplication implicite f(x) : valider le polynôme d'abord.
+      // Ne pas présenter une expression étrangère au correcteur comme validée.
       try{parseDerivativePolynomial(definition[3]);}
-      catch{return null;}
+      catch{
+        try{parseElementaryFunction(definition[3]);}
+        catch{
+          if(!definition[2])return null;
+          try{parseElementaryQuotient(definition[3]);}
+          catch{return null;}
+        }
+      }
       const expression=parseMathLine(definition[3]);
       return expression?{type:"functionDefinition",name:definition[1],prime:!!definition[2],expression}:null;
     }
@@ -54,7 +61,14 @@ export function parseMathLine(line){
     function primary(){
       const t=peek();
       if(t==="number"){const value=take(t);return {type:"number",value};}
-      if(t==="name"){const value=take(t);return {type:"name",value};}
+      if(t==="name"){
+        const value=take(t);
+        if(["sin","cos","exp","ln"].includes(value)&&peek()==="("){
+          take("(");const arg=nested(sum);take(")");
+          return {type:"call",name:value,arg};
+        }
+        return {type:"name",value};
+      }
       if(t==="π"){take(t);return {type:"name",value:"π"};}
       if(t==="√"){
         take(t);
@@ -136,6 +150,12 @@ export function mathNode(doc,ast){
     }else row.append(node(doc,"mi",ast.name));
     row.append(node(doc,"mo","("),node(doc,"mi","x"),node(doc,"mo",")"),node(doc,"mo","="),mathNode(doc,ast.expression));
     return row;
+  }
+  if(ast.type==="call"){
+    const out=node(doc,"mrow");
+    const name=node(doc,"mi",ast.name);name.setAttribute("mathvariant","normal");
+    out.append(name,node(doc,"mo","("),mathNode(doc,ast.arg),node(doc,"mo",")"));
+    return out;
   }
   if(ast.type==="number")return node(doc,"mn",ast.value);
   if(ast.type==="name")return node(doc,"mi",ast.value);

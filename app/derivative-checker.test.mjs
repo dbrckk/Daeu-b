@@ -1,3 +1,4 @@
+import "./elementary-derivative.test.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {parseFunctionLine,checkDerivativeCandidate,formatPolynomial,derivativeCoefficients,isFunctionNotation} from "./derivative-checker.mjs";
@@ -29,7 +30,7 @@ test("Constantes, identifiant de fonction et limites de syntaxe",()=>{
  assert.equal(formatPolynomial(parsePolynomial("-x²+2x-1")),"−x² + 2x − 1");
  assert.equal(isFunctionNotation("f'(x) = 2x"),true);
  assert.equal(isFunctionNotation("2x = 4"),false);
- for(const line of ["f(x)=x^7","f(x)=sin(x)","f'(x)=1/x","f''(x)=2","f(x)=eval(1)","f(y)=x²","f(x)=x²=2"])
+ for(const line of ["f(x)=x^7","f(x)=sin(x²)","f'(x)=1/(x²+1)","f''(x)=2","f(x)=eval(1)","f(y)=x²","f(x)=x²=2"])
   assert.throws(()=>parseFunctionLine(line),line);
  assert.throws(()=>checkDerivativeCandidate(parseFunctionLine("f(x)=x²"),parseFunctionLine("g'(x)=2x")));
 });
@@ -47,6 +48,6 @@ test("Dérivation exacte jusqu'au degré 6, produits et puissances",()=>{
 test("Fractions exactes de degré supérieur, fonctions inconnues rejetées",()=>{
  assert.equal(compare("f(x)=1/3x³+1/2x²","f'(x)=x²+x").correct,true);
  assert.equal(compare("f(x)=1/3x³","f'(x)=0,999999x²").correct,false);
- for(const line of ["f(x)=x^7","f(x)=1/x","f(x)=ln(x)","f(x)=sin(x)","f(x)=x^(-2)","f(x)=x³=1"])
+ for(const line of ["f(x)=x^7","f(x)=1/x","f(x)=sin(x²)","f(x)=sin(x)+x","f(x)=x^(-2)","f(x)=x³=1"])
    assert.throws(()=>parseFunctionLine(line),line);
 });
