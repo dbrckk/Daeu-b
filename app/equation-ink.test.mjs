@@ -20,7 +20,9 @@ const GLYPHS={
   "+":[[[15,50],[85,50]],[[50,12],[50,88]]],
   "-":[[[15,50],[85,50]]],
   "=":[[[15,40],[85,40]],[[15,60],[85,60]]],
-  "/":[[[83,10],[17,94]]]
+  "/":[[[83,10],[17,94]]],
+  "(":[[[78,5],[54,15],[36,31],[27,50],[36,69],[54,86],[78,96]]],
+  ")":[[[22,5],[46,15],[64,31],[73,50],[64,69],[46,86],[22,96]]]
 };
 function ink(lines,scale=.62){
   return lines.flatMap((line,j)=>[...line].flatMap((symbol,i)=>{
@@ -64,4 +66,56 @@ test("Ne pas confondre opérateurs superposés avec plusieurs lignes",()=>{
   assert.equal(result.status,"recognized",JSON.stringify(result));
   assert.equal(result.text,"x=1\nx=2");
   assert.equal(checkMathSteps(result.text).errors,1);
+});
+
+test("Parenthèses manuscrites : développer une expression affine",()=>{
+  const result=recognizeEquationInk(ink(["2(x+1)=8","x=3"]));
+  assert.equal(result.status,"recognized",JSON.stringify(result));
+  assert.equal(result.text,"2(x+1)=8\nx=3");
+  const review=checkMathSteps(result.text);
+  assert.equal(review.errors,0);
+  assert.equal(review.unsupported,0);
+});
+test("Parenthèses manuscrites : factorisation de degré deux",()=>{
+  const result=recognizeEquationInk(ink(["(x-2)(x+2)=0","x=2"]));
+  assert.equal(result.status,"recognized",JSON.stringify(result));
+  assert.equal(result.text,"(x-2)(x+2)=0\nx=2");
+  assert.equal(checkMathSteps(result.text).errors,1,"Une seule racine ne remplace pas deux solutions");
+});
+function powerInk(exponent="2"){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(path=>encodeStroke(path.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  return [
+    ...draw("x",35,42,.78),...draw(exponent,113,29,.34),
+    ...draw("=",164,42,.78),...draw("4",252,42,.78)
+  ];
+}
+test("Exposant 2 physiquement placé en hauteur à droite",()=>{
+  const result=recognizeEquationInk(powerInk());
+  assert.equal(result.status,"recognized",JSON.stringify(result));
+  assert.equal(result.text,"x^2=4");
+  assert.equal(checkMathSteps(result.text).unsupported,0);
+});
+test("Exposant 3 ne peut pas devenir une fausse puissance 2",()=>{
+  const result=recognizeEquationInk(powerInk("3"));
+  assert.notEqual(result.status,"recognized",JSON.stringify(result));
+});
+function stackedFractionInk(){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(path=>encodeStroke(path.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  return [
+    ...draw("x",24,62,.7),...draw("=",100,62,.7),
+    ...draw("1",223,30,.46),encodeStroke([[215,101],[278,101]]),
+    ...draw("2",211,119,.46)
+  ];
+}
+test("Fraction empilée (un chiffre de chaque côté) dans une égalité",()=>{
+  const result=recognizeEquationInk(stackedFractionInk());
+  assert.equal(result.status,"recognized",JSON.stringify(result));
+  assert.equal(result.text,"x=1/2");
+  assert.equal(checkMathSteps(result.text).unsupported,0);
+});
+test("Refuser les parenthèses non fermées sans transmettre un calcul trompeur",()=>{
+  const result=recognizeEquationInk(ink(["2(x+1=8"]));
+  assert.notEqual(result.status,"recognized",JSON.stringify(result));
 });

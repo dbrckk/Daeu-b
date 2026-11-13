@@ -3,8 +3,9 @@
  * Moteur local, sans modèle téléchargé ni appel réseau. La transcription DOIT
  * être confirmée visuellement avant la vérification mathématique.
  *
- * Vocabulaire limité : chiffres, x, +, -, =, décimaux simples et "/".
- * Pas de fractions empilées, exposants, racines, matrices ou preuves.
+ * Symboles supportés : chiffres, x, +, -, =, /, parenthèses et exposant 2
+ * surélevé ; fraction simple avec un chiffre au-dessus/dessous d’une barre.
+ * Aucune reconnaissance générale des formules ni des démonstrations.
  */
 import {parseStroke,encodeStroke} from "./workbook.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
@@ -16,8 +17,8 @@ const rect=paths=>{
 };
 const width=b=>b.right-b.left,height=b=>b.bottom-b.top;
 const cx=b=>(b.left+b.right)/2,cy=b=>(b.top+b.bottom)/2;
-function sortedLines(paths){
-  const items=paths.map(path=>({path,box:rect([path])}));
+function sortedLines(items){
+  items=items.map(item=>({...item,box:rect(item.paths)}));
   const tall=items.filter(item=>height(item.box)>=18);
   if(!tall.length)return null;
   const heights=tall.map(item=>height(item.box)).sort((a,b)=>a-b);
@@ -40,7 +41,7 @@ function sortedLines(paths){
     if(Math.abs(cy(item.box)-line.center)>Math.max(52,gap*1.4))return null;
     line.items.push(item);
   }
-  return lines.sort((a,b)=>a.center-b.center).map(line=>line.items.map(item=>item.path));
+  return lines.sort((a,b)=>a.center-b.center).map(line=>line.items);
 }
 function overlap(a,b){
   return Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left));
@@ -53,12 +54,13 @@ function sameGlyph(a,b){
   const nearY=Math.max(0,Math.max(a.top,b.top)-Math.min(a.bottom,b.bottom))<=28;
   return nearX&&nearY;
 }
-function glyphs(paths){
-  const ordered=paths.map(path=>({paths:[path],box:rect([path])}))
+function glyphs(items){
+  const ordered=items.map(item=>({...item,box:rect(item.paths)}))
     .sort((a,b)=>cx(a.box)-cx(b.box));
   const out=[];
   for(const entry of ordered){
-    let target=out.find(group=>sameGlyph(group.box,entry.box));
+    if(entry.preRead){out.push(entry);continue;}
+    let target=out.find(group=>!group.preRead&&sameGlyph(group.box,entry.box));
     if(!target){target={paths:[],box:entry.box};out.push(target);}
     target.paths.push(...entry.paths);
     target.box=rect(target.paths);
@@ -85,8 +87,28 @@ function diagonal(path){
   const a=path[0],b=path.at(-1),dx=b[0]-a[0],dy=b[1]-a[1];
   return Math.abs(dx)>=16&&Math.abs(dy)>=18?Math.sign(dx*dy):0;
 }
+function parenthesis(path){
+  if(path.length<5)return null;
+  const b=rect([path]),w=width(b),h=height(b);
+  if(h<35||w<10||w>h*.62)return null;
+  const first=path[0],last=path.at(-1);
+  if(first[1]>b.top+h*.22||last[1]<b.bottom-h*.22)return null;
+  let backwards=0;
+  for(let i=1;i<path.length;i++)if(path[i][1]<path[i-1][1]-h*.06)backwards++;
+  if(backwards>1)return null;
+  const middle=path.filter(p=>p[1]>=b.top+h*.33&&p[1]<=b.bottom-h*.33);
+  if(!middle.length)return null;
+  const mx=middle.reduce((n,p)=>n+p[0],0)/middle.length;
+  const endpoints=(first[0]+last[0])/2;
+  if(endpoints-mx>w*.45)return "(";
+  if(mx-endpoints>w*.45)return ")";
+  return null;
+}
 function special(paths){
-  if(paths.length===1&&horizontal(paths[0]))return "-";
+  if(paths.length===1){
+    if(horizontal(paths[0]))return "-";
+    const p=parenthesis(paths[0]);if(p)return p;
+  }
   if(paths.length!==2)return null;
   const [a,b]=paths,ra=rect([a]),rb=rect([b]);
   if(horizontal(a)&&horizontal(b)&&
@@ -99,10 +121,51 @@ function special(paths){
   return null;
 }
 function readGlyph(group){
+  if(group.preRead)return group.preRead;
   const op=special(group.paths);
   if(op)return op;
   const result=recognizeNumericInk(group.paths.map(encodeStroke));
   return result.status==="recognized"&&result.text.length===1?result.text:null;
+}
+
+/** Une fraction empilée n'est acceptée que si chaque terme est un seul chiffre. */
+function foldFractions(paths){
+  const entries=paths.map((path,id)=>({id,paths:[path],box:rect([path])}));
+  const used=new Set(),found=[];
+  for(const bar of entries){
+    if(used.has(bar.id)||!horizontal(bar.paths[0])||width(bar.box)<29)continue;
+    const y=cy(bar.box),w=width(bar.box);
+    const near=entries.filter(e=>e.id!==bar.id&&!used.has(e.id)
+      &&cx(e.box)>=bar.box.left-6&&cx(e.box)<=bar.box.right+6
+      &&width(e.box)<w*1.35&&height(e.box)>=20);
+    const upper=near.filter(e=>e.box.bottom<y-9&&y-e.box.bottom<=38);
+    const lower=near.filter(e=>e.box.top>y+9&&e.box.top-y<=38);
+    if(upper.length!==1||lower.length!==1)continue;
+    const a=recognizeNumericInk([encodeStroke(upper[0].paths[0])]);
+    const b=recognizeNumericInk([encodeStroke(lower[0].paths[0])]);
+    if(a.status!=="recognized"||b.status!=="recognized"
+      ||!/^\d$/.test(a.text)||!/^\d$/.test(b.text)||b.text==="0")continue;
+    used.add(bar.id);used.add(upper[0].id);used.add(lower[0].id);
+    found.push({paths:[...upper[0].paths,...bar.paths,...lower[0].paths],
+      preRead:a.text+"/"+b.text});
+  }
+  return [...entries.filter(e=>!used.has(e.id)),...found];
+}
+function transcription(parts){
+  let text="",previous=null;
+  for(const group of parts){
+    const value=readGlyph(group);
+    if(!value)return null;
+    const b=group.box;
+    const upper=previous&&/^\d$/.test(value)&&/^[0-9x)]$/.test(previous.value)
+      &&height(b)>=15&&height(b)<height(previous.box)*.72
+      &&b.bottom<previous.box.top+height(previous.box)*.62
+      &&b.top<=previous.box.top+height(previous.box)*.24
+      &&b.left>=previous.box.right-8;
+    text+=(upper?"^":"")+value;
+    previous={value,box:b};
+  }
+  return text;
 }
 /** La valeur renvoyée est une proposition, pas une vérité ou une note. */
 export function recognizeEquationInk(page){
@@ -112,20 +175,20 @@ export function recognizeEquationInk(page){
   try{paths=page.map(parseStroke);}catch{
     return {status:"unsupported",message:"Tracés illisibles. Le cahier enregistré n'a pas été modifié."};
   }
-  const lines=sortedLines(paths);
+  const lines=sortedLines(foldFractions(paths));
   if(!lines||!lines.length)return {status:"unsupported",message:"Impossible de séparer les lignes manuscrites."};
   const texts=[];
   for(const line of lines){
     const parts=glyphs(line);
     if(parts.length>MAX_GLYPHS)return {status:"unsupported",message:"Ligne trop longue pour le lecteur actuel (32 caractères maximum)."};
-    let text="";
-    for(const group of parts){
-      const value=readGlyph(group);
-      if(!value)return {status:"uncertain",message:"Un symbole est ambigu. Écris plus grand, sépare les signes ou utilise la vérification au clavier ; aucun corrigé n'a été dévoilé."};
-      text+=value;
-    }
-    if(!/^[0-9x+\-=./]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean))
-      return {status:"unsupported",message:"Écris une égalité simple par ligne, avec chiffres, x, +, −, = et / (sans parenthèses ni exposants)."};
+    const text=transcription(parts);
+    if(!text)return {status:"uncertain",message:"Un symbole est ambigu : réécris-le en grand ou utilise le clavier facultatif. Aucun corrigé n'a été dévoilé."};
+    if(!/^[0-9x+=./()^-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean))
+      return {status:"unsupported",message:"Écris une égalité simple par ligne avec chiffres, x, +, −, =, /, parenthèses et exposant 2."};
+    let depth=0;
+    for(const ch of text){if(ch==="(")depth++;if(ch===")")depth--;if(depth<0)break;}
+    if(depth!==0||(text.match(/\^[0-9]+/g)||[]).some(power=>power!=="^2"))
+      return {status:"unsupported",message:"Parenthèses ou exposant ambigus : réécris la ligne."};
     texts.push(text);
   }
   return {status:"recognized",text:texts.join("\n"),lines:texts.length,
