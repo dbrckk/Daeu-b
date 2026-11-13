@@ -41,5 +41,6 @@ jobs:
       - name: Tester le parcours réel et le hors ligne
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 --directory app > /tmp/daeu-http.log 2>&1 &
+          node --test app/numeric-ink.test.mjs app/equation-ink.test.mjs
           node scripts/browser-smoke.mjs
           node scripts/browser-cloud.mjs
