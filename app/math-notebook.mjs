@@ -7,7 +7,7 @@ import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
-import {recognizeEquationInk} from "./equation-ink.mjs";
+import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
@@ -355,7 +355,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const inkEquationsTitle=document.createElement("h5");
   inkEquationsTitle.textContent="Vérifier mes équations écrites sur la feuille (expérimental)";
   const inkEquationsHelp=document.createElement("p");inkEquationsHelp.className="helper";
-  inkEquationsHelp.textContent="Écris une égalité par ligne sur la page affichée, par exemple 2x+5=17, puis 2x=12 et x=6. Lecture expérimentale : chiffres, x, +, −, =, /, parenthèses courbes, petits exposants 2 surélevés et fractions empilées à un chiffre par terme. Écris une égalité par ligne et vérifie chaque symbole reconnu. Les racines, exposants supérieurs et écritures complexes restent non pris en charge.";
+  inkEquationsHelp.textContent="Écris une égalité par ligne sur la page affichée, par exemple 2x+5=17, puis 2x=12 et x=6. Si l’exercice demande x, la dernière ligne x=nombre peut être corrigée sans ressaisie. Lecture expérimentale : chiffres, x, +, −, =, /, parenthèses courbes, petits exposants 2 surélevés et fractions empilées à un chiffre par terme. Écris une égalité par ligne et vérifie chaque symbole reconnu. Les racines, exposants supérieurs et écritures complexes restent non pris en charge.";
   const inkEquationsRead=document.createElement("button");inkEquationsRead.type="button";inkEquationsRead.className="subtle";
   inkEquationsRead.textContent="Lire mes équations manuscrites";
   const inkEquationsStatus=document.createElement("p");inkEquationsStatus.className="helper";
@@ -367,28 +367,54 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   inkEquationsConfirm.textContent="Oui, vérifier ces étapes";
   const inkEquationsReject=document.createElement("button");inkEquationsReject.type="button";inkEquationsReject.className="subtle";
   inkEquationsReject.textContent="La transcription est incorrecte";
+  const inkEquationsFinal=document.createElement("div");inkEquationsFinal.className="math-notebook-equations-final";
+  inkEquationsFinal.hidden=true;
+  const inkEquationsFinalHelp=document.createElement("p");inkEquationsFinalHelp.className="helper";
+  inkEquationsFinalHelp.textContent="Si la question demande la valeur de x, tu peux corriger le résultat final directement depuis la dernière ligne de ta feuille. Vérifie que la transcription est exacte avant de valider ; aucune correction n'a encore été révélée.";
+  const inkEquationsGrade=document.createElement("button");inkEquationsGrade.type="button";inkEquationsGrade.className="primary";
+  inkEquationsFinal.append(inkEquationsFinalHelp,inkEquationsGrade);
   const inkEquationsActions=document.createElement("div");inkEquationsActions.className="math-notebook-equations-actions";
   inkEquationsActions.append(inkEquationsConfirm,inkEquationsReject);
   const inkEquationsReport=document.createElement("div");inkEquationsReport.className="math-notebook-feedback";inkEquationsReport.hidden=true;
   inkEquationsReport.setAttribute("role","status");
-  let currentEquationText=null;
+  let currentEquationText=null,currentFinalAnswer=null;
   const previousInvalidateRecognition=invalidateRecognition;
   invalidateRecognition=()=>{
     previousInvalidateRecognition();
-    currentEquationText=null;
+    currentEquationText=null;currentFinalAnswer=null;
+    inkEquationsFinal.hidden=true;
     inkEquationsCandidate.hidden=true;
     inkEquationsReport.hidden=true;
     inkEquationsStatus.textContent="";
   };
   inkEquationsRead.addEventListener("click",()=>{
     invalidateRecognition();
-    inkEquationsConfirm.disabled=false;
+    inkEquationsConfirm.disabled=false;inkEquationsGrade.disabled=false;
     const read=recognizeEquationInk(work.pages[pageIndex]);
     if(read.status!=="recognized"){inkEquationsStatus.textContent=read.message;return;}
     currentEquationText=read.text;
+    currentFinalAnswer=typeof handwrittenReview?.onRecognized==="function"
+      ?extractFinalNumericAnswer(read.text):null;
+    inkEquationsFinal.hidden=currentFinalAnswer===null;
+    if(currentFinalAnswer!==null)
+      inkEquationsGrade.textContent="Corriger mon résultat final : x = "+currentFinalAnswer;
     inkEquationsText.textContent=read.text;
     inkEquationsCandidate.hidden=false;
     inkEquationsStatus.textContent="La reconnaissance est expérimentale. Vérifie les nombres et les opérateurs : aucune correction ne sera affichée sans ton accord.";
+  });
+  inkEquationsGrade.addEventListener("click",()=>{
+    if(currentEquationText===null||currentFinalAnswer===null)return;
+    try{
+      // Exactement le même moteur que la saisie numérique normale.
+      // La simple lecture de la feuille ne constitue pas un indice.
+      if(handwrittenReview?.onRecognized?.(currentFinalAnswer)===false){
+        inkEquationsStatus.textContent="Réponse non enregistrée : vérifie la sauvegarde et réessaie.";
+        return;
+      }
+      inkEquationsGrade.disabled=true;inkEquationsRead.disabled=true;
+      inkEquationsConfirm.disabled=true;inkEquationsReject.disabled=true;
+      inkEquationsStatus.textContent="Résultat final vérifié avec le correcteur du quiz et progression enregistrée.";
+    }catch(error){inkEquationsStatus.textContent="Correction non enregistrée : "+error.message;}
   });
   inkEquationsReject.addEventListener("click",()=>{
     invalidateRecognition();
@@ -417,7 +443,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsConfirm.disabled=true;
     inkEquationsStatus.textContent="Étapes examinées sur la transcription que tu as confirmée.";
   });
-  inkEquationsCandidate.append(inkEquationsLabel,inkEquationsText,inkEquationsActions);
+  inkEquationsCandidate.append(inkEquationsLabel,inkEquationsText,inkEquationsFinal,inkEquationsActions);
   inkEquations.append(inkEquationsTitle,inkEquationsHelp,inkEquationsRead,inkEquationsStatus,inkEquationsCandidate,inkEquationsReport);
   const quickValidate=document.createElement("button");quickValidate.type="button";
   quickValidate.className="primary math-notebook-quick-validate";
@@ -472,6 +498,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         return;
       }
       reveal.disabled=true;quickValidate.disabled=true;readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
+      inkEquationsRead.disabled=true;inkEquationsConfirm.disabled=true;inkEquationsGrade.disabled=true;
       comparison.hidden=false;
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });

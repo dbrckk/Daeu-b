@@ -304,6 +304,10 @@
 .math-notebook-equations h5{margin:0;color:var(--teal);font-size:1rem}
 .math-notebook-equations>button{min-height:48px;margin-top:12px}
 .math-notebook-equations-candidate{border-top:1px solid var(--stroke);padding-top:13px;margin-top:12px}
+.math-notebook-equations-final{margin:13px 0;padding:12px 0;border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke)}
+.math-notebook-equations-final button{width:100%;min-height:54px;font-weight:700}
+.math-notebook-equations-final p{margin:0 0 10px}
+
 .math-notebook-equations-transcript{background:#f5f9ff;color:#18283c;border-radius:8px;border:1px solid #9faec3;padding:12px;overflow:auto;max-width:100%;font:600 1.05rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
 .math-notebook-equations-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}
 .math-notebook-equations-actions button{min-height:48px}
