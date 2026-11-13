@@ -137,7 +137,7 @@ function foldFractions(paths){
     const y=cy(bar.box),w=width(bar.box);
     const near=entries.filter(e=>e.id!==bar.id&&!used.has(e.id)
       &&cx(e.box)>=bar.box.left-6&&cx(e.box)<=bar.box.right+6
-      &&width(e.box)>=5&&width(e.box)<w*1.35&&height(e.box)>=20);
+      &&width(e.box)<w*1.35&&height(e.box)>=20);
     const upper=near.filter(e=>e.box.bottom<y-9&&y-e.box.bottom<=38);
     const lower=near.filter(e=>e.box.top>y+9&&e.box.top-y<=38);
     if(upper.length!==1||lower.length!==1)continue;
