@@ -200,20 +200,26 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const moveRight=document.createElement("button");moveRight.type="button";moveRight.className="subtle small";
   moveRight.textContent="Vers la droite →";
   const moveMode=document.createElement("button");moveMode.type="button";moveMode.className="subtle small";
+  const moveUp=document.createElement("button");moveUp.type="button";moveUp.className="subtle small";
+  moveUp.textContent="↑ Monter";
+  const moveDown=document.createElement("button");moveDown.type="button";moveDown.className="subtle small";
+  moveDown.textContent="↓ Descendre";
   moveMode.textContent="Déplacer au doigt";
   moveMode.setAttribute("aria-pressed","false");
   let panMode=false;
   moveLeft.addEventListener("click",()=>sheetViewport.scrollBy({left:-Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
   moveRight.addEventListener("click",()=>sheetViewport.scrollBy({left:Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
+  moveUp.addEventListener("click",()=>sheetViewport.scrollBy({top:-Math.max(180,sheetViewport.clientHeight*.75),behavior:"smooth"}));
+  moveDown.addEventListener("click",()=>sheetViewport.scrollBy({top:Math.max(180,sheetViewport.clientHeight*.75),behavior:"smooth"}));
   moveMode.addEventListener("click",()=>{
     panMode=!panMode;
     canvas.classList.toggle("is-panning",panMode);
     moveMode.setAttribute("aria-pressed",String(panMode));
     moveMode.textContent=panMode?"Reprendre le stylo":"Déplacer au doigt";
   });
-  sheetControls.append(moveLeft,moveRight,moveMode);
+  sheetControls.append(moveLeft,moveRight,moveUp,moveDown,moveMode);
   const sheetHelp=document.createElement("p");sheetHelp.className="helper";
-  sheetHelp.textContent="Feuille large : utilise les flèches pour voir toute une équation, ou active « Déplacer au doigt » pour faire glisser la feuille, puis « Reprendre le stylo » pour écrire.";
+  sheetHelp.textContent="Feuille large : utilise les quatre flèches pour parcourir toute une longue équation ou plusieurs lignes, ou active « Déplacer au doigt », puis « Reprendre le stylo » pour écrire.";
   canvas.width=PAPER_WIDTH;canvas.height=PAPER_HEIGHT;
   canvas.tabIndex=0;
   canvas.setAttribute("role","img");canvas.setAttribute("aria-label","Feuille de calcul quadrillée. Trace les équations avec le doigt ou un stylet.");
