@@ -289,6 +289,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointercancel",finish);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
   const manual=document.createElement("section");manual.className="math-notebook-manual";
+  manual.hidden=!handwrittenReview;
   if(handwrittenReview){
     if(typeof handwrittenReview.expected!=="string"||typeof handwrittenReview.explanation!=="string"
       ||typeof handwrittenReview.onDecision!=="function")
