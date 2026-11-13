@@ -364,7 +364,12 @@ try {
     // Gomme : retirer seulement le trait visé, enregistrer, puis annuler.
     await equationPage.locator("#quizNotebook .math-notebook-view-tools button")
       .filter({hasText:"Gomme : effacer un trait"}).click();
-    await equationPage.mouse.click(bounds.x+39,bounds.y+62);
+    // Le clic sur la commande peut déplacer la fenêtre mobile dans le document.
+    // Utiliser le cadrage actuel de la feuille, pas celui avant le changement de mode.
+    await viewport.scrollIntoViewIfNeeded();
+    const eraserBounds=await viewport.boundingBox();
+    assert.ok(eraserBounds,"Feuille introuvable après activation de la gomme");
+    await equationPage.mouse.click(eraserBounds.x+39,eraserBounds.y+62);
     await check(async()=>await equationPage.evaluate(()=>{
       const d=JSON.parse(localStorage.getItem("daeu-b-data-v1")),id=d.round.ids[0];
       return d.workbook.entries["quiz:"+id]?.pages[0]?.length===4;
