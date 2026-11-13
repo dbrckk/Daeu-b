@@ -361,12 +361,48 @@ try {
     await stroke([[105,80],[151,80]]);
     await stroke([[105,101],[151,101]]);
     await stroke([[180,56],[180,130]]);
+    // Gomme : retirer seulement le trait visé, enregistrer, puis annuler.
+    await equationPage.locator("#quizNotebook .math-notebook-view-tools button")
+      .filter({hasText:"Gomme : effacer un trait"}).click();
+    await equationPage.mouse.click(bounds.x+39,bounds.y+62);
+    await check(async()=>await equationPage.evaluate(()=>{
+      const d=JSON.parse(localStorage.getItem("daeu-b-data-v1")),id=d.round.ids[0];
+      return d.workbook.entries["quiz:"+id]?.pages[0]?.length===4;
+    })&&await equationPage.locator("#quizNotebook .math-notebook-pages button")
+      .filter({hasText:"Annuler l’effacement"}).isVisible(),
+      "Gomme tactile : un seul trait supprimé et sauvegardé, annulation proposée");
+    await equationPage.locator("#quizNotebook .math-notebook-pages button")
+      .filter({hasText:"Annuler l’effacement"}).click();
+    await check(async()=>await equationPage.evaluate(()=>{
+      const d=JSON.parse(localStorage.getItem("daeu-b-data-v1")),id=d.round.ids[0];
+      return d.workbook.entries["quiz:"+id]?.pages[0]?.length===5;
+    }),"Annulation de la gomme : copie restaurée sans perte des autres traits");
+    await equationPage.locator("#quizNotebook .math-notebook-view-tools button[aria-pressed=true]").click();
     await equationPage.locator("#quizNotebook .math-notebook-equations>button").click();
     await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations-transcript")
       .textContent().then(t=>t==="x=1")
       &&await equationPage.locator("#quizNotebook .math-notebook-equations-candidate").isVisible()
       &&await equationPage.locator("#feedback").isHidden(),
       "Le stylet trace x=1 ; la transcription est présentée sans dévoiler la réponse");
+    await equationPage.locator("#quizNotebook .math-notebook-ink-edit-toggle").click();
+    await equationPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(2).click();
+    await equationPage.locator("#quizNotebook .math-notebook-ink-symbols button")
+      .filter({hasText:/^2$/}).click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=2")
+      &&await equationPage.locator("#quizNotebook .math-notebook-equations-final button")
+        .textContent().then(t=>t.includes("x = 2"))
+      &&await equationPage.evaluate(()=>{
+        const d=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        return d.round.completed===0;
+      }),
+      "Transcription corrigée au toucher sans clavier ; aucune notation avant confirmation");
+    await equationPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(2).click();
+    await equationPage.locator("#quizNotebook .math-notebook-ink-symbols button")
+      .filter({hasText:/^1$/}).click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=1"),
+      "Correction tactile réversible : la valeur exacte revient sans ressaisie de la copie");
     await equationPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
     await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback").isVisible()
       &&await equationPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
