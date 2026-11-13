@@ -26,7 +26,7 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 
 ## Démarrer ici
 
-**Première séance :** ouvrir [l'application](https://daeu-b-maths-dbrckk.onrender.com/#commencer), appuyer sur **Démarrer mon diagnostic**, répondre à dix questions maximum, puis lire le cours indiqué par le parcours. Pour travailler une démonstration, prévoir feuille et stylo. [Instructions pour le premier jour](COMMENCER.md).
+**Première séance :** ouvrir [l'application](https://daeu-b-maths-dbrckk.onrender.com/#commencer), appuyer sur **Démarrer mon diagnostic**, répondre à dix questions maximum, puis lire le cours indiqué par le parcours. Pour travailler une démonstration, utiliser le cahier numérique intégré (texte ou écriture au doigt), sans papier. [Instructions pour le premier jour](COMMENCER.md).
 
 1. [Programme vérifié, sources et correspondance avec les universités](PROGRAMME.md)
 2. [Test de positionnement avec corrigé](maths/00-positionnement.md) — commencer sans consulter les réponses.
