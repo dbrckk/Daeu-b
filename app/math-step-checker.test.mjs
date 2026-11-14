@@ -145,13 +145,13 @@ test("Racines carrées parfaites : équations et calculs exacts",()=>{
   assert.equal(steps.errors,0);
 });
 test("Racines non entières et expressions rationnelles : non vérifiées, jamais admises par approximation",()=>{
-  for(const text of ["√(x)=√(x)","x*√(x)=2","√(x+1)=x^2","x=1/(x-x)","x=√(x^2)","x=2*√(2x+1)"]){
+  for(const text of ["√(x)=√(x)","x*√(x)=2","√(x+1)=x^2","x=1/(x-x)","x=√(x^2)","x=2*√(2x+1)*2"]){
     const review=checkMathSteps(text);
     assert.equal(review.checked,0,text);
     assert.equal(review.unsupported,1,text);
     assert.equal(review.errors,0,text);
   }
-  const mixed=checkMathSteps("x=2*√(2)\nx=3");
+  const mixed=checkMathSteps("x=2*√(2)*3\nx=3");
   assert.equal(mixed.unsupported,1);
   assert.equal(mixed.checked,1);
   assert.equal(mixed.errors,0,"Une ligne non vérifiée ne doit pas servir d'étape précédente");
