@@ -130,3 +130,29 @@ test("Dérivées supérieures : correction exacte et explication du coefficient"
  const c=checkMathSteps("f(x)=x⁶\nf'(x)=6x⁵");
  assert.deepEqual(c.entries.map(e=>e.kind),["info","ok"]);
 });
+
+test("Racines carrées parfaites : équations et calculs exacts",()=>{
+  for(const [text,expected] of [
+    ["√(9)=3",true],["√(144)=12",true],["√(9)=4",false],
+    ["√(16)/√(4)=2",true],["√(0)=0",true]
+  ]){
+    const review=checkMathSteps(text);
+    assert.equal(review.checked,1,text);
+    assert.equal(review.errors,expected?0:1,text);
+  }
+  const steps=checkMathSteps("x+√(9)=5\nx=2");
+  assert.equal(steps.checked,2);
+  assert.equal(steps.errors,0);
+});
+test("Racines non entières et expressions rationnelles : non vérifiées, jamais admises par approximation",()=>{
+  for(const text of ["x=√(2)","√(x)=2","x=√(x+1)","x=2/(x+1)","x=1/(x-x)","x=√(-1)"]){
+    const review=checkMathSteps(text);
+    assert.equal(review.checked,0,text);
+    assert.equal(review.unsupported,1,text);
+    assert.equal(review.errors,0,text);
+  }
+  const mixed=checkMathSteps("x=√(2)\nx=3");
+  assert.equal(mixed.unsupported,1);
+  assert.equal(mixed.checked,1);
+  assert.equal(mixed.errors,0,"Une ligne non vérifiée ne doit pas servir d'étape précédente");
+});

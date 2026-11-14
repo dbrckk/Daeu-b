@@ -41,3 +41,15 @@ test("alphabet et limites interdisent injection, corruption et sorties du cahier
   assert.throws(()=>editInkTranscript("x=1",0,"exec","2"));
   assert.throws(()=>editInkTranscript("a".repeat(1200),0,"replace","x"));
 });
+
+test("Éditeur tactile : une racine et une fraction rationnelle ne sont pas du HTML",()=>{
+  assert.ok(INK_EDIT_SYMBOLS.includes("√"));
+  for(const line of ["x=√(9)","x=√(x)","x=2/(x+1)","x=(x+1)/(x-1)"]){
+    assert.equal(validateInkTranscript(line),true,line);
+  }
+  for(const line of ["x=√9","x=√()","x=√(9","x=2/□","x=√<9>"]){
+    assert.equal(validateInkTranscript(line),false,line);
+  }
+  assert.equal(editInkTranscript("x=□(9)",2,"replace","√"),"x=√(9)");
+  assert.equal(checkMathSteps("x=√(2)").unsupported,1);
+});

@@ -115,19 +115,37 @@ export function parseAffine(source){
 export function formatRational(value){
   return value.d===1n?String(value.n):String(value.n)+"/"+String(value.d);
 }
+/**
+ * Les racines carrées ne sont traitées mathématiquement que lorsqu'elles
+ * représentent un entier exact : √(9) = 3, √(144) = 12.
+ * Aucune approximation ni élimination de racine symbolique : √(2),
+ * √(x) et √(x+1) sont explicitement NON vérifiées, car leurs domaines
+ * et leurs éventuelles solutions parasites demandent un autre solveur.
+ */
+function normalizeExactRoots(expression){
+  if(!expression.includes("√"))return expression;
+  const result=expression.replace(/√\((\d{1,6})\)/g,(raw,digits)=>{
+    const square=Number(digits),root=Math.sqrt(square);
+    return Number.isInteger(root)?"("+root+")":raw;
+  });
+  if(result.includes("√"))
+    throw new Error("racine non carrée parfaite ou symbolique : domaine et transformations non vérifiés");
+  return result;
+}
 export function classifyEquality(text){
   if(typeof text!=="string"||text.length>2*MAX_LINE)throw new Error("ligne trop longue");
   const parts=text.split("=");
   if(parts.length!==2||parts.some(x=>!x.trim()))
     throw new Error("utilise une seule égalité par ligne");
   let left,right;
+  const normalized=parts.map(normalizeExactRoots);
   try{
-    left=parseAffine(parts[0]);right=parseAffine(parts[1]);
+    left=parseAffine(normalized[0]);right=parseAffine(normalized[1]);
   }catch(error){
     // Le parseur affine demeure la référence pour les expressions existantes.
     // Un polynôme quadratique valide est traité à part ; fonctions, degrés
     // supérieurs et divisions par x restent expressément non vérifiés.
-    try{return classifyPolynomialEquality(text);}
+    try{return classifyPolynomialEquality(normalized.join("="));}
     catch{throw error;}
   }
   if(!/[xX]/.test(parts[0]+parts[1])){

@@ -51,7 +51,7 @@ try {
       &&await firstPage.locator("#quizNotebook .math-notebook-preview-body msqrt").count()>=1,
       "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
-    await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
+    await firstPage.locator("#quizNotebook .math-notebook-keypad button").filter({hasText:"√"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===14,
       "Quatorze modèles mathématiques utilisables sans clavier physique");
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
@@ -539,6 +539,77 @@ try {
     })&&await fracPage.locator("#feedback").isVisible(),
       "Fraction empilée confirmée et corrigée par le quiz objectif, avec progression enregistrée");
   }finally{await fracContext.close();}
+  // Racines géométriques et fractions rationnelles visibles dans le même
+  // cahier mobile ; vérification refusée hors du périmètre mathématique.
+  const advancedInkContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const advancedInkPage=await advancedInkContext.newPage();
+    advancedInkPage.on("pageerror",error=>errors.push("Radicaux manuscrits : "+error.message));
+    await advancedInkPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await advancedInkPage.locator("#firstStart").click();
+    const replaceInk=async(mode)=>{
+      await advancedInkPage.evaluate(kind=>{
+        const data=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        const id=data.round.ids[0];
+        const glyphs={
+          x:[[[17,10],[83,90]],[[83,10],[17,90]]],
+          "=":[[[15,40],[85,40]],[[15,60],[85,60]]],
+          "+":[[[15,50],[85,50]],[[50,12],[50,88]]],
+          "1":[[[50,5],[50,97]]],
+          "2":[[[18,26],[30,11],[55,7],[77,17],[83,37],[72,54],[49,73],[20,94],[86,94]]],
+          "9":[[[75,43],[57,57],[34,52],[20,34],[29,14],[51,7],[74,20],[78,48],[66,73],[41,94],[19,97]]]
+        };
+        const paths=[];
+        const draw=(name,x,y,scale)=>{
+          for(const segment of glyphs[name]){
+            paths.push(segment.map(([px,py])=>[
+              Math.round(x+px*scale),Math.round(y+py*scale)
+            ].join(",")).join(";"));
+          }
+        };
+        draw("x",24,62,.7);draw("=",100,62,.7);
+        if(kind==="root"){
+          paths.push("213,77;225,69;238,105;257,31;271,31;360,31");
+          draw("9",281,40,.52);
+        }else{
+          draw("2",278,31,.43);
+          paths.push("211,102;410,102");
+          draw("x",230,122,.4);draw("+",286,122,.4);draw("1",342,122,.4);
+        }
+        data.workbook.entries["quiz:"+id]={text:"",pages:[paths]};
+        data.revision++;
+        localStorage.setItem("daeu-b-data-v1",JSON.stringify(data));
+      },mode);
+      await advancedInkPage.reload({waitUntil:"networkidle"});
+      await advancedInkPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    };
+    await replaceInk("root");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=√(9)")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      "Racine manuscrite √9 transcrite sur Android sans inventer une réponse numérique");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
+      .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
+        &&t.includes("0 transformation(s) ou calcul(s) erroné(s)")),
+      "Racine carrée parfaite vérifiée exactement par le contrôleur mathématique");
+    await replaceInk("rational");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=2/(x+1)")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      "Fraction manuscrite à dénominateur x+1 affichée, jamais notée automatiquement");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
+      .textContent().then(t=>t.includes("0 ligne(s) mathématique(s) analysée(s)")
+        &&t.includes("1 ligne(s) non prises en charge"))
+      &&await advancedInkPage.evaluate(()=>{
+        const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        return state.round.completed===0;
+      }),
+      "Dénominateur variable : domaine non certifié, ligne explicitement non vérifiée");
+  }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");

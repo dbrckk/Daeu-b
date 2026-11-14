@@ -28,19 +28,27 @@ Une transcription dont les caractères ont été **corrigés manuellement** peut
 
 Le cahier reste conservé localement et dans les sauvegardes automatiques du navigateur. La synchronisation entre appareils nécessite toujours l'activation de la synchronisation cloud facultative ; l'enregistrement local ne protège pas contre la perte totale des données du téléphone.
 
+### Racines et fractions rationnelles manuscrites (v44)
+
+La lecture locale reconnaît désormais un geste **√** avec une barre au-dessus d'un radicande court : par exemple `√(9)`, `√(2)` ou `√(x)`. Le vérificateur accepte seulement les **racines carrées exactes d'entiers** : `√(9)=3` ou `√(144)=12`. Les racines non carrées parfaites ou contenant x sont **transcrites, mais non vérifiées** ; il ne calcule pas leur domaine ni leur valeur par approximation.
+
+La barre d'une fraction empilée peut aussi comporter un **dénominateur court en x** : par exemple `2/(x+1)`. Le lecteur conserve les parenthèses, mais le correcteur refuse de certifier ces équations rationnelles sans analyser les valeurs interdites du dénominateur. Les fractions imbriquées ne sont pas lues automatiquement.
+
+La lecture doit être relue et peut être corrigée au toucher. **Aucune réponse numérique n'est inventée à partir d'un radical non évalué ou d'un quotient contenant x.**
+
 ### Correction de la feuille et des symboles reconnus (v41)
 
 La **gomme à un trait** permet de toucher un trait erroné pour l'effacer sans effacer le reste de la page. Utilise « Annuler l'effacement » si nécessaire, puis « Reprendre le stylo ». Le cahier est sauvegardé automatiquement.
 
 Quand l'analyse des équations ne comprend pas une partie de la copie, la transcription apparaît avec des **□** pour les symboles illisibles. Ouvre **« Corriger les symboles reconnus sans clavier »** : touche le caractère erroné, puis le bon symbole proposé à l'écran. Des boutons permettent de supprimer un caractère, d'en insérer un à droite ou de commencer une nouvelle ligne. Le manuscrit original est conservé.
 
-**Aucune formule partiellement reconnue n'est notée.** Après la correction tactile, relis chaque ligne avant de faire analyser tes étapes ou de faire corriger la réponse finale. Les fractions générales, racines et démonstrations restent hors du périmètre de reconnaissance. La correction tactile n'est pas un modèle de reconnaissance universelle.
+**Aucune formule partiellement reconnue n'est notée.** Après la correction tactile, relis chaque ligne avant de faire analyser tes étapes ou de faire corriger la réponse finale. Certaines racines et fractions avec dénominateur en x peuvent désormais être transcrites, mais les expressions avec domaine à étudier ne sont pas validées mathématiquement. La correction tactile n'est pas un modèle de reconnaissance universelle.
 
 ### Lire et vérifier une chaîne d'équations manuscrites (expérimental)
 
 Sur une **même page** du cahier, écris une égalité par ligne, par exemple : `2x+5=17`, `2x=12`, puis `x=6`. Utilise de grands symboles séparés. Appuie sur **« Lire mes équations manuscrites »**, puis relis attentivement la transcription proposée. Si elle est fidèle à ton écriture, appuie sur **« Oui, vérifier ces étapes »** : le contrôleur algébrique existant analyse les transformations et signale certaines erreurs d'équivalence. Si un symbole est incorrect, rejette la proposition et réécris-le, ou utilise le clavier mathématique facultatif.
 
-Le lecteur local reconnaît les chiffres, `x`, `+`, `−`, `=`, `/`, les parenthèses simples, le carré manuscrit `²` placé en exposant et les **fractions empilées avec 1 à 3 chiffres par nombre, ou un court numérateur en x sur un entier non nul**. Exemples : `(x-2)(x+2)=0`, `x²=4` et `x=1/2`. La reconnaissance est **expérimentale** et doit être confirmée visuellement. **Racines, puissances supérieures, fractions complexes et démonstrations générales restent non prises en charge.** Lorsque la question demande la valeur de x, une dernière ligne manuscrite comme `x=6` ou `x=1/2` propose en plus **« Corriger mon résultat final »**. Vérifie la transcription avant de toucher le bouton : le résultat est alors noté avec le même correcteur que la saisie numérique, **sans écrire le résultat une deuxième fois ni ajouter de page**. La vérification des étapes reste séparée : si tu l'utilises, elle est enregistrée comme une aide. Les parenthèses peuvent être tracées dans les deux sens.
+Le lecteur local reconnaît les chiffres, `x`, `+`, `−`, `=`, `/`, les parenthèses simples, le carré manuscrit `²` placé en exposant et les **fractions empilées avec 1 à 3 chiffres par nombre, ou un court numérateur en x sur un entier non nul**. Exemples : `(x-2)(x+2)=0`, `x²=4` et `x=1/2`. La reconnaissance est **expérimentale** et doit être confirmée visuellement. **Racines non carrées parfaites, puissances supérieures, fractions imbriquées et démonstrations générales restent non corrigées automatiquement.** Lorsque la question demande la valeur de x, une dernière ligne manuscrite comme `x=6` ou `x=1/2` propose en plus **« Corriger mon résultat final »**. Vérifie la transcription avant de toucher le bouton : le résultat est alors noté avec le même correcteur que la saisie numérique, **sans écrire le résultat une deuxième fois ni ajouter de page**. La vérification des étapes reste séparée : si tu l'utilises, elle est enregistrée comme une aide. Les parenthèses peuvent être tracées dans les deux sens.
 
 La transcription doit être confirmée avant l'analyse ; une erreur non détectée ne prouve pas que la réponse convient à l'énoncé, et cette analyse **ne note pas la question**. La consultation d'une vérification en cours de quiz est comptée comme une aide, pas comme une maîtrise autonome. Le lecteur fonctionne hors ligne après mise en cache.
 
