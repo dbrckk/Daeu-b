@@ -180,3 +180,45 @@ test("Un symbole composite inconnu rend un brouillon partiel, sans note inventé
   assert.ok(draft.text.includes("□"),JSON.stringify(draft));
   assert.equal(recognizeEquationInk(page).status,"uncertain");
 });
+
+function stackedIntegerInk(numerator,denominator,{barEnd=370}={}){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(points=>encodeStroke(points.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  const top=[...numerator].flatMap((digit,i)=>draw(digit,218+i*49,31,.42));
+  const bottom=[...denominator].flatMap((digit,i)=>draw(digit,217+i*49,120,.42));
+  return [
+    ...draw("x",24,64,.7),...draw("=",100,64,.7),
+    ...top,encodeStroke([[209,102],[barEnd,102]]),...bottom
+  ];
+}
+test("Fraction empilée : numérateur et dénominateur à deux chiffres",()=>{
+  const read=recognizeEquationInk(stackedIntegerInk("12","25"));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=12/25");
+  assert.equal(extractFinalNumericAnswer(read.text),"12/25");
+  assert.equal(checkMathSteps(read.text).unsupported,0);
+});
+test("Fraction empilée : zéro au dénominateur non présenté comme résultat valide",()=>{
+  const read=recognizeEquationInk(stackedIntegerInk("12","00"),{draft:true});
+  assert.notEqual(read.status,"recognized",JSON.stringify(read));
+  assert.notEqual(read.text,"x=12/00");
+});
+test("Fraction empilée : le numérateur contenant x+1 conserve les parenthèses",()=>{
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(points=>encodeStroke(points.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  const numerator=["x","+","1"].flatMap((glyph,i)=>draw(glyph,218+i*55,35,.37));
+  const page=[
+    ...draw("x",25,70,.7),...draw("=",99,70,.7),
+    ...numerator,encodeStroke([[209,103],[400,103]]),
+    ...draw("2",279,121,.45)
+  ];
+  const read=recognizeEquationInk(page);
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=(x+1)/2");
+  assert.equal(checkMathSteps(read.text).unsupported,0);
+});
+test("Le signe égal de deux barres horizontales ne devient jamais une fraction",()=>{
+  const read=recognizeEquationInk(ink(["2x+5=17","2x=12","x=6"]));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"2x+5=17\n2x=12\nx=6");
+});
