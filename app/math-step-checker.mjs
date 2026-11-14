@@ -124,11 +124,29 @@ export function formatRational(value){
  * √(x) et √(x+1) sont explicitement NON vérifiées, car leurs domaines
  * et leurs éventuelles solutions parasites demandent un autre solveur.
  */
+/**
+ * Racine carrée exacte d'un entier naturel, en BigInt uniquement.
+ * Une approximation de racine ne doit jamais prouver une égalité.
+ */
+function integerSquareRoot(value){
+  if(value<0n)throw Error("racine négative");
+  let lower=0n,upper=value+1n;
+  while(upper-lower>1n){
+    const mid=(lower+upper)/2n;
+    if(mid*mid<=value)lower=mid;
+    else upper=mid;
+  }
+  return lower;
+}
 function normalizeExactRoots(expression){
   if(!expression.includes("√"))return expression;
-  const result=expression.replace(/√\((\d{1,6})\)/g,(raw,digits)=>{
-    const square=Number(digits),root=Math.sqrt(square);
-    return Number.isInteger(root)?"("+root+")":raw;
+  const result=expression.replace(/√\((\d{1,6}(?:[.,]\d{1,4})?)\)/g,(raw,rawDigits)=>{
+    const digits=rawDigits.replace(",",".").split(".");
+    const numerator=BigInt(digits.join(""));
+    const denominator=10n**BigInt(digits[1]?.length??0);
+    const rootN=integerSquareRoot(numerator),rootD=integerSquareRoot(denominator);
+    return rootN*rootN===numerator&&rootD*rootD===denominator
+      ?"("+rootN+(rootD===1n?"":"/"+rootD)+")":raw;
   });
   if(result.includes("√"))
     throw new Error("racine non carrée parfaite ou symbolique : domaine et transformations non vérifiés");
