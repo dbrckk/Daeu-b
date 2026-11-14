@@ -712,6 +712,27 @@ try {
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
       .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="unsupported"),
       "Android v48 : coefficient variable refusé sans faux verdict");
+
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("0,5√(x)=1\nx=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
+        .textContent().then(t=>t.includes("Isoler la racine")),
+      "Android v49 : coefficient décimal français devant √ résolu sans approximation");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x)/0.5=4\nx=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok"),
+      "Android v49 : division décimale après √ et résultat exact");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x)/0.0=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="unsupported"),
+      "Android v49 : diviseur décimal nul jamais accepté");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");

@@ -1,5 +1,11 @@
 # Commencer les mathématiques du DAEU B — première séance
 
+### Coefficients décimaux exacts devant les racines (v49)
+
+
+Le correcteur accepte maintenant les facteurs décimaux courts devant ou après une racine, avec point ou virgule : `0,5√(x)=1`, `2.5*√(x)=5`, `√(x)*0,5=1` et `√(x)/1.25=1.6`. Le coefficient est converti en fraction **exacte**, sans flottants ni arrondis, puis la racine est isolée avant la vérification des solutions. Les facteurs nuls, décimales trop longues, multiplications par une variable et expressions ambiguës restent non vérifiés. Les signes reconnus dans le cahier doivent être confirmés avant la correction.
+
+
 **Accès direct :** https://daeu-b-maths-dbrckk.onrender.com/#commencer
 
 Prévoir un smartphone Android (ou un PC) et environ 20 à 30 minutes. Le cahier de calcul intégré permet de poser les opérations sans papier. Aucun compte, paiement ou installation n'est requis. Il s'agit d'une préparation, pas d'une inscription administrative ni d'une délivrance du diplôme.
