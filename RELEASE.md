@@ -1,5 +1,13 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v56 — feuille immersive à la place des panneaux (14 novembre 2026)
+
+- Une unique grande page blanche occupe presque tout le téléphone et affiche l’énoncé en haut de la copie ; le quadrillage et les traits restent dans le même cahier sauvegardé.
+- Les outils (pagination, gomme, annulation, déplacement et agrandissement) sont **repliés par défaut** derrière « Outils de la feuille », pour ne pas masquer le papier. Les gestes sont possibles sans les ouvrir.
+- Deux vues : feuille entière, ou agrandissement pour de longues équations. La validation demeure accessible sans autre champ de réponse.
+- Compatibilité des copies déjà enregistrées, conservation de la correction sans note fictive et cache PWA v56.
+
+
 ## v55 — la feuille numérique comme support unique d'écriture (14 novembre 2026)
 
 - Les quiz s'ouvrent sur une grande copie plein écran : questions et choix imprimés en haut, écritures au doigt ou au stylet, sans formulaire ni clavier visible. Le geste et les pages sont sauvegardés automatiquement dans le format existant.
