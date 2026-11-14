@@ -733,7 +733,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     zoom.className="subtle small math-notebook-paper-zoom";
     let expanded=false;
     const updateZoom=()=>{
-      paper.style.width=expanded?"1260px":"100%";
+      sheetViewport.querySelector(".math-notebook-paper").style.width=expanded?"1260px":"100%";
       canvas.style.width=expanded?"1260px":"100%";
       zoom.textContent=expanded?"Voir la feuille entière":"Agrandir pour écrire";
       zoom.setAttribute("aria-pressed",String(expanded));
