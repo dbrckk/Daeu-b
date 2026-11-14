@@ -485,6 +485,60 @@ try {
     })&&await editedPage.locator("#feedback").isVisible(),
       "Réponse retouchée au toucher : vérifiée objectivement mais comptée comme assistée, sans acquis autonome");
   }finally{await assistedInkContext.close();}
+
+  // Intégration de la nouvelle lecture d'une fraction empilée (tracés
+  // vectoriels réels, sans injecter une transcription texte).
+  const fracContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const fracPage=await fracContext.newPage();
+    fracPage.on("pageerror",error=>errors.push("Fraction manuscrite : "+error.message));
+    await fracPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await fracPage.locator("#firstStart").click();
+    await fracPage.evaluate(()=>{
+      const data=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const id=data.round.ids[0];
+      const glyphs={
+        x:[[[17,10],[83,90]],[[83,10],[17,90]]],
+        "=":[[[15,40],[85,40]],[[15,60],[85,60]]],
+        "1":[[[50,5],[50,97]]],
+        "2":[[[18,26],[30,11],[55,7],[77,17],[83,37],[72,54],[49,73],[20,94],[86,94]]],
+        "5":[[[79,9],[25,9],[20,46],[48,42],[73,49],[84,70],[73,87],[49,95],[20,86]]]
+      };
+      const paths=[];
+      const draw=(name,x,y,scale)=>{
+        for(const segment of glyphs[name]){
+          paths.push(segment.map(([px,py])=>[
+            Math.round(x+px*scale),Math.round(y+py*scale)
+          ].join(",")).join(";"));
+        }
+      };
+      draw("x",24,64,.7);draw("=",100,64,.7);
+      draw("1",218,31,.42);draw("2",267,31,.42);
+      paths.push("209,102;370,102");
+      draw("2",217,120,.42);draw("5",266,120,.42);
+      data.workbook.entries["quiz:"+id]={text:"",pages:[paths]};
+      data.revision++;
+      localStorage.setItem("daeu-b-data-v1",JSON.stringify(data));
+    });
+    await fracPage.reload({waitUntil:"networkidle"});
+    await fracPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await fracPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=12/25")
+      &&await fracPage.locator("#quizNotebook .math-notebook-equations-final button")
+        .textContent().then(t=>t.includes("x = 12/25"))
+      &&await fracPage.locator("#feedback").isHidden(),
+      "Fraction manuscrite empilée 12/25 lue dans le cahier Android sans notation prématurée");
+    await fracPage.locator("#quizNotebook .math-notebook-equations-final button").click();
+    await check(async()=>await fracPage.evaluate(()=>{
+      const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const id=state.round.ids[0],row=state.practice.items[id];
+      return state.round.completed===1&&row?.attempts===1
+        &&state.workbook.entries["quiz:"+id]?.pages[0]?.length===9;
+    })&&await fracPage.locator("#feedback").isVisible(),
+      "Fraction empilée confirmée et corrigée par le quiz objectif, avec progression enregistrée");
+  }finally{await fracContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
