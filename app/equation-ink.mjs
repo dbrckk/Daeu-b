@@ -4,8 +4,8 @@
  * être confirmée visuellement avant la vérification mathématique.
  *
  * Symboles supportés : chiffres, x, +, -, =, /, parenthèses et exposant 2
- * surélevé ; fraction simple avec un chiffre au-dessus/dessous d’une barre.
- * Aucune reconnaissance générale des formules ni des démonstrations.
+ * surélevé ; fraction de un à trois chiffres par terme ou court numérateur en x.
+ * Aucune reconnaissance générale des racines ou des démonstrations.
  */
 import {parseStroke,encodeStroke} from "./workbook.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
@@ -131,26 +131,69 @@ function readGlyph(group){
   return result.status==="recognized"&&result.text.length===1?result.text:null;
 }
 
-/** Une fraction empilée n'est acceptée que si chaque terme est un seul chiffre. */
+/**
+ * Reconnaissance strictement locale des fractions écrites en colonne.
+ * Le dénominateur doit être un entier non nul (1 à 3 chiffres) ;
+ * le numérateur peut être un entier ou une courte expression en x.
+ * Une fraction algébrique est parenthésée pour éviter les ambiguïtés.
+ *
+ * On ne traite pas les dénominateurs en x, les fractions imbriquées,
+ * les opérations non reconnues ou les divisions par zéro : le lecteur
+ * laisse alors l'utilisateur corriger explicitement la transcription.
+ */
 function foldFractions(paths){
   const entries=paths.map((path,id)=>({id,paths:[path],box:rect([path])}));
   const used=new Set(),found=[];
-  for(const bar of entries){
-    if(used.has(bar.id)||!horizontal(bar.paths[0])||width(bar.box)<29)continue;
+  const bars=entries.filter(e=>horizontal(e.paths[0])&&width(e.box)>=29)
+    .sort((a,b)=>width(b.box)-width(a.box));
+  for(const bar of bars){
+    if(used.has(bar.id))continue;
     const y=cy(bar.box),w=width(bar.box);
-    const near=entries.filter(e=>e.id!==bar.id&&!used.has(e.id)
-      &&cx(e.box)>=bar.box.left-6&&cx(e.box)<=bar.box.right+6
-      &&width(e.box)<w*1.35&&height(e.box)>=20);
-    const upper=near.filter(e=>e.box.bottom<y-9&&y-e.box.bottom<=38);
-    const lower=near.filter(e=>e.box.top>y+9&&e.box.top-y<=38);
-    if(upper.length!==1||lower.length!==1)continue;
-    const a=recognizeNumericInk([encodeStroke(upper[0].paths[0])]);
-    const b=recognizeNumericInk([encodeStroke(lower[0].paths[0])]);
-    if(a.status!=="recognized"||b.status!=="recognized"
-      ||!/^\d$/.test(a.text)||!/^\d$/.test(b.text)||b.text==="0")continue;
-    used.add(bar.id);used.add(upper[0].id);used.add(lower[0].id);
-    found.push({paths:[...upper[0].paths,...bar.paths,...lower[0].paths],
-      preRead:a.text+"/"+b.text});
+    // Les deux traits du signe "=" ne forment jamais une barre de fraction.
+    if(bars.some(other=>other.id!==bar.id
+      &&Math.abs(cy(other.box)-y)>=5&&Math.abs(cy(other.box)-y)<=30
+      &&overlap(other.box,bar.box)>=Math.min(width(other.box),w)*.65))
+      continue;
+    const gap=Math.min(60,Math.max(38,w*.55));
+    const inside=e=>e.id!==bar.id&&!used.has(e.id)
+      &&cx(e.box)>=bar.box.left-4&&cx(e.box)<=bar.box.right+4;
+    const upper=entries.filter(e=>inside(e)
+      &&e.box.bottom<y-7&&y-e.box.bottom<=gap);
+    const lower=entries.filter(e=>inside(e)
+      &&e.box.top>y+7&&e.box.top-y<=gap);
+    if(!upper.length||!lower.length)continue;
+    const topGroups=glyphs(upper),bottomGroups=glyphs(lower);
+    if(topGroups.length>9||bottomGroups.length>3)continue;
+    const top=topGroups.map(readGlyph),bottom=bottomGroups.map(readGlyph);
+    if(top.some(x=>!x)||bottom.some(x=>!x))continue;
+    const numerator=top.join(""),denominator=bottom.join("");
+    if(!/^(?:\d{1,3}|[0-9x()+-]{1,10})$/.test(numerator)
+      ||!/^\d{1,3}$/.test(denominator)||Number(denominator)===0)
+      continue;
+    // Ne pas transformer une suite non mathématique en fraction reconnue.
+    // Les cas plus généraux doivent rester éditables au toucher.
+    if(/^[+-]/.test(numerator)&&!/^-\d{1,3}$/.test(numerator))continue;
+    if(/[+\-]$/.test(numerator)||/\(\)/.test(numerator))continue;
+    let depth=0;
+    for(const char of numerator){
+      if(char==="(")depth++;
+      else if(char===")")depth--;
+      if(depth<0)break;
+    }
+    if(depth!==0)continue;
+    const usedEntries=[...upper,...lower,bar];
+    // Le trait horizontal doit dépasser au moins légèrement les chiffres
+    // qu'il divise. Rejeter les signes "-" ordinaires entre deux lignes.
+    const topBox=rect(upper.flatMap(e=>e.paths));
+    const bottomBox=rect(lower.flatMap(e=>e.paths));
+    if(width(topBox)>w*1.12||width(bottomBox)>w*1.12
+      ||cx(topBox)<bar.box.left-5||cx(topBox)>bar.box.right+5
+      ||cx(bottomBox)<bar.box.left-5||cx(bottomBox)>bar.box.right+5)
+      continue;
+    for(const e of usedEntries)used.add(e.id);
+    const atomic=/^-?\d{1,3}$/.test(numerator)||numerator==="x";
+    const text=(atomic?numerator:"("+numerator+")")+"/"+denominator;
+    found.push({paths:usedEntries.flatMap(e=>e.paths),preRead:text});
   }
   return [...entries.filter(e=>!used.has(e.id)),...found];
 }
