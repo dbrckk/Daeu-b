@@ -260,7 +260,8 @@ export function checkMathSteps(text){
           ?"Équation avec racine carrée : "+description(result)+". Après mise au carré, chaque solution candidate a été contrôlée dans l'égalité initiale."
           :result.quadratic
             ?"Équation du second degré reconnue (Δ = "+result.discriminant+"). Les lignes suivantes seront comparées selon leur ensemble de solutions réelles."
-            :"Équation du premier degré reconnue. Les transformations suivantes seront comparées à cette ligne."});
+            :"Équation du premier degré reconnue. Les transformations suivantes seront comparées à cette ligne.")
+        +(result.methodSteps?.length?" Méthode guidée : "+result.methodSteps.join(" "):"")});
     }else if(sameSolution(previous,result)){
       entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+previousLine+" : même ensemble de solutions ("+description(result)+")."});
     }else{
