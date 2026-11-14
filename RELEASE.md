@@ -1,5 +1,12 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v54 — validation sur la feuille sans correction révélée trop tôt (14 novembre 2026)
+
+- La validation principale tente la reconnaissance locale du résultat numérique, puis la lecture des équations manuscrites sur la dernière page utilisée, avant de montrer le corrigé. Chaque proposition doit être confirmée manuellement avant toute notation ; une lecture partielle laisse accès à la correction tactile.
+- Pour les réponses non interprétables ou les QCM, l'auto-évaluation après affichage du corrigé reste possible sans aucun papier et n'augmente pas artificiellement la maîtrise.
+- Les gestes tactiles annulés par Android ne sont plus persistés ; le cahier garde les traits précédents. Le nouveau cache PWA v54 empêche le mélange des modules.
+- Contrôles ciblés : parcours Chromium du bouton principal avec un nombre écrit, interruption tactile, parcours manuel, Node, cours, cache et CI. Les tests simulés ne remplacent pas un essai sur téléphone physique.
+
 ## v36 — grande feuille et remise manuscrite sans ressaisie (13 novembre 2026)
 
 - Sur les quiz, le cahier propose une surface d'écriture de 840 px, débordant horizontalement dans une zone de défilement, avec flèches et mode déplacement tactile. Le format de sauvegarde des traits reste 600 × 800 pour conserver les copies existantes ; seule leur échelle affichée change. Huit pages par activité restent disponibles.

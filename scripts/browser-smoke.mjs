@@ -235,6 +235,27 @@ try {
     }),"Surface manuscrite : feuille vectorielle 900 × 1200 et fenêtre de dessin haute");
     const sheetBox=await manualPage.locator("#quizNotebook .math-notebook-sheet-viewport").boundingBox();
     assert.ok(sheetBox&&sheetBox.width>200,"Surface manuscrite non affichée");
+    // Un geste Android interrompu ne doit pas devenir une réponse sauvegardée.
+    await manualPage.evaluate(()=>{
+      const sheet=document.querySelector("#quizNotebook .math-notebook-canvas");
+      window.__cancelPointerId=null;
+      sheet.addEventListener("pointerdown",event=>{window.__cancelPointerId=event.pointerId;},{once:true});
+    });
+    await manualPage.mouse.move(sheetBox.x+38,sheetBox.y+65);
+    await manualPage.mouse.down();
+    await manualPage.mouse.move(sheetBox.x+80,sheetBox.y+75,{steps:3});
+    await manualPage.evaluate(()=>{
+      const sheet=document.querySelector("#quizNotebook .math-notebook-canvas");
+      sheet.dispatchEvent(new PointerEvent("pointercancel",{
+        bubbles:true,pointerId:window.__cancelPointerId,button:0
+      }));
+    });
+    await manualPage.mouse.up();
+    await check(async()=>await manualPage.evaluate(()=>{
+      const s=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const firstId=s.round.ids[0];
+      return !(s.workbook.entries["quiz:"+firstId]?.pages?.[0]?.length);
+    }),"Android : un trait interrompu n'est ni conservé ni validé");
     await manualPage.mouse.move(sheetBox.x+38,sheetBox.y+65);
     await manualPage.mouse.down();
     await manualPage.mouse.move(sheetBox.x+180,sheetBox.y+116,{steps:8});
@@ -258,7 +279,7 @@ try {
       &&await manualPage.locator("#quizNotebook canvas.is-panning").count()===1,
       "Le mode déplacement permet de parcourir la feuille sans nouveau trait");
     await manualPage.locator("#quizNotebook .math-notebook-view-tools button").filter({hasText:"Reprendre le stylo"}).click();
-    await manualPage.locator("#quizNotebook .math-notebook-quick-validate").click();
+    await manualPage.locator("#quizNotebook .math-notebook-manual button").filter({hasText:"Afficher le corrigé"}).click();
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").isVisible()
       &&await manualPage.locator("#quizNotebook .math-notebook-manual-comparison").textContent()
         .then(t=>t.includes("Réponse attendue")&&t.includes("Correction détaillée")),
@@ -314,7 +335,7 @@ try {
     await inkPage.mouse.down();
     await inkPage.mouse.move(inkBox.x+85,inkBox.y+194,{steps:12});
     await inkPage.mouse.up();
-    await inkPage.locator("#quizNotebook .math-notebook-recognition>button").click();
+    await inkPage.locator("#quizNotebook .math-notebook-quick-validate").click();
     await check(async()=>await inkPage.locator("#quizNotebook .math-notebook-recognition-candidate>strong")
       .textContent().then(t=>t.includes("Lecture proposée : 1"))
       &&await inkPage.locator("#quizNotebook .math-notebook-manual-comparison").isHidden()
