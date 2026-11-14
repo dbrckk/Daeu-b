@@ -402,6 +402,20 @@ try {
         return d.round.completed===0;
       }),
       "Transcription corrigée au toucher sans clavier ; aucune notation avant confirmation");
+    await check(async()=>await equationPage.evaluate(()=>{
+      const d=JSON.parse(localStorage.getItem("daeu-b-data-v1")),id=d.round.ids[0];
+      const entry=d.workbook.entries["quiz:"+id];
+      return entry?.inkDrafts?.["0"]?.text==="x=2"&&entry.inkDrafts["0"].edited===true;
+    }),"Correction tactile enregistrée avec la copie et sa source manuscrite");
+    await equationPage.reload({waitUntil:"networkidle"});
+    await equationPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=2")
+      &&await equationPage.locator("#quizNotebook .math-notebook-equations [role=status]").first()
+        .textContent().then(t=>t.includes("retrouvée"))
+      &&await equationPage.locator("#answer").inputValue().then(t=>t===""),
+      "Après rechargement, transcription corrigée retrouvée sans perdre l'écriture ni saisir de texte");
+    await equationPage.locator("#quizNotebook .math-notebook-ink-edit-toggle").click();
     await equationPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(2).click();
     await equationPage.locator("#quizNotebook .math-notebook-ink-symbols button")
       .filter({hasText:/^1$/}).click();
