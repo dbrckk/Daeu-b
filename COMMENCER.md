@@ -164,3 +164,9 @@ Les boutons **Dérivée sin/cos**, **Dérivée exp** et **Dérivée ln** insère
 - `f(x) = ln(2x+1)` puis `f'(x) = 2/(2x+1)` (uniquement pour `2x+1 > 0`).
 
 Le contrôle compare exactement les coefficients et l'argument affine. Il n'évalue pas les démonstrations, ni les produits de fonctions trigonométriques, puissances de logarithmes, compositions non affines, ou primitives. Les corrections restent invisibles tant que la vérification n'est pas demandée. Aucun papier, calculateur payant ou export manuel n'est nécessaire pour utiliser ces modèles.
+
+### Racines carrées à radicande décimal manuscrit (v52)
+
+Le cahier peut maintenant lire un radicande décimal court dessiné sous une barre de racine, par exemple `x=√(0,5)` ou `x=√(0.5)`. Le signe `√` reste un tracé continu avec barre supérieure, et la virgule ou le point doit se trouver en bas, entre deux chiffres. Le geste de racine de droite à gauche est également reconnu.
+
+La transcription n'est **pas** une preuve de calcul : la correction automatique d'une expression non prise en charge par le solveur est refusée, et aucune valeur numérique n'est déduite d'une racine. Le résultat final n'est soumis qu'après confirmation explicite de l'élève. Les tracés et la progression restent sauvegardés.
