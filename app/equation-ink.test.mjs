@@ -267,8 +267,10 @@ test("Fraction algébrique verticale : dénominateur x+1 parenthésé",()=>{
   assert.equal(read.status,"recognized",JSON.stringify(read));
   assert.equal(read.text,"x=2/(x+1)");
   const review=checkMathSteps(read.text);
-  assert.equal(review.checked,0,"Une division par x ne doit pas produire de faux résultat");
-  assert.equal(review.unsupported,1);
+  assert.equal(review.checked,1,"Les domaines rationnels affines sont vérifiés exactement");
+  assert.equal(review.unsupported,0);
+  assert.equal(review.errors,0);
+  assert.match(review.entries[0].message,/x = -1/);
 });
 test("Dénominateur identiquement nul : expression refusée",()=>{
   const read=recognizeEquationInk(rationalDenominatorInk("x-x"),{draft:true});
