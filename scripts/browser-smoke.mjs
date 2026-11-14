@@ -595,6 +595,26 @@ try {
       .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
         &&t.includes("0 transformation(s) ou calcul(s) erroné(s)")),
       "Racine carrée parfaite vérifiée exactement par le contrôleur mathématique");
+    // Le signe de multiplication doit être insérable au doigt, puis la
+    // transcription corrigée doit rester sauvegardée sans saisie physique.
+    await advancedInkPage.locator("#quizNotebook .math-notebook-ink-edit-toggle").click();
+    await advancedInkPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(1).click();
+    await advancedInkPage.locator("#quizNotebook .math-notebook-ink-edit-tools button")
+      .filter({hasText:"Insérer à droite"}).click();
+    await advancedInkPage.locator("#quizNotebook .math-notebook-ink-symbols button")
+      .filter({hasText:/^2$/}).click();
+    await advancedInkPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(2).click();
+    await advancedInkPage.locator("#quizNotebook .math-notebook-ink-symbols button")
+      .filter({hasText:/^\\*$/}).click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=2*√(9)")
+      &&await advancedInkPage.evaluate(()=>{
+        const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        const id=state.round.ids[0];
+        return state.workbook.entries["quiz:"+id]?.inkDrafts?.["0"]?.text==="x=2*√(9)"
+          &&state.workbook.entries["quiz:"+id].inkDrafts["0"].edited===true;
+      }),
+      "Android v48 : signe * et chiffre 2 ajoutés au toucher, transcription sauvegardée");
     await replaceInk("rational");
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
       .textContent().then(t=>t==="x=2/(x+1)")
@@ -673,11 +693,25 @@ try {
         .textContent().then(t=>t.includes("√(21)")),
       "Android v47 : radical avec variable additionnée, transformation équivalente et solution irrationnelle exacte");
     await advancedInkPage.locator("#quizNotebook textarea")
-      .fill("2*√(x)=4");
+      .fill("2*√(x)=4\nx=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
+        .textContent().then(t=>t.includes("facteur constant non nul")),
+      "Android v48 : facteur numérique devant la racine résolu avec division exacte");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("x+2√(x)=8\nx=16\nx=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,error,ok"),
+      "Android v48 : x=16 rejeté comme parasite et x=4 conservé");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("x*√(x)=4");
     await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
       .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="unsupported"),
-      "Android v47 : produit devant la racine explicitement non vérifié");
+      "Android v48 : coefficient variable refusé sans faux verdict");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
