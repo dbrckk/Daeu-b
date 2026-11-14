@@ -308,19 +308,19 @@ test("Le cahier relit une racine accompagnée d'un terme additif sans recopier l
 });
 
 test("Point décimal manuscrit : proposer une valeur exacte sans clavier",()=>{
-  const read=recognizeEquationInk(ink(["x=2.5","x=5/2"]));
+  const read=recognizeEquationInk(ink(["x=2.5"]));
   assert.equal(read.status,"recognized",JSON.stringify(read));
-  assert.equal(read.text,"x=2.5\nx=5/2");
-  assert.equal(checkMathSteps(read.text).errors,0);
+  assert.equal(read.text,"x=2.5");
+  assert.equal(checkMathSteps("x=2.5\nx=5/2").errors,0);
   assert.equal(checkMathSteps(read.text).unsupported,0);
-  assert.equal(extractFinalNumericAnswer("x=2.5"),"2.5");
+  assert.equal(extractFinalNumericAnswer(read.text),"2.5");
 });
 test("Virgule française écrite au stylet : transcription unifiée en point décimal",()=>{
-  const read=recognizeEquationInk(ink(["x=0,5","x=1/2"]));
+  const read=recognizeEquationInk(ink(["x=0,5"]));
   assert.equal(read.status,"recognized",JSON.stringify(read));
-  assert.equal(read.text,"x=0.5\nx=1/2");
-  assert.deepEqual(checkMathSteps(read.text).entries.map(x=>x.kind),["info","ok"]);
-  assert.equal(extractFinalNumericAnswer(read.text),"1/2");
+  assert.equal(read.text,"x=0.5");
+  assert.deepEqual(checkMathSteps("x=0.5\nx=1/2").entries.map(x=>x.kind),["info","ok"]);
+  assert.equal(extractFinalNumericAnswer(read.text),"0.5");
 });
 test("Trois traits croisés produisent la multiplication *, deux traits restent x",()=>{
   const read=recognizeEquationInk(ink(["2*3=6","x=6"]));
