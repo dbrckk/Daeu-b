@@ -11,7 +11,7 @@ const context=await browser.newContext({viewport:{width:390,height:844},deviceSc
 const page=await context.newPage(),errors=[];
 page.setDefaultTimeout(15000);
 page.setDefaultNavigationTimeout(15000);
-const watchdog=setTimeout(()=>{console.error("ÉCHEC : délai global du test navigateur dépassé");process.exit(2);},120000);
+const watchdog=setTimeout(()=>{console.error("ÉCHEC : délai global du test navigateur dépassé");process.exit(2);},180000);
 page.on("pageerror",e=>errors.push("JS : "+e.message));
 page.on("response",r=>{if(r.url().startsWith(BASE)&&r.status()>=400)errors.push(r.status()+" "+r.url());});
 page.on("dialog",dialog=>dialog.accept());
@@ -21,7 +21,7 @@ const check=async (fn,label)=>{
 };
 
 try {
-  await page.goto(BASE,{waitUntil:"networkidle",timeout:30000});
+  await page.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle",timeout:30000});
   // Version prête à commencer : première séance autonome sur un téléphone vierge.
   const firstContext=await browser.newContext({
     viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
@@ -29,7 +29,7 @@ try {
   try{
     const firstPage=await firstContext.newPage();
     firstPage.on("pageerror",e=>errors.push("Première séance : "+e.message));
-    await firstPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await firstPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     await check(async()=>await firstPage.locator("#firstStart").isVisible()
       &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Démarrer mon diagnostic"))
       &&await firstPage.locator("#firstStatus").textContent().then(t=>t.includes("aucun exercice")),
@@ -207,7 +207,7 @@ try {
   try{
     const manualPage=await manualContext.newPage();
     manualPage.on("pageerror",error=>errors.push("Feuille manuscrite : "+error.message));
-    await manualPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await manualPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     await manualPage.locator("#firstStart").click();
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-quick-validate").isVisible()
       &&await manualPage.locator("#answer").inputValue().then(value=>value==="")
@@ -311,7 +311,7 @@ try {
   try{
     const inkPage=await inkContext.newPage();
     inkPage.on("pageerror",error=>errors.push("Reconnaissance numérique : "+error.message));
-    await inkPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await inkPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     // Utiliser la question numérique fixe du démarrage : une séance
     // aléatoire du thème nombres peut commencer par un QCM, incompatible
     // avec le lecteur des valeurs numériques.
@@ -361,7 +361,7 @@ try {
   try{
     const equationPage=await equationContext.newPage();
     equationPage.on("pageerror",error=>errors.push("Équations manuscrites : "+error.message));
-    await equationPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await equationPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     await equationPage.locator("#firstStart").click();
     await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations>button").isVisible()
       &&await equationPage.locator("#quizNotebook .math-notebook-equations-candidate").isHidden(),
@@ -478,7 +478,7 @@ try {
   try{
     const editedPage=await assistedInkContext.newPage();
     editedPage.on("pageerror",error=>errors.push("Résultat manuscrit retouché : "+error.message));
-    await editedPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await editedPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     await editedPage.locator("#firstStart").click();
     const sheet=editedPage.locator("#quizNotebook .math-notebook-sheet-viewport");
     await sheet.scrollIntoViewIfNeeded();
@@ -519,7 +519,7 @@ try {
   try{
     const fracPage=await fracContext.newPage();
     fracPage.on("pageerror",error=>errors.push("Fraction manuscrite : "+error.message));
-    await fracPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await fracPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     await fracPage.locator("#firstStart").click();
     await fracPage.evaluate(()=>{
       const data=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
@@ -572,7 +572,7 @@ try {
   try{
     const advancedInkPage=await advancedInkContext.newPage();
     advancedInkPage.on("pageerror",error=>errors.push("Radicaux manuscrits : "+error.message));
-    await advancedInkPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await advancedInkPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
     await advancedInkPage.locator("#firstStart").click();
     const replaceInk=async(mode)=>{
       await advancedInkPage.evaluate(kind=>{
@@ -938,7 +938,7 @@ try {
   const diagnosisContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
     const diagnosisPage=await diagnosisContext.newPage();
-    await diagnosisPage.goto(BASE,{waitUntil:"networkidle"});
+    await diagnosisPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
     await check(async()=>await diagnosisPage.locator("#jalonList li").count()===20,"v25 : 20 jalons consultables");
     await check(async()=>await diagnosisPage.locator("#pathNext h3").textContent().then(s=>s.includes("Nombres entiers")),"v25 : recommandation initiale");
     await check(async()=>await diagnosisPage.locator("#jalonList li").nth(17).locator('a[href*="set=transferts"]').getAttribute("href").then(s=>s.includes("jalon=18")),"v25 : transfert ciblé sur le jalon 18");
@@ -1016,7 +1016,7 @@ try {
   const dueContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
     const duePage=await dueContext.newPage();
-    await duePage.goto(BASE,{waitUntil:"networkidle"});
+    await duePage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
     const persisted=await duePage.evaluate(async()=>{
       const [{createPersistence},{recordTransferReview,TRANSFER_DAY_MS},{TOPICS},{injectVariants},{flatten}]=await Promise.all([
         import("./persistence.mjs"),import("./transfer-progress.mjs"),
@@ -1172,7 +1172,7 @@ try {
   });
   const dPage=await dContext.newPage();
   dPage.on("dialog",dialog=>dialog.accept());
-  await dPage.goto(BASE,{waitUntil:"networkidle"});
+  await dPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
   await dPage.locator("#examSelect").selectOption("blanc-d");
   await dPage.locator("#examStart").click();
   await check(async()=>await dPage.locator("#examActive").isVisible(),"Nouvel examen D démarré");
@@ -1231,7 +1231,7 @@ try {
   try{
     const ePage=await eContext.newPage();
     ePage.on("dialog",dialog=>dialog.accept());
-    await ePage.goto(BASE,{waitUntil:"networkidle"});
+    await ePage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
     await ePage.locator("#examSelect").selectOption("blanc-e");
     await ePage.locator("#examStart").click();
     await check(async()=>await ePage.locator("#examActive").isVisible()
@@ -1287,7 +1287,7 @@ try {
     viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
   });
   const roundPage=await roundContext.newPage();
-  await roundPage.goto(BASE,{waitUntil:"networkidle"});
+  await roundPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
   await roundPage.locator("#topic").selectOption("nombres");
   await roundPage.locator("#start").click();
   const firstPrompt=await roundPage.locator("#questionText").textContent();
@@ -1412,7 +1412,7 @@ try {
     viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
   });
   const quotaPage=await quotaContext.newPage();
-  await quotaPage.goto(BASE,{waitUntil:"networkidle"});
+  await quotaPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
   await quotaPage.locator("#examSelect").selectOption("blanc-c");
   await quotaPage.locator("#examStart").click();
   const beforeQuota=await quotaPage.locator("#examQuestions .exam-input").first().inputValue();

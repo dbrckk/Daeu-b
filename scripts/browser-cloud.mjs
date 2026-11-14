@@ -50,7 +50,7 @@ const a=await context(),b=await context();
 try{
  const first=await a.newPage();
  await first.route(HOST+"/**",mockSupabase);
- await first.goto(BASE,{waitUntil:"networkidle"});
+ await first.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
  await first.locator("#firstStart").click();
  await first.locator("#unknownButton").click();
  await first.waitForFunction(()=>Number(document.querySelector("#attempted")?.textContent)>0);
@@ -72,7 +72,7 @@ try{
  console.log("OK Première connexion et création cloud privée, sans export");
  const second=await b.newPage();
  await second.route(HOST+"/**",mockSupabase);
- await second.goto(BASE,{waitUntil:"networkidle"});
+ await second.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
  assert.equal(await second.locator("#attempted").textContent(),"0");
  await second.locator("#cloudEmail").fill(email);
  await second.locator("#cloudPassword").fill("motdepassefort");
