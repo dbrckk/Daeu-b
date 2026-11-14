@@ -44,6 +44,9 @@ try{
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);
+  assert.ok(await page.locator("#quizNotebook .math-notebook-paper-tools>summary").isVisible());
+  assert.ok(await page.locator("#quizNotebook .math-notebook-pages").isHidden());
+  await page.locator("#quizNotebook .math-notebook-paper-tools>summary").click();
   await page.locator("#quizNotebook .math-notebook-pages button").filter({hasText:"Ajouter une page"}).click();
   const updated=await snapshot();
   assert.equal(updated.workbook.entries["quiz:"+questionId].pages.length,2);
