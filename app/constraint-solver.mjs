@@ -71,8 +71,25 @@ function rationalSide(source){
   catch(original){
     const slash=quotientIndex(source);
     if(slash<1||slash===source.length-1)throw original;
-    const numerator=parsePolynomial(source.slice(0,slash));
-    const denominator=parsePolynomial(source.slice(slash+1));
+    const numeratorText=source.slice(0,slash).trim();
+    const denominatorText=source.slice(slash+1).trim();
+    // Un dénominateur variable doit être un atome x ou une expression
+    // entièrement parenthésée. Ainsi 1/(x-1)+1 ne devient JAMAIS 1/x.
+    // La lecture de la fraction empilée écrit déjà les parenthèses.
+    if(!/^[xX]$/.test(denominatorText)){
+      if(!denominatorText.startsWith("(")||!denominatorText.endsWith(")"))
+        throw Error("entoure tout dénominateur algébrique de parenthèses");
+      let depth=0;
+      for(let i=0;i<denominatorText.length;i++){
+        if(denominatorText[i]==="(")depth++;
+        else if(denominatorText[i]===")")depth--;
+        if(depth<0||depth===0&&i<denominatorText.length-1)
+          throw Error("opération située après le dénominateur : fraction non vérifiée");
+      }
+      if(depth!==0)throw Error("parenthèses du dénominateur non fermées");
+    }
+    const numerator=parsePolynomial(numeratorText);
+    const denominator=parsePolynomial(denominatorText);
     if(degree(denominator)>1)
       throw Error("dénominateur quadratique : valeurs interdites non vérifiées");
     if(isZero(denominator))
