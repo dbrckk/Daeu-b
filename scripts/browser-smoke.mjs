@@ -445,6 +445,46 @@ try {
       &&await equationPage.locator("#feedback").isVisible(),
       "Le résultat final écrit uniquement au doigt est corrigé et sauvegardé sans ressaisie");
   }finally{await equationContext.close();}
+  // Séance distincte : la retouche d'un caractère doit être enregistrée
+  // comme aide pédagogique même si le résultat est soumis directement.
+  const assistedInkContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const editedPage=await assistedInkContext.newPage();
+    editedPage.on("pageerror",error=>errors.push("Résultat manuscrit retouché : "+error.message));
+    await editedPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await editedPage.locator("#firstStart").click();
+    const sheet=editedPage.locator("#quizNotebook .math-notebook-sheet-viewport");
+    await sheet.scrollIntoViewIfNeeded();
+    const b=await sheet.boundingBox();
+    assert.ok(b&&b.width>150,"Cahier indisponible sur smartphone");
+    const draw=async(coords)=>{
+      await editedPage.mouse.move(b.x+coords[0][0],b.y+coords[0][1]);
+      await editedPage.mouse.down();
+      for(const [x,y] of coords.slice(1))await editedPage.mouse.move(b.x+x,b.y+y,{steps:8});
+      await editedPage.mouse.up();
+    };
+    await draw([[35,56],[81,130]]);
+    await draw([[81,56],[35,130]]);
+    await draw([[105,80],[151,80]]);
+    await draw([[105,101],[151,101]]);
+    await draw([[180,56],[180,130]]);
+    await editedPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await editedPage.locator("#quizNotebook .math-notebook-ink-edit-toggle").click();
+    await editedPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(2).click();
+    await editedPage.locator("#quizNotebook .math-notebook-ink-symbols button")
+      .filter({hasText:/^2$/}).click();
+    await editedPage.locator("#quizNotebook .math-notebook-equations-final button").click();
+    await check(async()=>await editedPage.evaluate(()=>{
+      const d=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const id=d.round.ids[0],r=d.practice.items[id];
+      return d.round.completed===1&&d.round.assistedIds.includes(id)
+        &&r?.attempts===1&&r?.streak===0&&!r?.confirmed
+        &&d.workbook.entries["quiz:"+id].inkDrafts[0].edited;
+    })&&await editedPage.locator("#feedback").isVisible(),
+      "Réponse retouchée au toucher : vérifiée objectivement mais comptée comme assistée, sans acquis autonome");
+  }finally{await assistedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
