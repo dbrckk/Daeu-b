@@ -60,7 +60,7 @@ test("Lire les opérations et les égalités de chiffres sur des lignes distinct
 test("Ne jamais inventer une correction à partir de traits invalides",()=>{
   assert.equal(recognizeEquationInk([]).status,"empty");
   assert.equal(recognizeEquationInk(["<svg>"]).status,"unsupported");
-  assert.equal(recognizeEquationInk(Array(91).fill("10,10;20,20")).status,"unsupported");
+  assert.equal(recognizeEquationInk(Array(101).fill("10,10;20,20")).status,"unsupported");
   const result=recognizeEquationInk(ink(["7","8"]));
   assert.notEqual(result.status,"recognized");
 });
