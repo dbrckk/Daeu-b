@@ -544,7 +544,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     }
     currentEquationText=read.text;inkWasEdited=validSaved&&saved.edited===true;
     editCursor=Math.max(0,read.text.indexOf("□"));
-    inkEquationsEditor.hidden=read.status==="recognized";
+    inkEquationsEditor.hidden=read.status==="recognized"||(read.status==="restored"&&validateInkTranscript(read.text));
     inkEquationsCandidate.hidden=false;
     syncEquationCandidate();
     inkEquationsStatus.textContent=read.message;
