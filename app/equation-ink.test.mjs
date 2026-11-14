@@ -283,3 +283,23 @@ test("Aucun signe racine à partir d'un 7 ou d'une barre simple",()=>{
   assert.equal(read.status,"recognized",JSON.stringify(read));
   assert.equal(read.text,"7+1=8");
 });
+
+test("Le cahier relit une racine accompagnée d'un terme additif sans recopier le manuscrit",()=>{
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(points=>encodeStroke(
+    points.map(([px,py])=>[
+      Math.round(x+px*scale),Math.round(y+py*scale)
+    ])
+  ));
+  const page=[
+    ...radicalInk("9"),
+    ...draw("+",379,62,.6),
+    ...draw("2",447,62,.6)
+  ];
+  const read=recognizeEquationInk(page);
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=√(9)+2");
+  const steps=checkMathSteps(read.text+"\nx=5");
+  assert.deepEqual(steps.entries.map(e=>e.kind),["info","ok"]);
+  assert.equal(extractFinalNumericAnswer(read.text),null,
+    "La transcription n'est jamais notée sans résultat numérique explicite");
+});
