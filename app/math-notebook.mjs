@@ -687,8 +687,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
           return;
         }
         // Une suite d'équations peut se terminer par x = nombre.
-        inkEquationsRead.click();
-        if(!inkEquationsCandidate.hidden){
+        if(!inkEquations.hidden&&!inkEquationsRead.disabled)inkEquationsRead.click();
+        if(!inkEquations.hidden&&!inkEquationsCandidate.hidden){
           inkEquationsStatus.textContent="Étapes détectées sur ta feuille. Vérifie et corrige les symboles au toucher ; aucun résultat n'est noté sans confirmation.";
           inkEquationsCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
           return;
