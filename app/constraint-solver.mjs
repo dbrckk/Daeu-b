@@ -267,7 +267,7 @@ function rationalEquation(left,right){
  * 3 chiffres sont prises en charge ; jamais x√(...), √(...)/x ni √(...)².
  * Pour x-2√(x)+2, on renvoie (hors racine = x+2, facteur = -2).
  */
-const ROOT_SCALAR=/((?:[1-9][0-9]{0,2}|[0-9]{1,3}[.,][0-9]{1,3}))\\*?$/;
+const ROOT_SCALAR=/((?:[1-9][0-9]{0,2}|[0-9]{1,3}[.,][0-9]{1,3}))\*?$/;
 const ROOT_TRAILING_SCALAR=/^([*/])((?:[1-9][0-9]{0,2}|[0-9]{1,3}[.,][0-9]{1,3}))(?=$|[+-])/;
 function exactRootScalar(source){
   const normalized=source.replace(",",".");
