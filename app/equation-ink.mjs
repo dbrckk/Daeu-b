@@ -7,7 +7,8 @@
  * signe * à trois branches, parenthèses et exposant 2 surélevé ;
  * jusqu'à 12 lignes ou 48 glyphes sur une même ligne ;
  * fraction de termes courts en x et racine carrée écrite en un
- * seul geste avec une barre au-dessus de 1 à 3 chiffres, décimales courtes ou de x.
+ * seul geste avec une barre au-dessus de constantes courtes et de monômes
+ * en x (x² inclus), éventuellement avec une constante additionnelle.
  * Les expressions non polynomiales ne sont pas corrigées automatiquement.
  */
 import {parseStroke,encodeStroke} from "./workbook.mjs";
@@ -278,15 +279,27 @@ function foldRadicals(items){
       &&e.box.top>=radical.barY+6&&e.box.bottom<=b.bottom+6);
     if(!below.length){unclear();continue;}
     const groups=glyphs(below);
-    if(groups.length>7){unclear();continue;}
-    // Réutiliser la validation géométrique des points et virgules décimales.
-    // Ne jamais déduire un nombre d'un point libre sous la barre.
+    if(groups.length>11){unclear();continue;}
+    // La barre doit couvrir ENTIEREMENT le radicande. Un symbole coupé à
+    // droite pourrait sinon être pris pour une autre équation valide.
+    const contentBox=rect(below.flatMap(e=>e.paths));
+    if(contentBox.left<radical.barStart-6||contentBox.right>b.right+6){
+      unclear();continue;
+    }
+    // Réutiliser les contrôles de ponctuation et d'exposant. Les expressions
+    // sous la racine restent volontairement limitées : une constante ou
+    // un monôme en x (éventuellement au carré), suivi d'une constante.
     const reading=transcription(groups);
     if(!reading){unclear();continue;}
     const radicand=reading.text;
-    if(!/^(?:\d{1,3}(?:\.\d{1,2})?|x|x[+-]\d{1,2}(?:\.\d{1,2})?)$/.test(radicand)){
+    const constant=/^\d{1,3}(?:\.\d{1,2})?$/;
+    const polynomial=/^-?(?:\d{1,2}(?:\.\d)?\*?)?x(?:\^2)?(?:[+-]\d{1,2}(?:\.\d{1,2})?)?$/;
+    if(!constant.test(radicand)&&!polynomial.test(radicand)){
       unclear();continue;
     }
+    // Ne transmettre à la correction ni un exposant altéré ni une opération
+    // non reconnue : même grammaire que le solveur exact de degré <= 2.
+    try{parsePolynomial(radicand);}catch{unclear();continue;}
     used.add(root.id);
     for(const entry of below)used.add(entry.id);
     found.push({paths:[...root.paths,...below.flatMap(e=>e.paths)],
