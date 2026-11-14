@@ -42,7 +42,7 @@ test("Un membre sans racine strictement négatif rejette toutes les solutions ir
 test("Les limites non décidables exactement ne sont pas converties en valeurs vraies",()=>{
   for(const source of [
     "√(x²)=x","√(x+1)=x²","√(x)=√(x)",
-    "√(x+1)*2=x","√(x²+2)=√(x+2)"
+    "√(x+1)*x=x","√(x²+2)=√(x+2)"
   ]){
     const s=checkMathSteps(source);
     assert.equal(s.checked,0,source);
