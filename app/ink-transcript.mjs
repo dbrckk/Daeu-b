@@ -4,9 +4,9 @@
  * Les équations trop complexes restent refusées par le correcteur algébrique.
  */
 export const INK_EDIT_SYMBOLS=Object.freeze(
-  [..."0123456789", "x","+","-","=","/","(",")",".","^","√"]
+  [..."0123456789", "x","+","-","=","/","(",")",".","^","√","*"]
 );
-const PATTERN=/^[0-9x+\-=./()^√□\n]+$/;
+const PATTERN=/^[0-9x+\-=./()^√*□\n]+$/;
 export function validInkDraft(source){
   return typeof source==="string"&&source.length<=1200&&PATTERN.test(source);
 }
