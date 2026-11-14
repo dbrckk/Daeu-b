@@ -192,7 +192,7 @@ test("Une racine additionnée à une constante est isolée et vérifiée, des de
     ["x=2-√(x)","1"],
     ["√(x)+2=2","0"],
     ["√(x)-2=0","4"],
-    ["√(x)+(x-1)=3","4"]
+    ["√(x)+(x-1)=5","4"]
   ];
   for(const [equation,solution] of samples){
     const a=classifyEquality(equation),b=classifyEquality("x="+solution);
