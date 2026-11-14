@@ -502,8 +502,8 @@ function polynomialRadicalInk(expression,{reverse=false}={}){
   ];
   let xpos=316;
   for(let i=0;i<expression.length;i++){
-    if(expression[i]==="^"&&expression[i+1]==="2"){
-      strokes.push(...draw("2",xpos+5,24,.21));i++;xpos+=30;
+    if(expression[i]==="^"&&["2","3"].includes(expression[i+1])){
+      strokes.push(...draw(expression[i+1],xpos+5,24,.21));i++;xpos+=30;
     }else{
       strokes.push(...draw(expression[i],xpos,43,.4));xpos+=48;
     }
