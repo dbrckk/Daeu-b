@@ -191,7 +191,14 @@ export function classifyPolynomialEquality(text){
 }
 export function sameRealSolutions(left,right){
   if(left.kind!==right.kind)return false;
-  if(left.kind==="unique")return left.solutionRatio&&right.solutionRatio&&eq(left.solutionRatio,right.solutionRatio);
+  if(left.kind==="unique"){
+    if(left.solutionRatio&&right.solutionRatio)
+      return eq(left.solutionRatio,right.solutionRatio);
+    const a=left.algebraic,b=right.algebraic;
+    return !!(a&&b&&a.branch===b.branch
+      &&eq(a.normalizedB,b.normalizedB)
+      &&eq(a.normalizedC,b.normalizedC));
+  }
   if(left.kind==="two")return eq(left.normalizedB,right.normalizedB)&&eq(left.normalizedC,right.normalizedC);
   if(left.kind==="allExcept")return Array.isArray(left.excluded)
     &&Array.isArray(right.excluded)&&left.excluded.length===right.excluded.length

@@ -7,8 +7,9 @@
  * - (polynôme degré <= 2)/(dénominateur affine) = expression polynomiale
  *   ou un second quotient à dénominateur affine ; produit croisé <= degré 2 ;
  * - √(polynôme degré <= 2) = polynôme affine, ou ordre inverse ;
- * - racines de l'équation auxiliaire rationnelles uniquement dans le
- *   problème radical, contrôlées dans l'équation initiale.
+ * - candidats rationnels substitués exactement ; candidats quadratiques
+ *   irrationnels vérifiés par comparaison algébrique exacte des signes,
+ *   sans approximation ni évaluation de racines sur des flottants.
  */
 import {parsePolynomial,classifyPolynomialDifference,formatExact} from "./quadratic-checker.mjs";
 
@@ -49,6 +50,28 @@ const multiply=(a,b)=>{
 };
 const valueAt=(p,x)=>plus(p[0],times(x,plus(p[1],times(x,p[2]))));
 const isZero=p=>p.every(value=>value.n===0n);
+/** Mise en forme lisible, conservant les fractions exactes du calcul. */
+function formatPolynomial(poly){
+  const pieces=[];
+  for(let i=2;i>=0;i--){
+    const coefficient=poly[i];
+    if(coefficient.n===0n)continue;
+    const value=rat(abs(coefficient.n),coefficient.d);
+    const literal=formatExact(value);
+    const variable=i===2?"x²":i===1?"x":"";
+    const factor=i===0?literal
+      :literal==="1"?variable
+      :literal.includes("/")?"("+literal+")·"+variable
+      :literal+variable;
+    pieces.push({sign:signOf(coefficient),value:factor});
+  }
+  if(!pieces.length)return "0";
+  return pieces.map((part,i)=>{
+    if(i===0)return (part.sign<0?"-":"")+part.value;
+    return (part.sign<0?" - ":" + ")+part.value;
+  }).join("");
+}
+
 function quotientIndex(expression){
   let depth=0,index=-1;
   for(let i=0;i<expression.length;i++){
@@ -123,6 +146,65 @@ function candidates(classification){
   }
   return null; // Ensemble infini ou racines irrationnelles
 }
+/**
+ * Le discriminant est strictement positif et sa racine est irrationnelle.
+ * Pour x = (-B ± √(B²-4C))/2, on compare m·x+n à zéro sans jamais
+ * convertir √D en Number. Un signe faux ferait accepter une racine parasite.
+ */
+function signOf(value){return value.n===0n?0:value.n>0n?1:-1;}
+function signOfQuadraticSurd(a,b,radicand){
+  const sa=signOf(a),sb=signOf(b);
+  if(sb===0)return sa;
+  if(sa===0||sa===sb)return sb;
+  const lhs=times(a,a),rhs=times(times(b,b),radicand);
+  const magnitude=compare(lhs,rhs);
+  if(magnitude===0)throw Error("racine supposée irrationnelle devenue rationnelle");
+  return magnitude>0?sa:sb;
+}
+function irrationalCandidates(raw){
+  if(raw.kind!=="two"||raw.solutions!==null)
+    throw Error("racines quadratiques non irrationnelles");
+  const B=raw.normalizedB,C=raw.normalizedC;
+  const D=minus(times(B,B),times(rat(4n),C));
+  if(D.n<=0n)throw Error("discriminant non positif");
+  const center=over(neg(B),rat(2n));
+  const spreadSquared=over(D,rat(4n));
+  const digits=formatExact(spreadSquared);
+  const bText=formatExact(neg(B));
+  const dText=formatExact(D);
+  // Forme exacte standard sans simplification algébrique risquée :
+  // B=0 donne x=±√(D/4), sinon x=(-B±√D)/2.
+  const label=branch=>bText==="0"
+    ?(branch==="lower"?"-":"")+"√("+digits+")"
+    :"("+bText+(branch==="lower"?"-":"+")+"√("+dText+"))/2";
+  return ["lower","upper"].map(branch=>({
+    branch,normalizedB:B,normalizedC:C,discriminant:D,
+    label:label(branch),center,radicand:D
+  }));
+}
+/** Signe exact d'un polynôme affine à une racine quadratique irrationnelle. */
+function signAffineAtIrrational(poly,candidate){
+  if(degree(poly)>1)throw Error("contrôle de signe de degré supérieur à un");
+  const constant=plus(poly[0],times(poly[1],candidate.center));
+  const radical=over(poly[1],rat(candidate.branch==="lower"?-2n:2n));
+  return signOfQuadraticSurd(constant,radical,candidate.radicand);
+}
+function irrationalFilteredResult(raw,target,metadata={}){
+  const roots=irrationalCandidates(raw);
+  // Pour une racine carrée, l'équation auxiliaire garantit R(x)=T(x)².
+  // Dans l'équation initiale √R(x)=T(x), le seul autre contrôle est T(x)>=0.
+  const kept=roots.filter(candidate=>signAffineAtIrrational(target,candidate)>=0);
+  const discarded=roots.filter(candidate=>!kept.includes(candidate));
+  const details={...metadata,rejectedCandidates:discarded.map(x=>x.label),
+    irrationalExact:true};
+  if(!kept.length)return {kind:"none",...details};
+  if(kept.length===2)return {...raw,...details};
+  const candidate=kept[0];
+  return {kind:"unique",solution:candidate.label,
+    algebraic:{normalizedB:candidate.normalizedB,normalizedC:candidate.normalizedC,
+      branch:candidate.branch},
+    ...details};
+}
 function filteredResult(base,valid,metadata={}){
   if(base.kind==="none")return {...base,...metadata};
   if(base.kind==="all")throw Error("identité avec contraintes de signe : ensemble infini non vérifié");
@@ -149,20 +231,28 @@ function rationalEquation(left,right){
   const banned=exclusions.map(formatExact);
   const domainExclusions=banned;
   const domainInfo="Valeurs interdites : "+banned.map(x=>"x = "+x).join(" et ")+".";
+  const steps=[
+    "1. Domaine de définition : "+banned.map(x=>"x ≠ "+x).join(" et ")+".",
+    "2. Sur ce domaine seulement, le produit en croix donne "
+      +formatPolynomial(multiply(a.numerator,b.denominator))+" = "
+      +formatPolynomial(multiply(b.numerator,a.denominator))+".",
+    "3. Résoudre cette égalité puis supprimer les valeurs interdites du résultat."
+  ];
   if(raw.kind==="all")return {kind:"allExcept",excluded:banned,
     domainExclusions,domainInfo,rationalEquation:true,
-    rejectedCandidates:[]};
+    methodSteps:steps,rejectedCandidates:[]};
   if(raw.kind==="none")return {...raw,domainExclusions,domainInfo,rationalEquation:true,
-    rejectedCandidates:[]};
+    methodSteps:steps,rejectedCandidates:[]};
   // Une racine irrationnelle ne peut pas être égale à une valeur interdite
   // rationnelle pour un dénominateur affine ; on peut donc la conserver.
   if(raw.kind==="two"&&!raw.solutions)return {...raw,domainExclusions,
-    domainInfo,rationalEquation:true,rejectedCandidates:[]};
+    domainInfo,rationalEquation:true,methodSteps:steps,rejectedCandidates:[]};
   const originals=candidates(raw),accepted=originals.filter(x=>
     !exclusions.some(excluded=>equal(excluded,x)));
   const rejectedCandidates=originals.filter(x=>
     exclusions.some(excluded=>equal(excluded,x))).map(formatExact);
-  const meta={domainExclusions,domainInfo,rationalEquation:true,rejectedCandidates};
+  const meta={domainExclusions,domainInfo,rationalEquation:true,
+    methodSteps:steps,rejectedCandidates};
   if(!accepted.length)return {kind:"none",...meta};
   if(accepted.length===1)return {
     kind:"unique",solution:formatExact(accepted[0]),solutionRatio:accepted[0],...meta
@@ -175,6 +265,28 @@ function rootSide(text){
   const expression=source.slice(2,-1);
   if(!expression||expression.includes("√"))throw Error("racine imbriquée non vérifiée");
   return parsePolynomial(expression);
+}
+/**
+ * Résultat final négatif exact : x=-√(n), avec n entier naturel non
+ * carré parfait. C'est la racine inférieure de x²-n=0 ; le code
+ * d'équivalence utilise le même polynôme minimal que les autres équations.
+ */
+function signedIrrationalValue(left,right){
+  const variableLeft=/^[xX]$/.test(left),variableRight=/^[xX]$/.test(right);
+  if(variableLeft===variableRight)return null;
+  const literal=variableLeft?right:left;
+  const match=literal.match(/^-\s*√\((\d{1,6})\)$/);
+  if(!match)return null;
+  const n=BigInt(match[1]);
+  if(n===0n)throw Error("valeur entière : utilise x=0");
+  let square=0n;
+  while((square+1n)*(square+1n)<=n)square++;
+  if(square*square===n)throw Error("racine carrée exacte : simplifie la valeur entière");
+  return {kind:"unique",solution:"-√("+n+")",
+    algebraic:{normalizedB:zero,normalizedC:rat(-n),branch:"lower"},
+    radicalEquation:true,irrationalExact:true,
+    domainInfo:"La valeur -√("+n+") est négative, mais son carré vaut exactement "+n+". "+
+      "La comparaison des étapes utilise le polynôme minimal x²-"+n+"=0 et la branche négative."};
 }
 function radicalEquation(left,right){
   const a=rootSide(left),b=rootSide(right);
@@ -191,15 +303,25 @@ function radicalEquation(left,right){
   const raw=classifyPolynomialDifference(squared);
   const conditions="Conditions : radicande ≥ 0 et membre sans racine ≥ 0 ; "
     +"solutions candidates contrôlées par substitution exacte.";
+  const methodSteps=[
+    "1. Vérifier que "+formatPolynomial(radicand)
+      +" ≥ 0 et "+formatPolynomial(target)+" ≥ 0.",
+    "2. Sur ce domaine, mettre au carré : "+formatPolynomial(radicand)
+      +" = ("+formatPolynomial(target)+")².",
+    "3. Résoudre l'équation polynomiale, puis contrôler chaque solution candidate "
+      +"dans l'égalité initiale. Écarter les solutions parasites."
+  ];
   if(raw.kind==="all")throw Error("racine définissant un intervalle : résolution symbolique non vérifiée");
   if(raw.kind==="two"&&!raw.solutions)
-    throw Error("candidats irrationnels après mise au carré : substitution exacte non vérifiée");
+    return irrationalFilteredResult(raw,target,{radicalEquation:true,methodSteps,
+      domainInfo:"Conditions : radicande ≥ 0 et membre sans racine ≥ 0. "+
+        "Les candidats irrationnels sont filtrés par comparaison algébrique exacte, sans arrondi."});
   const valid=x=>{
     const y=valueAt(target,x);
     return y.n>=0n&&valueAt(radicand,x).n>=0n
       &&equal(valueAt(radicand,x),times(y,y));
   };
-  return filteredResult(raw,valid,{radicalEquation:true,domainInfo:conditions});
+  return filteredResult(raw,valid,{radicalEquation:true,domainInfo:conditions,methodSteps});
 }
 /**
  * Renvoie null quand la ligne relève des solveurs habituels.
@@ -213,8 +335,10 @@ export function classifyConstrainedEquality(text){
   if(parts.length!==2||parts.some(x=>!x.trim()))
     throw Error("une seule égalité complète est nécessaire");
   const [left,right]=parts.map(s=>s.trim());
-  if(left.includes("√")||right.includes("√"))
-    return radicalEquation(left,right);
+  if(left.includes("√")||right.includes("√")){
+    const signed=signedIrrationalValue(left,right);
+    return signed??radicalEquation(left,right);
+  }
   if(!left.includes("/")&&!right.includes("/"))return null;
   return rationalEquation(left,right);
 }

@@ -627,6 +627,27 @@ try {
       &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
         .textContent().then(t=>t.includes("x = 1")),
       "Équation rationnelle sur Android : suppression d'une valeur interdite détectée comme erreur");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x+1)=x\n√(4x+4)=2x");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
+        .textContent().then(t=>t.includes("√(5)")&&t.includes("Méthode guidée"))
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android : solution irrationnelle exacte, équivalence et méthode guidée sans terminer le quiz");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x+1)=x\nx=1.61803398875");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,error"),
+      "Android : une approximation décimale ne remplace pas une solution irrationnelle exacte");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x²-1)=1\nx²=2");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok"),
+      "Android : deux racines irrationnelles conservées par transformation équivalente");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");

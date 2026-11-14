@@ -28,13 +28,23 @@ Une transcription dont les caractères ont été **corrigés manuellement** peut
 
 Le cahier reste conservé localement et dans les sauvegardes automatiques du navigateur. La synchronisation entre appareils nécessite toujours l'activation de la synchronisation cloud facultative ; l'enregistrement local ne protège pas contre la perte totale des données du téléphone.
 
+### Solutions irrationnelles exactes et méthode détaillée (v46)
+
+Pour certaines équations à une racine carrée **isolée**, le correcteur conserve maintenant une solution irrationnelle sous une **écriture exacte** plutôt que de l'arrondir. Par exemple, pour `√(x+1)=x`, le seul candidat admissible est `x=(1+√(5))/2` : l'autre branche est écartée, car le membre sans racine serait négatif. Le même résultat écrit sous une forme mathématiquement équivalente est comparé sans conversion en nombre décimal.
+
+Les deux solutions irrationnelles peuvent aussi être conservées quand elles sont toutes deux valides, par exemple `√(x²−1)=1` équivaut à `x²=2`. Une **approximation** (`x=1,41421356`) n'est pas considérée comme une égalité exacte. La notation manuscrite `x=-√(2)` peut être vérifiée comme solution irrationnelle négative dans le périmètre simple pris en charge.
+
+Pour les équations rationnelles et radicales reconnues, le retour pédagogique rappelle maintenant **trois étapes** : déterminer le domaine, transformer l'équation sous les conditions appropriées, puis vérifier les candidats dans l'équation initiale. Ce contrôle guidé reste **une aide** ; il n'attribue pas de maîtrise autonome au quiz.
+
+**Limites conservées :** racines imbriquées, radicaux non isolés, équations à solution par intervalle, dénominateurs quadratiques et résolution générale d'expressions irrationnelles ne sont pas garantis. La lecture manuscrite doit toujours être relue et confirmée ; les expressions hors périmètre sont indiquées comme non vérifiées.
+
 ### Correction des équations rationnelles et des racines parasites (v45)
 
 Le contrôleur des étapes sait désormais **résoudre exactement certaines équations rationnelles** dont chaque dénominateur est une expression affine en x, à condition que le produit croisé soit de degré au plus 2. Il **conserve les valeurs interdites** : par exemple `(x−1)/(x−1)=1` n'est vrai que pour **x ≠ 1**. Si une multiplication par un dénominateur fait apparaître une solution interdite, elle est éliminée. Une étape suivante qui oublierait ces restrictions est signalée comme non équivalente.
 
 Il vérifie aussi certaines **équations à une racine carrée isolée**, par exemple `√(x+1)=x−1`. La mise au carré produit plusieurs candidats, mais chacun est contrôlé **exactement dans l'équation initiale** et avec les conditions de signe ; une solution parasite est rejetée. Le moteur ne remplace jamais la vérification initiale par une simple mise au carré.
 
-**Limites :** seules les solutions représentables exactement dans ce périmètre sont certifiées. Dénominateurs quadratiques, fractions rationnelles imbriquées, radicaux non isolés, solutions irrationnelles à substituer et intervalles de solutions restent *non vérifiés*. La transcription manuscrite doit toujours être relue et confirmée. Ce vérificateur ne constitue pas une démonstration générale et ne transforme pas les réponses corrigées manuellement en acquis autonomes.
+**Limites :** seules les solutions représentables exactement dans ce périmètre sont certifiées. Dénominateurs quadratiques, fractions rationnelles imbriquées, radicaux non isolés et intervalles de solutions restent *non vérifiés*. Certaines racines irrationnelles quadratiques peuvent désormais être contrôlées exactement en v46. La transcription manuscrite doit toujours être relue et confirmée. Ce vérificateur ne constitue pas une démonstration générale et ne transforme pas les réponses corrigées manuellement en acquis autonomes.
 
 ### Racines et fractions rationnelles manuscrites (v44)
 
