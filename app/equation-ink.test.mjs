@@ -222,3 +222,61 @@ test("Le signe égal de deux barres horizontales ne devient jamais une fraction"
   assert.equal(read.status,"recognized",JSON.stringify(read));
   assert.equal(read.text,"2x+5=17\n2x=12\nx=6");
 });
+
+function radicalInk(radicand="9",{reverse=false}={}){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(pts=>encodeStroke(pts.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  const root=[[213,77],[225,69],[238,105],[257,31],[271,31],[360,31]];
+  const rootStroke=reverse?[...root].reverse():root;
+  return [
+    ...draw("x",24,62,.7),...draw("=",100,62,.7),
+    encodeStroke(rootStroke),
+    ...[...radicand].flatMap((symbol,i)=>draw(symbol,281+i*43,40,.52))
+  ];
+}
+test("Racine carrée manuscrite : barre et radicande sous le signe",()=>{
+  for(const reverse of [false,true]){
+    const read=recognizeEquationInk(radicalInk("9",{reverse}));
+    assert.equal(read.status,"recognized",JSON.stringify(read));
+    assert.equal(read.text,"x=√(9)");
+    assert.equal(checkMathSteps(read.text).unsupported,0);
+    assert.equal(checkMathSteps(read.text).errors,0);
+    assert.equal(extractFinalNumericAnswer(read.text),null,"Une racine n'est pas une valeur numérique devinée");
+  }
+});
+test("Racine d'entier non carré parfait : transcription sans fausse correction",()=>{
+  const read=recognizeEquationInk(radicalInk("2"));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=√(2)");
+  const review=checkMathSteps(read.text);
+  assert.equal(review.checked,0);
+  assert.equal(review.unsupported,1);
+});
+function rationalDenominatorInk(denominator="x+1"){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(pts=>encodeStroke(pts.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  return [
+    ...draw("x",24,64,.7),...draw("=",100,64,.7),
+    ...draw("2",278,31,.43),
+    encodeStroke([[211,102],[410,102]]),
+    ...[...denominator].flatMap((symbol,i)=>draw(symbol,230+i*56,122,.4))
+  ];
+}
+test("Fraction algébrique verticale : dénominateur x+1 parenthésé",()=>{
+  const read=recognizeEquationInk(rationalDenominatorInk("x+1"));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=2/(x+1)");
+  const review=checkMathSteps(read.text);
+  assert.equal(review.checked,0,"Une division par x ne doit pas produire de faux résultat");
+  assert.equal(review.unsupported,1);
+});
+test("Dénominateur identiquement nul : expression refusée",()=>{
+  const read=recognizeEquationInk(rationalDenominatorInk("x-x"),{draft:true});
+  assert.notEqual(read.text,"x=2/(x-x)");
+  assert.notEqual(read.status,"recognized",JSON.stringify(read));
+});
+test("Aucun signe racine à partir d'un 7 ou d'une barre simple",()=>{
+  const read=recognizeEquationInk(ink(["7+1=8"]));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"7+1=8");
+});
