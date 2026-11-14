@@ -412,7 +412,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const inkEquationsTitle=document.createElement("h5");
   inkEquationsTitle.textContent="Vérifier mes équations écrites sur la feuille (expérimental)";
   const inkEquationsHelp=document.createElement("p");inkEquationsHelp.className="helper";
-  inkEquationsHelp.textContent="Écris une égalité par ligne sur la page affichée, par exemple 2x+5=17, puis 2x=12 et x=6. Si l’exercice demande x, la dernière ligne x=nombre peut être corrigée sans ressaisie. Lecture expérimentale : chiffres, x, +, −, =, /, parenthèses courbes, petits exposants 2 surélevés et fractions empilées avec nombres de 1 à 3 chiffres au-dessus et au-dessous, ou court numérateur en x sur dénominateur numérique. Écris une égalité par ligne et vérifie chaque symbole reconnu. Les racines, exposants supérieurs et écritures complexes restent non pris en charge.";
+  inkEquationsHelp.textContent="Écris une égalité par ligne sur la page affichée, par exemple 2x+5=17, puis 2x=12 et x=6. Si l’exercice demande x, la dernière ligne x=nombre peut être corrigée sans ressaisie. Lecture expérimentale : chiffres, x, +, −, =, /, parenthèses courbes, petits exposants 2 surélevés et fractions empilées avec nombres de 1 à 3 chiffres au-dessus et au-dessous, ou court numérateur en x sur dénominateur numérique. Écris une égalité par ligne et vérifie chaque symbole reconnu. Les racines carrées tracées avec barre et les fractions avec dénominateur en x peuvent être transcrites. Seules les racines numériques carrées parfaites sont vérifiées exactement ; racines irrationnelles, domaines et divisions par une expression en x restent non vérifiés.";
   const inkEquationsRead=document.createElement("button");inkEquationsRead.type="button";inkEquationsRead.className="subtle";
   inkEquationsRead.textContent="Lire mes équations manuscrites";
   const inkEquationsStatus=document.createElement("p");inkEquationsStatus.className="helper";
@@ -449,7 +449,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const inkEquationsFinal=document.createElement("div");inkEquationsFinal.className="math-notebook-equations-final";
   inkEquationsFinal.hidden=true;
   const inkEquationsFinalHelp=document.createElement("p");inkEquationsFinalHelp.className="helper";
-  inkEquationsFinalHelp.textContent="Si la question demande la valeur de x, tu peux corriger le résultat final directement depuis la dernière ligne de ta feuille. Vérifie que la transcription est exacte avant de valider ; aucune correction n'a encore été révélée.";
+  inkEquationsFinalHelp.textContent="Si la question demande la valeur de x, tu peux corriger le résultat final directement depuis la dernière ligne de ta feuille. Les expressions en racine ou avec x au dénominateur ne sont pas converties automatiquement en réponse numérique. Vérifie toujours la transcription avant de valider.";
   const inkEquationsGrade=document.createElement("button");inkEquationsGrade.type="button";inkEquationsGrade.className="primary";
   inkEquationsFinal.append(inkEquationsFinalHelp,inkEquationsGrade);
   const inkEquationsActions=document.createElement("div");inkEquationsActions.className="math-notebook-equations-actions";
