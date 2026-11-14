@@ -12,15 +12,15 @@ page.on("dialog",dialog=>dialog.accept());
 async function drawOnSheet(selector){
   const viewport=page.locator(selector);
   await viewport.scrollIntoViewIfNeeded();
-  await viewport.evaluate(node=>{
-    const canvas=node.querySelector("canvas");
-    node.scrollTop+=canvas.getBoundingClientRect().top-node.getBoundingClientRect().top+35;
-  });
-  const box=await viewport.boundingBox();
-  assert.ok(box&&box.height>=300&&box.width>=200,"Feuille non visible sur mobile");
-  await page.mouse.move(box.x+45,box.y+75);
+  await viewport.locator("canvas").scrollIntoViewIfNeeded();
+  const box=await viewport.boundingBox(),ink=await viewport.locator("canvas").boundingBox();
+  assert.ok(box&&ink&&box.height>=300&&box.width>=200,"Feuille non visible sur mobile");
+  const x=Math.max(box.x+25,ink.x+35),y=Math.max(box.y+25,ink.y+35);
+  assert.ok(x+75<Math.min(box.x+box.width,ink.x+ink.width)
+    &&y+40<Math.min(box.y+box.height,ink.y+ink.height),"Zone d'écriture réellement visible");
+  await page.mouse.move(x,y);
   await page.mouse.down();
-  await page.mouse.move(box.x+120,box.y+110,{steps:10});
+  await page.mouse.move(x+75,y+35,{steps:10});
   await page.mouse.up();
 }
 const snapshot=()=>page.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
@@ -73,15 +73,15 @@ try{
     // The page uses its own browser tab; record a real mouse gesture.
     const viewport=examPage.locator("#examNotebook .math-notebook-sheet-viewport");
     await viewport.scrollIntoViewIfNeeded();
-    await viewport.evaluate(node=>{
-      const canvas=node.querySelector("canvas");
-      node.scrollTop+=canvas.getBoundingClientRect().top-node.getBoundingClientRect().top+35;
-    });
-    const box=await viewport.boundingBox();
-    assert.ok(box&&box.height>=300&&box.width>=200,"Copie d'examen invisible");
-    await examPage.mouse.move(box.x+45,box.y+75);
+    await viewport.locator("canvas").scrollIntoViewIfNeeded();
+    const box=await viewport.boundingBox(),ink=await viewport.locator("canvas").boundingBox();
+    assert.ok(box&&ink&&box.height>=300&&box.width>=200,"Copie d'examen invisible");
+    const x=Math.max(box.x+25,ink.x+35),y=Math.max(box.y+25,ink.y+35);
+    assert.ok(x+75<Math.min(box.x+box.width,ink.x+ink.width)
+      &&y+40<Math.min(box.y+box.height,ink.y+ink.height),"Zone d'examen réellement visible");
+    await examPage.mouse.move(x,y);
     await examPage.mouse.down();
-    await examPage.mouse.move(box.x+120,box.y+105,{steps:10});
+    await examPage.mouse.move(x+75,y+35,{steps:10});
     await examPage.mouse.up();
     const saved=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
     assert.equal(saved.exams.active.paperOnly,true);
