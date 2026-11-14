@@ -236,6 +236,28 @@ function rootSide(text){
   if(!expression||expression.includes("√"))throw Error("racine imbriquée non vérifiée");
   return parsePolynomial(expression);
 }
+/**
+ * Résultat final négatif exact : x=-√(n), avec n entier naturel non
+ * carré parfait. C'est la racine inférieure de x²-n=0 ; le code
+ * d'équivalence utilise le même polynôme minimal que les autres équations.
+ */
+function signedIrrationalValue(left,right){
+  const variableLeft=/^[xX]$/.test(left),variableRight=/^[xX]$/.test(right);
+  if(variableLeft===variableRight)return null;
+  const literal=variableLeft?right:left;
+  const match=literal.match(/^-\s*√\((\d{1,6})\)$/);
+  if(!match)return null;
+  const n=BigInt(match[1]);
+  if(n===0n)throw Error("valeur entière : utilise x=0");
+  let square=0n;
+  while((square+1n)*(square+1n)<=n)square++;
+  if(square*square===n)throw Error("racine carrée exacte : simplifie la valeur entière");
+  return {kind:"unique",solution:"-√("+n+")",
+    algebraic:{normalizedB:zero,normalizedC:rat(-n),branch:"lower"},
+    radicalEquation:true,irrationalExact:true,
+    domainInfo:"La valeur -√("+n+") est négative, mais son carré vaut exactement "+n+". "+
+      "La comparaison des étapes utilise le polynôme minimal x²-"+n+"=0 et la branche négative."};
+}
 function radicalEquation(left,right){
   const a=rootSide(left),b=rootSide(right);
   if((a===null&&b===null)||(a!==null&&b!==null)){
@@ -275,8 +297,10 @@ export function classifyConstrainedEquality(text){
   if(parts.length!==2||parts.some(x=>!x.trim()))
     throw Error("une seule égalité complète est nécessaire");
   const [left,right]=parts.map(s=>s.trim());
-  if(left.includes("√")||right.includes("√"))
-    return radicalEquation(left,right);
+  if(left.includes("√")||right.includes("√")){
+    const signed=signedIrrationalValue(left,right);
+    return signed??radicalEquation(left,right);
+  }
   if(!left.includes("/")&&!right.includes("/"))return null;
   return rationalEquation(left,right);
 }
