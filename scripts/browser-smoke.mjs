@@ -588,6 +588,9 @@ try {
         if(kind==="root"){
           paths.push("213,77;225,69;238,105;257,31;271,31;360,31");
           draw("9",281,40,.52);
+        }else if(kind==="decimal-root"){
+          paths.push("213,77;225,69;238,105;257,31;271,31;440,31");
+          draw("0",284,43,.40);draw(",",329,43,.40);draw("5",374,43,.40);
         }else if(kind==="decimal"||kind==="comma"){
           draw("0",213,62,.7);
           draw(kind==="comma"?",":".",290,62,.7);
@@ -620,6 +623,17 @@ try {
       await advancedInkPage.reload({waitUntil:"networkidle"});
       await advancedInkPage.locator("#quizNotebook .math-notebook-equations>button").click();
     };
+    await replaceInk("decimal-root");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=√(0.5)")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden()
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v52 : racine manuscrite à virgule française lue sans notation ni saisie clavier");
+    await advancedInkPage.reload({waitUntil:"networkidle"});
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=√(0.5)"),
+      "Android v52 : tracés de la racine décimale restaurés après rechargement");
     await replaceInk("root");
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
       .textContent().then(t=>t==="x=√(9)")
