@@ -3,6 +3,8 @@
  * Les pages sont des trajectoires de points entiers et non des images bitmap :
  * édition / reprise déterministes et sauvegarde cloud de la même progression.
  */
+import {sanitizeInkDrafts} from "./ink-drafts.mjs";
+
 export const WORKBOOK_VERSION=1;
 export const PAPER_WIDTH=900;
 export const PAPER_HEIGHT=1200;
@@ -43,6 +45,8 @@ export function sanitizeWork(raw){
     return page.map(path=>{parseStroke(path);return path;});
   });
   const cleaned={text:raw.text,pages};
+  const drafts=sanitizeInkDrafts(raw.inkDrafts,pages);
+  if(drafts&&Object.keys(drafts).length)cleaned.inkDrafts=drafts;
   if(JSON.stringify(cleaned).length>80_000)throw Error("Cahier trop volumineux pour cette activité");
   return cleaned;
 }
