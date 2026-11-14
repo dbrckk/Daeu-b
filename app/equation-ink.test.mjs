@@ -467,6 +467,11 @@ test("Radicande décimal : ponctuation manquante ou en hauteur non inventée",()
   for(const page of [raised,decimalRadicalInk(".5"),decimalRadicalInk("0.")]){
     const result=recognizeEquationInk(page,{draft:true});
     assert.notEqual(result.status,"recognized",JSON.stringify(result));
+    assert.ok(result.text?.includes("□"),"La racine illisible reste marquée : "+JSON.stringify(result));
     assert.notEqual(result.text,"x=√(0.5)");
+    assert.equal(extractFinalNumericAnswer(result.text),null,
+      "Aucune fausse réponse numérique après une lecture ratée de radical");
+    assert.notEqual(recognizeEquationInk(page).status,"recognized",
+      "La lecture stricte n'accepte jamais un radical ambigu");
   }
 });
