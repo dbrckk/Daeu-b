@@ -580,7 +580,11 @@ try {
             ].join(",")).join(";"));
           }
         };
-        draw("x",24,62,.7);draw("=",100,62,.7);
+        // Les cas long/twelve contiennent déjà leur égalité complète.
+        // Ne pas leur ajouter le préfixe x= réservé aux fractions/radicaux.
+        if(kind!=="long"&&kind!=="twelve"){
+          draw("x",24,62,.7);draw("=",100,62,.7);
+        }
         if(kind==="root"){
           paths.push("213,77;225,69;238,105;257,31;271,31;360,31");
           draw("9",281,40,.52);
