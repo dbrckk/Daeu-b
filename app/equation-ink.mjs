@@ -266,18 +266,27 @@ function foldRadicals(items){
     const radical=radicalStroke(root.paths[0]);
     if(!radical)continue;
     const b=radical.box;
+    // Un radical géométriquement reconnaissable mais dont le contenu
+    // est incertain NE DOIT PAS redevenir un simple 4, 7 ou x après échec
+    // de la fusion. Cela pourrait valider une réponse différente.
+    const unclear=()=>{
+      used.add(root.id);
+      found.push({paths:root.paths,preRead:"□"});
+    };
     const below=entries.filter(e=>e.id!==root.id&&!used.has(e.id)
       &&cx(e.box)>=radical.barStart+3&&cx(e.box)<=b.right+3
       &&e.box.top>=radical.barY+6&&e.box.bottom<=b.bottom+6);
-    if(!below.length)continue;
+    if(!below.length){unclear();continue;}
     const groups=glyphs(below);
-    if(groups.length>7)continue;
+    if(groups.length>7){unclear();continue;}
     // Réutiliser la validation géométrique des points et virgules décimales.
     // Ne jamais déduire un nombre d'un point libre sous la barre.
     const reading=transcription(groups);
-    if(!reading)continue;
+    if(!reading){unclear();continue;}
     const radicand=reading.text;
-    if(!/^(?:\d{1,3}(?:\.\d{1,2})?|x|x[+-]\d{1,2}(?:\.\d{1,2})?)$/.test(radicand))continue;
+    if(!/^(?:\d{1,3}(?:\.\d{1,2})?|x|x[+-]\d{1,2}(?:\.\d{1,2})?)$/.test(radicand)){
+      unclear();continue;
+    }
     used.add(root.id);
     for(const entry of below)used.add(entry.id);
     found.push({paths:[...root.paths,...below.flatMap(e=>e.paths)],
