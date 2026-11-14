@@ -4,11 +4,13 @@
  * être confirmée visuellement avant la vérification mathématique.
  *
  * Symboles supportés : chiffres, x, +, -, =, /, parenthèses et exposant 2
- * surélevé ; fraction de un à trois chiffres par terme ou court numérateur en x.
- * Aucune reconnaissance générale des racines ou des démonstrations.
+ * surélevé ; fraction de termes courts en x et racine carrée écrite en un
+ * seul geste avec une barre au-dessus de 1 à 3 chiffres ou de x.
+ * Les expressions non polynomiales ne sont pas corrigées automatiquement.
  */
 import {parseStroke,encodeStroke} from "./workbook.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
+import {parsePolynomial} from "./quadratic-checker.mjs";
 
 const MAX_STROKES=90,MAX_LINES=12,MAX_GLYPHS=32;
 const rect=paths=>{
@@ -133,13 +135,13 @@ function readGlyph(group){
 
 /**
  * Reconnaissance strictement locale des fractions écrites en colonne.
- * Le dénominateur doit être un entier non nul (1 à 3 chiffres) ;
- * le numérateur peut être un entier ou une courte expression en x.
- * Une fraction algébrique est parenthésée pour éviter les ambiguïtés.
+ * Les deux termes peuvent être des entiers (1 à 3 chiffres) ou de
+ * courtes expressions polynomiales en x. Un dénominateur algébrique
+ * n'est PAS une équation polynomiale : le correcteur doit le signaler
+ * comme non vérifié (conditions de domaine obligatoires).
  *
- * On ne traite pas les dénominateurs en x, les fractions imbriquées,
- * les opérations non reconnues ou les divisions par zéro : le lecteur
- * laisse alors l'utilisateur corriger explicitement la transcription.
+ * Fractions imbriquées, expressions non reconnues et division par zéro
+ * sont refusées au lieu de produire un verdict artificiel.
  */
 function foldFractions(paths){
   const entries=paths.map((path,id)=>({id,paths:[path],box:rect([path])}));
@@ -163,24 +165,21 @@ function foldFractions(paths){
       &&e.box.top>y+7&&e.box.top-y<=gap);
     if(!upper.length||!lower.length)continue;
     const topGroups=glyphs(upper),bottomGroups=glyphs(lower);
-    if(topGroups.length>9||bottomGroups.length>3)continue;
+    if(topGroups.length>9||bottomGroups.length>9)continue;
     const top=topGroups.map(readGlyph),bottom=bottomGroups.map(readGlyph);
     if(top.some(x=>!x)||bottom.some(x=>!x))continue;
     const numerator=top.join(""),denominator=bottom.join("");
-    if(!/^(?:\d{1,3}|[0-9x()+-]{1,10})$/.test(numerator)
-      ||!/^\d{1,3}$/.test(denominator)||Number(denominator)===0)
-      continue;
-    // Ne pas transformer une suite non mathématique en fraction reconnue.
-    // Les cas plus généraux doivent rester éditables au toucher.
-    if(/^[+-]/.test(numerator)&&!/^-\d{1,3}$/.test(numerator))continue;
-    if(/[+\-]$/.test(numerator)||/\(\)/.test(numerator))continue;
-    let depth=0;
-    for(const char of numerator){
-      if(char==="(")depth++;
-      else if(char===")")depth--;
-      if(depth<0)break;
-    }
-    if(depth!==0)continue;
+    const validTerm=term=>/^(?:\d{1,3}|[0-9x()+-]{1,10})$/.test(term)
+      &&!/^(?:[+\-]|.*[+\-])$/.test(term)&&!/\(\)/.test(term);
+    if(!validTerm(numerator)||!validTerm(denominator))continue;
+    // Le parseur exact refuse les chaînes mal formées ; les dénominateurs
+    // identiquement nuls ne doivent jamais devenir une fraction valide.
+    let denominatorForm;
+    try{
+      parsePolynomial(numerator);
+      denominatorForm=parsePolynomial(denominator);
+    }catch{continue;}
+    if(denominatorForm.every(coefficient=>coefficient.n===0n))continue;
     const usedEntries=[...upper,...lower,bar];
     // Le trait horizontal doit dépasser au moins légèrement les chiffres
     // qu'il divise. Rejeter les signes "-" ordinaires entre deux lignes.
@@ -191,12 +190,75 @@ function foldFractions(paths){
       ||cx(bottomBox)<bar.box.left-5||cx(bottomBox)>bar.box.right+5)
       continue;
     for(const e of usedEntries)used.add(e.id);
-    const atomic=/^-?\d{1,3}$/.test(numerator)||numerator==="x";
-    const text=(atomic?numerator:"("+numerator+")")+"/"+denominator;
+    const atomic=term=>/^-?\d{1,3}$/.test(term)||term==="x";
+    const text=(atomic(numerator)?numerator:"("+numerator+")")+"/"
+      +(atomic(denominator)?denominator:"("+denominator+")");
     found.push({paths:usedEntries.flatMap(e=>e.paths),preRead:text});
   }
   return [...entries.filter(e=>!used.has(e.id)),...found];
 }
+
+/**
+ * Signe racine en un trait continu : crochet gauche, pointe basse,
+ * remontée raide et barre haute allant vers la droite.
+ * Ne pas confondre le chiffre 7, une barre de fraction ou une parenthèse.
+ * Le geste inverse (de droite vers gauche) est accepté.
+ */
+function radicalStroke(path){
+  if(path.length<5)return null;
+  const b=rect([path]),w=width(b),h=height(b);
+  if(w<60||h<40)return null;
+  const ordered=path[0][0]<=path.at(-1)[0]?path:[...path].reverse();
+  const first=ordered[0],last=ordered.at(-1);
+  if(first[0]>b.left+w*.2||last[0]<b.right-w*.1
+    ||last[1]>b.top+h*.2)return null;
+  let tipIndex=0;
+  for(let i=1;i<ordered.length;i++)
+    if(ordered[i][1]>ordered[tipIndex][1])tipIndex=i;
+  const tip=ordered[tipIndex];
+  if(tipIndex<2||tipIndex>ordered.length-3
+    ||tip[0]<b.left+w*.08||tip[0]>b.left+w*.48
+    ||tip[1]<b.bottom-h*.12)return null;
+  const hooked=ordered.slice(0,tipIndex).some(p=>p[0]<tip[0]
+    &&p[1]<tip[1]-h*.2);
+  const topIndex=ordered.findIndex((p,i)=>i>tipIndex
+    &&p[1]<=b.top+h*.2&&p[0]>tip[0]+w*.06);
+  if(!hooked||topIndex<0||topIndex>=ordered.length-1)return null;
+  const overbar=ordered.slice(topIndex);
+  if(overbar.at(-1)[0]-overbar[0][0]<w*.3
+    ||overbar.some(p=>Math.abs(p[1]-overbar[0][1])>h*.1))return null;
+  return {box:b,barStart:overbar[0][0],barY:overbar[0][1]};
+}
+/**
+ * Ne lit que des radicandes courts explicitement sous la barre.
+ * Le texte √(...) est une transcription, pas une preuve mathématique.
+ */
+function foldRadicals(items){
+  const entries=items.map((entry,id)=>({...entry,id,box:rect(entry.paths)}));
+  const used=new Set(),found=[];
+  for(const root of entries){
+    if(used.has(root.id)||root.preRead||root.paths.length!==1)continue;
+    const radical=radicalStroke(root.paths[0]);
+    if(!radical)continue;
+    const b=radical.box;
+    const below=entries.filter(e=>e.id!==root.id&&!used.has(e.id)
+      &&cx(e.box)>=radical.barStart+3&&cx(e.box)<=b.right+3
+      &&e.box.top>=radical.barY+6&&e.box.bottom<=b.bottom+6);
+    if(!below.length)continue;
+    const groups=glyphs(below);
+    if(groups.length>5)continue;
+    const decoded=groups.map(readGlyph);
+    if(decoded.some(value=>!value))continue;
+    const radicand=decoded.join("");
+    if(!/^(?:\d{1,3}|x|x[+-]\d{1,2})$/.test(radicand))continue;
+    used.add(root.id);
+    for(const entry of below)used.add(entry.id);
+    found.push({paths:[...root.paths,...below.flatMap(e=>e.paths)],
+      preRead:"√("+radicand+")"});
+  }
+  return [...entries.filter(entry=>!used.has(entry.id)),...found];
+}
+
 function transcription(parts,{draft=false}={}){
   let text="",previous=null,unreadable=0;
   for(const group of parts){
@@ -227,7 +289,7 @@ export function recognizeEquationInk(page,{draft=false}={}){
   try{paths=page.map(parseStroke);}catch{
     return {status:"unsupported",message:"Tracés illisibles. Le cahier enregistré n'a pas été modifié."};
   }
-  const lines=sortedLines(foldFractions(paths));
+  const lines=sortedLines(foldRadicals(foldFractions(paths)));
   if(!lines||!lines.length)return {status:"unsupported",message:"Impossible de séparer les lignes manuscrites."};
   const texts=[];let uncertain=0,unsupported=0;
   for(const line of lines){
@@ -238,7 +300,7 @@ export function recognizeEquationInk(page,{draft=false}={}){
     const {text,unreadable}=current;
     uncertain+=unreadable;
     if(draft&&unreadable>0){texts.push(text);continue;}
-    if(!/^[0-9x+=./()^-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean)){
+    if(!/^[0-9x+=./()^√-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean)){
       if(draft){unsupported++;texts.push(text);continue;}
       return {status:"unsupported",message:"Écris une égalité simple par ligne avec chiffres, x, +, −, =, /, parenthèses et exposant 2."};
     }
