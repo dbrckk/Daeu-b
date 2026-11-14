@@ -95,7 +95,8 @@ test("Racines irrationnelles ou contraintes continues : ne pas déclarer de faux
 });
 test("Expressions hors périmètre et entrées hostile : aucune conversion en équation valide",()=>{
   for(const input of [
-    "1/(x^2-1)=2","1/(x-1)+1=2","1/(x-x)=2",
+    "1/(x^2-1)=2","1/(x-1)+1=2","x+1/(x-1)=2",
+    "1/x+1=2","x-1/(x-1)=2","1/(x-x)=2",
     "1/(0*x)=2","x=1/(x-1)=3","x=1/(x-1);alert(1)",
     "√(x+1)=√(x+1)","√(1/(x-1))=2","1/(x-1)/(x+1)=2"
   ]){
