@@ -587,6 +587,18 @@ try {
           draw("2",213,62,.7);
           draw("*",290,62,.7);
           draw("3",367,62,.7);
+        }else if(kind==="fraction-decimal"){
+          draw("1",218,31,.42);draw(".",267,31,.42);draw("5",316,31,.42);
+          paths.push("209,102;465,102");
+          draw("2",217,120,.42);draw(".",266,120,.42);draw("5",315,120,.42);
+        }else if(kind==="long"){
+          const formula=Array(16).fill("1").join("+")+"=16";
+          for(const [index,symbol] of [...formula].entries())
+            draw(symbol,30+index*24,78,.30);
+        }else if(kind==="twelve"){
+          for(let i=0;i<12;i++)
+            for(const [index,symbol] of [..."x=1"].entries())
+              draw(symbol,30+index*68,42+i*91,.52);
         }else{
           draw("2",278,31,.43);
           paths.push("211,102;410,102");
@@ -771,6 +783,30 @@ try {
       .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
         &&t.includes("0 transformation(s) ou calcul(s) erroné(s)")),
       "Android v50 : multiplication manuscrite correctement analysée après confirmation");
+
+    await replaceInk("fraction-decimal");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=1.5/2.5")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final button")
+        .textContent().then(t=>t.includes("x = 1.5/2.5"))
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v51 : fraction verticale avec numérateur et dénominateur décimaux, non notée avant confirmation");
+    await advancedInkPage.reload({waitUntil:"networkidle"});
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=1.5/2.5"),
+      "Android v51 : l'écriture fractionnaire décimale persiste après rechargement");
+    await replaceInk("long");
+    const longFormula=Array(16).fill("1").join("+")+"=16";
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t===longFormula)
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      "Android v51 : ligne manuscrite de 34 glyphes reconnue sans couper ni fabriquer une solution");
+    await replaceInk("twelve");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t===Array(12).fill("x=1").join("\n"))
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v51 : douze lignes manuscrites séparées sans perte de progression");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
