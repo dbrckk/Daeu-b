@@ -28,6 +28,14 @@ Une transcription dont les caractères ont été **corrigés manuellement** peut
 
 Le cahier reste conservé localement et dans les sauvegardes automatiques du navigateur. La synchronisation entre appareils nécessite toujours l'activation de la synchronisation cloud facultative ; l'enregistrement local ne protège pas contre la perte totale des données du téléphone.
 
+### Correction des équations rationnelles et des racines parasites (v45)
+
+Le contrôleur des étapes sait désormais **résoudre exactement certaines équations rationnelles** dont chaque dénominateur est une expression affine en x, à condition que le produit croisé soit de degré au plus 2. Il **conserve les valeurs interdites** : par exemple `(x−1)/(x−1)=1` n'est vrai que pour **x ≠ 1**. Si une multiplication par un dénominateur fait apparaître une solution interdite, elle est éliminée. Une étape suivante qui oublierait ces restrictions est signalée comme non équivalente.
+
+Il vérifie aussi certaines **équations à une racine carrée isolée**, par exemple `√(x+1)=x−1`. La mise au carré produit plusieurs candidats, mais chacun est contrôlé **exactement dans l'équation initiale** et avec les conditions de signe ; une solution parasite est rejetée. Le moteur ne remplace jamais la vérification initiale par une simple mise au carré.
+
+**Limites :** seules les solutions représentables exactement dans ce périmètre sont certifiées. Dénominateurs quadratiques, fractions rationnelles imbriquées, radicaux non isolés, solutions irrationnelles à substituer et intervalles de solutions restent *non vérifiés*. La transcription manuscrite doit toujours être relue et confirmée. Ce vérificateur ne constitue pas une démonstration générale et ne transforme pas les réponses corrigées manuellement en acquis autonomes.
+
 ### Racines et fractions rationnelles manuscrites (v44)
 
 La lecture locale reconnaît désormais un geste **√** avec une barre au-dessus d'un radicande court : par exemple `√(9)`, `√(2)` ou `√(x)`. Le vérificateur accepte seulement les **racines carrées exactes d'entiers** : `√(9)=3` ou `√(144)=12`. Les racines non carrées parfaites ou contenant x sont **transcrites, mais non vérifiées** ; il ne calcule pas leur domaine ni leur valeur par approximation.
