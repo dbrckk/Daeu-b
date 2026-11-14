@@ -610,10 +610,10 @@ try {
       }),
       "Fraction rationnelle manuscrite : résolution exacte et valeur interdite x=-1 sans noter le quiz");
     await advancedInkPage.locator("#quizNotebook textarea").fill("√(x+1)=x-1\\nx=0\\nx=3".replaceAll("\\n","\n"));
-    await advancedInkPage.locator("#quizNotebook .math-notebook-correction button").click();
-    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-correction .math-notebook-review-list li")
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
       .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,error,ok")
-      &&await advancedInkPage.locator("#quizNotebook .math-notebook-correction .math-notebook-feedback")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
         .textContent().then(t=>t.includes("x = 0")&&t.includes("x = 3"))
       &&await advancedInkPage.evaluate(()=>{
         const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
@@ -621,10 +621,10 @@ try {
       }),
       "Racine après mise au carré sur Android : candidat parasite rejeté, solution exacte conservée");
     await advancedInkPage.locator("#quizNotebook textarea").fill("(x-1)/(x-1)=1\\n1=1".replaceAll("\\n","\n"));
-    await advancedInkPage.locator("#quizNotebook .math-notebook-correction button").click();
-    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-correction .math-notebook-review-list li")
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
       .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,error")
-      &&await advancedInkPage.locator("#quizNotebook .math-notebook-correction .math-notebook-feedback")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
         .textContent().then(t=>t.includes("x = 1")),
       "Équation rationnelle sur Android : suppression d'une valeur interdite détectée comme erreur");
   }finally{await advancedInkContext.close();}
