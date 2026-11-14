@@ -254,7 +254,7 @@ export function checkMathSteps(text){
       continue;
     }
     if(!previous){
-      entries.push({line,kind:"info",message:result.rationalEquation
+      entries.push({line,kind:"info",message:(result.rationalEquation
         ?"Équation rationnelle : "+description(result)+". Les valeurs interdites sont conservées lors de chaque comparaison."
         :result.radicalEquation
           ?"Équation avec racine carrée : "+description(result)+". Après mise au carré, chaque solution candidate a été contrôlée dans l'égalité initiale."
