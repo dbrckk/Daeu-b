@@ -165,6 +165,14 @@ Les boutons **Dérivée sin/cos**, **Dérivée exp** et **Dérivée ln** insère
 
 Le contrôle compare exactement les coefficients et l'argument affine. Il n'évalue pas les démonstrations, ni les produits de fonctions trigonométriques, puissances de logarithmes, compositions non affines, ou primitives. Les corrections restent invisibles tant que la vérification n'est pas demandée. Aucun papier, calculateur payant ou export manuel n'est nécessaire pour utiliser ces modèles.
 
+### Radicandes algébriques manuscrits de degré 1 et 2 (v53)
+
+Le lecteur du cahier peut reconnaître **certaines expressions polynomiales courtes sous la barre d'une racine carrée**, notamment `√(2x+1)`, `√(-x+2)`, `√(x²+1)` et `√(2,5x+1)`. Un petit exposant `2` doit être tracé en hauteur à droite du `x`. Les termes décimaux restent normalisés en notation à point pour le calcul exact.
+
+La barre doit recouvrir toute l'expression ; si elle est illisible ou si la transcription utilise une opération non reconnue, le radical est signalé **□** et aucune réponse numérique n'est inventée. Les degrés supérieurs à deux, racines imbriquées, exposants autres que `2` et expressions tronquées sont refusés. La lecture reste expérimentale : vérifier et confirmer chaque symbole avant de demander une correction.
+
+Le contrôleur résout certaines équations à une racine isolée et conserve les restrictions de domaine ; il **ne note jamais automatiquement** une expression lue sur la feuille. La progression sauvegardée et l'utilisation hors ligne ne sont pas modifiées.
+
 ### Racines carrées à radicande décimal manuscrit (v52)
 
 Le cahier peut maintenant lire un radicande décimal court dessiné sous une barre de racine, par exemple `x=√(0,5)` ou `x=√(0.5)`. Le signe `√` reste un tracé continu avec barre supérieure, et la virgule ou le point doit se trouver en bas, entre deux chiffres. Le geste de racine de droite à gauche est également reconnu.

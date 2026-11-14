@@ -588,6 +588,15 @@ try {
         if(kind==="root"){
           paths.push("213,77;225,69;238,105;257,31;271,31;360,31");
           draw("9",281,40,.52);
+        }else if(kind==="polynomial-root"||kind==="quadratic-root"){
+          paths.push("213,77;225,69;260,120;295,11;305,11;590,11");
+          if(kind==="polynomial-root"){
+            draw("2",316,43,.4);draw("x",364,43,.4);
+            draw("+",412,43,.4);draw("1",460,43,.4);
+          }else{
+            draw("x",316,43,.4);draw("2",369,24,.21);
+            draw("+",394,43,.4);draw("1",442,43,.4);
+          }
         }else if(kind==="decimal-root"){
           paths.push("213,77;225,69;238,105;257,31;271,31;440,31");
           draw("0",284,43,.40);draw(",",329,43,.40);draw("5",374,43,.40);
@@ -623,6 +632,28 @@ try {
       await advancedInkPage.reload({waitUntil:"networkidle"});
       await advancedInkPage.locator("#quizNotebook .math-notebook-equations>button").click();
     };
+    await replaceInk("polynomial-root");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=√(2x+1)")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden()
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v53 : radicande affine 2x+1 tracé et reconnu, aucune note automatique");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
+      .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
+        &&t.includes("0 ligne(s) non prises en charge")),
+      "Android v53 : équation à racine affine vérifiée exactement après confirmation");
+    await replaceInk("quadratic-root");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=√(x^2+1)")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden()
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v53 : exposant 2 sous radical lu et conservé sans validation de réponse");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
+      .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
+        &&t.includes("0 transformation(s) ou calcul(s) erroné(s)")),
+      "Android v53 : radical quadratique reconnu par le contrôleur sans faux résultat");
     await replaceInk("decimal-root");
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
       .textContent().then(t=>t==="x=√(0.5)")

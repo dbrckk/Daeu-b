@@ -489,3 +489,68 @@ test("Radicande décimal : ponctuation manquante ou en hauteur non inventée",()
       "La lecture stricte n'accepte jamais un radical ambigu");
   }
 });
+
+function polynomialRadicalInk(expression,{reverse=false}={}){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(path=>encodeStroke(path.map(([px,py])=>[
+    Math.round(x+px*scale),Math.round(y+py*scale)
+  ])));
+  const last=Math.max(470,350+expression.length*48);
+  const root=[[213,77],[225,69],[260,120],[295,11],[305,11],[last,11]];
+  const strokes=[
+    ...draw("x",24,62,.7),...draw("=",100,62,.7),
+    encodeStroke(reverse?[...root].reverse():root)
+  ];
+  let xpos=316;
+  for(let i=0;i<expression.length;i++){
+    if(expression[i]==="^"&&["2","3"].includes(expression[i+1])){
+      strokes.push(...draw(expression[i+1],xpos+5,24,.21));i++;xpos+=30;
+    }else{
+      strokes.push(...draw(expression[i],xpos,43,.4));xpos+=48;
+    }
+  }
+  return strokes;
+}
+test("Sous la barre : 2x+1 est reconnu comme radicande affine exact",()=>{
+  for(const reverse of [false,true]){
+    const read=recognizeEquationInk(polynomialRadicalInk("2x+1",{reverse}));
+    assert.equal(read.status,"recognized",JSON.stringify(read));
+    assert.equal(read.text,"x=√(2x+1)");
+    const result=checkMathSteps(read.text);
+    assert.equal(result.checked,1);
+    assert.equal(result.unsupported,0);
+    assert.equal(result.errors,0);
+    assert.equal(extractFinalNumericAnswer(read.text),null);
+  }
+});
+test("Sous la barre : exposant carré surélevé et constante sont conservés",()=>{
+  const read=recognizeEquationInk(polynomialRadicalInk("x^2+1"));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=√(x^2+1)");
+  assert.equal(checkMathSteps(read.text).unsupported,0);
+  assert.equal(checkMathSteps(read.text).entries[0].kind,"info");
+  assert.equal(extractFinalNumericAnswer(read.text),null);
+});
+test("Sous la barre : les signes moins ne disparaissent pas de l'équation",()=>{
+  const read=recognizeEquationInk(polynomialRadicalInk("-x+2"));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=√(-x+2)");
+  const a=checkMathSteps(read.text);
+  assert.equal(a.checked,1);
+  assert.equal(a.errors,0);
+  assert.equal(a.entries[0].kind,"info");
+  assert.equal(extractFinalNumericAnswer(read.text),null);
+});
+test("Sous la barre : coefficients décimaux exacts et expressions partielles refusées",()=>{
+  const read=recognizeEquationInk(polynomialRadicalInk("2.5x+1"));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=√(2.5x+1)");
+  assert.equal(checkMathSteps(read.text).unsupported,0);
+  for(const expression of ["x^3+1","x++1","x-","2x+","x^2+","x+2.555"]){
+    const strokes=polynomialRadicalInk(expression);
+    const draft=recognizeEquationInk(strokes,{draft:true});
+    assert.notEqual(draft.status,"recognized",expression+" "+JSON.stringify(draft));
+    assert.ok(draft.text?.includes("□"),"Radicande dangereux à corriger : "+JSON.stringify(draft));
+    assert.equal(extractFinalNumericAnswer(draft.text),null);
+    assert.notEqual(recognizeEquationInk(strokes).status,"recognized",expression);
+  }
+});
