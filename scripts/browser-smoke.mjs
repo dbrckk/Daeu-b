@@ -648,6 +648,36 @@ try {
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
       .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok"),
       "Android : deux racines irrationnelles conservées par transformation équivalente");
+
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x)+2=x\nx=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
+        .textContent().then(t=>t.includes("Isoler la racine")&&t.includes("x = 1"))
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v47 : radical additif isolé, x=1 parasite exclue et x=4 validée sans noter le quiz");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("√(x)+2=x\nx=1");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,error"),
+      "Android v47 : la racine parasite x=1 n'est pas acceptée après mise au carré");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("x+√(x)=5\n√(x)=5-x");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="info,ok")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-feedback")
+        .textContent().then(t=>t.includes("√(21)")),
+      "Android v47 : radical avec variable additionnée, transformation équivalente et solution irrationnelle exacte");
+    await advancedInkPage.locator("#quizNotebook textarea")
+      .fill("2*√(x)=4");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-checker button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
+      .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="unsupported"),
+      "Android v47 : produit devant la racine explicitement non vérifié");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
