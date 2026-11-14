@@ -291,8 +291,12 @@ try {
     const inkPage=await inkContext.newPage();
     inkPage.on("pageerror",error=>errors.push("Reconnaissance numérique : "+error.message));
     await inkPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
-    await inkPage.locator("#topic").selectOption("nombres");
-    await inkPage.locator("#start").click();
+    // Utiliser la question numérique fixe du démarrage : une séance
+    // aléatoire du thème nombres peut commencer par un QCM, incompatible
+    // avec le lecteur des valeurs numériques.
+    await inkPage.locator("#firstStart").click();
+    await inkPage.locator("#numericAnswer").waitFor({state:"visible"});
+    await inkPage.locator("#quizNotebook .math-notebook-recognition").waitFor({state:"visible"});
     await check(async()=>await inkPage.locator("#numericAnswer").isVisible()
       &&await inkPage.locator("#quizNotebook .math-notebook-recognition").isVisible()
       &&await inkPage.locator("#answer").inputValue().then(t=>t===""),
