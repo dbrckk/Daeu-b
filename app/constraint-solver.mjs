@@ -267,6 +267,15 @@ function rationalEquation(left,right){
  * 3 chiffres sont prises en charge ; jamais x√(...), √(...)/x ni √(...)².
  * Pour x-2√(x)+2, on renvoie (hors racine = x+2, facteur = -2).
  */
+const ROOT_SCALAR=/((?:[1-9][0-9]{0,2}|[0-9]{1,3}[.,][0-9]{1,3}))\\*?$/;
+const ROOT_TRAILING_SCALAR=/^([*/])((?:[1-9][0-9]{0,2}|[0-9]{1,3}[.,][0-9]{1,3}))(?=$|[+-])/;
+function exactRootScalar(source){
+  const normalized=source.replace(",",".");
+  const [integer,fraction]=normalized.split(".");
+  if(fraction===undefined)return rat(BigInt(integer));
+  const denominator=10n**BigInt(fraction.length);
+  return rat(BigInt(integer)*denominator+BigInt(fraction),denominator);
+}
 function rootSide(text){
   const source=text.replace(/\s/g,"").replace(/[−–]/g,"-");
   if(!source.includes("√"))return null;
@@ -290,12 +299,12 @@ function rootSide(text){
   let factor=one,extraPrefix="";
   if(before){
     // k√(...), k*√(...), x+k√(...) et x-k*√(...) uniquement.
-    const scalar=before.match(/([1-9][0-9]{0,2})\*?$/);
+    const scalar=before.match(ROOT_SCALAR);
     if(scalar){
       const remainder=before.slice(0,-scalar[0].length);
       if(remainder && !/[+-]$/.test(remainder))
         throw Error("une multiplication dépendant de x n'est pas vérifiée");
-      factor=rat(BigInt(scalar[1])*(remainder.endsWith("-")?-1n:1n));
+      factor=times(exactRootScalar(scalar[1]),remainder.endsWith("-")?neg(one):one);
       extraPrefix=remainder?remainder.slice(0,-1):"";
     }else if(/[+-]$/.test(before)){
       factor=before.endsWith("-")?neg(one):one;
@@ -308,9 +317,10 @@ function rootSide(text){
   if(after.startsWith("*")||after.startsWith("/")){
     // √(...)*k et √(...)/k sont valides seulement pour k entier non nul,
     // sans autre multiplication, exponentiation ou dénominateur en x.
-    const scalar=after.match(/^([*/])([1-9][0-9]{0,2})(?=$|[+-])/);
+    const scalar=after.match(ROOT_TRAILING_SCALAR);
     if(!scalar)throw Error("multiplication ou division après la racine non prise en charge");
-    const k=rat(BigInt(scalar[2]));
+    const k=exactRootScalar(scalar[2]);
+    if(k.n===0n)throw Error("facteur ou diviseur nul : racine non isolable");
     factor=scalar[1]==="*"?times(factor,k):over(factor,k);
     additiveSuffix=after.slice(scalar[0].length);
   }
