@@ -424,6 +424,10 @@ test("Plus de douze lignes ou plus de cent traits : non reconnus plutôt qu'inte
   for(let j=0;j<13;j++)
     tooManyLines.push(...compactLineInk("x=1",{step:68,scale:.5,originY:20+j*88}));
   assert.notEqual(recognizeEquationInk(tooManyLines).status,"recognized");
+  const overlong=compactLineInk("1".repeat(49),{step:16,scale:.32});
+  assert.ok(overlong.length<=100);
+  assert.equal(recognizeEquationInk(overlong).status,"unsupported",
+    "Le plafond de 48 glyphes doit rester strict sans perte de page");
   const stroke=encodeStroke([[15,15],[34,44]]);
   assert.equal(recognizeEquationInk(Array(101).fill(stroke)).status,"unsupported");
 });
