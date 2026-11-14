@@ -435,7 +435,8 @@ test("Plus de douze lignes ou plus de cent traits : non reconnus plutôt qu'inte
 function decimalRadicalInk(radicand,{reverse=false}={}){
   const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(path=>encodeStroke(path.map(([px,py])=>
     [Math.round(x+px*scale),Math.round(y+py*scale)])));
-  const root=[[213,77],[225,69],[238,105],[257,31],[271,31],[440,31]];
+  const end=Math.max(440,315+radicand.length*45);
+  const root=[[213,77],[225,69],[250,105],[272,31],[284,31],[end,31]];
   return [
     ...draw("x",24,62,.7),...draw("=",100,62,.7),
     encodeStroke(reverse?[...root].reverse():root),
@@ -450,6 +451,19 @@ test("Radicande décimal : le point et la virgule se lisent sous la barre, sans 
     assert.equal(extractFinalNumericAnswer(read.text),null,
       "Une racine décimale ne doit pas être notée comme résultat numérique");
   }
+});
+test("Radicandes décimaux plus longs : valeur exacte et expression affine",()=>{
+  for(const [input,expected] of [
+    ["2.25","2.25"],["1,44","1.44"],["x+0.5","x+0.5"]
+  ]){
+    const read=recognizeEquationInk(decimalRadicalInk(input));
+    assert.equal(read.status,"recognized",input+" : "+JSON.stringify(read));
+    assert.equal(read.text,"x=√("+expected+")",input);
+    assert.equal(extractFinalNumericAnswer(read.text),null);
+  }
+  assert.deepEqual(checkMathSteps("x=√(2.25)\nx=1.5").entries.map(e=>e.kind),
+    ["info","ok"]);
+  assert.equal(checkMathSteps("√(1.44)=1.2").errors,0);
 });
 test("Radicande décimal : racine tracée de droite à gauche et virgule française",()=>{
   const read=recognizeEquationInk(decimalRadicalInk("0,5",{reverse:true}));
