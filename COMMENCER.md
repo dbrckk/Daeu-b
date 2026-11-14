@@ -20,6 +20,14 @@ Pour une question demandant **un nombre** : écris la réponse finale **seule** 
 
 **Limite essentielle :** il ne s'agit **pas** encore d'un modèle de reconnaissance générale des mathématiques : équations sur plusieurs lignes, fractions empilées, dérivées et démonstrations manuscrites ne sont pas corrigées depuis les traits. Un résultat n'est jamais noté sans confirmation de la transcription. Le bouton **« Valider ma réponse sur la feuille »** continue d'afficher le corrigé et permet une **auto-évaluation assistée**, jamais une maîtrise autonome confirmée. Le clavier numérique et les QCM restent facultatifs selon l'exercice. Aucun abonnement ni service OCR payant.
 
+### Sauvegarde des corrections manuscrites (v42)
+
+Quand tu corriges les symboles d'une équation depuis les boutons tactiles, **chaque modification est enregistrée automatiquement dans le même cahier que les traits**. Après fermeture ou actualisation du navigateur, affiche « Lire mes équations manuscrites » : la transcription déjà corrigée est restaurée. Aucune exportation manuelle n'est requise. Si tu effaces, dessines ou modifies des traits sur cette page, l'ancienne transcription est invalidée automatiquement : la nouvelle lecture doit être relue.
+
+Une transcription dont les caractères ont été **corrigés manuellement** peut être notée objectivement, mais sa validation sera comptée comme **réponse assistée**, sans attribuer un acquis autonome. Le moteur ne peut pas certifier qu'une formule saisie à la main reflète parfaitement le manuscrit. Une lecture non modifiée, confirmée visuellement, suit le comportement de correction habituel.
+
+Le cahier reste conservé localement et dans les sauvegardes automatiques du navigateur. La synchronisation entre appareils nécessite toujours l'activation de la synchronisation cloud facultative ; l'enregistrement local ne protège pas contre la perte totale des données du téléphone.
+
 ### Correction de la feuille et des symboles reconnus (v41)
 
 La **gomme à un trait** permet de toucher un trait erroné pour l'effacer sans effacer le reste de la page. Utilise « Annuler l'effacement » si nécessaire, puis « Reprendre le stylo ». Le cahier est sauvegardé automatiquement.
