@@ -28,6 +28,16 @@ Une transcription dont les caractères ont été **corrigés manuellement** peut
 
 Le cahier reste conservé localement et dans les sauvegardes automatiques du navigateur. La synchronisation entre appareils nécessite toujours l'activation de la synchronisation cloud facultative ; l'enregistrement local ne protège pas contre la perte totale des données du téléphone.
 
+### Racines avec termes additifs et vérification des solutions (v47)
+
+Le vérificateur accepte désormais **une racine carrée accompagnée d'additions ou de soustractions affines**, écrite de l'un ou l'autre côté de l'égalité. Exemples : `√(x)+2=x`, `x-√(x)=2`, `2-√(x)=x` et `x+√(x)=5`. Il isole d'abord la racine, puis applique les **conditions de domaine et de signe avant de mettre au carré**. Les candidats sont ensuite contrôlés exactement dans l'équation d'origine.
+
+Par exemple, `√(x)+2=x` a pour unique solution `x=4` : le candidat `x=1` obtenu après mise au carré est **parasite**, car `√1+2≠1`. Dans `x+√(x)=5`, la solution exacte est `x=(11−√21)/2` ; l'autre candidat est rejeté grâce au signe de `5−x`.
+
+Le retour guidé montre **quatre étapes** pour ces équations : isoler le radical, fixer les conditions de signe, mettre au carré, puis vérifier chaque solution dans l'égalité initiale. Une approximation décimale reste insuffisante pour établir une égalité exacte.
+
+**Limites :** une seule racine par égalité, facteur multiplicatif devant la racine non pris en charge, terme accompagnant la racine de degré au plus 1. Les expressions contenant plusieurs racines, un produit ou une division par le radical, les racines imbriquées et les équations nécessitant une résolution par intervalles restent non vérifiées. Le cahier manuscrit continue de demander confirmation de la transcription.
+
 ### Solutions irrationnelles exactes et méthode détaillée (v46)
 
 Pour certaines équations à une racine carrée **isolée**, le correcteur conserve maintenant une solution irrationnelle sous une **écriture exacte** plutôt que de l'arrondir. Par exemple, pour `√(x+1)=x`, le seul candidat admissible est `x=(1+√(5))/2` : l'autre branche est écartée, car le membre sans racine serait négatif. Le même résultat écrit sous une forme mathématiquement équivalente est comparé sans conversion en nombre décimal.

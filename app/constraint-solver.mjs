@@ -6,7 +6,8 @@
  * Périmètre :
  * - (polynôme degré <= 2)/(dénominateur affine) = expression polynomiale
  *   ou un second quotient à dénominateur affine ; produit croisé <= degré 2 ;
- * - √(polynôme degré <= 2) = polynôme affine, ou ordre inverse ;
+ * - une racine √(polynôme degré <= 2), éventuellement additionnée ou
+ *   soustraite d'une expression affine, sur l'un des deux membres ;
  * - candidats rationnels substitués exactement ; candidats quadratiques
  *   irrationnels vérifiés par comparaison algébrique exacte des signes,
  *   sans approximation ni évaluation de racines sur des flottants.
@@ -259,12 +260,49 @@ function rationalEquation(left,right){
   };
   return {...raw,...meta};
 }
+/**
+ * Extrait une seule racine carrée, éventuellement accompagnée de termes
+ * affines additifs. Aucune multiplication par une racine, division après
+ * la racine, puissance de la racine ni racine supplémentaire n'est acceptée.
+ *
+ * Exemples autorisés : √(x+1)+2, x-√(x), -(racine non écrite).
+ * Pour x-√(x)+2, on renvoie (hors racine = x+2, signe = -1).
+ */
 function rootSide(text){
-  const source=text.trim();
-  if(!source.startsWith("√(")||!source.endsWith(")"))return null;
-  const expression=source.slice(2,-1);
-  if(!expression||expression.includes("√"))throw Error("racine imbriquée non vérifiée");
-  return parsePolynomial(expression);
+  const source=text.replace(/\s/g,"").replace(/[−–]/g,"-");
+  if(!source.includes("√"))return null;
+  const start=source.indexOf("√(");
+  if(start<0||source.indexOf("√",start+1)!==-1)
+    throw Error("une seule racine carrée √(...) est prise en charge");
+  let depth=0,end=-1;
+  for(let i=start+1;i<source.length;i++){
+    if(source[i]==="(")depth++;
+    else if(source[i]===")"){
+      if(--depth<0)throw Error("parenthèses du radical déséquilibrées");
+      if(depth===0){end=i;break;}
+    }
+  }
+  if(end<0)throw Error("radicande sans parenthèse fermante");
+  const expression=source.slice(start+2,end);
+  if(!expression||expression.includes("√"))
+    throw Error("racine vide ou imbriquée non vérifiée");
+  const radicand=parsePolynomial(expression);
+  const before=source.slice(0,start),after=source.slice(end+1);
+  let sign=1,extraPrefix="";
+  if(before){
+    const last=before.at(-1);
+    if(last!=="+"&&last!=="-")
+      throw Error("isole les multiplications et coefficients devant la racine");
+    sign=last==="-"?-1:1;
+    extraPrefix=before.slice(0,-1);
+  }
+  if(after&&!/^[+-]/.test(after))
+    throw Error("seules les additions et soustractions après la racine sont prises en charge");
+  const additive=extraPrefix+after;
+  const outside=additive?parsePolynomial(additive):constant(zero);
+  if(degree(outside)>1)
+    throw Error("termes accompagnant la racine de degré supérieur à un : non vérifié");
+  return {radicand,outside,sign,isolationRequired:sign!==1||!isZero(outside)};
 }
 /**
  * Résultat final négatif exact : x=-√(n), avec n entier naturel non
@@ -295,20 +333,30 @@ function radicalEquation(left,right){
       throw Error("isole une seule racine carrée dans un membre de l'égalité");
     return null;
   }
-  const radicand=a??b,other=a===null?left:right;
+  const radical=a??b,other=a===null?left:right;
   if(other.includes("√"))throw Error("une seule racine carrée par équation");
-  const target=parsePolynomial(other);
-  if(degree(target)>1)throw Error("membre sans racine de degré supérieur à un : non vérifié");
+  const otherForm=parsePolynomial(other);
+  if(degree(otherForm)>1)
+    throw Error("membre sans racine de degré supérieur à un : non vérifié");
+  const radicand=radical.radicand;
+  const shifted=difference(otherForm,radical.outside);
+  const target=radical.sign===1?shifted:shifted.map(neg);
+  if(degree(target)>1)throw Error("racine non isolable en polynôme affine");
   const squared=difference(radicand,multiply(target,target));
   const raw=classifyPolynomialDifference(squared);
   const conditions="Conditions : radicande ≥ 0 et membre sans racine ≥ 0 ; "
     +"solutions candidates contrôlées par substitution exacte.";
   const methodSteps=[
-    "1. Vérifier que "+formatPolynomial(radicand)
-      +" ≥ 0 et "+formatPolynomial(target)+" ≥ 0.",
-    "2. Sur ce domaine, mettre au carré : "+formatPolynomial(radicand)
+    radical.isolationRequired
+      ?"1. Isoler la racine : √("+formatPolynomial(radicand)
+        +") = "+formatPolynomial(target)+"."
+      :"1. La racine est déjà isolée : √("+formatPolynomial(radicand)
+        +") = "+formatPolynomial(target)+".",
+    "2. Domaine : "+formatPolynomial(radicand)+" ≥ 0 et "
+      +formatPolynomial(target)+" ≥ 0.",
+    "3. Sur ce domaine, mettre au carré : "+formatPolynomial(radicand)
       +" = ("+formatPolynomial(target)+")².",
-    "3. Résoudre l'équation polynomiale, puis contrôler chaque solution candidate "
+    "4. Résoudre l'équation polynomiale, puis contrôler chaque solution candidate "
       +"dans l'égalité initiale. Écarter les solutions parasites."
   ];
   if(raw.kind==="all")throw Error("racine définissant un intervalle : résolution symbolique non vérifiée");
