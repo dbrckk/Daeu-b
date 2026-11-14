@@ -156,7 +156,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   correction.setAttribute("aria-label","Correction guidée des lignes");
   const correctionTitle=document.createElement("h5");correctionTitle.textContent="Correction guidée des étapes";
   const explanation=document.createElement("p");explanation.className="helper";
-  explanation.textContent="Vérifie les calculs, les équations du premier et du second degré et les dérivées polynomiales (degré 0 à 6) ou usuelles : sin(ax+b), cos(ax+b), exp(ax+b), ln(ax+b), multipliées par une constante. Écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont comparés exactement. Les combinaisons plus complexes et les démonstrations ne sont pas vérifiées ; pour ln, respecte le domaine ax+b > 0.";
+  explanation.textContent="Vérifie les calculs, les équations du premier et du second degré, certaines équations rationnelles (valeurs interdites), les racines carrées isolées (solutions parasites) et les dérivées polynomiales (degré 0 à 6) ou usuelles : sin(ax+b), cos(ax+b), exp(ax+b), ln(ax+b), multipliées par une constante. Écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont comparés exactement. Les combinaisons plus complexes et les démonstrations ne sont pas vérifiées ; pour ln, respecte le domaine ax+b > 0.";
   const verify=document.createElement("button");verify.type="button";verify.className="subtle";
   verify.textContent="Vérifier mes étapes";
   const feedback=document.createElement("div");feedback.className="math-notebook-feedback";feedback.hidden=true;
