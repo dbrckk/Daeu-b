@@ -1390,7 +1390,7 @@ try {
   // Une modification dans un autre onglet doit neutraliser les saisies de
   // l'onglet obsolète, au lieu d'écraser silencieusement la nouvelle copie.
   const other=await context.newPage();
-  await other.goto(BASE,{waitUntil:"networkidle"});
+  await other.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
   await other.locator("#start").click();
   await other.locator("#unknownButton").click();
   await check(async()=>await page.locator("#syncWarning").isVisible(),"Conflit multi-onglets signalé");
@@ -1537,7 +1537,7 @@ try {
   const preservedRound=await page.evaluate(()=>
     JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round??null);
   const offlinePractice=await context.newPage();
-  await offlinePractice.goto(BASE+"/?topic=probas&mode=due#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlinePractice.goto(BASE+"/?saisie=clavier&topic=probas&mode=due#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
   await offlinePractice.waitForFunction(()=>document.querySelector("#topic")?.value==="probas"
     &&document.querySelectorAll("#topic option").length===14,null,{timeout:10000});
   await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas")
