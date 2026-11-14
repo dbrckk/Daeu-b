@@ -290,7 +290,7 @@ function rootSide(text){
   let factor=one,extraPrefix="";
   if(before){
     // k√(...), k*√(...), x+k√(...) et x-k*√(...) uniquement.
-    const scalar=before.match(/([1-9][0-9]{0,2})\\*?$/);
+    const scalar=before.match(/([1-9][0-9]{0,2})\*?$/);
     if(scalar){
       const remainder=before.slice(0,-scalar[0].length);
       if(remainder && !/[+-]$/.test(remainder))
