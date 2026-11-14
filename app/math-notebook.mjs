@@ -201,8 +201,9 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   sheetViewport.tabIndex=0;
   sheetViewport.setAttribute("role","region");
   sheetViewport.setAttribute("aria-label","Grande feuille quadrillée défilante pour longues équations");
+  let paper=null;
   if(paperOnly){
-    const paper=document.createElement("div");paper.className="math-notebook-paper";
+    paper=document.createElement("div");paper.className="math-notebook-paper";
     const print=document.createElement("header");print.className="math-notebook-paper-heading";
     const label=document.createElement("strong");label.textContent=title;print.append(label);
     if(paperPrompt){const prompt=document.createElement("p");prompt.className="math-notebook-paper-prompt";prompt.textContent=String(paperPrompt).slice(0,12000);print.append(prompt);}
@@ -724,8 +725,25 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const editorSummary=document.createElement("summary");editorSummary.textContent="Clavier mathématique et vérification des étapes (facultatif)";
   editorDetails.append(editorSummary,keypad,templates,field,preview,correction);
   if(paperOnly){
+    // La feuille reste l'unique surface de travail ; les commandes sont repliées.
+    const tools=document.createElement("details");tools.className="math-notebook-paper-tools";
+    const summary=document.createElement("summary");summary.textContent="Outils de la feuille";
+    summary.setAttribute("aria-label","Afficher les outils de la feuille : pages, gomme, déplacement et zoom");
+    const zoom=document.createElement("button");zoom.type="button";
+    zoom.className="subtle small math-notebook-paper-zoom";
+    let expanded=false;
+    const updateZoom=()=>{
+      paper.style.width=expanded?"1260px":"100%";
+      canvas.style.width=expanded?"1260px":"100%";
+      zoom.textContent=expanded?"Voir la feuille entière":"Agrandir pour écrire";
+      zoom.setAttribute("aria-pressed",String(expanded));
+      sheetViewport.scrollLeft=0;
+    };
+    zoom.addEventListener("click",()=>{expanded=!expanded;updateZoom();});
     if(readOnly){controls.replaceChildren(prev,nextPage,indicator);sheetControls.hidden=true;}
-    section.append(controls,sheetControls,sheetViewport,quickValidate,recognition,inkEquations,manual,status,editorDetails);
+    tools.append(summary,controls,zoom,sheetControls);
+    section.append(tools,sheetViewport,quickValidate,recognition,inkEquations,manual,status,editorDetails);
+    updateZoom();
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
