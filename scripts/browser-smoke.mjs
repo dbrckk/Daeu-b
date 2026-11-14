@@ -803,6 +803,17 @@ try {
       "Android v51 : l'écriture fractionnaire décimale persiste après rechargement");
     await replaceInk("long");
     const longFormula=Array(16).fill("1").join("+")+"=16";
+    const observedLong={
+      text:await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript").textContent(),
+      finalHidden:await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      recognitionStatus:await advancedInkPage.locator("#quizNotebook .math-notebook-equations [role=status]").first().textContent(),
+      inkStrokes:await advancedInkPage.evaluate(()=>{
+        const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        return state.workbook.entries["quiz:"+state.round.ids[0]]?.pages[0]?.length;
+      })
+    };
+    if(observedLong.text!==longFormula||!observedLong.finalHidden)
+      console.log("DIAGNOSTIC v51 ligne longue : "+JSON.stringify(observedLong));
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
       .textContent().then(t=>t===longFormula)
       &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
