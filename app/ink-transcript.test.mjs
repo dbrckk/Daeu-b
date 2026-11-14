@@ -51,5 +51,6 @@ test("Éditeur tactile : une racine et une fraction rationnelle ne sont pas du H
     assert.equal(validateInkTranscript(line),false,line);
   }
   assert.equal(editInkTranscript("x=□(9)",2,"replace","√"),"x=√(9)");
-  assert.equal(checkMathSteps("x=√(2)").unsupported,1);
+  assert.equal(checkMathSteps("x=√(2)").checked,1,"La valeur √2 est vérifiée exactement, sans calcul flottant");
+  assert.equal(checkMathSteps("x=√(2)").unsupported,0);
 });
