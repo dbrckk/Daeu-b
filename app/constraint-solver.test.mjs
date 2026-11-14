@@ -334,3 +334,42 @@ test("Coefficient constant après la racine : solutions irrationnelles et signe 
   assert.deepEqual(a.rejectedCandidates,["(4-√(32))/2"]);
   assert.equal(sameRealSolutions(a,b),true);
 });
+
+test("Coefficients décimaux courts devant et après √ : résolution rationnelle exacte",()=>{
+  const samples=[
+    ["0.5√(x)=1","4"],
+    ["0,5√(x)=1","4"],
+    ["0.5*√(x)=1","4"],
+    ["2.5√(x)=5","4"],
+    ["2,5√(x)=5","4"],
+    ["√(x)*0.5=1","4"],
+    ["√(x)/0.5=4","4"],
+    ["√(x)*0,5+1=2","4"],
+    ["x+0.5√(x)=5","4"],
+    ["x-0.5√(x)=3","4"],
+    ["1.25√(x)=2.5","4"],
+    ["√(x)/1.25=1.6","4"],
+    ["0.125√(x)=0.25","4"]
+  ];
+  for(const [expression,solution] of samples){
+    const result=classifyEquality(expression);
+    assert.equal(result.kind,"unique",expression);
+    assert.equal(result.solution,solution,expression);
+    assert.deepEqual(checkMathSteps(expression+"\nx="+solution)
+      .entries.map(e=>e.kind),["info","ok"],expression);
+  }
+});
+test("Les coefficients décimaux invalides ne produisent jamais de faux verdict",()=>{
+  for(const expression of [
+    "0.0√(x)=0","√(x)/0.0=2","0,0√(x)=0",
+    "2.5555√(x)=4","0.1234√(x)=1",
+    "x*0.5√(x)=2","0.5x√(x)=2",
+    "√(x)*0.5x=2","√(x)/0.5x=2",
+    "√(x)*0.5*2=2","√(x)/0,0=2",
+    "√(x)*0.5.1=2"
+  ]){
+    const result=checkMathSteps(expression);
+    assert.equal(result.checked,0,expression);
+    assert.equal(result.unsupported,1,expression);
+  }
+});
