@@ -3,7 +3,7 @@
  * Sauvegarde atomique dans le bundle progression / cloud / IndexedDB.
  * Les traits sont des coordonnées, jamais du HTML, SVG fourni par l'utilisateur ou du code.
  */
-import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT} from "./workbook.mjs";
+import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
@@ -335,7 +335,10 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       }
       return;
     }
-    if(work.pages[pageIndex].length>=100)return;
+    if(work.pages[pageIndex].length>=MAX_PAGE_STROKES){
+      status.textContent="Cette page est pleine : ajoute une page pour continuer ton calcul.";
+      return;
+    }
     lastErasure=null;
     event.preventDefault();activePointer=event.pointerId;drawing=[pointOf(event)];
     canvas.setPointerCapture(event.pointerId);paint();
@@ -351,7 +354,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(activePointer!==event.pointerId||!drawing)return;
     event.preventDefault();const stroke=drawing;
     activePointer=null;drawing=null;
-    if(stroke.length&&work.pages[pageIndex].length<100){
+    if(stroke.length&&work.pages[pageIndex].length<MAX_PAGE_STROKES){
       editPage(w=>w.pages[pageIndex].push(encodeStroke(stroke)));
     }else renderPages();
   };

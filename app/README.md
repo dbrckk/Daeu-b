@@ -6,7 +6,7 @@
 - Les choix multiples sont numérotés sur la feuille. Un numéro manuscrit peut être lu localement et n'est corrigé qu'après confirmation. Les calculs et équations incertains restent soumis à comparaison au corrigé, sans maîtrise autonome fictive.
 - Les nouveaux examens utilisent quatre feuilles manuscrites distinctes, conservées et consultables après remise. **Aucune note /20 n'est affichée** pour ces copies : la correction automatique des démonstrations manuscrites n'est pas fiable.
 - Les anciennes copies avec formulaires restent compatibles. Une interface clavier d'accessibilité reste disponible en ajoutant `?saisie=clavier` à l'URL de l'atelier.
-- Navigation : gomme, annulation, pages et déplacement tactile. L'écriture ne nécessite aucun papier ni export manuel.
+- Navigation : gomme, annulation, pages et déplacement tactile ; une page peut conserver jusqu'à 240 traits. Au-delà, une nouvelle page permet de continuer. L'écriture ne nécessite aucun papier ni export manuel.
 
 
 ## v54 — validation manuscrite en priorité, sans révélation prématurée (14 novembre 2026)

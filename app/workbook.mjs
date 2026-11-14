@@ -8,7 +8,8 @@ import {sanitizeInkDrafts} from "./ink-drafts.mjs";
 export const WORKBOOK_VERSION=1;
 export const PAPER_WIDTH=900;
 export const PAPER_HEIGHT=1200;
-export const MAX_WORKBOOK_BYTES=650_000;
+export const MAX_WORKBOOK_BYTES=1_200_000;
+export const MAX_PAGE_STROKES=240;
 const KEY_PATTERN=/^[A-Za-z0-9:_.-]{1,130}$/;
 const STROKE_PATTERN=/^\d{1,4},\d{1,4}(;\d{1,4},\d{1,4}){0,299}$/;
 
@@ -41,13 +42,13 @@ export function sanitizeWork(raw){
     ||raw.text.length>6000||!Array.isArray(raw.pages)
     ||raw.pages.length<1||raw.pages.length>8)throw Error("Page de calcul incompatible");
   const pages=raw.pages.map(page=>{
-    if(!Array.isArray(page)||page.length>100)throw Error("Trop de traits sur une page");
+    if(!Array.isArray(page)||page.length>MAX_PAGE_STROKES)throw Error("Trop de traits sur une page");
     return page.map(path=>{parseStroke(path);return path;});
   });
   const cleaned={text:raw.text,pages};
   const drafts=sanitizeInkDrafts(raw.inkDrafts,pages);
   if(drafts&&Object.keys(drafts).length)cleaned.inkDrafts=drafts;
-  if(JSON.stringify(cleaned).length>80_000)throw Error("Cahier trop volumineux pour cette activité");
+  if(JSON.stringify(cleaned).length>180_000)throw Error("Cahier trop volumineux pour cette activité");
   return cleaned;
 }
 export function sanitizeWorkbook(raw){
