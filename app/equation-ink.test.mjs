@@ -431,3 +431,42 @@ test("Plus de douze lignes ou plus de cent traits : non reconnus plutôt qu'inte
   const stroke=encodeStroke([[15,15],[34,44]]);
   assert.equal(recognizeEquationInk(Array(101).fill(stroke)).status,"unsupported");
 });
+
+function decimalRadicalInk(radicand,{reverse=false}={}){
+  const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(path=>encodeStroke(path.map(([px,py])=>
+    [Math.round(x+px*scale),Math.round(y+py*scale)])));
+  const root=[[213,77],[225,69],[238,105],[257,31],[271,31],[440,31]];
+  return [
+    ...draw("x",24,62,.7),...draw("=",100,62,.7),
+    encodeStroke(reverse?[...root].reverse():root),
+    ...[...radicand].flatMap((symbol,i)=>draw(symbol,284+i*45,43,.40))
+  ];
+}
+test("Radicande décimal : le point et la virgule se lisent sous la barre, sans clavier",()=>{
+  for(const punctuation of [".",","]){
+    const read=recognizeEquationInk(decimalRadicalInk("0"+punctuation+"5"));
+    assert.equal(read.status,"recognized",punctuation+" "+JSON.stringify(read));
+    assert.equal(read.text,"x=√(0.5)");
+    assert.equal(extractFinalNumericAnswer(read.text),null,
+      "Une racine décimale ne doit pas être notée comme résultat numérique");
+  }
+});
+test("Radicande décimal : racine tracée de droite à gauche et virgule française",()=>{
+  const read=recognizeEquationInk(decimalRadicalInk("0,5",{reverse:true}));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=√(0.5)");
+});
+test("Radicande décimal : ponctuation manquante ou en hauteur non inventée",()=>{
+  const baseline=decimalRadicalInk("0.5");
+  const punctuation=baseline.length-2;
+  const raised=baseline.map((stroke,i)=>i===punctuation
+    ?encodeStroke(stroke.split(";").map(point=>{
+      const [x,y]=point.split(",").map(Number);
+      return [x,y-27];
+    })):stroke);
+  for(const page of [raised,decimalRadicalInk(".5"),decimalRadicalInk("0.")]){
+    const result=recognizeEquationInk(page,{draft:true});
+    assert.notEqual(result.status,"recognized",JSON.stringify(result));
+    assert.notEqual(result.text,"x=√(0.5)");
+  }
+});
