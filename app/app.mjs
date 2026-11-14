@@ -315,8 +315,11 @@ function renderQuestion() {
       onDecision:submitHandwritten,
       // Lecture géométrique locale : même correcteur objectif qu'une saisie numérique.
       // Le résultat n'est soumis qu'après confirmation visuelle par l'élève.
-      onRecognized:q.type==="number"?value=>{
+      onRecognized:q.type==="number"?(value,{edited=false}={})=>{
         if(done)return false;
+        // La saisie du résultat après retouche de transcription reste corrigée
+        // objectivement, mais elle n'est pas une preuve de maîtrise sans aide.
+        if(edited&&!markGuidedQuestion())return false;
         submit(value);
         return done;
       }:null
