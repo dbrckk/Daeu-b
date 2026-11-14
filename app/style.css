@@ -404,3 +404,9 @@
 .paper-exam-active .exam-actions{position:sticky;bottom:0;background:#202b3bf2;padding:10px 0}
 @media(max-width:600px){.quiz.paper-mode:not([hidden]),.exam-active.paper-exam-active:not([hidden]){padding:7px 7px 12px}.math-notebook.is-paper-only .math-notebook-sheet-viewport{height:calc(100dvh - 230px);min-height:360px}.math-notebook-paper-heading{padding:25px 35px}.math-notebook-paper-prompt{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.quiz.paper-mode,.exam-active.paper-exam-active{scroll-behavior:auto}}
+
+/* Les épreuves et corrections conservent la vraie copie sans inventer une note. */
+.exam-paper-review{border:1px solid #65758d;border-radius:10px;margin:12px 0;padding:9px;background:#172439}
+.exam-paper-review>summary{cursor:pointer;min-height:42px;color:#f0e9d6}
+.exam-paper-review .math-notebook-sheet-viewport{height:min(68vh,650px)}
+.exam-result h3#examScore{font-size:clamp(1.4rem,4vw,2.2rem)}

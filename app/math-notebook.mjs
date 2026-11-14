@@ -252,6 +252,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const sheetHelp=document.createElement("p");sheetHelp.className="helper";
   sheetHelp.textContent="Grande feuille 900 × 1200. Déplace-toi avec les flèches ou le mode déplacement. Pour corriger un symbole ancien, active « Gomme : effacer un trait », touche uniquement le trait concerné, puis reprends le stylo. Tu peux annuler cet effacement. Jusqu’à huit pages disponibles.";
   canvas.width=PAPER_WIDTH;canvas.height=PAPER_HEIGHT;
+  if(readOnly)canvas.classList.add("is-panning");
   canvas.tabIndex=0;
   canvas.setAttribute("role","img");canvas.setAttribute("aria-label","Feuille de calcul quadrillée. Trace les équations avec le doigt ou un stylet.");
   const ctx=canvas.getContext("2d");

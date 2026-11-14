@@ -38,6 +38,20 @@ const EXAM_LESSONS={
 const byId=id=>document.getElementById(id);
 let store=emptyExamStore(),timer=null,lastResult=null;
 let initialized=false,adapter=null,onStale=()=>{};
+// Nouvelle copie : uniquement la feuille. Les anciennes sessions à saisie
+// clavier restent reprises sans migration ni perte de leurs champs.
+const sheetFirst=new URL(location.href).searchParams.get("saisie")!=="clavier";
+const sheetKey=(session,id)=>"exam:"+session.examId+":"+session.startedAt+":"+id;
+function writtenPaperSections(session){
+  let entries={};
+  try{entries=adapter.snapshot().workbook.entries??{};}catch{return new Set();}
+  const exam=findExam(session.examId,session.seed??null);
+  return new Set(exam.sections.filter(section=>entries[sheetKey(session,section.id)]?.pages?.some(page=>page.length>0)).map(section=>section.id));
+}
+const examPaperPrompt=section=>[section.context,...section.questions.map((q,i)=>
+  "Question "+(i+1)+" — "+q.points+" point"+(q.points>1?"s":"")+"\n"+q.prompt+
+  (q.type==="choice"?"\n"+q.options.map((option,j)=>(j+1)+". "+option).join("\n"):"")
+)].join("\n\n");
 function alertExam(message){
   const node=byId("examNotice");node.textContent=message;node.hidden=!message;
 }
@@ -199,7 +213,7 @@ function renderHistory(){
   if(!store.history.length){container.append(element("p","helper","Aucun examen terminé pour le moment."));renderAnalytics();renderExamRecommendation();return;}
   for(const result of [...store.history].reverse()){
     const row=element("div","exam-history-row");
-    const label=element("span","",result.title+" · "+new Date(result.finishedAt).toLocaleDateString("fr-FR")+" · "+result.score+"/20");
+    const label=element("span","",result.title+" · "+new Date(result.finishedAt).toLocaleDateString("fr-FR")+" · "+(result.paperOnly?"copie manuscrite non notée":result.score+"/20"));
     const open=element("button","subtle small","Voir la correction");
     open.type="button";
     open.addEventListener("click",()=>{lastResult=result;showResult(result);byId("exam-title").scrollIntoView({behavior:"smooth",block:"start"});});
@@ -212,6 +226,18 @@ function renderHistory(){
 function renderDraftProgress(){
   if(!store.active)return;
   const exam=findExam(store.active.examId,store.active.seed??null);
+  if(store.active.paperOnly){
+    const written=writtenPaperSections(store.active);
+    byId("examDraftTitle").textContent="Pages manuscrites";
+    byId("examDraftSummary").textContent=written.size+"/4 exercices avec écriture sauvegardée. Les équations, QCM et justifications se rédigent sur la feuille. Cette copie ne recevra pas de note automatique.";
+    const list=byId("examDraftSections");list.replaceChildren();
+    for(const [index,section] of exam.sections.entries()){
+      const button=element("button","subtle small exam-draft-section","Exercice "+(index+1)+" — "+(written.has(section.id)?"écriture sauvegardée":"page encore vide"));
+      button.type="button";button.addEventListener("click",()=>moveTo(index));list.append(button);
+    }
+    return;
+  }
+  byId("examDraftTitle").textContent="Vérification de ma copie avant remise";
   const draft=inspectExamDraft(exam,store.active);
   byId("examDraftSummary").textContent=
     "Copie : "+draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (non vérifiées) · "+
@@ -239,8 +265,14 @@ function renderExamSection(){
   byId("examPosition").textContent="Exercice "+(session.sectionIndex+1)+" sur 4 · 5 points";
   byId("examSectionTitle").textContent=section.title;
   byId("examContext").textContent=section.context;
-  mountNotebook(byId("examNotebook"),{context:"exam:"+session.examId+":"+session.startedAt+":"+section.id,adapter,title:"Mes calculs détaillés — exercice "+(session.sectionIndex+1),checkingEnabled:false});
+  mountNotebook(byId("examNotebook"),{
+    context:sheetKey(session,section.id),adapter,title:"Examen — exercice "+(session.sectionIndex+1)+" : "+section.title,
+    checkingEnabled:false,paperOnly:session.paperOnly===true,paperPrompt:session.paperOnly?examPaperPrompt(section):""
+  });
   const form=byId("examQuestions");form.replaceChildren();
+  form.hidden=session.paperOnly===true;
+  byId("examNotes").closest(".exam-notes").hidden=session.paperOnly===true;
+  byId("examActive").classList.toggle("paper-exam-active",session.paperOnly===true);
   section.questions.forEach((q,i)=>{
     const field=element("fieldset","exam-question");
     const legend=element("legend","","Question "+(i+1)+" · "+q.points+" point"+(q.points>1?"s":""));
@@ -317,9 +349,12 @@ function renderActive(){
 function showResult(result){
   setVisible("examActive",false);setVisible("examIntro",true);setVisible("examResult",true);
   if(timer!==null){clearInterval(timer);timer=null;}
-  byId("examScore").textContent=result.score+" / "+result.maxScore;
+  byId("examScore").textContent=result.paperOnly?"Copie manuscrite rendue":result.score+" / "+result.maxScore;
+  byId("examResult").querySelector(".eyebrow").textContent=result.paperOnly?"CORRECTION DE LA COPIE":"BILAN AUTOMATIQUE";
   const summary=result.reason==="timeout"?"Temps écoulé : la copie a été rendue automatiquement.":"Copie rendue. La notation automatique est terminée.";
-  byId("examSummary").textContent=summary+" Les justifications rédigées ne sont pas évaluées : "+result.score+"/20 est une note indicative.";
+  byId("examSummary").textContent=result.paperOnly
+    ?summary+" Tes pages manuscrites sont conservées. Compare-les au corrigé ci-dessous ; aucune note /20 n'est inventée à partir des tracés."
+    :summary+" Les justifications rédigées ne sont pas évaluées : "+result.score+"/20 est une note indicative.";
   // L'historique est consultable même durant un autre examen :
   // le bouton doit reprendre la copie actuelle, sans suggérer un nouveau départ.
   byId("examNew").textContent=store.active?"Reprendre ma copie en cours":"Retour aux examens";
@@ -331,16 +366,28 @@ function showResult(result){
   for(const section of result.sections){
     const src=exam.sections.find(s=>s.id===section.id);
     const details=element("details","exam-review-group");
-    const summaryNode=element("summary","",section.title+" : "+section.earned+"/5 points");
+    const summaryNode=element("summary","",result.paperOnly?section.title+" — correction détaillée":section.title+" : "+section.earned+"/5 points");
     const context=element("p","helper",src.context);
     details.append(summaryNode,context);
     for(const q of section.questions){
       const srcQ=src.questions.find(k=>k.id===q.id);
       const block=element("div","exam-review-item");
-      const heading=element("strong","",srcQ.prompt+" — "+q.earned+"/"+q.points+" pt");
-      const answer=element("p","", "Ta réponse : "+(q.answer||"Non renseignée")+" | Réponse correcte : "+String(q.expected).replace(".",","));
+      const heading=element("strong","",result.paperOnly?srcQ.prompt:srcQ.prompt+" — "+q.earned+"/"+q.points+" pt");
+      const answer=element("p","",result.paperOnly?"Réponse attendue : "+String(q.expected).replace(".",","):"Ta réponse : "+(q.answer||"Non renseignée")+" | Réponse correcte : "+String(q.expected).replace(".",","));
       const explanation=element("p","",q.solution);
       block.append(heading,answer,explanation);details.append(block);
+    }
+    if(result.paperOnly){
+      const copy=element("details","exam-paper-review");
+      copy.append(element("summary","","Relire ma feuille manuscrite"));
+      const host=element("div");copy.append(host);
+      copy.addEventListener("toggle",()=>{
+        if(!copy.open||host.firstChild)return;
+        try{mountNotebook(host,{context:sheetKey(result,section.id),adapter,
+          title:"Ma copie — "+section.title,readOnly:true,paperOnly:true,checkingEnabled:false});
+        }catch{host.textContent="La feuille sauvegardée n'a pas pu être chargée."}
+      });
+      details.append(copy);
     }
     const handwritten=result.notes[section.id];
     if(handwritten){
@@ -381,7 +428,7 @@ function showResult(result){
       details.append(guide);
     }
     details.append(element("p","exam-method","Critères de rédaction : "+src.method));
-    if(section.earned<5){
+    if(!result.paperOnly&&section.earned<5){
       const suggestions=element("div","exam-remediation");
       suggestions.append(element("strong","","À retravailler : "));
       for(const [label,path] of EXAM_LESSONS[section.id]||[]){
@@ -423,7 +470,7 @@ function start(){
   const examId=byId("examSelect").value;
   const seed=isGeneratedExamId(examId)?createNewSeed(examId):null;
   const prior=store;
-  store={...store,active:startExam(examId,Date.now(),seed)};
+  store={...store,active:startExam(examId,Date.now(),seed,sheetFirst)};
   if(!persist()){store=prior;return;}
   lastResult=null;
   alertExam("");renderActive();
@@ -460,7 +507,10 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
     if(!exam)return;
     const draft=inspectExamDraft(exam,store.active);
     if(hasExpired(store.active)){finalize("timeout");return;}
-    const text="Rendre définitivement la copie ?\n"+
+    const text=store.active.paperOnly?
+      "Rendre définitivement la copie manuscrite ?\n"+writtenPaperSections(store.active).size+
+      "/4 exercices comportent des traits sauvegardés. Toutes les pages restent disponibles après remise. La copie ne recevra PAS de note automatique. Voir les corrigés ?":
+      "Rendre définitivement la copie ?\n"+
       draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (justesse non vérifiée), "+
       draft.remainingQuestions+" sans réponse ("+draft.pointsUnanswered+" point(s) concernés).\n"+
       draft.sectionsWithNotes+"/4 exercices avec rédaction.\n"+
