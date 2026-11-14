@@ -169,3 +169,28 @@ test("Solutions irrationnelles exactes : conservation du signe et équivalence d
   const both=checkMathSteps("√(x²-1)=1\nx²=2");
   assert.deepEqual(both.entries.map(x=>x.kind),["info","ok"]);
 });
+
+test("Racines de décimales carrées parfaites : preuve exacte sans flottant",()=>{
+  for(const [source,expected] of [
+    ["√(0.25)=0.5",true],
+    ["√(1.44)=1.2",true],
+    ["√(2.25)=1.5",true],
+    ["√(0,81)=0,9",true],
+    ["√(0.04)=0.2",true],
+    ["√(2.25)=1.4",false],
+    ["√(0.25)=0.6",false],
+    ["√(1.44)=1.2001",false]
+  ]){
+    const review=checkMathSteps(source);
+    assert.equal(review.checked,1,source);
+    assert.equal(review.errors,expected?0:1,source);
+  }
+  assert.deepEqual(checkMathSteps("x=√(2.25)\nx=3/2")
+    .entries.map(entry=>entry.kind),["info","ok"]);
+});
+test("Une racine de décimal non carré parfait n'est jamais arrondie à un nombre",()=>{
+  const result=checkMathSteps("x=√(0.5)\nx=0.70710678118");
+  assert.equal(result.errors,1);
+  assert.equal(result.unsupported,0);
+  assert.equal(checkMathSteps("√(0.5)=x").checked,1);
+});
