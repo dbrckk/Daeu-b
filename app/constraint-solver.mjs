@@ -73,6 +73,16 @@ function rationalSide(source){
     if(slash<1||slash===source.length-1)throw original;
     const numeratorText=source.slice(0,slash).trim();
     const denominatorText=source.slice(slash+1).trim();
+    // Une somme hors parenthèses avant "/" n'est pas le numérateur :
+    // x+1/(x-1) signifie x + (1/(x-1)), et non (x+1)/(x-1).
+    let numeratorDepth=0;
+    for(let i=0;i<numeratorText.length;i++){
+      const ch=numeratorText[i];
+      if(ch==="(")numeratorDepth++;
+      else if(ch===")")numeratorDepth--;
+      if(numeratorDepth===0&&i>0&&(ch==="+"||ch==="-"))
+        throw Error("entoure tout numérateur contenant une addition ou soustraction de parenthèses");
+    }
     // Un dénominateur variable doit être un atome x ou une expression
     // entièrement parenthésée. Ainsi 1/(x-1)+1 ne devient JAMAIS 1/x.
     // La lecture de la fraction empilée écrit déjà les parenthèses.
