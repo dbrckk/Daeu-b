@@ -50,6 +50,28 @@ const multiply=(a,b)=>{
 };
 const valueAt=(p,x)=>plus(p[0],times(x,plus(p[1],times(x,p[2]))));
 const isZero=p=>p.every(value=>value.n===0n);
+/** Mise en forme lisible, conservant les fractions exactes du calcul. */
+function formatPolynomial(poly){
+  const pieces=[];
+  for(let i=2;i>=0;i--){
+    const coefficient=poly[i];
+    if(coefficient.n===0n)continue;
+    const value=rat(abs(coefficient.n),coefficient.d);
+    const literal=formatExact(value);
+    const variable=i===2?"x²":i===1?"x":"";
+    const factor=i===0?literal
+      :literal==="1"?variable
+      :literal.includes("/")?"("+literal+")·"+variable
+      :literal+variable;
+    pieces.push({sign:signOf(coefficient),value:factor});
+  }
+  if(!pieces.length)return "0";
+  return pieces.map((part,i)=>{
+    if(i===0)return (part.sign<0?"-":"")+part.value;
+    return (part.sign<0?" - ":" + ")+part.value;
+  }).join("");
+}
+
 function quotientIndex(expression){
   let depth=0,index=-1;
   for(let i=0;i<expression.length;i++){
@@ -209,20 +231,28 @@ function rationalEquation(left,right){
   const banned=exclusions.map(formatExact);
   const domainExclusions=banned;
   const domainInfo="Valeurs interdites : "+banned.map(x=>"x = "+x).join(" et ")+".";
+  const steps=[
+    "1. Domaine de définition : "+banned.map(x=>"x ≠ "+x).join(" et ")+".",
+    "2. Sur ce domaine seulement, le produit en croix donne "
+      +formatPolynomial(multiply(a.numerator,b.denominator))+" = "
+      +formatPolynomial(multiply(b.numerator,a.denominator))+".",
+    "3. Résoudre cette égalité puis supprimer les valeurs interdites du résultat."
+  ];
   if(raw.kind==="all")return {kind:"allExcept",excluded:banned,
     domainExclusions,domainInfo,rationalEquation:true,
-    rejectedCandidates:[]};
+    methodSteps:steps,rejectedCandidates:[]};
   if(raw.kind==="none")return {...raw,domainExclusions,domainInfo,rationalEquation:true,
-    rejectedCandidates:[]};
+    methodSteps:steps,rejectedCandidates:[]};
   // Une racine irrationnelle ne peut pas être égale à une valeur interdite
   // rationnelle pour un dénominateur affine ; on peut donc la conserver.
   if(raw.kind==="two"&&!raw.solutions)return {...raw,domainExclusions,
-    domainInfo,rationalEquation:true,rejectedCandidates:[]};
+    domainInfo,rationalEquation:true,methodSteps:steps,rejectedCandidates:[]};
   const originals=candidates(raw),accepted=originals.filter(x=>
     !exclusions.some(excluded=>equal(excluded,x)));
   const rejectedCandidates=originals.filter(x=>
     exclusions.some(excluded=>equal(excluded,x))).map(formatExact);
-  const meta={domainExclusions,domainInfo,rationalEquation:true,rejectedCandidates};
+  const meta={domainExclusions,domainInfo,rationalEquation:true,
+    methodSteps:steps,rejectedCandidates};
   if(!accepted.length)return {kind:"none",...meta};
   if(accepted.length===1)return {
     kind:"unique",solution:formatExact(accepted[0]),solutionRatio:accepted[0],...meta
@@ -273,9 +303,17 @@ function radicalEquation(left,right){
   const raw=classifyPolynomialDifference(squared);
   const conditions="Conditions : radicande ≥ 0 et membre sans racine ≥ 0 ; "
     +"solutions candidates contrôlées par substitution exacte.";
+  const methodSteps=[
+    "1. Vérifier que "+formatPolynomial(radicand)
+      +" ≥ 0 et "+formatPolynomial(target)+" ≥ 0.",
+    "2. Sur ce domaine, mettre au carré : "+formatPolynomial(radicand)
+      +" = ("+formatPolynomial(target)+")².",
+    "3. Résoudre l'équation polynomiale, puis contrôler chaque solution candidate "
+      +"dans l'égalité initiale. Écarter les solutions parasites."
+  ];
   if(raw.kind==="all")throw Error("racine définissant un intervalle : résolution symbolique non vérifiée");
   if(raw.kind==="two"&&!raw.solutions)
-    return irrationalFilteredResult(raw,target,{radicalEquation:true,
+    return irrationalFilteredResult(raw,target,{radicalEquation:true,methodSteps,
       domainInfo:"Conditions : radicande ≥ 0 et membre sans racine ≥ 0. "+
         "Les candidats irrationnels sont filtrés par comparaison algébrique exacte, sans arrondi."});
   const valid=x=>{
@@ -283,7 +321,7 @@ function radicalEquation(left,right){
     return y.n>=0n&&valueAt(radicand,x).n>=0n
       &&equal(valueAt(radicand,x),times(y,y));
   };
-  return filteredResult(raw,valid,{radicalEquation:true,domainInfo:conditions});
+  return filteredResult(raw,valid,{radicalEquation:true,domainInfo:conditions,methodSteps});
 }
 /**
  * Renvoie null quand la ligne relève des solveurs habituels.
