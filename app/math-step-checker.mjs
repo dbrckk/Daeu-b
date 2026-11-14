@@ -1,5 +1,6 @@
 /**
- * Contrôle exact des calculs, équations affines et équations quadratiques en x.
+ * Contrôle exact des calculs, équations affines, quadratiques, rationnelles
+ * et de certaines équations à racine carrée isolée.
  * Aucune exécution de texte utilisateur ni appels externes : arithmétique
  * rationnelle exacte (BigInt), sans heuristique flottante pour les réponses.
  *
