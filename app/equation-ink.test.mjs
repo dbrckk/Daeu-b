@@ -249,8 +249,9 @@ test("Racine d'entier non carré parfait : transcription sans fausse correction"
   assert.equal(read.status,"recognized",JSON.stringify(read));
   assert.equal(read.text,"x=√(2)");
   const review=checkMathSteps(read.text);
-  assert.equal(review.checked,0);
-  assert.equal(review.unsupported,1);
+  assert.equal(review.checked,1,"Le lecteur reste une transcription, mais le solveur peut comparer √2 exactement");
+  assert.equal(review.unsupported,0);
+  assert.equal(review.errors,0);
 });
 function rationalDenominatorInk(denominator="x+1"){
   const draw=(symbol,x,y,scale)=>GLYPHS[symbol].map(pts=>encodeStroke(pts.map(([px,py])=>
