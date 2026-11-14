@@ -21,6 +21,9 @@ const GLYPHS={
   "-":[[[15,50],[85,50]]],
   "=":[[[15,40],[85,40]],[[15,60],[85,60]]],
   "/":[[[83,10],[17,94]]],
+  "*":[[[17,12],[83,88]],[[83,12],[17,88]],[[50,6],[50,94]]],
+  ".":[[[50,87],[51,89],[50,91]]],
+  ",":[[[54,83],[53,90],[48,99]]],
   "(":[[[78,5],[54,15],[36,31],[27,50],[36,69],[54,86],[78,96]]],
   ")":[[[22,5],[46,15],[64,31],[73,50],[64,69],[46,86],[22,96]]]
 };
@@ -302,4 +305,60 @@ test("Le cahier relit une racine accompagnée d'un terme additif sans recopier l
   assert.deepEqual(steps.entries.map(e=>e.kind),["info","ok"]);
   assert.equal(extractFinalNumericAnswer(read.text),null,
     "La transcription n'est jamais notée sans résultat numérique explicite");
+});
+
+test("Point décimal manuscrit : proposer une valeur exacte sans clavier",()=>{
+  const read=recognizeEquationInk(ink(["x=2.5","x=5/2"]));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=2.5\nx=5/2");
+  assert.equal(checkMathSteps(read.text).errors,0);
+  assert.equal(checkMathSteps(read.text).unsupported,0);
+  assert.equal(extractFinalNumericAnswer("x=2.5"),"2.5");
+});
+test("Virgule française écrite au stylet : transcription unifiée en point décimal",()=>{
+  const read=recognizeEquationInk(ink(["x=0,5","x=1/2"]));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"x=0.5\nx=1/2");
+  assert.deepEqual(checkMathSteps(read.text).entries.map(x=>x.kind),["info","ok"]);
+  assert.equal(extractFinalNumericAnswer(read.text),"1/2");
+});
+test("Trois traits croisés produisent la multiplication *, deux traits restent x",()=>{
+  const read=recognizeEquationInk(ink(["2*3=6","x=6"]));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"2*3=6\nx=6");
+  assert.equal(checkMathSteps("2*3=6").errors,0);
+  const variable=recognizeEquationInk(ink(["2x=6","x=3"]));
+  assert.equal(variable.text,"2x=6\nx=3");
+  assert.equal(checkMathSteps(variable.text).errors,0);
+});
+test("Décimales et multiplication manuscrites dans une même expression exacte",()=>{
+  const read=recognizeEquationInk(ink(["2.5*2=5","x=2.5"]));
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,"2.5*2=5\nx=2.5");
+  assert.equal(checkMathSteps(read.text).unsupported,0);
+  assert.equal(extractFinalNumericAnswer(read.text),"2.5");
+});
+test("Point isolé, en hauteur ou mal positionné : aucune fausse décimale",()=>{
+  for(const text of ["x=.5","x=2.","x=2..5","x=2.*5"]){
+    const result=recognizeEquationInk(ink([text]),{draft:true});
+    assert.notEqual(result.status,"recognized",text+" "+JSON.stringify(result));
+    assert.equal(extractFinalNumericAnswer(result.text),null,text);
+  }
+  const strokes=ink(["x=2.5"]);
+  const misplaced=strokes.map((raw,index)=>{
+    // Le point se trouve après les deux traits '=' et le chiffre '2' : index 5.
+    if(index!==5)return raw;
+    return raw.split(";").map(pair=>{
+      const [x,y]=pair.split(",").map(Number);
+      return x+","+(y-34);
+    }).join(";");
+  });
+  const draft=recognizeEquationInk(misplaced,{draft:true});
+  assert.notEqual(draft.status,"recognized",JSON.stringify(draft));
+});
+test("Tracé illisible proche d'une multiplication : jamais de validation implicite",()=>{
+  const three=ink(["2*3=6"]);
+  const broken=three.slice(0,three.length-1);
+  const candidate=recognizeEquationInk(broken,{draft:true});
+  assert.notEqual(candidate.status,"recognized");
 });
