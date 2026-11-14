@@ -48,7 +48,7 @@ test("Radical affine : mise au carré puis signe et substitution exacte",()=>{
   for(const [input,expected] of [
     ["√(x)=2","4"],
     ["√(x+1)=3","8"],
-    ["x=√(x+1)*2",null],
+    ["x=√(x+1)*x",null],
     ["√(x+1)=x-1","3"],
     ["2=√(x+1)","3"],
     ["√(4x+9)=5","4"]
@@ -85,7 +85,7 @@ test("Deux racines exactes conservées, et perte d'une racine détectée",()=>{
 test("Racines irrationnelles ou contraintes continues : ne pas déclarer de faux verdict",()=>{
   for(const input of [
     "√(x^2)=x","√(x)=√(x)",
-    "√(x+1)=x^2","2*√(x)=5","√(x)*(x+1)=2"
+    "√(x+1)=x^2","x*√(x)=5","√(x)*(x+1)=2"
   ]){
     const review=checkMathSteps(input);
     // Les radicaux imbriqués et les expressions non isolées restent refusés.
@@ -243,16 +243,94 @@ test("Un radical avec plusieurs termes affines reste comparé exactement",()=>{
 });
 test("Les multiplications, racines multiples et expressions quadratiques autour du radical sont refusées",()=>{
   const unsupported=[
-    "2√(x)=4","2*√(x)=4","√(x)*2=4","√(x)/2=4",
-    "x*√(x)=4","√(x)+√(x)=4","x+√(x²)+√(x)=4",
+    "x*√(x)=4","(x+1)*√(x)=4","2/√(x)=4","√(x)/x=4","√(x)+√(x)=4","x+√(x²)+√(x)=4",
     "√(x)+x²=4","x²-√(x)=4",
     "√(x)²+1=5","√(x)+2/(x-1)=5",
     "x+√(x)=√(x)+1","x++√(x)=2","x--√(x)=2",
-    "√(x)+1/0=4"
+    "√(x)+1/0=4","0√(x)=0","√(x)/0=4",
+    "√(x)/2x=4","x*2√(x)=4","√(x)*x=4"
   ];
   for(const expression of unsupported){
     const review=checkMathSteps(expression);
     assert.equal(review.checked,0,expression);
     assert.equal(review.unsupported,1,expression);
   }
+});
+
+test("Coefficients entiers positifs et divisions constantes avant ou après la racine",()=>{
+  const samples=[
+    ["2√(x)=4","4"],
+    ["2*√(x)=4","4"],
+    ["√(x)*2=4","4"],
+    ["√(x)/2=1","4"],
+    ["3√(x+1)=6","3"],
+    ["2√(x)+1=5","4"],
+    ["√(x)*2+1=5","4"],
+    ["√(x)/2+1=2","4"],
+    ["-2√(x)+8=4","4"],
+    ["x+2√(x)=8","4"],
+    ["x-2√(x)=8","16"],
+    ["2*√(x)/2=2","4"]
+  ];
+  for(const [equation,solution] of samples){
+    const classified=classifyEquality(equation);
+    assert.equal(classified.kind,"unique",equation);
+    assert.equal(classified.solution,solution,equation);
+    assert.equal(classified.radicalEquation,true,equation);
+    assert.equal(classified.methodSteps.length,4,equation);
+    const verified=checkMathSteps(equation+"\nx="+solution);
+    assert.deepEqual(verified.entries.map(e=>e.kind),["info","ok"],equation);
+  }
+});
+test("Coefficients non nuls et mise au carré : les solutions parasites sont éliminées",()=>{
+  const a=classifyEquality("x+2√(x)=8");
+  assert.deepEqual(a.rejectedCandidates,["16"]);
+  assert.equal(checkMathSteps("x+2√(x)=8\nx=16").errors,1);
+  const b=classifyEquality("x-2√(x)=0");
+  assert.equal(b.kind,"two");
+  assert.deepEqual(b.solutions,["0","4"]);
+  assert.equal(checkMathSteps("x-2√(x)=0\nx²-4x=0").errors,0);
+  const c=classifyEquality("-2√(x)=4");
+  assert.equal(c.kind,"none");
+  assert.deepEqual(c.rejectedCandidates,["4"]);
+});
+test("Solution irrationnelle exacte avec coefficient devant le radical",()=>{
+  const a=classifyEquality("x+2√(x)=5");
+  const b=classifyEquality("√(x)=(5-x)/2");
+  assert.equal(a.kind,"unique");
+  assert.equal(a.solution,"(14-√(96))/2");
+  assert.deepEqual(a.rejectedCandidates,["(14+√(96))/2"]);
+  assert.equal(sameRealSolutions(a,b),true);
+  assert.deepEqual(checkMathSteps("x+2√(x)=5\n√(x)=(5-x)/2")
+    .entries.map(e=>e.kind),["info","ok"]);
+});
+test("Refus de toute multiplication variable ou fraction invalide près de la racine",()=>{
+  for(const input of [
+    "x√(x)=4","x*√(x)=4","(x+1)*√(x)=4",
+    "√(x)*x=4","√(x)/x=4","2/√(x)=4",
+    "√(x)/0=4","0√(x)=0","2.5√(x)=5",
+    "√(x)*2x=4","√(x)/2x=4",
+    "√(x)^2=4","2√(x)+√(x)=4",
+    "√(x)*2*2=4","x+√(x²)*x=x"
+  ]){
+    const review=checkMathSteps(input);
+    assert.equal(review.checked,0,input);
+    assert.equal(review.unsupported,1,input);
+  }
+});
+
+test("L'équation √(x²)=0 impose exactement x=0, sans faux refus",()=>{
+  const a=classifyEquality("x+√(x²)=x");
+  assert.equal(a.kind,"unique");
+  assert.equal(a.solution,"0");
+  assert.deepEqual(checkMathSteps("x+√(x²)=x\nx=0").entries.map(e=>e.kind),
+    ["info","ok"]);
+});
+test("Coefficient constant après la racine : solutions irrationnelles et signe contrôlés",()=>{
+  const a=classifyEquality("x=√(x+1)*2");
+  const b=classifyEquality("√(x+1)=x/2");
+  assert.equal(a.kind,"unique");
+  assert.equal(a.solution,"(4+√(32))/2");
+  assert.deepEqual(a.rejectedCandidates,["(4-√(32))/2"]);
+  assert.equal(sameRealSolutions(a,b),true);
 });

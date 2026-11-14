@@ -6,8 +6,8 @@
  * Périmètre :
  * - (polynôme degré <= 2)/(dénominateur affine) = expression polynomiale
  *   ou un second quotient à dénominateur affine ; produit croisé <= degré 2 ;
- * - une racine √(polynôme degré <= 2), éventuellement additionnée ou
- *   soustraite d'une expression affine, sur l'un des deux membres ;
+ * - une racine √(polynôme degré <= 2), de coefficient numérique rationnel
+ *   non nul ou accompagnée de termes affines, sur un seul membre ;
  * - candidats rationnels substitués exactement ; candidats quadratiques
  *   irrationnels vérifiés par comparaison algébrique exacte des signes,
  *   sans approximation ni évaluation de racines sur des flottants.
@@ -262,11 +262,10 @@ function rationalEquation(left,right){
 }
 /**
  * Extrait une seule racine carrée, éventuellement accompagnée de termes
- * affines additifs. Aucune multiplication par une racine, division après
- * la racine, puissance de la racine ni racine supplémentaire n'est acceptée.
- *
- * Exemples autorisés : √(x+1)+2, x-√(x), -(racine non écrite).
- * Pour x-√(x)+2, on renvoie (hors racine = x+2, signe = -1).
+ * affines additifs et d'un coefficient constant non nul.
+ * Seules les multiplications ou divisions par un ENTIER littéral de 1 à
+ * 3 chiffres sont prises en charge ; jamais x√(...), √(...)/x ni √(...)².
+ * Pour x-2√(x)+2, on renvoie (hors racine = x+2, facteur = -2).
  */
 function rootSide(text){
   const source=text.replace(/\s/g,"").replace(/[−–]/g,"-");
@@ -288,21 +287,41 @@ function rootSide(text){
     throw Error("racine vide ou imbriquée non vérifiée");
   const radicand=parsePolynomial(expression);
   const before=source.slice(0,start),after=source.slice(end+1);
-  let sign=1,extraPrefix="";
+  let factor=one,extraPrefix="";
   if(before){
-    const last=before.at(-1);
-    if(last!=="+"&&last!=="-")
-      throw Error("isole les multiplications et coefficients devant la racine");
-    sign=last==="-"?-1:1;
-    extraPrefix=before.slice(0,-1);
+    // k√(...), k*√(...), x+k√(...) et x-k*√(...) uniquement.
+    const scalar=before.match(/([1-9][0-9]{0,2})\*?$/);
+    if(scalar){
+      const remainder=before.slice(0,-scalar[0].length);
+      if(remainder && !/[+-]$/.test(remainder))
+        throw Error("une multiplication dépendant de x n'est pas vérifiée");
+      factor=rat(BigInt(scalar[1])*(remainder.endsWith("-")?-1n:1n));
+      extraPrefix=remainder?remainder.slice(0,-1):"";
+    }else if(/[+-]$/.test(before)){
+      factor=before.endsWith("-")?neg(one):one;
+      extraPrefix=before.slice(0,-1);
+    }else{
+      throw Error("facteur devant la racine non pris en charge");
+    }
   }
-  if(after&&!/^[+-]/.test(after))
+  let additiveSuffix=after;
+  if(after.startsWith("*")||after.startsWith("/")){
+    // √(...)*k et √(...)/k sont valides seulement pour k entier non nul,
+    // sans autre multiplication, exponentiation ou dénominateur en x.
+    const scalar=after.match(/^([*/])([1-9][0-9]{0,2})(?=$|[+-])/);
+    if(!scalar)throw Error("multiplication ou division après la racine non prise en charge");
+    const k=rat(BigInt(scalar[2]));
+    factor=scalar[1]==="*"?times(factor,k):over(factor,k);
+    additiveSuffix=after.slice(scalar[0].length);
+  }
+  if(additiveSuffix&&!/^[+-]/.test(additiveSuffix))
     throw Error("seules les additions et soustractions après la racine sont prises en charge");
-  const additive=extraPrefix+after;
+  const additive=extraPrefix+additiveSuffix;
   const outside=additive?parsePolynomial(additive):constant(zero);
   if(degree(outside)>1)
     throw Error("termes accompagnant la racine de degré supérieur à un : non vérifié");
-  return {radicand,outside,sign,isolationRequired:sign!==1||!isZero(outside)};
+  return {radicand,outside,factor,
+    isolationRequired:!equal(factor,one)||!isZero(outside)};
 }
 /**
  * Résultat final négatif exact : x=-√(n), avec n entier naturel non
@@ -340,7 +359,7 @@ function radicalEquation(left,right){
     throw Error("membre sans racine de degré supérieur à un : non vérifié");
   const radicand=radical.radicand;
   const shifted=difference(otherForm,radical.outside);
-  const target=radical.sign===1?shifted:shifted.map(neg);
+  const target=shifted.map(coefficient=>over(coefficient,radical.factor));
   if(degree(target)>1)throw Error("racine non isolable en polynôme affine");
   const squared=difference(radicand,multiply(target,target));
   const raw=classifyPolynomialDifference(squared);
@@ -348,8 +367,10 @@ function radicalEquation(left,right){
     +"solutions candidates contrôlées par substitution exacte.";
   const methodSteps=[
     radical.isolationRequired
-      ?"1. Isoler la racine : √("+formatPolynomial(radicand)
-        +") = "+formatPolynomial(target)+"."
+      ?"1. Isoler la racine : "+formatExact(radical.factor)+"·√("
+        +formatPolynomial(radicand)+") = "+formatPolynomial(shifted)
+        +". Diviser par le facteur constant non nul, donc √("
+        +formatPolynomial(radicand)+") = "+formatPolynomial(target)+"."
       :"1. La racine est déjà isolée : √("+formatPolynomial(radicand)
         +") = "+formatPolynomial(target)+".",
     "2. Domaine : "+formatPolynomial(radicand)+" ≥ 0 et "

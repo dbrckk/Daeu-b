@@ -28,6 +28,16 @@ Une transcription dont les caractères ont été **corrigés manuellement** peut
 
 Le cahier reste conservé localement et dans les sauvegardes automatiques du navigateur. La synchronisation entre appareils nécessite toujours l'activation de la synchronisation cloud facultative ; l'enregistrement local ne protège pas contre la perte totale des données du téléphone.
 
+### Racines multipliées ou divisées par une constante (v48)
+
+Le contrôleur corrige désormais certaines équations contenant **un coefficient numérique constant non nul devant une racine carrée**, ou immédiatement après le radical : `2√(x)=4`, `2*√(x)=4`, `√(x)*2=4`, `√(x)/2=1` et `x+2√(x)=8`.
+
+Il commence par isoler **une seule racine**, divise les deux membres par le coefficient exact, puis établit les conditions de signe, met au carré et vérifie chaque candidat dans **l'équation initiale**. Exemple : `x+2√(x)=8` donne après mise au carré les candidats `x=4` et `x=16`, mais seul `x=4` respecte l'équation d'origine. `x-2√(x)=0` possède bien **deux solutions**, `0` et `4`.
+
+Le panneau tactile permet d'insérer et corriger `*` sans clavier physique. Les corrections manuscrites restent enregistrées et identifiées comme **assistées**. Les solutions irrationnelles sont comparées exactement, sans arrondi.
+
+**Périmètre volontairement limité :** constantes entières explicites de 1 à 3 chiffres (un coefficient peut aussi être divisé par un entier non nul), expression affine autour du radical, une racine par équation. Les coefficients **variables** (`x√(x)`), radicaux imbriqués, division par zéro, plusieurs facteurs après le radical et puissances de la racine restent non vérifiés. Aucune équation n'est notée sur la seule transcription de l'encre.
+
 ### Racines avec termes additifs et vérification des solutions (v47)
 
 Le vérificateur accepte désormais **une racine carrée accompagnée d'additions ou de soustractions affines**, écrite de l'un ou l'autre côté de l'égalité. Exemples : `√(x)+2=x`, `x-√(x)=2`, `2-√(x)=x` et `x+√(x)=5`. Il isole d'abord la racine, puis applique les **conditions de domaine et de signe avant de mettre au carré**. Les candidats sont ensuite contrôlés exactement dans l'équation d'origine.
