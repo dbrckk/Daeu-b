@@ -54,3 +54,19 @@ test("Éditeur tactile : une racine et une fraction rationnelle ne sont pas du H
   assert.equal(checkMathSteps("x=√(2)").checked,1,"La valeur √2 est vérifiée exactement, sans calcul flottant");
   assert.equal(checkMathSteps("x=√(2)").unsupported,0);
 });
+
+test("Le coefficient d'une racine se corrige au toucher sans clavier physique",()=>{
+  assert.ok(INK_EDIT_SYMBOLS.includes("*"));
+  const initial="x=2□√(9)";
+  assert.equal(validateInkTranscript(initial),false);
+  const corrected=editInkTranscript(initial,3,"replace","*");
+  assert.equal(corrected,"x=2*√(9)");
+  assert.equal(validateInkTranscript(corrected),true);
+  assert.deepEqual(checkMathSteps(corrected+"\nx=6").entries.map(x=>x.kind),
+    ["info","ok"]);
+  const result="2*√(x)=4\nx=4";
+  assert.equal(validateInkTranscript(result),true);
+  assert.deepEqual(checkMathSteps(result).entries.map(x=>x.kind),["info","ok"]);
+  assert.equal(checkMathSteps("x*√(x)=4").unsupported,1,
+    "La touche multiplication n'autorise pas une multiplication par x");
+});
