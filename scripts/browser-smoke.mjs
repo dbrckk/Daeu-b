@@ -605,7 +605,7 @@ try {
       .filter({hasText:/^2$/}).click();
     await advancedInkPage.locator("#quizNotebook .math-notebook-ink-chars button").nth(2).click();
     await advancedInkPage.locator("#quizNotebook .math-notebook-ink-symbols button")
-      .filter({hasText:/^\\*$/}).click();
+      .filter({hasText:/^\*$/}).click();
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
       .textContent().then(t=>t==="x=2*√(9)")
       &&await advancedInkPage.evaluate(()=>{
