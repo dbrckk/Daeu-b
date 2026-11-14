@@ -146,17 +146,13 @@ function squareRootExact(value){
   const a=integerSqrt(value.n),b=integerSqrt(value.d);
   return a*a===value.n&&b*b===value.d?rat(a,b):null;
 }
-export function classifyPolynomialEquality(text){
-  if(typeof text!=="string"||text.length>LIMIT*2)throw Error("ligne trop longue");
-  const parts=text.split("=");
-  if(parts.length!==2||parts.some(x=>!x.trim()))throw Error("utilise une seule égalité par ligne");
-  const lhs=parsePolynomial(parts[0]),rhs=parsePolynomial(parts[1]);
-  const [c,b,a]=subtract(lhs,rhs);
+/** Résout exactement P(x)=0 pour un polynôme de degré <= 2 déjà analysé. */
+export function classifyPolynomialDifference(coefficients){
+  if(!Array.isArray(coefficients)||coefficients.length!==3)
+    throw Error("polynôme non valide");
+  const [c,b,a]=coefficients;
   if(a.n===0n){
-    if(b.n===0n){
-      if(!/[xX]/.test(text))return {kind:"calculation",correct:c.n===0n,left:formatExact(lhs[0]),right:formatExact(rhs[0])};
-      return {kind:c.n===0n?"all":"none"};
-    }
+    if(b.n===0n)return {kind:c.n===0n?"all":"none"};
     const solution=div(neg(c),b);
     return {kind:"unique",solution:formatExact(solution),solutionRatio:solution,
       coefficient:formatExact(b),target:formatExact(neg(c))};
@@ -181,9 +177,24 @@ export function classifyPolynomialEquality(text){
     solutions:solutions??null,
     radical:"x = ("+formatExact(neg(b))+" ± √("+formatExact(discriminant)+")) / ("+formatExact(denominator)+")"};
 }
+/** Classe une égalité polynomiale sans contrainte de dénominateur. */
+export function classifyPolynomialEquality(text){
+  if(typeof text!=="string"||text.length>LIMIT*2)throw Error("ligne trop longue");
+  const parts=text.split("=");
+  if(parts.length!==2||parts.some(x=>!x.trim()))throw Error("utilise une seule égalité par ligne");
+  const lhs=parsePolynomial(parts[0]),rhs=parsePolynomial(parts[1]);
+  const difference=subtract(lhs,rhs);
+  if(!/[xX]/.test(text)&&difference[1].n===0n&&difference[2].n===0n)
+    return {kind:"calculation",correct:difference[0].n===0n,
+      left:formatExact(lhs[0]),right:formatExact(rhs[0])};
+  return classifyPolynomialDifference(difference);
+}
 export function sameRealSolutions(left,right){
   if(left.kind!==right.kind)return false;
   if(left.kind==="unique")return left.solutionRatio&&right.solutionRatio&&eq(left.solutionRatio,right.solutionRatio);
   if(left.kind==="two")return eq(left.normalizedB,right.normalizedB)&&eq(left.normalizedC,right.normalizedC);
+  if(left.kind==="allExcept")return Array.isArray(left.excluded)
+    &&Array.isArray(right.excluded)&&left.excluded.length===right.excluded.length
+    &&left.excluded.every((value,i)=>value===right.excluded[i]);
   return left.kind==="all"||left.kind==="none";
 }
