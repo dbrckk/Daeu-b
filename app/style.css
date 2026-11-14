@@ -375,3 +375,32 @@
 .math-preview-number{flex:none;width:2ch;text-align:right;opacity:.58;font-size:.78rem;font-variant-numeric:tabular-nums}
 .math-preview-line math{font-size:1.15rem;display:block;max-width:100%;overflow-x:auto;padding:3px 0}
 .math-preview-plain{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.88rem}
+
+/* v55 : une feuille comme seule surface de travail visible en mode manuscrit. */
+.math-notebook.is-paper-only{margin:0;padding:0;border:0;background:transparent}
+.math-notebook.is-paper-only .math-notebook-pages,.math-notebook.is-paper-only .math-notebook-view-tools{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding:6px 1px;margin:4px 0;scrollbar-width:thin}
+.math-notebook.is-paper-only .math-notebook-pages button,.math-notebook.is-paper-only .math-notebook-view-tools button{flex:0 0 auto;min-height:43px}
+.math-notebook.is-paper-only .math-notebook-view-tools button:nth-child(-n+4){display:none}
+.math-notebook.is-paper-only .math-notebook-page-indicator{flex:0 0 auto;margin-left:auto;white-space:nowrap;color:#e9e7df}
+.math-notebook.is-paper-only .math-notebook-sheet-viewport{height:min(75dvh,1100px);min-height:420px;border:1px solid #aaa79e;border-radius:3px;background:#fff;box-shadow:0 15px 35px #07101c35}
+.math-notebook.is-paper-only .math-notebook-paper{width:1260px;max-width:none;min-height:100%;background:#fff;color:#182536}
+.math-notebook-paper-heading{padding:32px 54px 22px 66px;border-bottom:1px solid #b8c9dd;background:#fff;color:#16243a;white-space:normal}
+.math-notebook-paper-heading>strong{display:block;font-size:24px;line-height:1.4}
+.math-notebook-paper-prompt{font-size:23px;line-height:1.55;white-space:pre-wrap;margin:18px 0 0;max-width:1140px;overflow-wrap:anywhere}
+.math-notebook-paper-instruction{font-size:15px;color:#65758a;margin:16px 0 0}
+.math-notebook.is-paper-only .math-notebook-quick-validate{margin:9px 0 6px;min-height:54px}
+.math-notebook.is-paper-only .math-notebook-recognition:not(.paper-shown),.math-notebook.is-paper-only .math-notebook-equations:not(.paper-shown),.math-notebook.is-paper-only .math-notebook-manual:not(.paper-shown){display:none}
+.math-notebook.is-paper-only .math-notebook-editor-disclosure{display:none!important}
+.math-notebook.is-read-only .math-notebook-quick-validate,.math-notebook.is-read-only .math-notebook-status{display:none}
+.quiz.paper-mode:not([hidden]){position:fixed;inset:0;z-index:1000;margin:0;border:0;border-radius:0;padding:10px clamp(8px,2vw,30px) 22px;background:#202b3b;overflow:auto;overscroll-behavior:contain;display:block}
+.quiz.paper-mode .quiz-top{color:#e0e6ef}.quiz.paper-mode>progress{height:4px;margin:3px 0 7px}
+.quiz.paper-mode>#questionText,.quiz.paper-mode>#questionHelp,.quiz.paper-mode>#answerForm{display:none!important}
+.quiz.paper-mode #quizNotebook{max-width:1400px;margin:auto}
+.quiz.paper-mode .feedback{max-width:1400px;margin:15px auto}
+.exam-active.paper-exam-active:not([hidden]){position:fixed;inset:0;z-index:1000;margin:0;border:0;border-radius:0;overflow:auto;overscroll-behavior:contain;background:#202b3b;padding:10px clamp(8px,2vw,30px) 22px}
+.paper-exam-active>#examSectionTitle,.paper-exam-active>#examContext,.paper-exam-active>#examQuestions,.paper-exam-active>.exam-notes,.paper-exam-active>.exam-draft-overview{display:none!important}
+.paper-exam-active>.exam-status,.paper-exam-active>.exam-nav,.paper-exam-active>.exam-actions{max-width:1400px;margin-left:auto;margin-right:auto}
+.paper-exam-active #examNotebook{max-width:1400px;margin:auto}
+.paper-exam-active .exam-actions{position:sticky;bottom:0;background:#202b3bf2;padding:10px 0}
+@media(max-width:600px){.quiz.paper-mode:not([hidden]),.exam-active.paper-exam-active:not([hidden]){padding:7px 7px 12px}.math-notebook.is-paper-only .math-notebook-sheet-viewport{height:calc(100dvh - 230px);min-height:360px}.math-notebook-paper-heading{padding:25px 35px}.math-notebook-paper-prompt{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.quiz.paper-mode,.exam-active.paper-exam-active{scroll-behavior:auto}}

@@ -68,12 +68,12 @@ function path(ctx,points){
   if(points.length===1){ctx.lineTo(points[0][0]+0.05,points[0][1]+0.05);}
   ctx.stroke();
 }
-export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null}){
+export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null,paperOnly=false,paperPrompt="",readOnly=false}){
   if(!host)throw new Error("Emplacement de cahier absent");
   const legacyKey=notebookKey(context);
   if(!adapter||typeof adapter.snapshot!=="function"||typeof adapter.updateWorkbook!=="function")
     throw new Error("Stockage unifié du cahier indisponible");
-  const section=document.createElement("section");section.className="math-notebook";
+  const section=document.createElement("section");section.className="math-notebook"+(paperOnly?" is-paper-only":"")+(readOnly?" is-read-only":"");
   const heading=document.createElement("h4");heading.textContent=title;
   const help=document.createElement("p");help.className="helper";
   help.textContent="Écris sur la grande feuille au doigt ou au stylet. Tu peux corriger un trait avec la gomme, puis vérifier tes équations. Si un symbole est mal lu, corrige la transcription en touchant les symboles proposés, sans clavier ni ressaisie de la copie. Chaque modification de la feuille est sauvegardée automatiquement. La reconnaissance reste expérimentale : vérifie-la avant toute notation.";
@@ -201,7 +201,15 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   sheetViewport.tabIndex=0;
   sheetViewport.setAttribute("role","region");
   sheetViewport.setAttribute("aria-label","Grande feuille quadrillée défilante pour longues équations");
-  sheetViewport.append(canvas);
+  if(paperOnly){
+    const paper=document.createElement("div");paper.className="math-notebook-paper";
+    const print=document.createElement("header");print.className="math-notebook-paper-heading";
+    const label=document.createElement("strong");label.textContent=title;print.append(label);
+    if(paperPrompt){const prompt=document.createElement("p");prompt.className="math-notebook-paper-prompt";prompt.textContent=String(paperPrompt).slice(0,12000);print.append(prompt);}
+    const note=document.createElement("p");note.className="math-notebook-paper-instruction";
+    note.textContent=readOnly?"Copie manuscrite conservée. Lecture seule.":"Écris directement sur la feuille. Les traits sont sauvegardés automatiquement.";
+    print.append(note);paper.append(print,canvas);sheetViewport.append(paper);
+  }else sheetViewport.append(canvas);
   const sheetControls=document.createElement("div");sheetControls.className="math-notebook-view-tools";
   const moveLeft=document.createElement("button");moveLeft.type="button";moveLeft.className="subtle small";
   moveLeft.textContent="← Vers la gauche";
@@ -312,7 +320,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     ];
   }
   canvas.addEventListener("pointerdown",event=>{
-    if(panMode||activePointer!==null||event.button!==0)return;
+    if(readOnly||panMode||activePointer!==null||event.button!==0)return;
     if(eraserMode){
       event.preventDefault();
       const index=nearestInkStroke(work.pages[pageIndex],pointOf(event));
@@ -356,7 +364,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   });
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
   const recognition=document.createElement("section");recognition.className="math-notebook-recognition";
-  recognition.hidden=typeof handwrittenReview?.onRecognized!=="function";
+  recognition.hidden=readOnly||typeof handwrittenReview?.onRecognized!=="function";
   const recognitionTitle=document.createElement("h5");recognitionTitle.textContent="Lire ma réponse manuscrite (expérimental)";
   const recognitionHelp=document.createElement("p");recognitionHelp.className="helper";
   recognitionHelp.textContent="Pour les questions numériques : écris le résultat final seul sur la page actuelle (ex. 12, −7 ou 3/4). Le calcul complet peut rester sur les pages précédentes. Cette lecture locale n'est pas fiable sur les équations ou écritures complexes.";
@@ -387,7 +395,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       return;
     }
     recognizedText=result.text;
-    recognitionValue.textContent="Lecture proposée : "+result.text;
+    recognitionValue.textContent="Lecture proposée : "+(handwrittenReview?.formatRecognized?.(result.text)??result.text);
     recognitionCandidate.hidden=false;
     recognitionStatus.textContent="Valeur détectée localement, non encore corrigée. Confirme seulement si elle correspond exactement au nombre écrit.";
   });
@@ -413,7 +421,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   // Vérification des transformations manuscrites, distincte de la notation d'un quiz.
   // La transcription est proposée AVANT toute analyse et doit être confirmée.
   const inkEquations=document.createElement("section");inkEquations.className="math-notebook-equations";
-  inkEquations.hidden=!checkingEnabled;
+  inkEquations.hidden=readOnly||!checkingEnabled;
   inkEquations.setAttribute("aria-label","Vérifier mes équations manuscrites");
   const inkEquationsTitle=document.createElement("h5");
   inkEquationsTitle.textContent="Vérifier mes équations écrites sur la feuille (expérimental)";
@@ -467,7 +475,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsText.textContent=currentEquationText??"";
     const valid=currentEquationText!==null&&validateInkTranscript(currentEquationText);
     inkEquationsConfirm.disabled=!valid;
-    currentFinalAnswer=valid&&typeof handwrittenReview?.onRecognized==="function"
+    currentFinalAnswer=valid&&handwrittenReview?.allowEquation!==false&&typeof handwrittenReview?.onRecognized==="function"
       ?extractFinalNumericAnswer(currentEquationText):null;
     inkEquationsFinal.hidden=currentFinalAnswer===null;
     if(currentFinalAnswer!==null)
@@ -610,9 +618,9 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const quickValidate=document.createElement("button");quickValidate.type="button";
   quickValidate.className="primary math-notebook-quick-validate";
   quickValidate.textContent="Valider ma réponse sur la feuille";
-  quickValidate.hidden=!handwrittenReview;
+  quickValidate.hidden=!handwrittenReview||readOnly;
   const manual=document.createElement("section");manual.className="math-notebook-manual";
-  manual.hidden=!handwrittenReview;
+  manual.hidden=!handwrittenReview||readOnly;
   if(handwrittenReview){
     if(typeof handwrittenReview.expected!=="string"||typeof handwrittenReview.explanation!=="string"
       ||typeof handwrittenReview.onDecision!=="function")
@@ -666,6 +674,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });
     quickValidate.addEventListener("click",()=>{
+      if(paperOnly)manual.classList.add("paper-shown");
       const lastWritten=work.pages.findLastIndex(page=>page.length>0);
       if(lastWritten<0){
         reveal.click();
@@ -682,13 +691,15 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         // Le clic de confirmation reste obligatoire avant toute notation.
         readButton.click();
         if(!recognitionCandidate.hidden){
+          if(paperOnly)recognition.classList.add("paper-shown");
           recognitionStatus.textContent="Résultat proposé depuis la feuille. Confirme le nombre affiché avant de corriger, ou refuse cette lecture.";
           recognitionCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
           return;
         }
         // Une suite d'équations peut se terminer par x = nombre.
-        if(!inkEquations.hidden&&!inkEquationsRead.disabled)inkEquationsRead.click();
-        if(!inkEquations.hidden&&!inkEquationsCandidate.hidden){
+        if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsRead.disabled)inkEquationsRead.click();
+        if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsCandidate.hidden){
+          if(paperOnly)inkEquations.classList.add("paper-shown");
           inkEquationsStatus.textContent="Étapes détectées sur ta feuille. Vérifie et corrige les symboles au toucher ; aucun résultat n'est noté sans confirmation.";
           inkEquationsCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
           return;
@@ -704,10 +715,14 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);
     manual.append(manualTitle,manualIntro,reveal,manualStatus,comparison);
   }
-  const editorDetails=document.createElement("details");editorDetails.className="math-notebook-editor-disclosure";editorDetails.open=true;
+  const editorDetails=document.createElement("details");editorDetails.className="math-notebook-editor-disclosure";editorDetails.open=!paperOnly;
+  editorDetails.hidden=paperOnly||readOnly;
   const editorSummary=document.createElement("summary");editorSummary.textContent="Clavier mathématique et vérification des étapes (facultatif)";
   editorDetails.append(editorSummary,keypad,templates,field,preview,correction);
-  section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
+  if(paperOnly){
+    if(readOnly){controls.replaceChildren(prev,nextPage,indicator);sheetControls.hidden=true;}
+    section.append(controls,sheetControls,sheetViewport,quickValidate,recognition,inkEquations,manual,status,editorDetails);
+  }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }

@@ -299,6 +299,8 @@ function markGuidedQuestion(){
 }
 function renderQuestion() {
   const q=session[index]; if(!q) return finish();
+  const paperOnly=new URL(location.href).searchParams.get("saisie")!=="clavier";
+  el("quiz").classList.toggle("paper-mode",paperOnly);
   done=false;hintUsed=!!round?.assistedIds?.includes(q.id);
   el("quizCount").textContent="Question "+(index+1)+" / "+session.length;
   el("quizTopic").textContent=q.topicTitle;
@@ -307,22 +309,28 @@ function renderQuestion() {
   el("questionText").textContent=q.prompt;
   mountNotebook(el("quizNotebook"),{
     context:"quiz:"+q.id,adapter:dataStore,title:"Ma feuille de réponse — "+q.topicTitle,
+    paperOnly,paperPrompt:q.prompt+(q.type==="choice"?"\n\n"+q.options.map((option,i)=>(i+1)+". "+option).join("\n")+"\n\nÉcris le numéro du choix retenu sur la feuille.":"\n\nÉcris toutes tes étapes et termine par le résultat."),
     onGuidance:markGuidedQuestion,
     handwrittenReview:{
       expected:q.type==="number"?fmt(q.answer):String(q.answer),
       explanation:q.explanation,
       onRevealed:markGuidedQuestion,
       onDecision:submitHandwritten,
+      allowEquation:q.type==="number",
+      formatRecognized:value=>q.type==="choice"&&/^[1-9]$/.test(value)&&Number(value)<=q.options.length
+        ?value+" — "+q.options[Number(value)-1]:value,
       // Lecture géométrique locale : même correcteur objectif qu'une saisie numérique.
       // Le résultat n'est soumis qu'après confirmation visuelle par l'élève.
-      onRecognized:q.type==="number"?(value,{edited=false}={})=>{
+      onRecognized:(value,{edited=false}={})=>{
         if(done)return false;
+        const selected=q.type==="choice"?(/^[1-9]$/.test(value)?q.options[Number(value)-1]:null):value;
+        if(selected===null||selected===undefined)return false;
         // La saisie du résultat après retouche de transcription reste corrigée
         // objectivement, mais elle n'est pas une preuve de maîtrise sans aide.
         if(edited&&!markGuidedQuestion())return false;
-        submit(value);
+        submit(selected);
         return done;
-      }:null
+      }
     }
   });
   el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
