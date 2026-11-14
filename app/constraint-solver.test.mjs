@@ -85,7 +85,7 @@ test("Deux racines exactes conservées, et perte d'une racine détectée",()=>{
 test("Racines irrationnelles ou contraintes continues : ne pas déclarer de faux verdict",()=>{
   for(const input of [
     "√(x^2)=x","√(x)=√(x)",
-    "√(x+1)=x^2","2*√(x)=5","√(x)*(x+1)=2"
+    "√(x+1)=x^2","2*√(x)*2=5","√(x)*(x+1)=2"
   ]){
     const review=checkMathSteps(input);
     // Les radicaux imbriqués et les expressions non isolées restent refusés.
@@ -243,7 +243,7 @@ test("Un radical avec plusieurs termes affines reste comparé exactement",()=>{
 });
 test("Les multiplications, racines multiples et expressions quadratiques autour du radical sont refusées",()=>{
   const unsupported=[
-    "2√(x)=4","2*√(x)=4","√(x)*2=4","√(x)/2=4",
+    "x2√(x)=4","x/2√(x)=4","√(x)*2=4","√(x)/2=4",
     "x*√(x)=4","√(x)+√(x)=4","x+√(x²)+√(x)=4",
     "√(x)+x²=4","x²-√(x)=4",
     "√(x)²+1=5","√(x)+2/(x-1)=5",
