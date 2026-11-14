@@ -347,7 +347,13 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     }else renderPages();
   };
   canvas.addEventListener("pointerup",finish);
-  canvas.addEventListener("pointercancel",finish);
+  // Android peut interrompre un geste (changement d'application, appel, scroll).
+  // Ne jamais sauvegarder comme résultat un trait interrompu.
+  canvas.addEventListener("pointercancel",event=>{
+    if(activePointer!==event.pointerId)return;
+    activePointer=null;drawing=null;paint();
+    status.textContent="Geste interrompu : aucun trait incomplet n'a été enregistré.";
+  });
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
   const recognition=document.createElement("section");recognition.className="math-notebook-recognition";
   recognition.hidden=typeof handwrittenReview?.onRecognized!=="function";
@@ -613,7 +619,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       throw Error("Correction manuscrite mal configurée");
     const manualTitle=document.createElement("h5");manualTitle.textContent="Valider ma réponse écrite sur la feuille";
     const manualIntro=document.createElement("p");manualIntro.className="helper";
-    manualIntro.textContent="Après avoir écrit, affiche le corrigé et compare-le à tes propres lignes. Pas besoin de remplir le champ de réponse. La comparaison au corrigé reste une auto-évaluation. La reconnaissance locale des nombres simples est proposée plus haut lorsqu'elle est disponible ; elle ne corrige pas les équations complètes.";
+    manualIntro.textContent="Après avoir écrit, utilise « Valider ma réponse sur la feuille ». Pour une question numérique, l'application propose d'abord une lecture locale du résultat final, à confirmer sans dévoiler la correction. Si la lecture est incertaine, corrige les symboles au toucher ou utilise « Afficher le corrigé et valider ma feuille » ci-dessous. Cette dernière voie est une auto-évaluation assistée, jamais une maîtrise vérifiée.";
     const reveal=document.createElement("button");reveal.type="button";reveal.className="primary";
     reveal.textContent="Afficher le corrigé et valider ma feuille";
     const manualStatus=document.createElement("p");manualStatus.className="helper";manualStatus.setAttribute("role","status");
@@ -660,6 +666,36 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });
     quickValidate.addEventListener("click",()=>{
+      const lastWritten=work.pages.findLastIndex(page=>page.length>0);
+      if(lastWritten<0){
+        reveal.click();
+        manualStatus.scrollIntoView({behavior:"smooth",block:"nearest"});
+        return;
+      }
+      // Une résolution peut occuper plusieurs pages ; chercher la réponse
+      // finale sur la dernière page écrite, et non sur une page restée vide.
+      if(pageIndex!==lastWritten){
+        pageIndex=lastWritten;lastErasure=null;renderPages();
+      }
+      if(typeof handwrittenReview.onRecognized==="function"&&!readButton.disabled){
+        // Lecture locale sans correction ni transfert de données vers un OCR.
+        // Le clic de confirmation reste obligatoire avant toute notation.
+        readButton.click();
+        if(!recognitionCandidate.hidden){
+          recognitionStatus.textContent="Résultat proposé depuis la feuille. Confirme le nombre affiché avant de corriger, ou refuse cette lecture.";
+          recognitionCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
+          return;
+        }
+        // Une suite d'équations peut se terminer par x = nombre.
+        inkEquationsRead.click();
+        if(!inkEquationsCandidate.hidden){
+          inkEquationsStatus.textContent="Étapes détectées sur ta feuille. Vérifie et corrige les symboles au toucher ; aucun résultat n'est noté sans confirmation.";
+          inkEquationsCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
+          return;
+        }
+      }
+      // QCM, démonstrations et écritures hors périmètre : seule la
+      // comparaison explicite au corrigé permet de valider la copie.
       reveal.click();
       if(!comparison.hidden)comparison.scrollIntoView({behavior:"smooth",block:"nearest"});
       else manualStatus.scrollIntoView({behavior:"smooth",block:"nearest"});

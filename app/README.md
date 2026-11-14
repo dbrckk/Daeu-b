@@ -1,5 +1,12 @@
 # Atelier de maths — application web
 
+## v54 — validation manuscrite en priorité, sans révélation prématurée (14 novembre 2026)
+
+- Le bouton principal « Valider ma réponse sur la feuille » cherche d'abord la réponse numérique sur la dernière page écrite ; si besoin, il propose la transcription des équations et de leur dernière ligne `x = nombre`. **Une confirmation visuelle reste indispensable** avant toute correction objective ; aucune note n'est produite à partir d'un OCR non confirmé.
+- Les symboles incertains peuvent être corrigés au toucher, puis vérifiés. En cas de QCM, démonstration ou écriture non reconnue, l'élève peut comparer sa réponse au corrigé dans le même cahier, sans ressaisir son calcul sur un autre champ. Cette auto-évaluation est assistée et ne valide pas un acquis autonome.
+- Sur Android, un geste `pointercancel` n'est plus enregistré comme un trait incomplet. Tests navigateur adaptés pour contrôler cette interruption et le chemin de validation prioritaire, en plus des tests de sauvegarde et PWA.
+
+
 ## v36 — grande feuille et remise manuscrite sans ressaisie (13 novembre 2026)
 
 - Sur les quiz, le cahier propose une surface d'écriture de 840 px, débordant horizontalement dans une zone de défilement, avec flèches et mode déplacement tactile. Le format de sauvegarde des traits reste 600 × 800 pour conserver les copies existantes ; seule leur échelle affichée change. Huit pages par activité restent disponibles.
