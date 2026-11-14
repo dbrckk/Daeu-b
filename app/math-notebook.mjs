@@ -10,6 +10,7 @@ import {recognizeNumericInk} from "./numeric-ink.mjs";
 import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
 import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-transcript.mjs";
 import {nearestInkStroke} from "./ink-eraser.mjs";
+import {pageInkFingerprint} from "./ink-drafts.mjs";
 
 const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
@@ -106,12 +107,12 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   renderMathPreview(previewBody,field.value);
   const keypad=document.createElement("div");keypad.className="math-notebook-keypad";
   keypad.setAttribute("role","group");keypad.setAttribute("aria-label","Symboles mathématiques");
-  function persist(next){
+  function persist(next,{keepReading=false}={}){
     try{
       const current=adapter.snapshot().workbook;
       const updated=changeWork(current,context,next);
       adapter.updateWorkbook(updated);
-      work=next;invalidateRecognition();status.textContent="Cahier enregistré automatiquement avec la progression.";
+      work=next;if(!keepReading)invalidateRecognition();status.textContent="Cahier enregistré automatiquement avec la progression.";
       // Ne jamais afficher un ancien verdict après une édition par touche ou modèle.
       if(typeof feedback!=="undefined")feedback.hidden=true;
       renderMathPreview(previewBody,field.value);
@@ -266,8 +267,19 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     paint();
   }
   function editPage(fn){
-    const updated={text:work.text,pages:work.pages.map(page=>[...page])};
+    const updated={...work,pages:work.pages.map(page=>[...page])};
     fn(updated);
+    // Toute modification d'une page rend sa transcription précédente caduque.
+    if(updated.inkDrafts){
+      const validDrafts={...updated.inkDrafts};
+      for(const key of Object.keys(validDrafts)){
+        const index=Number(key);
+        if(index>=updated.pages.length||validDrafts[key].source!==pageInkFingerprint(updated.pages[index]))
+          delete validDrafts[key];
+      }
+      if(Object.keys(validDrafts).length)updated.inkDrafts=validDrafts;
+      else delete updated.inkDrafts;
+    }
     if(persist(updated))renderPages();
   }
   prev.addEventListener("click",()=>{if(pageIndex>0){lastErasure=null;pageIndex--;renderPages();}});
@@ -444,7 +456,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   inkEquationsActions.append(inkEquationsConfirm,inkEquationsReject);
   const inkEquationsReport=document.createElement("div");inkEquationsReport.className="math-notebook-feedback";inkEquationsReport.hidden=true;
   inkEquationsReport.setAttribute("role","status");
-  let currentEquationText=null,currentFinalAnswer=null,editCursor=0,insertMode=false;
+  let currentEquationText=null,currentFinalAnswer=null,editCursor=0,insertMode=false,inkWasEdited=false;
   function syncEquationCandidate(){
     inkEquationsText.textContent=currentEquationText??"";
     const valid=currentEquationText!==null&&validateInkTranscript(currentEquationText);
@@ -475,7 +487,15 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const index=mode==="insert"||mode==="newline"
         ?Math.min(currentEquationText.length,editCursor+1):editCursor;
       const result=editInkTranscript(currentEquationText,index,mode,symbol);
-      currentEquationText=result;
+      const source=pageInkFingerprint(work.pages[pageIndex]);
+      const next={...work,inkDrafts:{...(work.inkDrafts??{}),[pageIndex]:{
+        source,text:result,edited:true
+      }}};
+      if(!persist(next,{keepReading:true})){
+        inkEquationsStatus.textContent="Édition non enregistrée. Vérifie le stockage avant de corriger.";
+        return;
+      }
+      currentEquationText=result;inkWasEdited=true;
       editCursor=Math.max(0,Math.min(result.length-1,index+(mode==="insert"?1:0)));
       syncEquationCandidate();
       inkEquationsStatus.textContent=validateInkTranscript(result)
@@ -505,7 +525,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const previousInvalidateRecognition=invalidateRecognition;
   invalidateRecognition=()=>{
     previousInvalidateRecognition();
-    currentEquationText=null;currentFinalAnswer=null;
+    currentEquationText=null;currentFinalAnswer=null;inkWasEdited=false;
     inkEquationsFinal.hidden=true;
     inkEquationsEditor.hidden=true;
     inkEquationsCandidate.hidden=true;
@@ -514,13 +534,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   };
   inkEquationsRead.addEventListener("click",()=>{
     invalidateRecognition();
-    const read=recognizeEquationInk(work.pages[pageIndex],{draft:true});
-    if(read.status!=="recognized"&&read.status!=="partial"){
+    const saved=work.inkDrafts?.[pageIndex];
+    const validSaved=saved&&saved.source===pageInkFingerprint(work.pages[pageIndex]);
+    const read=validSaved
+      ?{status:"restored",text:saved.text,message:"Transcription corrigée retrouvée dans le cahier. Relis-la avant de valider."}
+      :recognizeEquationInk(work.pages[pageIndex],{draft:true});
+    if(!["recognized","partial","restored"].includes(read.status)){
       inkEquationsStatus.textContent=read.message;return;
     }
-    currentEquationText=read.text;
+    currentEquationText=read.text;inkWasEdited=validSaved&&saved.edited===true;
     editCursor=Math.max(0,read.text.indexOf("□"));
-    inkEquationsEditor.hidden=read.status!=="partial";
+    inkEquationsEditor.hidden=read.status==="recognized";
     inkEquationsCandidate.hidden=false;
     syncEquationCandidate();
     inkEquationsStatus.textContent=read.message;
@@ -530,19 +554,27 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     try{
       // Exactement le même moteur que la saisie numérique normale.
       // La simple lecture de la feuille ne constitue pas un indice.
-      if(handwrittenReview?.onRecognized?.(currentFinalAnswer)===false){
+      if(handwrittenReview?.onRecognized?.(currentFinalAnswer,{edited:inkWasEdited})===false){
         inkEquationsStatus.textContent="Réponse non enregistrée : vérifie la sauvegarde et réessaie.";
         return;
       }
       inkEquationsGrade.disabled=true;inkEquationsRead.disabled=true;
       inkEquationsConfirm.disabled=true;inkEquationsReject.disabled=true;
       inkEquationsEditToggle.disabled=true;inkEquationsEditor.hidden=true;
-      inkEquationsStatus.textContent="Résultat final vérifié avec le correcteur du quiz et progression enregistrée.";
+      inkEquationsStatus.textContent=inkWasEdited
+        ?"Résultat validé après correction manuelle de la transcription : enregistré comme réponse assistée."
+        :"Résultat final vérifié avec le correcteur du quiz et progression enregistrée.";
     }catch(error){inkEquationsStatus.textContent="Correction non enregistrée : "+error.message;}
   });
   inkEquationsReject.addEventListener("click",()=>{
+    if(work.inkDrafts?.[pageIndex]){
+      const drafts={...work.inkDrafts};delete drafts[pageIndex];
+      const next={...work};
+      if(Object.keys(drafts).length)next.inkDrafts=drafts;else delete next.inkDrafts;
+      if(!persist(next))return;
+    }
     invalidateRecognition();
-    inkEquationsStatus.textContent="Transcription rejetée. Corrige le tracé ou utilise le clavier mathématique facultatif pour vérifier tes étapes.";
+    inkEquationsStatus.textContent="Transcription rejetée. La version corrigée a été écartée ; les traits restent dans le cahier.";
   });
   inkEquationsConfirm.addEventListener("click",()=>{
     if(currentEquationText===null||!validateInkTranscript(currentEquationText))return;
