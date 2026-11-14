@@ -51,7 +51,7 @@ try {
       &&await firstPage.locator("#quizNotebook .math-notebook-preview-body msqrt").count()>=1,
       "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
-    await firstPage.locator("#quizNotebook button").filter({hasText:"√"}).click();
+    await firstPage.locator("#quizNotebook .math-notebook-keypad button").filter({hasText:"√"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===14,
       "Quatorze modèles mathématiques utilisables sans clavier physique");
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
