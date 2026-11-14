@@ -84,11 +84,11 @@ test("Deux racines exactes conservées, et perte d'une racine détectée",()=>{
 });
 test("Racines irrationnelles ou contraintes continues : ne pas déclarer de faux verdict",()=>{
   for(const input of [
-    "√(x+1)=x","√(x^2)=x","x=√(x+1)","√(x)=√(x)",
-    "√(x+1)=x^2","x+√(x)=5","√(x^2-1)=1"
+    "√(x^2)=x","√(x)=√(x)",
+    "√(x+1)=x^2","x+√(x)=5","x=√(x+1)+2"
   ]){
     const review=checkMathSteps(input);
-    // √(x²-1)=1 admet ±√2, non représentables par ce sous-solveur.
+    // Les radicaux imbriqués et les expressions non isolées restent refusés.
     assert.equal(review.checked,0,input);
     assert.equal(review.unsupported,1,input);
   }
@@ -108,4 +108,75 @@ test("L'équation auxiliaire ne remplace jamais l'originale dans la suite",()=>{
   assert.equal(a.errors,1,"La racine parasite 0 réapparaît dans l'équation mise au carré");
   const b=checkMathSteps("(x-1)/(x-1)=1\nx-x=0");
   assert.equal(b.errors,1,"La restriction x ≠ 1 a été oubliée");
+});
+
+test("Racines irrationnelles exactes : garder seulement la branche au signe admissible",()=>{
+  const plus=classifyEquality("√(x+1)=x");
+  assert.equal(plus.kind,"unique");
+  assert.equal(plus.solution,"(1+√(5))/2");
+  assert.equal(plus.irrationalExact,true);
+  assert.deepEqual(plus.rejectedCandidates,["(1-√(5))/2"]);
+  assert.equal(plus.algebraic.branch,"upper");
+  assert.equal(plus.algebraic.normalizedB.n,-1n);
+  assert.equal(plus.algebraic.normalizedC.n,-1n);
+  assert.match(plus.domainInfo,/sans arrondi/);
+  assert.deepEqual(checkMathSteps("√(x+1)=x\nx=1,61803398875")
+    .entries.map(r=>r.kind),["info","error"],"Une approximation ne prouve pas une égalité exacte");
+});
+test("Branche négative : contrôle algébrique et comparaison avec la même racine",()=>{
+  const lower=classifyEquality("√(x+1)=-x");
+  assert.equal(lower.kind,"unique");
+  assert.equal(lower.solution,"(1-√(5))/2");
+  assert.deepEqual(lower.rejectedCandidates,["(1+√(5))/2"]);
+  const equivalent=classifyEquality("√(4x+4)=-2x");
+  assert.equal(sameRealSolutions(lower,equivalent),true);
+  assert.equal(sameRealSolutions(lower,classifyEquality("√(x+1)=x")),false);
+  assert.deepEqual(checkMathSteps("√(x+1)=-x\n√(4x+4)=-2x")
+    .entries.map(r=>r.kind),["info","ok"]);
+});
+test("Équivalences irrationnelles indépendantes des coefficients du polynôme auxiliaire",()=>{
+  const first=classifyEquality("√(x+1)=x");
+  const second=classifyEquality("√(4x+4)=2x");
+  assert.equal(first.kind,"unique");assert.equal(second.kind,"unique");
+  assert.equal(sameRealSolutions(first,second),true);
+  assert.deepEqual(checkMathSteps("√(x+1)=x\n√(4x+4)=2x")
+    .entries.map(r=>r.kind),["info","ok"]);
+  assert.match(checkMathSteps("√(x+1)=x").entries[0].message,/Méthode guidée/);
+  assert.match(checkMathSteps("√(x+1)=x").entries[0].message,/mettre au carré/);
+});
+test("Deux solutions irrationnelles réelles conservées sans arrondi",()=>{
+  for(const [root,polynomial] of [
+    ["√(x²-1)=1","x²=2"],
+    ["√(x²-5)=1","x²=6"]
+  ]){
+    const a=classifyEquality(root),b=classifyEquality(polynomial);
+    assert.equal(a.kind,"two",root);
+    assert.equal(a.solutions,null,root);
+    assert.equal(a.irrationalExact,true,root);
+    assert.deepEqual(a.rejectedCandidates,[]);
+    assert.equal(sameRealSolutions(a,b),true,root);
+    assert.deepEqual(checkMathSteps(root+"\n"+polynomial).entries.map(r=>r.kind),
+      ["info","ok"],root);
+  }
+});
+test("Une racine irrationnelle négative écrite au toucher est une solution exacte distincte",()=>{
+  const minus=classifyEquality("x=-√(2)");
+  const plus=classifyEquality("x=√(2)");
+  const square=classifyEquality("x²=2");
+  assert.equal(minus.kind,"unique");assert.equal(minus.solution,"-√(2)");
+  assert.equal(plus.kind,"unique");assert.equal(plus.solution,"√(2)");
+  assert.equal(sameRealSolutions(minus,plus),false);
+  assert.equal(sameRealSolutions(minus,square),false);
+  assert.equal(sameRealSolutions(plus,square),false);
+  assert.deepEqual(checkMathSteps("x=-√(2)\n-√(2)=x").entries.map(r=>r.kind),
+    ["info","ok"]);
+});
+test("Méthode rationnelle complète : valeurs interdites et produit croisé explicites",()=>{
+  const result=classifyEquality("1/(x-1)=2");
+  assert.equal(result.kind,"unique");
+  assert.deepEqual(result.domainExclusions,["1"]);
+  assert.equal(result.methodSteps.length,3);
+  assert.match(result.methodSteps[0],/x ≠ 1/);
+  assert.match(result.methodSteps[1],/1 = 2x - 2/);
+  assert.match(checkMathSteps("1/(x-1)=2").entries[0].message,/Méthode guidée/);
 });
