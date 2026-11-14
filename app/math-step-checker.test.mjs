@@ -35,7 +35,7 @@ test("identités, impossibilités et calculs numériques vérifiés sans approxi
  assert.equal(checkMathSteps("x=1/3\nx=0,333333").errors,1,"l'arrondi n'est pas une preuve d'égalité");
 });
 test("rejette les degrés supérieurs, fonctions et divisions non polynomiales",()=>{
- for(const expression of ["x^3=4","x²*x=4","1/x=2","sin(x)=1","√(x)=2","x=2=2","1/(2-2)=4"]){
+ for(const expression of ["x^3=4","x²*x=4","1/(x^2-1)=2","sin(x)=1","√(x)=x","x=2=2","1/(2-2)=4"]){
   const c=checkMathSteps(expression);
   assert.equal(c.checked,0,expression);
   assert.equal(c.unsupported,1,expression);
@@ -145,7 +145,7 @@ test("Racines carrées parfaites : équations et calculs exacts",()=>{
   assert.equal(steps.errors,0);
 });
 test("Racines non entières et expressions rationnelles : non vérifiées, jamais admises par approximation",()=>{
-  for(const text of ["x=√(2)","√(x)=2","x=√(x+1)","x=2/(x+1)","x=1/(x-x)","x=√(-1)"]){
+  for(const text of ["x=√(2)","√(x)=x","x=√(x+1)","x=1/(x-x)","x=√(x^2)","x=√(2x+1)+1"]){
     const review=checkMathSteps(text);
     assert.equal(review.checked,0,text);
     assert.equal(review.unsupported,1,text);
