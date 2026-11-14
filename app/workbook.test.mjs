@@ -51,3 +51,14 @@ test("Cahier agrandi : anciens traits et nouvelles coordonnées coexistent sans 
  assert.deepEqual(parseStroke(readWork(value,"quiz:q01").pages[0][0]),[[600,800],[0,0]]);
  assert.deepEqual(parseStroke(readWork(value,"quiz:q01").pages[0][1]),[[0,0],[900,1200]]);
 });
+
+test("longues équations : 240 gestes par page et anciens cahiers inchangés",()=>{
+ const stroke=encodeStroke([[10,12],[18,27],[24,35]]);
+ const book=changeWork(emptyWorkbook(),"quiz:longue-equation",{
+   text:"",pages:[Array.from({length:240},()=>stroke),[],[]]
+ });
+ assert.equal(readWork(book,"quiz:longue-equation").pages[0].length,240);
+ assert.throws(()=>changeWork(emptyWorkbook(),"quiz:longue-equation",{
+   text:"",pages:[Array.from({length:241},()=>stroke)]
+ }),/Trop de traits/);
+});

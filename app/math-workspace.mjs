@@ -3,7 +3,7 @@
  * des démonstrations ; les saisies sont stockées dans le bundle utilisateur.
  * Utilisable dans les cours, quiz, examens et problèmes rédigés.
  */
-import {PAPER_WIDTH as W,PAPER_HEIGHT as H,blankWork,readWork,changeWork,encodeStroke,parseStroke} from "./workbook.mjs";
+import {PAPER_WIDTH as W,PAPER_HEIGHT as H,blankWork,readWork,changeWork,encodeStroke,parseStroke,MAX_PAGE_STROKES} from "./workbook.mjs";
 const symbols=[
  ["+","+"],["−","−"],["×","×"],["÷","÷"],["=","="],
  ["x²","²"],["x³","³"],["xⁿ","^()"],["√","√()"],
@@ -159,7 +159,7 @@ export function mountMathWorkspace(host,adapter,{initiallyOpen=false}={}){
     pointer=null;
     try{
       const stroke=encodeStroke(finished);
-      if(work.pages[page].length>=100)throw Error("Page pleine : ouvre une nouvelle page");
+      if(work.pages[page].length>=MAX_PAGE_STROKES)throw Error("Page pleine : ouvre une nouvelle page");
       work.pages[page].push(stroke);
       commit({type:"add",path:stroke,page});
     }catch(error){

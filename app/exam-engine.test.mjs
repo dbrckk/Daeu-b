@@ -100,3 +100,16 @@ test("les corrections restent attachées au bon exercice et à sa compétence",(
     });
   }
 });
+
+test("examen manuscrit : aucune note fictive et indicateur conservé dans l'historique",()=>{
+  const session=startExam("blanc-1",time,null,true);
+  assert.equal(session.paperOnly,true);
+  assert.equal(session.answers["a-analyse-1"],undefined);
+  const active=sanitizeExamStore({version:1,active:session,history:[]}).active;
+  assert.equal(active.paperOnly,true);
+  const result=finishExam(active,time+60000);
+  assert.equal(result.paperOnly,true);
+  const saved=sanitizeExamStore(addHistory(emptyExamStore(),result));
+  assert.equal(saved.history[0].paperOnly,true);
+  assert.equal(saved.history[0].score,0,"score interne non exposé dans le parcours manuscrit");
+});

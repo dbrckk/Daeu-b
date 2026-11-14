@@ -18,7 +18,7 @@ export const SKILL_LESSONS={
  "tirages sans remise":"12-probabilites.md","équations":"03-equations-inequations-systemes.md"
 };
 export function analyzeExamHistory(history,limit=12){
-  const reports=(Array.isArray(history)?history:[]).filter(r=>r?.examId&&Array.isArray(r.sections)&&Number.isFinite(r.score)).slice(-limit);
+  const reports=(Array.isArray(history)?history:[]).filter(r=>r?.examId&&r.paperOnly!==true&&Array.isArray(r.sections)&&Number.isFinite(r.score)).slice(-limit);
   const keys=new Map();
   let totalPoints=0,earnedPoints=0;
   for(const result of reports){

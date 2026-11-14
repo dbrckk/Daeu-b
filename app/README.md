@@ -1,5 +1,14 @@
 # Atelier de maths — application web
 
+## v55 — la feuille numérique comme support unique d'écriture (14 novembre 2026)
+
+- Les quiz s'ouvrent sur une grande copie plein écran : questions et choix imprimés en haut, écritures au doigt ou au stylet, sans formulaire ni clavier visible. Le geste et les pages sont sauvegardés automatiquement dans le format existant.
+- Les choix multiples sont numérotés sur la feuille. Un numéro manuscrit peut être lu localement et n'est corrigé qu'après confirmation. Les calculs et équations incertains restent soumis à comparaison au corrigé, sans maîtrise autonome fictive.
+- Les nouveaux examens utilisent quatre feuilles manuscrites distinctes, conservées et consultables après remise. **Aucune note /20 n'est affichée** pour ces copies : la correction automatique des démonstrations manuscrites n'est pas fiable.
+- Les anciennes copies avec formulaires restent compatibles. Une interface clavier d'accessibilité reste disponible en ajoutant `?saisie=clavier` à l'URL de l'atelier.
+- Navigation : gomme, annulation, pages et déplacement tactile ; une page peut conserver jusqu'à 240 traits. Au-delà, une nouvelle page permet de continuer. L'écriture ne nécessite aucun papier ni export manuel.
+
+
 ## v54 — validation manuscrite en priorité, sans révélation prématurée (14 novembre 2026)
 
 - Le bouton principal « Valider ma réponse sur la feuille » cherche d'abord la réponse numérique sur la dernière page écrite ; si besoin, il propose la transcription des équations et de leur dernière ligne `x = nombre`. **Une confirmation visuelle reste indispensable** avant toute correction objective ; aucune note n'est produite à partir d'un OCR non confirmé.

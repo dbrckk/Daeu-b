@@ -49,10 +49,11 @@ export function validateExamBank(bank=EXAMS){
   return errors;
 }
 
-export function startExam(examId,now=Date.now(),seed=null){
+export function startExam(examId,now=Date.now(),seed=null,paperOnly=false){
   if(!findExam(examId,seed)||!validMs(now)||!validMs(now+EXAM_DURATION_MS))throw new Error("Examen, graine ou date invalide");
   const session={examId,startedAt:now,deadlineAt:now+EXAM_DURATION_MS,sectionIndex:0,answers:{},notes:{}};
   if(isGeneratedExamId(examId))session.seed=seed;
+  if(paperOnly===true)session.paperOnly=true;
   return session;
 }
 export function hasExpired(session,now=Date.now()){
@@ -79,7 +80,7 @@ export function finishExam(session,now=Date.now(),reason="submitted"){
     });
     return {id:s.id,title:s.title,earned:questions.reduce((a,q)=>a+q.earned,0),points:5,questions};
   });
-  return {examId:exam.id,...(isGeneratedExamId(exam.id)?{seed:session.seed}:{}),title:exam.title,startedAt:session.startedAt,finishedAt:now,reason,answers:{...session.answers},notes:{...session.notes},sections,score:sections.reduce((a,s)=>a+s.earned,0),maxScore:20,selfChecks:{}};
+  return {examId:exam.id,...(isGeneratedExamId(exam.id)?{seed:session.seed}:{}),...(session.paperOnly===true?{paperOnly:true}:{}),title:exam.title,startedAt:session.startedAt,finishedAt:now,reason,answers:{...session.answers},notes:{...session.notes},sections,score:sections.reduce((a,s)=>a+s.earned,0),maxScore:20,selfChecks:{}};
 }
 export function emptyExamStore(){return {version:EXAM_STORE_VERSION,active:null,history:[]};}
 function cleanSession(raw){
@@ -93,7 +94,7 @@ function cleanSession(raw){
   for(const s of exam.sections){
     const note=raw.notes?.[s.id];if(validText(note,3500))notes[s.id]=note;
   }
-  return {examId:raw.examId,...(isGeneratedExamId(raw.examId)?{seed:raw.seed}:{}),startedAt:raw.startedAt,deadlineAt:raw.deadlineAt,sectionIndex:raw.sectionIndex,answers,notes};
+  return {examId:raw.examId,...(isGeneratedExamId(raw.examId)?{seed:raw.seed}:{}),...(raw.paperOnly===true?{paperOnly:true}:{}),startedAt:raw.startedAt,deadlineAt:raw.deadlineAt,sectionIndex:raw.sectionIndex,answers,notes};
 }
 export function sanitizeExamStore(raw){
   if(!raw||raw.version!==EXAM_STORE_VERSION||!Array.isArray(raw.history))throw new Error("Sauvegarde d'examen incompatible");

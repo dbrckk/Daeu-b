@@ -1,5 +1,14 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v55 — la feuille numérique comme support unique d'écriture (14 novembre 2026)
+
+- Les quiz s'ouvrent sur une grande copie plein écran : questions et choix imprimés en haut, écritures au doigt ou au stylet, sans formulaire ni clavier visible. Le geste et les pages sont sauvegardés automatiquement dans le format existant.
+- Les choix multiples sont numérotés sur la feuille. Un numéro manuscrit peut être lu localement et n'est corrigé qu'après confirmation. Les calculs et équations incertains restent soumis à comparaison au corrigé, sans maîtrise autonome fictive.
+- Les nouveaux examens utilisent quatre feuilles manuscrites distinctes, conservées et consultables après remise. **Aucune note /20 n'est affichée** pour ces copies : la correction automatique des démonstrations manuscrites n'est pas fiable.
+- Les anciennes copies avec formulaires restent compatibles. Une interface clavier d'accessibilité reste disponible en ajoutant `?saisie=clavier` à l'URL de l'atelier.
+- Navigation : gomme, annulation, pages et déplacement tactile. L'écriture ne nécessite aucun papier ni export manuel.
+
+
 ## v54 — validation sur la feuille sans correction révélée trop tôt (14 novembre 2026)
 
 - La validation principale tente la reconnaissance locale du résultat numérique, puis la lecture des équations manuscrites sur la dernière page utilisée, avant de montrer le corrigé. Chaque proposition doit être confirmée manuellement avant toute notation ; une lecture partielle laisse accès à la correction tactile.
