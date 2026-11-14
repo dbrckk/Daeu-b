@@ -1,5 +1,6 @@
 /**
- * Contrôle exact des calculs, équations affines et équations quadratiques en x.
+ * Contrôle exact des calculs, équations affines, quadratiques, rationnelles
+ * et de certaines équations à racine carrée isolée.
  * Aucune exécution de texte utilisateur ni appels externes : arithmétique
  * rationnelle exacte (BigInt), sans heuristique flottante pour les réponses.
  *
@@ -7,6 +8,7 @@
  * sont signalées comme non vérifiées et JAMAIS validées par approximation.
  */
 import {classifyPolynomialEquality,sameRealSolutions} from "./quadratic-checker.mjs";
+import {classifyConstrainedEquality} from "./constraint-solver.mjs";
 import {isFunctionNotation,parseFunctionLine,checkDerivativeCandidate} from "./derivative-checker.mjs";
 
 const MAX_LINE=180;
@@ -137,16 +139,26 @@ export function classifyEquality(text){
   const parts=text.split("=");
   if(parts.length!==2||parts.some(x=>!x.trim()))
     throw new Error("utilise une seule égalité par ligne");
-  let left,right;
-  const normalized=parts.map(normalizeExactRoots);
+  let left,right,normalized;
+  try{normalized=parts.map(normalizeExactRoots);}
+  catch(error){
+    // Une racine symbolique isolée se résout par mise au carré et
+    // substitution des candidats. Aucun résultat n'est seulement déduit
+    // de l'équation mise au carré (risque de racines parasites).
+    const constrained=classifyConstrainedEquality(text);
+    if(constrained)return constrained;
+    throw error;
+  }
   try{
     left=parseAffine(normalized[0]);right=parseAffine(normalized[1]);
   }catch(error){
-    // Le parseur affine demeure la référence pour les expressions existantes.
-    // Un polynôme quadratique valide est traité à part ; fonctions, degrés
-    // supérieurs et divisions par x restent expressément non vérifiés.
+    // La lecture affine reste prioritaire, puis le second degré exact.
     try{return classifyPolynomialEquality(normalized.join("="));}
-    catch{throw error;}
+    catch{
+      const constrained=classifyConstrainedEquality(normalized.join("="));
+      if(constrained)return constrained;
+      throw error;
+    }
   }
   if(!/[xX]/.test(parts[0]+parts[1])){
     return {kind:"calculation",correct:eq(left.b,right.b),
@@ -157,12 +169,18 @@ export function classifyEquality(text){
   return {kind:"unique",solution:formatRational(div(target,coeff)),
     solutionRatio:div(target,coeff),coefficient:formatRational(coeff),target:formatRational(target)};
 }
-const description=result=>result.kind==="two"
-  ?result.solutions?"deux solutions réelles : x = "+result.solutions.join(" ou x = ")
-    :"deux solutions réelles : "+result.radical:
-  result.kind==="unique"?"x = "+result.solution+(result.repeated?" (racine double)":""):
-  result.kind==="all"?"tous les nombres réels":
-  result.kind==="none"?"aucune solution réelle":"un calcul numérique";
+const description=result=>{
+  const solutions=result.kind==="two"
+    ?result.solutions?"deux solutions réelles : x = "+result.solutions.join(" ou x = ")
+      :"deux solutions réelles : "+result.radical
+    :result.kind==="unique"?"x = "+result.solution+(result.repeated?" (racine double)":"")
+    :result.kind==="all"?"tous les nombres réels"
+    :result.kind==="allExcept"?"tous les réels sauf "+result.excluded.map(x=>"x = "+x).join(" et ")
+    :result.kind==="none"?"aucune solution réelle":"un calcul numérique";
+  const rejected=result.rejectedCandidates?.length
+    ?" Candidats éliminés après contrôle : "+result.rejectedCandidates.map(x=>"x = "+x).join(", ")+".":"";
+  return solutions+(result.domainInfo?" ("+result.domainInfo+")":"")+rejected;
+};
 function sameSolution(a,b){return sameRealSolutions(a,b);}
 /**
  * Les lignes non mathématiques séparent les chaînes (plusieurs exercices).
@@ -236,14 +254,23 @@ export function checkMathSteps(text){
       continue;
     }
     if(!previous){
-      entries.push({line,kind:"info",message:result.quadratic
-        ?"Équation du second degré reconnue (Δ = "+result.discriminant+"). Les lignes suivantes seront comparées selon leur ensemble de solutions réelles."
-        :"Équation du premier degré reconnue. Les transformations suivantes seront comparées à cette ligne."});
+      entries.push({line,kind:"info",message:result.rationalEquation
+        ?"Équation rationnelle : "+description(result)+". Les valeurs interdites sont conservées lors de chaque comparaison."
+        :result.radicalEquation
+          ?"Équation avec racine carrée : "+description(result)+". Après mise au carré, chaque solution candidate a été contrôlée dans l'égalité initiale."
+          :result.quadratic
+            ?"Équation du second degré reconnue (Δ = "+result.discriminant+"). Les lignes suivantes seront comparées selon leur ensemble de solutions réelles."
+            :"Équation du premier degré reconnue. Les transformations suivantes seront comparées à cette ligne."});
     }else if(sameSolution(previous,result)){
       entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+previousLine+" : même ensemble de solutions ("+description(result)+")."});
     }else{
       errors++;
-      const method=previous.quadratic
+      const method=previous.rationalEquation
+        ?" Valeurs interdites : "+(previous.domainInfo??"")+
+          " Multiplier par le dénominateur n'est équivalent que si les zéros de ce dénominateur sont exclus."
+        :previous.radicalEquation
+          ?" Après mise au carré, vérifier dans l'équation initiale la non-négativité du membre sans racine et du radicande ; supprimer toute solution parasite."
+        :previous.quadratic
         ?" Méthode depuis la ligne "+previousLine+" : mets l'équation sous la forme ax² + bx + c = 0 (a ≠ 0), puis calcule Δ = b² − 4ac = "+previous.discriminant+". "+(previous.kind==="two"?"Tu dois conserver les deux racines : "+description(previous)+".":previous.kind==="unique"?"Conserve la racine double : "+description(previous)+".":"Comme Δ < 0, il n'y a aucune racine réelle.") 
         :previous.kind==="unique"
           ?" Méthode depuis la ligne "+previousLine+" : regroupe les termes en x, puis les constantes pour obtenir "+(previous.coefficient==="1"?"x":previous.coefficient+"x")+" = "+previous.target+", et divise par "+previous.coefficient+" pour trouver x = "+previous.solution+"."
