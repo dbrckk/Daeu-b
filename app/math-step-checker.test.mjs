@@ -145,14 +145,27 @@ test("Racines carrées parfaites : équations et calculs exacts",()=>{
   assert.equal(steps.errors,0);
 });
 test("Racines non entières et expressions rationnelles : non vérifiées, jamais admises par approximation",()=>{
-  for(const text of ["x=√(2)","x+√(x)=2","x=√(x+1)","x=1/(x-x)","x=√(x^2)","x=√(2x+1)+1"]){
+  for(const text of ["√(x)=√(x)","x+√(x)=2","√(x+1)=x^2","x=1/(x-x)","x=√(x^2)","x=√(2x+1)+1"]){
     const review=checkMathSteps(text);
     assert.equal(review.checked,0,text);
     assert.equal(review.unsupported,1,text);
     assert.equal(review.errors,0,text);
   }
-  const mixed=checkMathSteps("x=√(2)\nx=3");
+  const mixed=checkMathSteps("x=√(2)+1\nx=3");
   assert.equal(mixed.unsupported,1);
   assert.equal(mixed.checked,1);
   assert.equal(mixed.errors,0,"Une ligne non vérifiée ne doit pas servir d'étape précédente");
+});
+
+test("Solutions irrationnelles exactes : conservation du signe et équivalence des étapes",()=>{
+  const same=checkMathSteps("√(x+1)=x\n√(4x+4)=2x");
+  assert.deepEqual(same.entries.map(x=>x.kind),["info","ok"]);
+  assert.equal(same.errors,0);
+  assert.match(same.entries[0].message,/√\(5\)/);
+  assert.match(same.entries[0].message,/Méthode guidée/);
+  const approximation=checkMathSteps("√(x+1)=x\nx=1,61803398875");
+  assert.deepEqual(approximation.entries.map(x=>x.kind),["info","error"]);
+  assert.equal(approximation.errors,1);
+  const both=checkMathSteps("√(x²-1)=1\nx²=2");
+  assert.deepEqual(both.entries.map(x=>x.kind),["info","ok"]);
 });
