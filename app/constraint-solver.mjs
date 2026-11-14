@@ -7,8 +7,9 @@
  * - (polynôme degré <= 2)/(dénominateur affine) = expression polynomiale
  *   ou un second quotient à dénominateur affine ; produit croisé <= degré 2 ;
  * - √(polynôme degré <= 2) = polynôme affine, ou ordre inverse ;
- * - racines de l'équation auxiliaire rationnelles uniquement dans le
- *   problème radical, contrôlées dans l'équation initiale.
+ * - candidats rationnels substitués exactement ; candidats quadratiques
+ *   irrationnels vérifiés par comparaison algébrique exacte des signes,
+ *   sans approximation ni évaluation de racines sur des flottants.
  */
 import {parsePolynomial,classifyPolynomialDifference,formatExact} from "./quadratic-checker.mjs";
 
@@ -123,6 +124,65 @@ function candidates(classification){
   }
   return null; // Ensemble infini ou racines irrationnelles
 }
+/**
+ * Le discriminant est strictement positif et sa racine est irrationnelle.
+ * Pour x = (-B ± √(B²-4C))/2, on compare m·x+n à zéro sans jamais
+ * convertir √D en Number. Un signe faux ferait accepter une racine parasite.
+ */
+function signOf(value){return value.n===0n?0:value.n>0n?1:-1;}
+function signOfQuadraticSurd(a,b,radicand){
+  const sa=signOf(a),sb=signOf(b);
+  if(sb===0)return sa;
+  if(sa===0||sa===sb)return sb;
+  const lhs=times(a,a),rhs=times(times(b,b),radicand);
+  const magnitude=compare(lhs,rhs);
+  if(magnitude===0)throw Error("racine supposée irrationnelle devenue rationnelle");
+  return magnitude>0?sa:sb;
+}
+function irrationalCandidates(raw){
+  if(raw.kind!=="two"||raw.solutions!==null)
+    throw Error("racines quadratiques non irrationnelles");
+  const B=raw.normalizedB,C=raw.normalizedC;
+  const D=minus(times(B,B),times(rat(4n),C));
+  if(D.n<=0n)throw Error("discriminant non positif");
+  const center=over(neg(B),rat(2n));
+  const spreadSquared=over(D,rat(4n));
+  const digits=formatExact(spreadSquared);
+  const bText=formatExact(neg(B));
+  const dText=formatExact(D);
+  // Forme exacte standard sans simplification algébrique risquée :
+  // B=0 donne x=±√(D/4), sinon x=(-B±√D)/2.
+  const label=branch=>bText==="0"
+    ?(branch==="lower"?"-":"")+"√("+digits+")"
+    :"("+bText+(branch==="lower"?"-":"+")+"√("+dText+"))/2";
+  return ["lower","upper"].map(branch=>({
+    branch,normalizedB:B,normalizedC:C,discriminant:D,
+    label:label(branch),center,radicand:D
+  }));
+}
+/** Signe exact d'un polynôme affine à une racine quadratique irrationnelle. */
+function signAffineAtIrrational(poly,candidate){
+  if(degree(poly)>1)throw Error("contrôle de signe de degré supérieur à un");
+  const constant=plus(poly[0],times(poly[1],candidate.center));
+  const radical=over(poly[1],rat(candidate.branch==="lower"?-2n:2n));
+  return signOfQuadraticSurd(constant,radical,candidate.radicand);
+}
+function irrationalFilteredResult(raw,target,metadata={}){
+  const roots=irrationalCandidates(raw);
+  // Pour une racine carrée, l'équation auxiliaire garantit R(x)=T(x)².
+  // Dans l'équation initiale √R(x)=T(x), le seul autre contrôle est T(x)>=0.
+  const kept=roots.filter(candidate=>signAffineAtIrrational(target,candidate)>=0);
+  const discarded=roots.filter(candidate=>!kept.includes(candidate));
+  const details={...metadata,rejectedCandidates:discarded.map(x=>x.label),
+    irrationalExact:true};
+  if(!kept.length)return {kind:"none",...details};
+  if(kept.length===2)return {...raw,...details};
+  const candidate=kept[0];
+  return {kind:"unique",solution:candidate.label,
+    algebraic:{normalizedB:candidate.normalizedB,normalizedC:candidate.normalizedC,
+      branch:candidate.branch},
+    ...details};
+}
 function filteredResult(base,valid,metadata={}){
   if(base.kind==="none")return {...base,...metadata};
   if(base.kind==="all")throw Error("identité avec contraintes de signe : ensemble infini non vérifié");
@@ -193,7 +253,9 @@ function radicalEquation(left,right){
     +"solutions candidates contrôlées par substitution exacte.";
   if(raw.kind==="all")throw Error("racine définissant un intervalle : résolution symbolique non vérifiée");
   if(raw.kind==="two"&&!raw.solutions)
-    throw Error("candidats irrationnels après mise au carré : substitution exacte non vérifiée");
+    return irrationalFilteredResult(raw,target,{radicalEquation:true,
+      domainInfo:"Conditions : radicande ≥ 0 et membre sans racine ≥ 0. "+
+        "Les candidats irrationnels sont filtrés par comparaison algébrique exacte, sans arrondi."});
   const valid=x=>{
     const y=valueAt(target,x);
     return y.n>=0n&&valueAt(radicand,x).n>=0n
