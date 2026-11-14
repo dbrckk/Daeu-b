@@ -559,7 +559,13 @@ try {
           "+":[[[15,50],[85,50]],[[50,12],[50,88]]],
           "1":[[[50,5],[50,97]]],
           "2":[[[18,26],[30,11],[55,7],[77,17],[83,37],[72,54],[49,73],[20,94],[86,94]]],
-          "9":[[[75,43],[57,57],[34,52],[20,34],[29,14],[51,7],[74,20],[78,48],[66,73],[41,94],[19,97]]]
+          "9":[[[75,43],[57,57],[34,52],[20,34],[29,14],[51,7],[74,20],[78,48],[66,73],[41,94],[19,97]]],
+          "0":[[[49,8],[24,15],[12,35],[12,67],[26,89],[49,97],[72,88],[87,65],[86,37],[70,15],[49,8]]],
+          "5":[[[79,9],[25,9],[20,46],[48,42],[73,49],[84,70],[73,87],[49,95],[20,86]]],
+          "3":[[[19,14],[47,7],[75,14],[83,31],[68,47],[46,51],[71,53],[85,70],[74,89],[48,97],[17,88]]],
+          "*":[[[17,12],[83,88]],[[83,12],[17,88]],[[50,6],[50,94]]],
+          ".":[[[50,87],[51,89],[50,91]]],
+          ",":[[[54,83],[53,90],[48,99]]]
         };
         const paths=[];
         const draw=(name,x,y,scale)=>{
@@ -573,6 +579,14 @@ try {
         if(kind==="root"){
           paths.push("213,77;225,69;238,105;257,31;271,31;360,31");
           draw("9",281,40,.52);
+        }else if(kind==="decimal"||kind==="comma"){
+          draw("0",213,62,.7);
+          draw(kind==="comma"?",":".",290,62,.7);
+          draw("5",367,62,.7);
+        }else if(kind==="multiply"){
+          draw("2",213,62,.7);
+          draw("*",290,62,.7);
+          draw("3",367,62,.7);
         }else{
           draw("2",278,31,.43);
           paths.push("211,102;410,102");
@@ -733,6 +747,30 @@ try {
     await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-checker .math-notebook-review-list li")
       .evaluateAll(items=>items.map(el=>el.dataset.result).join(",")).then(text=>text==="unsupported"),
       "Android v49 : diviseur décimal nul jamais accepté");
+
+    await replaceInk("decimal");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=0.5")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final button")
+        .textContent().then(t=>t.includes("x = 0.5"))
+      &&await advancedInkPage.locator("#answer").inputValue().then(t=>t==="")
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v50 : point décimal dessiné, résultat final proposé sans clavier ni correction prématurée");
+    await replaceInk("comma");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=0.5")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isVisible(),
+      "Android v50 : virgule française manuscrite normalisée en décimale utilisable");
+    await replaceInk("multiply");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=2*3")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      "Android v50 : multiplication en trois traits reconnue sans inventer une réponse finale");
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations-actions button.primary").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations .math-notebook-feedback")
+      .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
+        &&t.includes("0 transformation(s) ou calcul(s) erroné(s)")),
+      "Android v50 : multiplication manuscrite correctement analysée après confirmation");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");

@@ -3,8 +3,9 @@
  * Moteur local, sans modèle téléchargé ni appel réseau. La transcription DOIT
  * être confirmée visuellement avant la vérification mathématique.
  *
- * Symboles supportés : chiffres, x, +, -, =, /, parenthèses et exposant 2
- * surélevé ; fraction de termes courts en x et racine carrée écrite en un
+ * Symboles supportés : chiffres, x, +, -, =, /, point/virgule décimale,
+ * signe * à trois branches, parenthèses et exposant 2 surélevé ;
+ * fraction de termes courts en x et racine carrée écrite en un
  * seul geste avec une barre au-dessus de 1 à 3 chiffres ou de x.
  * Les expressions non polynomiales ne sont pas corrigées automatiquement.
  */
@@ -110,6 +111,18 @@ function parenthesis(path){
   return null;
 }
 function special(paths){
+  // Astérisque manuscrit conservateur : deux diagonales croisées comme
+  // un x, plus une troisième branche verticale passant au même centre.
+  // Un x à deux traits reste toujours un x.
+  if(paths.length===3){
+    const slash=paths.filter(p=>diagonal(p)!==0),stem=paths.find(p=>vertical(p));
+    if(slash.length===2&&stem&&diagonal(slash[0])!==diagonal(slash[1])){
+      const boxes=paths.map(p=>rect([p])),whole=rect(paths);
+      if(boxes.every(b=>sameGlyph(b,whole))
+        &&Math.abs(cx(rect([stem]))-cx(whole))<=Math.max(8,width(whole)*.18))
+        return "*";
+    }
+  }
   if(paths.length===1){
     if(horizontal(paths[0]))return "-";
     const p=parenthesis(paths[0]);if(p)return p;
@@ -127,6 +140,14 @@ function special(paths){
 }
 function readGlyph(group){
   if(group.preRead)return group.preRead;
+  // Un petit point (ou la queue d'une virgule manuscrite) n'est JAMAIS
+  // un chiffre : la transcription vérifie ensuite qu'il est placé entre
+  // deux chiffres, près de leur ligne de base, avant de le proposer.
+  if(group.paths.length===1){
+    const b=rect(group.paths);
+    if(width(b)<=9&&height(b)<=15&&group.paths[0].length<=12)
+      return ".";
+  }
   const op=special(group.paths);
   if(op)return op;
   const result=recognizeNumericInk(group.paths.map(encodeStroke));
@@ -261,13 +282,25 @@ function foldRadicals(items){
 
 function transcription(parts,{draft=false}={}){
   let text="",previous=null,unreadable=0;
-  for(const group of parts){
+  for(let i=0;i<parts.length;i++){
+    const group=parts[i],b=group.box;
     let value=readGlyph(group);
+    if(value==="."){
+      const after=parts[i+1],next=after&&readGlyph(after);
+      // Un point isolé sur la feuille ne devient pas une décimale valide.
+      // Nécessite 2 chiffres et une ponctuation au bas des deux glyphes.
+      const digit=/^\d$/;
+      const low=(digitBox)=>cy(b)>=digitBox.top+height(digitBox)*.55
+        &&cy(b)<=digitBox.bottom+height(digitBox)*.25;
+      if(!previous||!digit.test(previous.value)||!digit.test(next??"")
+        ||!low(previous.box)||!low(after.box)
+        ||cx(b)<previous.box.right-4||cx(b)>after.box.left+4)
+        value=null;
+    }
     if(!value){
       if(!draft)return null;
       value="□";unreadable++;
     }
-    const b=group.box;
     const upper=previous&&/^\d$/.test(value)&&/^[0-9x)]$/.test(previous.value)
       &&height(b)>=15&&height(b)<height(previous.box)*.72
       &&b.bottom<previous.box.top+height(previous.box)*.62
@@ -300,7 +333,8 @@ export function recognizeEquationInk(page,{draft=false}={}){
     const {text,unreadable}=current;
     uncertain+=unreadable;
     if(draft&&unreadable>0){texts.push(text);continue;}
-    if(!/^[0-9x+=./()^√-]+$/.test(text)||text.split("=").length!==2||!text.split("=").every(Boolean)){
+    if(!/^[0-9x+=.*/()^√-]+$/.test(text)||/(?:^|[^0-9])\.|\.(?:$|[^0-9])/.test(text)
+      ||text.split("=").length!==2||!text.split("=").every(Boolean)){
       if(draft){unsupported++;texts.push(text);continue;}
       return {status:"unsupported",message:"Écris une égalité simple par ligne avec chiffres, x, +, −, =, /, parenthèses et exposant 2."};
     }

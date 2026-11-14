@@ -70,3 +70,12 @@ test("Le coefficient d'une racine se corrige au toucher sans clavier physique",(
   assert.equal(checkMathSteps("x*√(x)=4").unsupported,1,
     "La touche multiplication n'autorise pas une multiplication par x");
 });
+
+test("La transcription tactile refuse les points isolés mais accepte les décimales",()=>{
+  for(const line of ["x=0.5","x=2.75","2.5*√(9)=7.5","x=0.5\nx=1/2"])
+    assert.equal(validateInkTranscript(line),true,line);
+  for(const line of ["x=.5","x=2.","x=1..5","x=2.*5","x=.","x=√(.5)"])
+    assert.equal(validateInkTranscript(line),false,line);
+  assert.equal(editInkTranscript("x=2□5",3,"replace","."),"x=2.5");
+  assert.equal(extractFinalNumericAnswer("x=2.5"),"2.5");
+});

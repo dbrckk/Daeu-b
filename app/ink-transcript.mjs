@@ -19,7 +19,8 @@ export function validateInkTranscript(source){
       return false;
     let depth=0;
     for(const c of line){if(c==="(")depth++;else if(c===")")depth--;if(depth<0)return false;}
-    if(depth!==0||/√(?!\()|√\(\)/.test(line)||line.includes("^")&&(line.match(/\^[0-9]+/g)||[]).some(p=>p!=="^2")
+    if(depth!==0||/(?:^|[^0-9])\.|\.(?:$|[^0-9])/.test(line)
+       ||/√(?!\()|√\(\)/.test(line)||line.includes("^")&&(line.match(/\^[0-9]+/g)||[]).some(p=>p!=="^2")
        ||/(?:\^$|\^\D)/.test(line))return false;
   }
   return true;

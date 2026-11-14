@@ -1,5 +1,13 @@
 # Commencer les mathématiques du DAEU B — première séance
 
+### Lecture manuscrite des décimales et de la multiplication (v50)
+
+Le lecteur local de la feuille quadrillée peut transcrire maintenant le **point décimal** écrit en bas entre deux chiffres (par exemple `x=0.5`) et la **virgule décimale française** écrite au même endroit (`x=0,5` est normalisé en `x=0.5`). Il reconnaît également un **astérisque de multiplication dessiné en trois traits croisés** : deux diagonales et une branche verticale. La lettre `x` manuscrite continue d'utiliser deux diagonales sans branche centrale.
+
+La lecture est **conservatrice** : un point isolé, en hauteur, placé après un signe plutôt qu'entre deux chiffres ou une ponctuation incomplète n'est jamais confirmé comme une décimale. Une transcription incomplète doit être corrigée au toucher avant toute vérification. Le lecteur ne note jamais le quiz automatiquement : l'élève vérifie la lecture proposée et confirme explicitement la correction. L'écriture libre sur papier n'est pas nécessaire.
+
+Cette reconnaissance reste expérimentale et ne remplace pas un lecteur général de toutes les variantes d'écriture manuscrite.
+
 ### Coefficients décimaux exacts devant les racines (v49)
 
 
