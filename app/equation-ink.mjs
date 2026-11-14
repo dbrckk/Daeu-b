@@ -5,6 +5,7 @@
  *
  * Symboles supportés : chiffres, x, +, -, =, /, point/virgule décimale,
  * signe * à trois branches, parenthèses et exposant 2 surélevé ;
+ * jusqu'à 12 lignes ou 48 glyphes sur une même ligne ;
  * fraction de termes courts en x et racine carrée écrite en un
  * seul geste avec une barre au-dessus de 1 à 3 chiffres ou de x.
  * Les expressions non polynomiales ne sont pas corrigées automatiquement.
@@ -13,7 +14,7 @@ import {parseStroke,encodeStroke} from "./workbook.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
 import {parsePolynomial} from "./quadratic-checker.mjs";
 
-const MAX_STROKES=90,MAX_LINES=12,MAX_GLYPHS=32;
+const MAX_STROKES=100,MAX_LINES=12,MAX_GLYPHS=48;
 const rect=paths=>{
   const points=paths.flat(),xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
   return {left:Math.min(...xs),right:Math.max(...xs),top:Math.min(...ys),bottom:Math.max(...ys)};
@@ -156,10 +157,9 @@ function readGlyph(group){
 
 /**
  * Reconnaissance strictement locale des fractions écrites en colonne.
- * Les deux termes peuvent être des entiers (1 à 3 chiffres) ou de
- * courtes expressions polynomiales en x. Un dénominateur algébrique
- * n'est PAS une équation polynomiale : le correcteur doit le signaler
- * comme non vérifié (conditions de domaine obligatoires).
+ * Les deux termes peuvent être des entiers, décimaux courts (point ou
+ * virgule manuscrite) ou courtes expressions polynomiales en x.
+ * La validation des domaines revient au correcteur algébrique exact.
  *
  * Fractions imbriquées, expressions non reconnues et division par zéro
  * sont refusées au lieu de produire un verdict artificiel.
@@ -187,11 +187,15 @@ function foldFractions(paths){
     if(!upper.length||!lower.length)continue;
     const topGroups=glyphs(upper),bottomGroups=glyphs(lower);
     if(topGroups.length>9||bottomGroups.length>9)continue;
-    const top=topGroups.map(readGlyph),bottom=bottomGroups.map(readGlyph);
-    if(top.some(x=>!x)||bottom.some(x=>!x))continue;
-    const numerator=top.join(""),denominator=bottom.join("");
-    const validTerm=term=>/^(?:\d{1,3}|[0-9x()+-]{1,10})$/.test(term)
-      &&!/^(?:[+\-]|.*[+\-])$/.test(term)&&!/\(\)/.test(term);
+    // La ponctuation d'un terme doit être géométriquement encadrée
+    // par deux chiffres. Réutiliser la même règle que sur les lignes.
+    const top=transcription(topGroups),bottom=transcription(bottomGroups);
+    if(!top||!bottom)continue;
+    const numerator=top.text,denominator=bottom.text;
+    const validTerm=term=>/^[0-9x()+.\-]{1,16}$/.test(term)
+      &&!/(?:^|[^0-9])\.|\.(?:$|[^0-9])/.test(term)
+      &&!/(?:^[+\-]|[+\-]$)/.test(term)
+      &&!/\(\)/.test(term)&&!term.includes("^");
     if(!validTerm(numerator)||!validTerm(denominator))continue;
     // Le parseur exact refuse les chaînes mal formées ; les dénominateurs
     // identiquement nuls ne doivent jamais devenir une fraction valide.
@@ -211,7 +215,7 @@ function foldFractions(paths){
       ||cx(bottomBox)<bar.box.left-5||cx(bottomBox)>bar.box.right+5)
       continue;
     for(const e of usedEntries)used.add(e.id);
-    const atomic=term=>/^-?\d{1,3}$/.test(term)||term==="x";
+    const atomic=term=>/^-?\d{1,3}(?:\.\d{1,2})?$/.test(term)||term==="x";
     const text=(atomic(numerator)?numerator:"("+numerator+")")+"/"
       +(atomic(denominator)?denominator:"("+denominator+")");
     found.push({paths:usedEntries.flatMap(e=>e.paths),preRead:text});
@@ -327,7 +331,7 @@ export function recognizeEquationInk(page,{draft=false}={}){
   const texts=[];let uncertain=0,unsupported=0;
   for(const line of lines){
     const parts=glyphs(line);
-    if(parts.length>MAX_GLYPHS)return {status:"unsupported",message:"Ligne trop longue pour le lecteur actuel (32 caractères maximum)."};
+    if(parts.length>MAX_GLYPHS)return {status:"unsupported",message:"Ligne trop longue pour le lecteur actuel (48 caractères maximum)."};
     const current=transcription(parts,{draft});
     if(!current)return {status:"uncertain",message:"Un symbole est ambigu : réécris-le en grand ou utilise la correction tactile. Aucun corrigé n'a été dévoilé."};
     const {text,unreadable}=current;

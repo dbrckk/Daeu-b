@@ -60,7 +60,7 @@ test("Lire les opérations et les égalités de chiffres sur des lignes distinct
 test("Ne jamais inventer une correction à partir de traits invalides",()=>{
   assert.equal(recognizeEquationInk([]).status,"empty");
   assert.equal(recognizeEquationInk(["<svg>"]).status,"unsupported");
-  assert.equal(recognizeEquationInk(Array(91).fill("10,10;20,20")).status,"unsupported");
+  assert.equal(recognizeEquationInk(Array(101).fill("10,10;20,20")).status,"unsupported");
   const result=recognizeEquationInk(ink(["7","8"]));
   assert.notEqual(result.status,"recognized");
 });
@@ -200,6 +200,32 @@ test("Fraction empilée : numérateur et dénominateur à deux chiffres",()=>{
   assert.equal(read.text,"x=12/25");
   assert.equal(extractFinalNumericAnswer(read.text),"12/25");
   assert.equal(checkMathSteps(read.text).unsupported,0);
+});
+test("Fraction verticale à décimales : 1,5 / 2,5 est une valeur exacte et non une lecture inventée",()=>{
+  for(const punctuation of [".",","]){
+    const page=stackedIntegerInk("1"+punctuation+"5","2"+punctuation+"5",{barEnd:465});
+    const read=recognizeEquationInk(page);
+    assert.equal(read.status,"recognized",punctuation+" : "+JSON.stringify(read));
+    assert.equal(read.text,"x=1.5/2.5",punctuation);
+    assert.equal(extractFinalNumericAnswer(read.text),"1.5/2.5");
+    assert.equal(checkMathSteps("x=1.5/2.5\nx=3/5").errors,0);
+  }
+});
+test("Dénominateur décimal nul et ponctuation isolée ne deviennent jamais une division valide",()=>{
+  for(const denom of ["0.0","0,0"]){
+    const read=recognizeEquationInk(stackedIntegerInk("1.5",denom,{barEnd:465}),{draft:true});
+    assert.notEqual(read.status,"recognized",JSON.stringify(read));
+    assert.notEqual(read.text,"x=1.5/0.0");
+  }
+  const invalid=stackedIntegerInk("1.5","2.5",{barEnd:465});
+  // Déplacer la ponctuation du dénominateur au-dessus de la ligne des chiffres.
+  const index=invalid.length-2;
+  const corrupt=invalid.map((stroke,i)=>i===index?encodeStroke(stroke.split(";").map(pt=>{
+    const [x,y]=pt.split(",").map(Number);
+    return [x,y-26];
+  })):stroke);
+  const draft=recognizeEquationInk(corrupt,{draft:true});
+  assert.notEqual(draft.status,"recognized",JSON.stringify(draft));
 });
 test("Fraction empilée : zéro au dénominateur non présenté comme résultat valide",()=>{
   const read=recognizeEquationInk(stackedIntegerInk("12","00"),{draft:true});
@@ -361,4 +387,47 @@ test("Tracé illisible proche d'une multiplication : jamais de validation implic
   const broken=three.slice(0,three.length-1);
   const candidate=recognizeEquationInk(broken,{draft:true});
   assert.notEqual(candidate.status,"recognized");
+});
+
+function compactLineInk(line,{step=24,scale=.30,originY=78}={}){
+  return [...line].flatMap((symbol,i)=>{
+    assert.ok(GLYPHS[symbol],"Symbole compact inconnu : "+symbol);
+    return GLYPHS[symbol].map(path=>encodeStroke(path.map(([x,y])=>[
+      Math.round(30+i*step+x*scale),Math.round(originY+y*scale)
+    ])));
+  });
+}
+test("Ligne de calcul manuscrite longue : plus de 32 glyphes sans texte pré-rempli",()=>{
+  const equation=Array(16).fill("1").join("+")+"=16";
+  assert.ok(equation.length>32&&equation.length<=48);
+  const strokes=compactLineInk(equation);
+  assert.ok(strokes.length<=100);
+  const read=recognizeEquationInk(strokes);
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.text,equation);
+  assert.equal(checkMathSteps(read.text).errors,0);
+});
+test("Douze lignes manuscrites sur une page, sans fusionner les équations voisines",()=>{
+  const strokes=[];
+  for(let j=0;j<12;j++)
+    strokes.push(...compactLineInk("x=1",{step:68,scale:.52,originY:42+j*91}));
+  assert.ok(strokes.length<=100);
+  const read=recognizeEquationInk(strokes);
+  assert.equal(read.status,"recognized",JSON.stringify(read));
+  assert.equal(read.lines,12);
+  assert.equal(read.text,Array(12).fill("x=1").join("\n"));
+  assert.equal(checkMathSteps(read.text).errors,0);
+  assert.equal(extractFinalNumericAnswer(read.text),"1");
+});
+test("Plus de douze lignes ou plus de cent traits : non reconnus plutôt qu'interprétés de travers",()=>{
+  const tooManyLines=[];
+  for(let j=0;j<13;j++)
+    tooManyLines.push(...compactLineInk("x=1",{step:68,scale:.5,originY:20+j*88}));
+  assert.notEqual(recognizeEquationInk(tooManyLines).status,"recognized");
+  const overlong=compactLineInk("1".repeat(49),{step:16,scale:.32});
+  assert.ok(overlong.length<=100);
+  assert.equal(recognizeEquationInk(overlong).status,"unsupported",
+    "Le plafond de 48 glyphes doit rester strict sans perte de page");
+  const stroke=encodeStroke([[15,15],[34,44]]);
+  assert.equal(recognizeEquationInk(Array(101).fill(stroke)).status,"unsupported");
 });

@@ -291,8 +291,12 @@ try {
     const inkPage=await inkContext.newPage();
     inkPage.on("pageerror",error=>errors.push("Reconnaissance numérique : "+error.message));
     await inkPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
-    await inkPage.locator("#topic").selectOption("nombres");
-    await inkPage.locator("#start").click();
+    // Utiliser la question numérique fixe du démarrage : une séance
+    // aléatoire du thème nombres peut commencer par un QCM, incompatible
+    // avec le lecteur des valeurs numériques.
+    await inkPage.locator("#firstStart").click();
+    await inkPage.locator("#numericAnswer").waitFor({state:"visible"});
+    await inkPage.locator("#quizNotebook .math-notebook-recognition").waitFor({state:"visible"});
     await check(async()=>await inkPage.locator("#numericAnswer").isVisible()
       &&await inkPage.locator("#quizNotebook .math-notebook-recognition").isVisible()
       &&await inkPage.locator("#answer").inputValue().then(t=>t===""),
@@ -563,6 +567,7 @@ try {
           "0":[[[49,8],[24,15],[12,35],[12,67],[26,89],[49,97],[72,88],[87,65],[86,37],[70,15],[49,8]]],
           "5":[[[79,9],[25,9],[20,46],[48,42],[73,49],[84,70],[73,87],[49,95],[20,86]]],
           "3":[[[19,14],[47,7],[75,14],[83,31],[68,47],[46,51],[71,53],[85,70],[74,89],[48,97],[17,88]]],
+          "6":[[[77,9],[43,27],[22,47],[20,74],[34,93],[62,96],[81,79],[72,59],[50,52],[22,68]]],
           "*":[[[17,12],[83,88]],[[83,12],[17,88]],[[50,6],[50,94]]],
           ".":[[[50,87],[51,89],[50,91]]],
           ",":[[[54,83],[53,90],[48,99]]]
@@ -575,7 +580,11 @@ try {
             ].join(",")).join(";"));
           }
         };
-        draw("x",24,62,.7);draw("=",100,62,.7);
+        // Les cas long/twelve contiennent déjà leur égalité complète.
+        // Ne pas leur ajouter le préfixe x= réservé aux fractions/radicaux.
+        if(kind!=="long"&&kind!=="twelve"){
+          draw("x",24,62,.7);draw("=",100,62,.7);
+        }
         if(kind==="root"){
           paths.push("213,77;225,69;238,105;257,31;271,31;360,31");
           draw("9",281,40,.52);
@@ -587,6 +596,18 @@ try {
           draw("2",213,62,.7);
           draw("*",290,62,.7);
           draw("3",367,62,.7);
+        }else if(kind==="fraction-decimal"){
+          draw("1",218,31,.42);draw(".",267,31,.42);draw("5",316,31,.42);
+          paths.push("209,102;465,102");
+          draw("2",217,120,.42);draw(".",266,120,.42);draw("5",315,120,.42);
+        }else if(kind==="long"){
+          const formula=Array(16).fill("1").join("+")+"=16";
+          for(const [index,symbol] of [...formula].entries())
+            draw(symbol,30+index*24,78,.30);
+        }else if(kind==="twelve"){
+          for(let i=0;i<12;i++)
+            for(const [index,symbol] of [..."x=1"].entries())
+              draw(symbol,30+index*68,42+i*91,.52);
         }else{
           draw("2",278,31,.43);
           paths.push("211,102;410,102");
@@ -771,6 +792,41 @@ try {
       .textContent().then(t=>t.includes("1 ligne(s) mathématique(s) analysée(s)")
         &&t.includes("0 transformation(s) ou calcul(s) erroné(s)")),
       "Android v50 : multiplication manuscrite correctement analysée après confirmation");
+
+    await replaceInk("fraction-decimal");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=1.5/2.5")
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final button")
+        .textContent().then(t=>t.includes("x = 1.5/2.5"))
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v51 : fraction verticale avec numérateur et dénominateur décimaux, non notée avant confirmation");
+    await advancedInkPage.reload({waitUntil:"networkidle"});
+    await advancedInkPage.locator("#quizNotebook .math-notebook-equations>button").click();
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t==="x=1.5/2.5"),
+      "Android v51 : l'écriture fractionnaire décimale persiste après rechargement");
+    await replaceInk("long");
+    const longFormula=Array(16).fill("1").join("+")+"=16";
+    const observedLong={
+      text:await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript").textContent(),
+      finalHidden:await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      recognitionStatus:await advancedInkPage.locator("#quizNotebook .math-notebook-equations [role=status]").first().textContent(),
+      inkStrokes:await advancedInkPage.evaluate(()=>{
+        const state=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+        return state.workbook.entries["quiz:"+state.round.ids[0]]?.pages[0]?.length;
+      })
+    };
+    if(observedLong.text!==longFormula||!observedLong.finalHidden)
+      console.log("DIAGNOSTIC v51 ligne longue : "+JSON.stringify(observedLong));
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t===longFormula)
+      &&await advancedInkPage.locator("#quizNotebook .math-notebook-equations-final").isHidden(),
+      "Android v51 : ligne manuscrite de 34 glyphes reconnue sans couper ni fabriquer une solution");
+    await replaceInk("twelve");
+    await check(async()=>await advancedInkPage.locator("#quizNotebook .math-notebook-equations-transcript")
+      .textContent().then(t=>t===Array(12).fill("x=1").join("\n"))
+      &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
+      "Android v51 : douze lignes manuscrites séparées sans perte de progression");
   }finally{await advancedInkContext.close();}
   await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
