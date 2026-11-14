@@ -308,7 +308,7 @@ test("Refus de toute multiplication variable ou fraction invalide près de la ra
   for(const input of [
     "x√(x)=4","x*√(x)=4","(x+1)*√(x)=4",
     "√(x)*x=4","√(x)/x=4","2/√(x)=4",
-    "√(x)/0=4","0√(x)=0","2.5√(x)=5",
+    "√(x)/0=4","0√(x)=0","2.5555√(x)=5",
     "√(x)*2x=4","√(x)/2x=4",
     "√(x)^2=4","2√(x)+√(x)=4",
     "√(x)*2*2=4","x+√(x²)*x=x"
