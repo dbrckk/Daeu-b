@@ -1,5 +1,13 @@
 # Commencer les mathématiques du DAEU B — première séance
 
+### Fractions décimales et équations manuscrites longues (v51)
+
+Le lecteur de la feuille manuscrite peut maintenant lire certaines **fractions empilées avec décimales**, telles que `1,5 / 2,5` écrites l'une au-dessus de l'autre avec une barre horizontale, puis les transcrire en `1.5/2.5`. Le point ou la virgule doit être correctement placé entre deux chiffres de chaque terme ; les dénominateurs identiquement nuls sont refusés. Des numérateurs et dénominateurs courts en `x` sont également possibles. La lecture n'autorise pas toutes les fractions imbriquées ni tous les symboles mathématiques.
+
+Une ligne peut désormais contenir **jusqu'à 48 glyphes reconnus**, contre 32 auparavant, dans la limite de la largeur de la feuille de 900 unités. Une page peut contenir **jusqu'à 12 lignes et 100 traits** ; ces limites correspondent au format de sauvegarde existant, sans migration ni perte des copies. Utilise une nouvelle page si une équation ne tient pas sur la feuille, et relis systématiquement la transcription avant de corriger les étapes ou la réponse finale.
+
+Les tracés incertains sont affichés comme lecture partielle ou refusée, et ne doivent jamais entraîner une note automatique.
+
 ### Lecture manuscrite des décimales et de la multiplication (v50)
 
 Le lecteur local de la feuille quadrillée peut transcrire maintenant le **point décimal** écrit en bas entre deux chiffres (par exemple `x=0.5`) et la **virgule décimale française** écrite au même endroit (`x=0,5` est normalisé en `x=0.5`). Il reconnaît également un **astérisque de multiplication dessiné en trois traits croisés** : deux diagonales et une branche verticale. La lettre `x` manuscrite continue d'utiliser deux diagonales sans branche centrale.
