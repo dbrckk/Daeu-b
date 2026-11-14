@@ -294,7 +294,7 @@ function rootSide(text){
   if(before){
     // 2√(x), 2*√(x), x+2√(x) et x-3*√(x) sont acceptés ;
     // x2√(x), x/2√(x) ou 2x√(x) seraient ambigus et sont refusés.
-    const coefficient=before.match(/^(.*?)([+-]?)([0-9]{1,3})\\*?$/);
+    const coefficient=before.match(/^(.*?)([+-]?)([0-9]{1,3})\*?$/);
     if(coefficient){
       const [,prefix,sign,digits]=coefficient;
       if(prefix&&!sign)
