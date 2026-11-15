@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {recognizeBottomNumericInk,recognizeNumericInk} from "./numeric-ink.mjs";
+import {recognizeBottomNumericInk,recognizeNumericInk,recognizeStackedFractionInk} from "./numeric-ink.mjs";
 import {encodeStroke} from "./workbook.mjs";
 import {gradeAnswer} from "./engine.mjs";
 
@@ -79,4 +79,25 @@ test("Lire la dernière ligne isolée sous les calculs, quel que soit l'ordre de
     encodeStroke([[70,50],[70,115]]),encodeStroke([[180,135],[180,200]])
   ]).status,"recognized");
   assert.notEqual(recognizeNumericInk(ink("3/0")).status,"recognized");
+});
+
+
+test("Lire une fraction posée sous les calculs sans dépendre de l’ordre des traits",()=>{
+  const numerator=ink("3");
+  const bar=encodeStroke([[40,137],[111,138]]);
+  const denominator=ink("4").map(raw=>encodeStroke(raw.split(";").map(point=>{
+    const [x,y]=point.split(",").map(Number);
+    return [x,y+110];
+  })));
+  const earlier=encodeStroke([[300,5],[301,10]]);
+  assert.equal(recognizeStackedFractionInk([bar,...denominator,earlier,...numerator])?.text,"3/4");
+  assert.equal(gradeAnswer({type:"number",answer:.75},
+    recognizeStackedFractionInk([...numerator,bar,...denominator]).text).correct,true);
+  const zero=ink("0").map(raw=>encodeStroke(raw.split(";").map(point=>{
+    const [x,y]=point.split(",").map(Number);
+    return [x,y+110];
+  })));
+  assert.equal(recognizeStackedFractionInk([...numerator,bar,...zero]),null);
+  assert.equal(recognizeStackedFractionInk([...numerator,bar,encodeStroke([[45,140],[115,140]]),...denominator]),null);
+  assert.equal(recognizeStackedFractionInk([...numerator,bar,encodeStroke([[300,160],[300,230]])]),null);
 });

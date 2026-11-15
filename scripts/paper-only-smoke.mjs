@@ -65,6 +65,27 @@ try{
   assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"CANVAS");
   console.log("OK Copie vierge non corrigée et retour direct au stylo");
 
+  const fractionCanvas=page.locator("#quizNotebook canvas");
+  await fractionCanvas.scrollIntoViewIfNeeded();
+  const fractionBox=await fractionCanvas.boundingBox();
+  assert.ok(fractionBox);
+  for(const [x1,y1,x2,y2] of [[170,180,170,245],[120,267,220,267],[170,290,170,355]]){
+    const point=(x,y)=>[fractionBox.x+x*fractionBox.width/900,fractionBox.y+y*fractionBox.height/1200];
+    const [startX,startY]=point(x1,y1);
+    assert.equal(await page.evaluate(([x,y])=>document.elementFromPoint(x,y)?.tagName,[startX,startY]),"CANVAS");
+    await page.mouse.move(startX,startY);
+    await page.mouse.down();
+    await page.mouse.move(...point(x2,y2),{steps:8});
+    await page.mouse.up();
+  }
+  await page.locator("#quizNotebook .math-notebook-quick-validate").click();
+  const fractionCandidate=page.locator("#quizNotebook .math-notebook-recognition-candidate");
+  assert.match(await fractionCandidate.locator("strong").textContent(),/Lecture proposée : 1\/1/);
+  assert.equal((await snapshot()).round.completed,0);
+  const undoFraction=page.getByRole("button",{name:"Annuler le dernier trait"});
+  for(let i=0;i<3;i++)await undoFraction.click();
+  console.log("OK Fraction posée lue sur la feuille, confirmation obligatoire");
+
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);
