@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright";
+import {parseStroke,PAPER_WIDTH,PAPER_HEIGHT} from "../app/workbook.mjs";
 import {verifyPwaUpgrade} from "./pwa-upgrade-smoke.mjs";
 
 const BASE=process.env.TEST_BASE_URL||"http://127.0.0.1:8000";
@@ -297,6 +298,18 @@ try{
   });
   assert.equal(await containsInk(writtenThumbnail),true);
   assert.equal(await containsInk(blankThumbnail),false);
+  const lastInk=(thumb)=>thumb.locator(".math-notebook-last-ink");
+  const checkLastInk=async(thumb,strokes)=>{
+    const [x,y]=parseStroke(strokes.at(-1)).at(-1);
+    const marker=await lastInk(thumb).evaluate(el=>({
+      x:parseFloat(el.style.left)/100,y:parseFloat(el.style.top)/100,
+      transparentToTouch:getComputedStyle(el).pointerEvents==="none"
+    }));
+    assert.ok(Math.abs(marker.x-x/PAPER_WIDTH)<.00001&&Math.abs(marker.y-y/PAPER_HEIGHT)<.00001);
+    assert.ok(marker.transparentToTouch,"Le repère doit laisser passer l’appui sur la miniature");
+  };
+  await checkLastInk(writtenThumbnail,copyWithExtraPage.workbook.entries["quiz:"+questionId].pages[0]);
+  assert.equal(await lastInk(blankThumbnail).count(),0);
   await page.keyboard.press("Escape");
   assert.ok(await previewDialog.isHidden());
   assert.equal(await previewButton.evaluate(el=>document.activeElement===el),true);
@@ -312,7 +325,9 @@ try{
   const pageTwoPosition=await coordinates();
   await context.setOffline(true);
   await previewButton.click();
-  assert.equal(await containsInk(previewDialog.getByRole("button",{name:"Page 2 Manuscrite"})),true);
+  const secondWrittenThumbnail=previewDialog.getByRole("button",{name:"Page 2 Manuscrite"});
+  assert.equal(await containsInk(secondWrittenThumbnail),true);
+  await checkLastInk(secondWrittenThumbnail,beforePreview.workbook.entries["quiz:"+questionId].pages[1]);
   const target={x:.70,y:.60};
   const thumbnail=await writtenThumbnail.locator("canvas").boundingBox();
   assert.ok(thumbnail);

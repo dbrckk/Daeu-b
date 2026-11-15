@@ -1140,7 +1140,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const thumbnails=document.createElement("div");thumbnails.className="math-notebook-thumbnails";
     const previewHelp=document.createElement("p");
     previewHelp.className="math-notebook-preview-help";
-    previewHelp.textContent="Le cadre bleu indique la zone visible. Touche une miniature pour te déplacer.";
+    previewHelp.textContent="Le cadre bleu indique la zone visible. Le point orange marque la fin du dernier trait. Touche une miniature pour te déplacer.";
     previews.append(previewHeader,previewHelp,thumbnails);
     let visibleFrame=null;
     const updateVisibleFrame=()=>{
@@ -1195,6 +1195,15 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
           visibleFrame.hidden=true;
           visibleFrame.setAttribute("aria-hidden","true");
           miniature.append(visibleFrame);
+        }
+        if(page.length){
+          const [x,y]=parseStroke(page.at(-1)).at(-1);
+          const lastInk=document.createElement("span");
+          lastInk.className="math-notebook-last-ink";
+          lastInk.setAttribute("aria-hidden","true");
+          lastInk.style.left=x/PAPER_WIDTH*100+"%";
+          lastInk.style.top=y/PAPER_HEIGHT*100+"%";
+          miniature.append(lastInk);
         }
         selectPage.append(miniature,label,state);
         selectPage.addEventListener("click",event=>{
