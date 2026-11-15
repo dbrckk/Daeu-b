@@ -741,7 +741,7 @@ try{
     });
     assert.ok(savedCopy.strokes.length>100);
     await densePage.reload({waitUntil:"networkidle"});
-    await densePage.locator("#firstStart").click();
+    await densePage.locator("#quiz").waitFor({state:"visible"});
     await densePage.locator("#quizNotebook .math-notebook-quick-validate").tap();
     const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
     assert.ok(await candidate.isVisible());
