@@ -589,3 +589,26 @@
 #examFormulaBody{overflow-wrap:anywhere}
 
 #resultsNextActions{margin-bottom:16px}
+
+.math-notebook.is-paper-only .math-notebook-sheet-viewport{overflow-anchor:none}
+.math-notebook-paper-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.math-notebook.is-paper-only .math-notebook-paper-top>.math-notebook-paper-tools{position:relative}
+.math-notebook-paper-jump{
+  min-height:44px;color:#1b3044;background:#fff;border-color:#aab8c9;
+  padding:4px 9px;font-size:.8rem
+}
+.math-notebook-paper-jump:hover{background:#e8f0f6}
+@media(orientation:landscape) and (max-height:500px){
+  .quiz.paper-mode #quizNotebook .math-notebook-sheet-viewport,
+  .paper-exam-active #examNotebook .math-notebook-sheet-viewport{
+    height:calc(100dvh - 145px);min-height:160px
+  }
+  .quiz.paper-mode .math-notebook-paper-bar:not(:empty){
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between
+  }
+  .quiz.paper-mode .math-notebook-paper-modes{flex:1 1 220px;min-width:0}
+  .quiz.paper-mode .math-notebook-paper-bar .math-notebook-quick-validate{
+    width:auto;flex:1 1 210px;padding:6px 10px;font-size:.86rem
+  }
+  .paper-exam-active .exam-actions{position:static}
+}

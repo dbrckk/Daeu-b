@@ -806,11 +806,19 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const zoom=document.createElement("button");zoom.type="button";
     zoom.className="subtle small math-notebook-paper-zoom";
     let expanded=false;
+    const canvasOffset=()=>canvas.getBoundingClientRect().top-sheetViewport.getBoundingClientRect().top-sheetViewport.clientTop;
     const updateZoom=()=>{
-      sheetViewport.querySelector(".math-notebook-paper").style.width=expanded?"1260px":"100%";
+      const top=canvasOffset();
+      const atWritingArea=sheetViewport.scrollTop>0&&top<=12;
+      const fraction=Math.max(0,-top)/Math.max(1,canvas.getBoundingClientRect().height);
+      paper.style.width=expanded?"1260px":"100%";
       canvas.style.width=expanded?"1260px":"100%";
       zoom.textContent=expanded?"Voir la feuille entière":"Agrandir pour écrire";
       zoom.setAttribute("aria-pressed",String(expanded));
+      if(atWritingArea){
+        const box=canvas.getBoundingClientRect();
+        sheetViewport.scrollTop+=canvasOffset()+fraction*box.height;
+      }
       sheetViewport.scrollLeft=0;
     };
     zoom.addEventListener("click",()=>{expanded=!expanded;updateZoom();});
@@ -826,7 +834,24 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       bar.append(modes,quickValidate);
     }
     tools.append(summary,controls,zoom,sheetControls);
-    section.append(tools,sheetViewport,bar,recognition,inkEquations,manual,editorDetails);
+    const paperTop=document.createElement("div");paperTop.className="math-notebook-paper-top";
+    if(paperPrompt&&!readOnly){
+      const jump=document.createElement("button");jump.type="button";jump.className="subtle small math-notebook-paper-jump";
+      const position=()=>Math.min(canvasOffset()+sheetViewport.scrollTop,sheetViewport.scrollHeight-sheetViewport.clientHeight);
+      const onCanvas=()=>sheetViewport.scrollTop>=Math.max(1,position()-12);
+      const syncJump=()=>{jump.textContent=onCanvas()?"Voir l’énoncé":"Aller à la zone d’écriture";};
+      jump.textContent="Aller à la zone d’écriture";
+      sheetViewport.addEventListener("scroll",syncJump,{passive:true});
+      jump.addEventListener("click",()=>{
+        const top=onCanvas()?0:position();
+        tools.open=false;
+        sheetViewport.scrollTo({top,left:0,behavior:"instant"});
+        syncJump();
+      });
+      paperTop.append(jump);
+    }
+    paperTop.append(tools);
+    section.append(paperTop,sheetViewport,bar,recognition,inkEquations,manual,editorDetails);
     updateZoom();
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
