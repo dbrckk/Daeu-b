@@ -2,7 +2,7 @@
 
 **Mode feuille (v55) :** exercices et examens directement sur une copie manuscrite numérique, sans champs à remplir ; les examens manuscrits se corrigent par comparaison au corrigé, sans note automatique inventée. Mode clavier d'accessibilité : `app/?saisie=clavier`.
 
-**Priorité immédiate : [stabilisation de la version 1.0](STABILISATION_V1.md)** · **Plan d'évolution actif (v23–v28) : [feuille de route de progression](ROADMAP_V23.md)** · **[Audit v23 de couverture des 20 jalons](AUDIT_COUVERTURE.md)** — audit de couverture, corrections pédagogiques, maîtrise par jalon et examens enrichis.
+**Plan actuel · [finalisation de la version stable](PLAN_FINALISATION.md)** · [Audit de couverture des jalons](AUDIT_COUVERTURE.md) · [Feuille de route historique](ROADMAP_V23.md).
 
 Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Documents originaux en français, conçus pour maîtriser les mathématiques du **DAEU B** et non uniquement apprendre des formules. Aucun prérequis informatique, compte ni logiciel payant.
 
