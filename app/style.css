@@ -380,10 +380,9 @@
 .math-notebook.is-paper-only{margin:0;padding:0;border:0;background:transparent}
 .math-notebook.is-paper-only .math-notebook-pages,.math-notebook.is-paper-only .math-notebook-view-tools{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding:6px 1px;margin:4px 0;scrollbar-width:thin}
 .math-notebook.is-paper-only .math-notebook-pages button,.math-notebook.is-paper-only .math-notebook-view-tools button{flex:0 0 auto;min-height:43px}
-.math-notebook.is-paper-only .math-notebook-view-tools button:nth-child(-n+4){display:none}
 .math-notebook.is-paper-only .math-notebook-page-indicator{flex:0 0 auto;margin-left:auto;white-space:nowrap;color:#e9e7df}
 .math-notebook.is-paper-only .math-notebook-sheet-viewport{height:min(75dvh,1100px);min-height:420px;border:1px solid #aaa79e;border-radius:3px;background:#fff;box-shadow:0 15px 35px #07101c35}
-.math-notebook.is-paper-only .math-notebook-paper{width:1260px;max-width:none;min-height:100%;background:#fff;color:#182536}
+.math-notebook.is-paper-only .math-notebook-paper{width:100%;max-width:none;min-height:100%;background:#fff;color:#182536}
 .math-notebook-paper-heading{padding:32px 54px 22px 66px;border-bottom:1px solid #b8c9dd;background:#fff;color:#16243a;white-space:normal}
 .math-notebook-paper-heading>strong{display:block;font-size:24px;line-height:1.4}
 .math-notebook-paper-prompt{font-size:23px;line-height:1.55;white-space:pre-wrap;margin:18px 0 0;max-width:1140px;overflow-wrap:anywhere}
@@ -452,7 +451,12 @@
 .math-notebook.is-paper-only .math-notebook-paper-tools .math-notebook-pages,.math-notebook.is-paper-only .math-notebook-paper-tools .math-notebook-view-tools{width:100%;flex-wrap:wrap;overflow:visible;padding:4px 0;margin:5px 0}
 .math-notebook.is-paper-only .math-notebook-paper-tools .math-notebook-pages button,.math-notebook.is-paper-only .math-notebook-paper-tools .math-notebook-view-tools button,.math-notebook.is-paper-only .math-notebook-paper-zoom{font-size:.84rem;min-height:44px;flex:1 1 auto}
 .math-notebook.is-paper-only .math-notebook-paper-tools .math-notebook-page-indicator{color:#22364d}
-.math-notebook.is-paper-only .math-notebook-paper-zoom{display:block;width:100%;margin:6px 0}
+.math-notebook-paper-zoom{
+  min-height:44px;min-width:0;max-width:100%;padding:4px 6px;
+  color:#1b3044;background:#fff;border:1px solid #aab8c9;border-radius:8px;font-size:.8rem
+}
+.math-notebook.is-paper-only .math-notebook-canvas{width:100%}
+.math-notebook-canvas.is-panning.is-dragging{cursor:grabbing}
 .math-notebook.is-paper-only .math-notebook-sheet-viewport{height:calc(100dvh - 112px);min-height:320px;max-height:none;border:1px solid #c3c3b9;background:white;border-radius:2px;box-shadow:0 8px 25px #1b274021}
 .math-notebook.is-paper-only .math-notebook-paper{max-width:none;min-height:100%;background:#fff}
 .math-notebook.is-paper-only .math-notebook-paper-heading{padding:18px clamp(14px,4%,50px) 14px;background:#fff;border-bottom:1px solid #d8dde4;color:#1b293c}
