@@ -40,6 +40,7 @@ export function insertTemplate(value,template,start,end){
 }
 const MAX_TEXT=6000;
 const MAX_POINTS=300;
+const PAPER_GRID=25;
 export function notebookKey(context){
   if(typeof context!=="string"||!/^[-\w:.]{1,120}$/.test(context))
     throw new Error("Identifiant de brouillon invalide");
@@ -83,8 +84,8 @@ function writePaperView(storage,context,view){
 function grid(ctx){
   ctx.fillStyle="#fff";ctx.fillRect(0,0,PAPER_WIDTH,PAPER_HEIGHT);
   ctx.beginPath();
-  for(let x=0;x<=PAPER_WIDTH;x+=25){ctx.moveTo(x,0);ctx.lineTo(x,PAPER_HEIGHT);}
-  for(let y=0;y<=PAPER_HEIGHT;y+=25){ctx.moveTo(0,y);ctx.lineTo(PAPER_WIDTH,y);}
+  for(let x=0;x<=PAPER_WIDTH;x+=PAPER_GRID){ctx.moveTo(x,0);ctx.lineTo(x,PAPER_HEIGHT);}
+  for(let y=0;y<=PAPER_HEIGHT;y+=PAPER_GRID){ctx.moveTo(0,y);ctx.lineTo(PAPER_WIDTH,y);}
   ctx.lineWidth=0.7;ctx.strokeStyle="#dce8f2";ctx.stroke();
 }
 function path(ctx,points){
@@ -314,10 +315,15 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.tabIndex=0;
   canvas.setAttribute("role","img");canvas.setAttribute("aria-label","Feuille de calcul quadrillée. Trace les équations avec le doigt ou un stylet.");
   const ctx=canvas.getContext("2d");
-  let drawing=null,activePointer=null;
+  let drawing=null,activePointer=null,lineGuide=null;
   function paint(){
     if(!ctx)return;
     grid(ctx);
+    if(lineGuide!==null){
+      ctx.beginPath();
+      ctx.moveTo(0,lineGuide);ctx.lineTo(PAPER_WIDTH,lineGuide);
+      ctx.lineWidth=1.5;ctx.strokeStyle="#6a9dc2";ctx.stroke();
+    }
     for(const stroke of work.pages[pageIndex]){
       try{path(ctx,parseStroke(stroke));}catch{/* Les données ont déjà été validées à la lecture. */}
     }
@@ -356,7 +362,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     return saved;
   }
   function goToPage(index){
-    lastErasure=null;pageIndex=index;
+    lastErasure=null;lineGuide=null;pageIndex=index;
     sheetViewport.scrollTo({top:0,left:0,behavior:"instant"});
     renderPages();
     savePaperView();
@@ -382,7 +388,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   });
   clear.addEventListener("click",()=>{
     if(!confirm("Effacer tous les traits de cette page ? Le texte et les autres pages seront conservés."))return;
-    lastErasure=null;editPage(w=>{w.pages[pageIndex]=[];});
+    lastErasure=null;
+    if(editPage(w=>{w.pages[pageIndex]=[];})){lineGuide=null;paint();}
   });
   function pointOf(event){
     const rect=canvas.getBoundingClientRect();
@@ -1040,7 +1047,34 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       modes.setAttribute("role","group");modes.setAttribute("aria-label","Mode de la feuille");
       eraser.textContent="Gomme";
       updateWritingMode();
-      modes.append(pen,eraser,moveMode,undo);
+      const nextLine=document.createElement("button");
+      nextLine.type="button";nextLine.className="subtle small math-notebook-next-line";
+      nextLine.textContent="↵ Ligne";
+      nextLine.setAttribute("aria-label","Ligne suivante sur la feuille");
+      nextLine.addEventListener("click",()=>{
+        const box=canvas.getBoundingClientRect();
+        if(!box.height)return;
+        const top=canvasOffset();
+        const unitsPerPixel=PAPER_HEIGHT/box.height;
+        const lastStroke=work.pages[pageIndex].at(-1);
+        const inkBottom=lastStroke?Math.max(...parseStroke(lastStroke).map(([,y])=>y)):0;
+        const lineMargin=Math.min(64,sheetViewport.clientHeight/4);
+        const visibleLine=Math.max(0,(lineMargin-top)*unitsPerPixel);
+        const previous=Math.max(visibleLine,inkBottom,lineGuide??0);
+        const next=(Math.floor(previous/PAPER_GRID)+2)*PAPER_GRID;
+        if(next>PAPER_HEIGHT-PAPER_GRID){
+          showSheetStatus("Bas de la feuille. Ajoute une page dans les outils pour continuer.");
+          return;
+        }
+        lineGuide=next;
+        if(eraserMode||panMode)pen.click();
+        const offset=next/unitsPerPixel-lineMargin;
+        sheetViewport.scrollTo({left:0,top:sheetViewport.scrollTop+top+Math.max(0,offset),behavior:"instant"});
+        paint();
+        savePaperView();
+        canvas.focus({preventScroll:true});
+      });
+      modes.append(pen,eraser,moveMode,undo,nextLine);
       modes.classList.add("has-undo");
       bar.append(modes,quickValidate);
     }

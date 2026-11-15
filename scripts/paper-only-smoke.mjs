@@ -196,6 +196,25 @@ try{
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
   assert.equal(await pen.getAttribute("aria-pressed"),"true");
   await context.setOffline(false);
+  const nextLine=page.getByRole("button",{name:"Ligne suivante sur la feuille"});
+  await nextLine.click();
+  const firstLine=await coordinates();
+  assert.equal(firstLine.left,0,"Retour à la marge gauche sans changer le zoom");
+  assert.ok(firstLine.top>resumed.top);
+  assert.equal(await zoom.inputValue(),savedZoom);
+  assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"CANVAS");
+  await nextLine.click();
+  assert.ok((await coordinates()).top>firstLine.top,"Un second appui descend encore");
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  await zoomSheet.evaluate(el=>{el.scrollTop=el.scrollHeight;});
+  const lineStatus=page.locator("#quizNotebook .math-notebook-status");
+  for(let i=0;i<24;i++){
+    await nextLine.click();
+    if((await lineStatus.textContent()).includes("Bas de la feuille"))break;
+  }
+  assert.match(await lineStatus.textContent(),/Bas de la feuille/);
+  assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages.length,1);
+  console.log("OK Ligne suivante : retour à gauche, descente et fin de page sans modifier la copie");
   await zoom.selectOption("100");
   await page.getByRole("button",{name:"Voir l’énoncé"}).click();
   console.log("OK Zoom progressif et déplacement de la feuille sans nouveau trait");
