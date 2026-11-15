@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright";
 import {parseStroke,PAPER_WIDTH,PAPER_HEIGHT} from "../app/workbook.mjs";
+import {recognizeFinalEquationInk} from "../app/equation-ink.mjs";
 import {verifyPwaUpgrade} from "./pwa-upgrade-smoke.mjs";
 
 const BASE=process.env.TEST_BASE_URL||"http://127.0.0.1:8000";
@@ -734,26 +735,43 @@ try{
         [[39,445],[73,487]],[[73,445],[39,487]],
         [[106,461],[142,461]],[[106,471],[142,471]],[[192,443],[192,490]]
       ])strokes.push(encodeStroke(points));
-      state.workbook.entries[copyKey]={text:"",pages:[strokes]};
+      // Une ancienne réponse lisible en page 1 permet de détecter une
+      // validation accidentelle de la page affichée.
+      const previousAnswer=[
+        ...strokes.slice(-5,-1),
+        encodeStroke([[164,455],[173,446],[185,444],[198,449],[201,459],
+          [195,467],[181,477],[165,490],[202,490]])
+      ];
+      const pages=[previousAnswer,strokes,[]];
+      state.workbook.entries[copyKey]={text:"",pages};
       state.revision++;
       localStorage.setItem(key,JSON.stringify(state));
-      return {copyKey,strokes};
+      return {copyKey,pages};
     });
-    assert.ok(savedCopy.strokes.length>100);
+    assert.ok(savedCopy.pages[1].length>100);
+    assert.equal(recognizeFinalEquationInk(savedCopy.pages[0])?.text,"2");
     await densePage.reload({waitUntil:"networkidle"});
     await densePage.locator("#quiz").waitFor({state:"visible"});
+    const navigation=densePage.locator("#quizNotebook .math-notebook-paper-navigation");
+    const previousPage=navigation.getByRole("button",{name:"Page précédente"});
+    const nextPage=navigation.getByRole("button",{name:"Page suivante"});
+    while(await nextPage.isEnabled())await nextPage.tap();
+    assert.match(await navigation.textContent(),/Page 3\/3/);
+    await previousPage.tap();
+    await previousPage.tap();
+    assert.match(await navigation.textContent(),/Page 1\/3/);
     await densePage.locator("#quizNotebook .math-notebook-quick-validate").tap();
     const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
     assert.ok(await candidate.isVisible());
-    assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/x=1/);
+    assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=1$/);
     const stored=()=>densePage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
     assert.equal((await stored()).round.completed,0);
     await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
     await densePage.locator("#feedback").waitFor({state:"visible"});
     const corrected=await stored();
     assert.equal(corrected.round.completed,1);
-    assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages[0],savedCopy.strokes);
-    console.log("OK Copie dense : résultat final validé au toucher, copie conservée");
+    assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages,savedCopy.pages);
+    console.log("OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
   }finally{await denseContext.close();}
 
   await verifyPwaUpgrade(browser);
