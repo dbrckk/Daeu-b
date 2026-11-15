@@ -177,6 +177,25 @@ try{
     assert.equal(saved.exams.active.paperOnly,true);
     const key=Object.keys(saved.workbook.entries).find(k=>k.startsWith("exam:"));
     assert.ok(key&&saved.workbook.entries[key].pages[0].length===1);
+    await examPage.evaluate(async()=>{
+      await navigator.serviceWorker.ready;
+      if(!navigator.serviceWorker.controller)
+        await new Promise(resolve=>navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true}));
+    });
+    await examContext.setOffline(true);
+    await examPage.locator("#examFormulaOpen").click();
+    const formula=examPage.getByRole("dialog",{name:"Formulaire d’entraînement"});
+    await formula.locator("math").first().waitFor({state:"visible"});
+    assert.ok(await formula.getByRole("heading",{name:"Primitives et intégrales"}).isVisible());
+    assert.ok(await formula.locator("math").count()>15);
+    await formula.getByRole("button",{name:"Retour à la copie"}).click();
+    assert.ok(await formula.isHidden());
+    assert.equal(await examPage.evaluate(()=>document.activeElement?.id),"examFormulaOpen");
+    const afterFormula=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.deepEqual(afterFormula,saved);
+    await examContext.setOffline(false);
+    console.log("OK Formulaire MathML hors ligne dans l’examen, délai et copie inchangés");
+
     const canvasBefore=await viewport.locator("canvas").evaluate(canvas=>canvas.toDataURL());
     await examPage.evaluate(()=>{
       const write=Storage.prototype.setItem;
@@ -185,9 +204,12 @@ try{
         return write.call(this,key,value);
       };
     });
-    await examPage.mouse.move(x,y+8);
+    await viewport.locator("canvas").scrollIntoViewIfNeeded();
+    const quotaBox=await viewport.boundingBox(),quotaInk=await viewport.locator("canvas").boundingBox();
+    const quotaX=Math.max(quotaBox.x+25,quotaInk.x+35),quotaY=Math.max(quotaBox.y+25,quotaInk.y+35);
+    await examPage.mouse.move(quotaX,quotaY+8);
     await examPage.mouse.down();
-    await examPage.mouse.move(x+75,y+28,{steps:10});
+    await examPage.mouse.move(quotaX+75,quotaY+28,{steps:10});
     await examPage.mouse.up();
     const error=examPage.locator("#examNotebook .math-notebook-save-error");
     await error.waitFor({state:"visible"});

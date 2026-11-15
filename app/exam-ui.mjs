@@ -420,8 +420,44 @@ function renderRevisionHome(){
     total+(total===1?" étape":" étapes")+" à retravailler dans "+copyCount+(copyCount===1?" copie":" copies");
 }
 
+let formulaLoaded=false,formulaLoading=false;
+function loadFormulaLibrary(src){
+  return new Promise((resolve,reject)=>{
+    const script=element("script");
+    script.src=src;
+    script.onload=resolve;
+    script.onerror=()=>{script.remove();reject(Error("Bibliothèque du formulaire indisponible"));};
+    document.head.append(script);
+  });
+}
+async function loadExamFormula(){
+  if(formulaLoaded||formulaLoading)return;
+  const body=byId("examFormulaBody"),status=byId("examFormulaStatus"),retry=byId("examFormulaRetry");
+  formulaLoading=true;
+  body.setAttribute("aria-busy","true");
+  status.hidden=false;status.textContent="Chargement du formulaire…";retry.hidden=true;
+  try{
+    const [{renderMathMarkdown},response]=await Promise.all([
+      import("./math-markdown.mjs"),
+      fetch("./fiches/formulaire.md"),
+      globalThis.showdown||loadFormulaLibrary("./vendor/showdown-2.1.0.min.js"),
+      globalThis.DOMPurify||loadFormulaLibrary("./vendor/dompurify.min.js"),
+      globalThis.temml||loadFormulaLibrary("./vendor/temml.min.js")
+    ]);
+    if(!response.ok)throw Error("Formulaire indisponible");
+    const source=await response.text();
+    if(!source.startsWith("# "))throw Error("Fiche incomplète");
+    renderMathMarkdown(body,source.replace(/^# [^\n]*\n/,""));
+    formulaLoaded=true;status.hidden=true;
+  }catch{
+    status.textContent="Impossible de charger le formulaire.";
+    retry.hidden=false;
+  }finally{formulaLoading=false;body.setAttribute("aria-busy","false");}
+}
+
 function showResult(result,revisionKey=null){
   byId("examPaperSubmit").close();
+  byId("examFormula").close();
   setVisible("examActive",false);setVisible("examIntro",true);setVisible("examResult",true);
   if(!store.active&&timer!==null){clearInterval(timer);timer=null;}
   byId("examResult").classList.toggle("exam-paper-result",result.paperOnly===true);
@@ -609,11 +645,13 @@ export function restoreExamBackup(raw){
   // Les données sont déjà validées et écrites atomiquement par le module
   // principal ; ne pas créer une seconde écriture susceptible d'échouer.
   byId("examPaperSubmit")?.close();
+  byId("examFormula")?.close();
   store=sanitizeExamStore(raw);
   if(initialized){lastResult=null;setVisible("examResult",false);renderActive();if(store.active&&hasExpired(store.active))finalize("timeout");}
 }
 export function clearExamProgress(){
   byId("examPaperSubmit")?.close();
+  byId("examFormula")?.close();
   store=emptyExamStore();lastResult=null;
   if(initialized){setVisible("examResult",false);renderActive();}
 }
@@ -633,6 +671,14 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
   byId("examStart").addEventListener("click",start);
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
   byId("examNext").addEventListener("click",()=>moveTo(Math.min(3,store.active.sectionIndex+1)));
+  const formula=byId("examFormula");
+  byId("examFormulaOpen").addEventListener("click",()=>{
+    if(!store.active||hasExpired(store.active)){tick();return;}
+    formula.showModal();
+    void loadExamFormula();
+  });
+  byId("examFormulaClose").addEventListener("click",()=>formula.close());
+  byId("examFormulaRetry").addEventListener("click",()=>void loadExamFormula());
   const paperSubmit=byId("examPaperSubmit");
   const paperSubmitError=byId("examPaperSubmitError");
   byId("examPaperContinue").addEventListener("click",()=>paperSubmit.close());
