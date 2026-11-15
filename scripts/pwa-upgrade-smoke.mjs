@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {execFileSync} from "node:child_process";
+import {createHash} from "node:crypto";
 import {createServer} from "node:http";
 import {mkdtemp,readFile,rm} from "node:fs/promises";
 import {tmpdir} from "node:os";
@@ -13,23 +14,37 @@ const MIME={".html":"text/html",".mjs":"text/javascript",".js":"text/javascript"
 export async function verifyPwaUpgrade(browser){
   const oldRoot=await mkdtemp(join(tmpdir(),"daeu-v62-"));
   const newRoot=resolve("app");
+  const releasePages={"./":"index.html","./index.html":"index.html","./course.html":"course.html"};
+  const updatedHtml=new Map();
+  for(const name of new Set(Object.values(releasePages))){
+    const html=await readFile(join(newRoot,name),"utf8");
+    updatedHtml.set(name,html.replace(/id="appVersion">\d+/,'id="appVersion">Suivante'));
+  }
   try{
     try{execFileSync("git",["cat-file","-e",BASELINE+"^{commit}"],{stdio:"ignore"});}
     catch{execFileSync("git",["fetch","--no-tags","--depth=1","origin",BASELINE],{stdio:"inherit"});}
     const archive=execFileSync("git",["archive",BASELINE,"app"],{maxBuffer:16*1024*1024});
     execFileSync("tar",["-xf","-","-C",oldRoot],{input:archive});
     let root=join(oldRoot,"app");
-    let nextRelease=false;
+    let nextRelease=false,staleAsset=false;
     const server=createServer(async(req,res)=>{
       const pathname=new URL(req.url,"http://127.0.0.1").pathname;
       const path=resolve(root,"."+ (pathname==="/"?"/index.html":pathname));
       if(!path.startsWith(root+sep)){res.writeHead(404).end();return;}
       try{
         let bytes=await readFile(path);
+        if(staleAsset&&pathname==="/equation-ink.mjs")bytes=await readFile(join(oldRoot,"app/equation-ink.mjs"));
         if(nextRelease&&root===newRoot&&pathname==="/sw.js"){
-          bytes=bytes.toString().replace(/const CACHE="([^"]+)"/,'const CACHE="$1-smoke"');
-        }else if(nextRelease&&root===newRoot&&["/","/index.html","/course.html"].includes(pathname)){
-          bytes=bytes.toString().replace(/id="appVersion">\d+/, 'id="appVersion">Suivante');
+          bytes=bytes.toString().replace(/const CACHE="([^"]+)"/,'const CACHE="$1-smoke"')
+            .replace(/const INTEGRITY=(\{[\s\S]*?\});/,(_,data)=>{
+              const manifest=JSON.parse(data);
+              for(const [asset,name] of Object.entries(releasePages)){
+                manifest[asset]="sha256-"+createHash("sha256").update(updatedHtml.get(name)).digest("base64");
+              }
+              return "const INTEGRITY="+JSON.stringify(manifest)+";";
+            });
+        }else if(nextRelease&&root===newRoot&&updatedHtml.has(pathname==="/"? "index.html":pathname.slice(1))){
+          bytes=updatedHtml.get(pathname==="/"? "index.html":pathname.slice(1));
         }
         res.writeHead(200,{"Content-Type":(MIME[extname(path)]??"application/octet-stream"),"Cache-Control":"no-store"});
         res.end(bytes);
@@ -64,6 +79,25 @@ export async function verifyPwaUpgrade(browser){
         const nextCache=nextWorker.match(/const CACHE="([^"]+)"/)?.[1];
         assert.ok(nextCache&&nextCache!=="daeu-b-maths-v62");
         root=newRoot;
+        staleAsset=true;
+        await page.evaluate(async()=>{
+          const registration=await navigator.serviceWorker.getRegistration();
+          const previous=navigator.serviceWorker.controller;
+          const failed=new Promise(resolve=>registration.addEventListener("updatefound",()=>{
+            const candidate=registration.installing;
+            if(candidate.state==="redundant")resolve();
+            else candidate.addEventListener("statechange",()=>{
+              if(candidate.state==="redundant")resolve();
+            });
+          },{once:true}));
+          await registration.update();
+          await failed;
+          if(navigator.serviceWorker.controller!==previous)throw new Error("Le cache actif a changé");
+        });
+        assert.deepEqual(await page.evaluate(()=>caches.keys()),["daeu-b-maths-v62"]);
+        assert.deepEqual(await snapshot(),before,"Une ressource périmée ne modifie pas la copie");
+        staleAsset=false;
+        console.log("OK Réponse HTTP 200 périmée rejetée, cache et copie précédents conservés");
         await page.evaluate(async()=>{
           const registration=await navigator.serviceWorker.getRegistration();
           const changed=new Promise(resolve=>navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true}));

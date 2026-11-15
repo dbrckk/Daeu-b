@@ -3,6 +3,7 @@
 from pathlib import Path
 import re
 import sys
+from sync_pwa_integrity import refresh
 
 ROOT=Path(__file__).resolve().parents[1]
 APP=ROOT/"app"
@@ -87,6 +88,8 @@ if 'rel="canonical" href="https://daeu-b-maths-dbrckk.onrender.com/"' not in htm
     error("Lien canonique absent du HTML")
 
 worker=(APP/"sw.js").read_text(encoding="utf-8")
+if "const INTEGRITY=" not in worker or refresh(worker)!=worker:
+    error("Empreintes PWA obsolètes : python3 scripts/sync_pwa_integrity.py")
 asset_match=re.search(r"const ASSETS\s*=\s*\[([^\]]+)\]",worker)
 if not asset_match:
     error("Liste d'assets hors-ligne introuvable")
