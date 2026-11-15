@@ -700,6 +700,62 @@ try{
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}
+  const denseContext=await browser.newContext({
+    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+  });
+  try{
+    const densePage=await denseContext.newPage();
+    densePage.on("pageerror",error=>errors.push(error.message));
+    await densePage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+    await densePage.locator("#firstStart").click();
+    const savedCopy=await densePage.evaluate(async()=>{
+      const {encodeStroke}=await import("/workbook.mjs");
+      const key="daeu-b-data-v1";
+      const state=JSON.parse(localStorage.getItem(key));
+      const copyKey="quiz:"+state.round.ids[0];
+      const strokes=[];
+      for(let row=0;row<4;row++){
+        const y=35+row*100;
+        for(let column=0;column<10;column++){
+          const x=48+column*52;
+          strokes.push(encodeStroke([[x,y],[x,y+33]]));
+          if(column<9){
+            strokes.push(encodeStroke([[x+13,y+16],[x+39,y+16]]));
+            strokes.push(encodeStroke([[x+26,y+3],[x+26,y+30]]));
+          }
+        }
+        strokes.push(encodeStroke([[531,y+12],[556,y+12]]));
+        strokes.push(encodeStroke([[531,y+21],[556,y+21]]));
+        strokes.push(encodeStroke([[576,y],[576,y+33]]));
+        strokes.push(encodeStroke([[607,y],[596,y+8],[595,y+23],[605,y+33],
+          [618,y+29],[624,y+17],[620,y+5],[607,y]]));
+      }
+      for(const points of [
+        [[39,445],[73,487]],[[73,445],[39,487]],
+        [[106,461],[142,461]],[[106,471],[142,471]],[[192,443],[192,490]]
+      ])strokes.push(encodeStroke(points));
+      state.workbook.entries[copyKey]={text:"",pages:[strokes]};
+      state.revision++;
+      localStorage.setItem(key,JSON.stringify(state));
+      return {copyKey,strokes};
+    });
+    assert.ok(savedCopy.strokes.length>100);
+    await densePage.reload({waitUntil:"networkidle"});
+    await densePage.locator("#firstStart").click();
+    await densePage.locator("#quizNotebook .math-notebook-quick-validate").tap();
+    const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
+    assert.ok(await candidate.isVisible());
+    assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/x=1/);
+    const stored=()=>densePage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.equal((await stored()).round.completed,0);
+    await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
+    await densePage.locator("#feedback").waitFor({state:"visible"});
+    const corrected=await stored();
+    assert.equal(corrected.round.completed,1);
+    assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages[0],savedCopy.strokes);
+    console.log("OK Copie dense : résultat final validé au toucher, copie conservée");
+  }finally{await denseContext.close();}
+
   await verifyPwaUpgrade(browser);
   assert.deepEqual(errors,[]);
   console.log("PAPER-ONLY ANDROID : OK");
