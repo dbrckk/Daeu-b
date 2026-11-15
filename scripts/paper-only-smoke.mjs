@@ -146,21 +146,52 @@ try{
     {...left,x:left.x-55,y:left.y-42},{...right,x:right.x-55,y:right.y-42}
   ]});
   await touchPan.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
-  await touchPan.detach();
   const afterTouchPan=await coordinates();
   assert.ok(afterTouchPan.left>afterDrag.left+.025&&afterTouchPan.top>afterDrag.top+.025,
     "Le geste à deux doigts doit déplacer les deux axes");
   assert.equal(await pen.getAttribute("aria-pressed"),"true");
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId],
     "Le début du geste à deux doigts n’est jamais enregistré comme trait");
-  console.log("OK Déplacement à deux doigts sans quitter le stylo ni modifier la copie");
+  assert.equal(await zoom.inputValue(),"200","Un glissement à deux doigts garde le zoom");
+  const center=await zoomSheet.evaluate(el=>{
+    const box=el.getBoundingClientRect();
+    return {x:box.left+el.clientWidth/2,y:box.top+130};
+  });
+  const anchoredPoint=()=>zoomSheet.locator("canvas").evaluate((el,{x,y})=>{
+    const box=el.getBoundingClientRect();
+    return {x:(x-box.left)/box.width,y:(y-box.top)/box.height};
+  },center);
+  const beforePinch=await anchoredPoint();
+  const pinch=async(from,to)=>{
+    await touchPan.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[
+      finger(1,center.x-from,center.y),finger(2,center.x+from,center.y)
+    ]});
+    await touchPan.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[
+      finger(1,center.x-to,center.y),finger(2,center.x+to,center.y)
+    ]});
+    await touchPan.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  };
+  await pinch(40,54);
+  const enlarged=Number(await zoom.inputValue());
+  assert.ok(enlarged>225&&enlarged<300);
+  const afterPinch=await anchoredPoint();
+  assert.ok(Math.abs(afterPinch.x-beforePinch.x)<.015&&Math.abs(afterPinch.y-beforePinch.y)<.015,
+    "Le calcul sous le milieu des deux doigts reste au même endroit");
+  await pinch(64,48);
+  const savedZoom=await zoom.inputValue();
+  assert.ok(Number(savedZoom)<enlarged&&Number(savedZoom)>100);
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  await touchPan.detach();
+  const savedPosition=await coordinates();
+  console.log("OK Déplacement et zoom à deux doigts sans modifier la copie");
+
   await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded"});
   await zoom.waitFor();
-  assert.equal(await zoom.inputValue(),"200");
+  assert.equal(await zoom.inputValue(),savedZoom);
   const resumed=await coordinates();
-  assert.ok(Math.abs(resumed.left-afterTouchPan.left)<.01&&Math.abs(resumed.top-afterTouchPan.top)<.01,
+  assert.ok(Math.abs(resumed.left-savedPosition.left)<.01&&Math.abs(resumed.top-savedPosition.top)<.01,
     "Le zoom et la position sont restaurés après rechargement hors connexion");
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
   assert.equal(await pen.getAttribute("aria-pressed"),"true");

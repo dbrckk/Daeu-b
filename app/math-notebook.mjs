@@ -54,6 +54,7 @@ export function insertAtSelection(value,symbol,start,end){
   return {value:result,caret:Math.min(result.length,a+addition.length)};
 }
 const VIEW_KEY="daeu-b-paper-views-v1";
+const MIN_ZOOM=100,MAX_ZOOM=300;
 const ZOOM_LEVELS=[["100","Largeur de l’écran"],["150","Zoom 1,5×"],["200","Zoom 2×"],["300","Zoom 3×"]];
 function savedPaperViews(storage){
   try{
@@ -65,7 +66,7 @@ function savedPaperViews(storage){
 function readPaperView(storage,context,pageCount){
   const view=savedPaperViews(storage).get(context);
   if(!view||!Number.isInteger(view.page)||view.page<0||view.page>=pageCount
-    ||!ZOOM_LEVELS.some(([zoom])=>zoom===view.zoom)
+    ||typeof view.zoom!=="string"||!/^\d{3}$/.test(view.zoom)||Number(view.zoom)<MIN_ZOOM||Number(view.zoom)>MAX_ZOOM
     ||!Number.isFinite(view.left)||view.left<0||view.left>1
     ||!Number.isFinite(view.top)||view.top<0||view.top>1
     ||typeof view.writing!=="boolean")return null;
@@ -253,7 +254,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const label=document.createElement("strong");label.textContent=title;print.append(label);
     if(paperPrompt){const prompt=document.createElement("p");prompt.className="math-notebook-paper-prompt";prompt.textContent=String(paperPrompt).slice(0,12000);print.append(prompt);}
     const note=document.createElement("p");note.className="math-notebook-paper-instruction";
-    note.textContent=readOnly?"Copie en lecture seule":"Sauvegarde automatique · Glisse à deux doigts pour déplacer la feuille.";
+    note.textContent=readOnly?"Copie en lecture seule":"Sauvegarde automatique · À deux doigts : glisse pour déplacer, pince ou écarte pour zoomer.";
     print.append(note);paper.append(print,canvas);sheetViewport.append(paper);
   }else sheetViewport.append(canvas);
   const sheetControls=document.createElement("div");sheetControls.className="math-notebook-view-tools";
@@ -391,17 +392,47 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     ];
   }
   const fingers=new Map();
-  let twoFingerPan=false,panAnchor=null;
+  let twoFingerPan=false,panAnchor=null,gestureFrame=null;
+  let applyPaperZoom=()=>{};
   function anchorTwoFingers(){
     const [first,second]=fingers.values();
-    panAnchor=second?{
-      x:(first.x+second.x)/2,y:(first.y+second.y)/2,
-      left:sheetViewport.scrollLeft,top:sheetViewport.scrollTop
-    }:null;
+    if(!second){panAnchor=null;return;}
+    const x=(first.x+second.x)/2,y=(first.y+second.y)/2;
+    const box=canvas.getBoundingClientRect();
+    panAnchor={
+      x:(x-box.left)/box.width,y:(y-box.top)/box.height,
+      distance:Math.max(24,Math.hypot(first.x-second.x,first.y-second.y)),
+      zoom:Number.parseInt(canvas.style.width,10)||MIN_ZOOM
+    };
+  }
+  function applyTouchGesture(){
+    if(!panAnchor)return;
+    const [first,second]=fingers.values();
+    const distance=Math.hypot(first.x-second.x,first.y-second.y);
+    const delta=distance-panAnchor.distance;
+    // Une petite variation d’écartement pendant un glissement garde le zoom.
+    const deadZone=Math.max(12,panAnchor.distance*.15);
+    const spread=Math.sign(delta)*Math.max(0,Math.abs(delta)-deadZone);
+    const percent=panAnchor.zoom*(1+spread/panAnchor.distance);
+    applyPaperZoom(percent);
+    const box=canvas.getBoundingClientRect();
+    sheetViewport.scrollLeft+=box.left+panAnchor.x*box.width-(first.x+second.x)/2;
+    sheetViewport.scrollTop+=box.top+panAnchor.y*box.height-(first.y+second.y)/2;
+  }
+  function flushTouchGesture(){
+    if(gestureFrame===null)return;
+    cancelAnimationFrame(gestureFrame);
+    gestureFrame=null;
+    applyTouchGesture();
   }
   function stopTouch(event){
-    if(!fingers.delete(event.pointerId))return;
-    if(fingers.size===0)twoFingerPan=false;
+    if(!fingers.has(event.pointerId))return;
+    flushTouchGesture();
+    fingers.delete(event.pointerId);
+    if(fingers.size===0){
+      if(twoFingerPan)savePaperView();
+      twoFingerPan=false;
+    }
     if(twoFingerPan)anchorTwoFingers();
     else panAnchor=null;
   }
@@ -414,6 +445,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       if(fingers.size>=2||twoFingerPan){
         event.preventDefault();
         canvas.setPointerCapture(event.pointerId);
+        flushTouchGesture();
         twoFingerPan=true;
         anchorTwoFingers();
         activePointer=null;
@@ -447,10 +479,11 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(fingers.has(event.pointerId)){
       fingers.set(event.pointerId,{x:event.clientX,y:event.clientY});
       if(twoFingerPan){
-        if(panAnchor){
-          const [first,second]=fingers.values();
-          sheetViewport.scrollLeft=panAnchor.left+panAnchor.x-(first.x+second.x)/2;
-          sheetViewport.scrollTop=panAnchor.top+panAnchor.y-(first.y+second.y)/2;
+        if(panAnchor&&gestureFrame===null){
+          gestureFrame=requestAnimationFrame(()=>{
+            gestureFrame=null;
+            applyTouchGesture();
+          });
         }
         return;
       }
@@ -939,13 +972,21 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const option=document.createElement("option");
       option.value=value;option.textContent=label;zoom.append(option);
     }
+    const customZoom=document.createElement("option");
+    applyPaperZoom=percent=>{
+      const value=String(Math.round(Math.min(MAX_ZOOM,Math.max(MIN_ZOOM,percent))));
+      if(!ZOOM_LEVELS.some(([preset])=>preset===value)){
+        customZoom.value=value;
+        customZoom.textContent="Zoom "+value+" %";
+        if(!customZoom.parentElement)zoom.append(customZoom);
+      }else customZoom.remove();
+      zoom.value=value;
+      if(canvas.style.width!==value+"%")canvas.style.width=value+"%";
+    };
     const canvasOffset=()=>canvas.getBoundingClientRect().top-sheetViewport.getBoundingClientRect().top-sheetViewport.clientTop;
     let previousView="";
     if(!readOnly){
-      if(resumeView){
-        zoom.value=resumeView.zoom;
-        canvas.style.width=zoom.value+"%";
-      }
+      if(resumeView)applyPaperZoom(Number(resumeView.zoom));
       savePaperView=()=>{
         const box=canvas.getBoundingClientRect();
         if(!box.width||!box.height)return;
@@ -985,7 +1026,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const before=canvas.getBoundingClientRect();
       const vertical=Math.max(0,-top)/before.height;
       const horizontal=sheetViewport.scrollLeft/before.width;
-      canvas.style.width=zoom.value+"%";
+      applyPaperZoom(Number(zoom.value));
       const after=canvas.getBoundingClientRect();
       if(atWritingArea)sheetViewport.scrollTop+=canvasOffset()+vertical*after.height;
       sheetViewport.scrollLeft=horizontal*after.width;
