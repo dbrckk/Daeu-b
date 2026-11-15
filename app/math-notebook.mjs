@@ -630,23 +630,30 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       recognitionStatus.textContent="Résultat reconnu et corrigé avec le moteur des exercices. Progression enregistrée.";
     }catch(error){recognitionStatus.textContent="Correction impossible : "+error.message;}
   }
-  acceptReading.addEventListener("click",confirmReading);
-  if(paperOnly){
-    // Un relâchement tactile peut arriver sans click dans le conteneur
-    // défilant. Le geste doit commencer et finir sur le même bouton.
-    let confirmPointer=null;
-    acceptReading.addEventListener("pointerdown",event=>{
-      if(event.pointerType==="touch"&&event.isPrimary)confirmPointer=event.pointerId;
+  function onPaperButton(button,activate){
+    // Dans la feuille défilante, le navigateur peut omettre le clic après
+    // un toucher. N’activer que si le doigt commence et finit sur le bouton.
+    let pointer=null,touchHandled=false;
+    button.addEventListener("click",event=>{
+      if(touchHandled&&event.detail>0){touchHandled=false;return;}
+      activate();
     });
-    acceptReading.addEventListener("pointercancel",()=>{confirmPointer=null;});
-    acceptReading.addEventListener("pointerup",event=>{
-      if(event.pointerId!==confirmPointer)return;
-      confirmPointer=null;
-      if(!acceptReading.contains(document.elementFromPoint(event.clientX,event.clientY)))return;
+    if(!paperOnly)return;
+    button.addEventListener("pointerdown",event=>{
+      touchHandled=false;
+      pointer=event.pointerType==="touch"&&event.isPrimary?event.pointerId:null;
+    });
+    button.addEventListener("pointercancel",()=>{pointer=null;});
+    button.addEventListener("pointerup",event=>{
+      if(event.pointerId!==pointer)return;
+      pointer=null;
+      if(button.disabled||!button.contains(document.elementFromPoint(event.clientX,event.clientY)))return;
+      touchHandled=true;
       event.preventDefault();
-      confirmReading();
+      activate();
     });
   }
+  onPaperButton(acceptReading,confirmReading);
   rejectReading.addEventListener("click",()=>{
     invalidateRecognition();
     const message="Lecture rejetée. Réécris le résultat sur une ligne séparée ou compare ta copie au corrigé.";
@@ -765,7 +772,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const button=document.createElement("button");button.type="button";
     button.className="subtle";button.textContent=symbol;
     button.setAttribute("aria-label","Écrire le symbole "+symbol);
-    button.addEventListener("click",()=>applyInkEdit(insertMode?"insert":"replace",symbol));
+    onPaperButton(button,()=>applyInkEdit(insertMode?"insert":"replace",symbol));
     inkEquationsSymbols.append(button);
   }
   inkEquationsEditToggle.addEventListener("click",()=>{
@@ -812,7 +819,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsStatus.textContent=read.message;
   }
   inkEquationsRead.addEventListener("click",()=>readEquations());
-  inkEquationsGrade.addEventListener("click",()=>{
+  onPaperButton(inkEquationsGrade,()=>{
     if(currentEquationText===null||currentFinalAnswer===null)return;
     try{
       // Exactement le même moteur que la saisie numérique normale.

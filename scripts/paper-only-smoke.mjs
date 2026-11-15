@@ -778,7 +778,7 @@ try{
         const grade=notebook.getByRole("button",{name:"Corriger mon résultat final : x = 1"});
         assert.ok(await grade.isHidden());
         await notebook.getByRole("button",{name:"Écrire le symbole 1"}).tap();
-        assert.equal(await transcript.textContent(),"x=1");
+        await densePage.waitForFunction(()=>document.querySelector("#quizNotebook .math-notebook-equations-transcript")?.textContent==="x=1");
         assert.equal((await stored()).round.completed,0);
         await densePage.reload({waitUntil:"networkidle"});
         await densePage.locator("#quiz").waitFor({state:"visible"});
