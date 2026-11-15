@@ -1,5 +1,11 @@
 # Atelier de maths — application web
 
+## v58 — travailler sur mobile
+
+- Le quiz affiche le numéro de la question et permet de mettre la séance en pause. Le bouton de reprise rouvre la question en cours avec ses traits sauvegardés.
+- Le stylo, la gomme, le déplacement et la validation restent au bas de la feuille. Les pages, le zoom et l’annulation sont accessibles dans « Outils de la feuille ».
+- La lecture présente la transcription et les actions de confirmation. Le corrigé et l’accès au chapitre restent disponibles après évaluation.
+
 ## v57 — valider le résultat sous les calculs
 
 - Pour une question numérique, laisse une ligne vide avant le résultat final. La feuille peut lire ce nombre sur la même page que les calculs et te demande de confirmer la transcription.

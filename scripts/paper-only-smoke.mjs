@@ -33,7 +33,26 @@ try{
   assert.ok(await page.locator("#answerForm").isHidden());
   assert.ok(await page.locator("#quizNotebook .math-notebook-editor-disclosure").isHidden());
   assert.ok(await page.locator("#quizNotebook .math-notebook-quick-validate").isVisible());
-  console.log("OK Démarrage : seulement la grande feuille et la validation manuscrite");
+  assert.equal(await page.locator("#quizCount").textContent(),"Question 1 / 10");
+  const modes=page.getByRole("group",{name:"Mode de la feuille"});
+  const pen=modes.getByRole("button",{name:"Stylo"});
+  const eraser=modes.getByRole("button",{name:"Gomme"});
+  const pan=modes.getByRole("button",{name:"Déplacer"});
+  await eraser.click();
+  assert.equal(await eraser.getAttribute("aria-pressed"),"true");
+  await pan.click();
+  assert.equal(await eraser.getAttribute("aria-pressed"),"false");
+  assert.equal(await pan.getAttribute("aria-pressed"),"true");
+  await pen.click();
+  assert.equal(await pen.getAttribute("aria-pressed"),"true");
+  assert.equal(await pan.getAttribute("aria-pressed"),"false");
+  await page.setViewportSize({width:320,height:640});
+  assert.ok(await modes.evaluate(el=>{
+    const box=el.getBoundingClientRect();
+    return box.width<=window.innerWidth&&[...el.children].every(button=>button.getBoundingClientRect().height>=44);
+  }));
+  await page.setViewportSize({width:390,height:844});
+  console.log("OK Démarrage : progression et outils accessibles sur petit écran");
 
   await page.locator("#quizNotebook .math-notebook-quick-validate").click();
   assert.ok(await page.locator("#quizNotebook .math-notebook-manual [role=status]")
@@ -44,6 +63,13 @@ try{
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);
+  await page.locator("#pauseQuiz").click();
+  assert.ok(await page.locator("#quiz").isHidden());
+  assert.match(await page.locator("#firstStart").textContent(),/Reprendre/);
+  await page.locator("#firstStart").click();
+  assert.ok(await page.locator("#quiz").isVisible());
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  console.log("OK Pause et reprise de la même copie");
   assert.ok(await page.locator("#quizNotebook .math-notebook-paper-tools>summary").isVisible());
   assert.ok(await page.locator("#quizNotebook .math-notebook-pages").isHidden());
   await page.locator("#quizNotebook .math-notebook-paper-tools>summary").click();

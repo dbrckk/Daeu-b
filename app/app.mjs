@@ -300,7 +300,9 @@ function markGuidedQuestion(){
 function renderQuestion() {
   const q=session[index]; if(!q) return finish();
   const paperOnly=new URL(location.href).searchParams.get("saisie")!=="clavier";
-  el("quiz").classList.toggle("paper-mode",paperOnly);
+  const quiz=el("quiz");
+  quiz.classList.toggle("paper-mode",paperOnly);
+  el("pauseQuiz").hidden=!paperOnly;
   done=false;hintUsed=!!round?.assistedIds?.includes(q.id);
   el("quizCount").textContent="Question "+(index+1)+" / "+session.length;
   el("quizTopic").textContent=q.topicTitle;
@@ -352,7 +354,10 @@ function renderQuestion() {
       label.append(input,text);el("choiceList").appendChild(label);
     });
     el("choiceList").querySelector("input")?.focus();
-  } else el("quizNotebook").querySelector("canvas")?.focus({preventScroll:true});
+  } else {
+    quiz.scrollTop=0;
+    el("quizNotebook").querySelector("canvas")?.focus({preventScroll:true});
+  }
 }
 
 function showFeedback(correct,wasUnknown=false,manual=false) {
@@ -473,6 +478,14 @@ initExams(dataStore,conflictWarning);
 resumeSession();
 renderFirstStart();
 el("firstStart").addEventListener("click",firstStart);
+el("pauseQuiz").addEventListener("click",()=>{
+  // La reprise utilise les réponses déjà enregistrées et la copie sauvegardée.
+  if(done&&index+1===session.length){finish();return;}
+  el("quiz").hidden=true;
+  renderFirstStart();
+  el("firstStart").focus({preventScroll:true});
+  el("firstStart").scrollIntoView({block:"center",behavior:"instant"});
+});
 el("start").addEventListener("click",startSession);
 el("diagnosticStart").addEventListener("click",startDiagnosticSession);
 el("restart").addEventListener("click",startSession);

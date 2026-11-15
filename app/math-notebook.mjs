@@ -208,7 +208,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const label=document.createElement("strong");label.textContent=title;print.append(label);
     if(paperPrompt){const prompt=document.createElement("p");prompt.className="math-notebook-paper-prompt";prompt.textContent=String(paperPrompt).slice(0,12000);print.append(prompt);}
     const note=document.createElement("p");note.className="math-notebook-paper-instruction";
-    note.textContent=readOnly?"Copie manuscrite conservée. Lecture seule.":"Écris directement sur la feuille. Les traits sont sauvegardés automatiquement.";
+    note.textContent=readOnly?"Copie en lecture seule":"Sauvegarde automatique";
     print.append(note);paper.append(print,canvas);sheetViewport.append(paper);
   }else sheetViewport.append(canvas);
   const sheetControls=document.createElement("div");sheetControls.className="math-notebook-view-tools";
@@ -221,7 +221,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   moveUp.textContent="↑ Monter";
   const moveDown=document.createElement("button");moveDown.type="button";moveDown.className="subtle small";
   moveDown.textContent="↓ Descendre";
-  moveMode.textContent="Déplacer au doigt";
+  moveMode.textContent=paperOnly?"Déplacer":"Déplacer au doigt";
   moveMode.setAttribute("aria-pressed","false");
   let panMode=false,eraserMode=false,lastErasure=null;
   moveLeft.addEventListener("click",()=>sheetViewport.scrollBy({left:-Math.max(180,sheetViewport.clientWidth*.8),behavior:"smooth"}));
@@ -231,23 +231,34 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   function enableEraser(enabled){
     eraserMode=enabled;
     eraser.setAttribute("aria-pressed",String(enabled));
-    eraser.textContent=enabled?"Reprendre le stylo":"Gomme : effacer un trait";
+    eraser.textContent=paperOnly?"Gomme":enabled?"Reprendre le stylo":"Gomme : effacer un trait";
     canvas.classList.toggle("is-erasing",enabled);
   }
   eraser.addEventListener("click",()=>{
     const enabled=!eraserMode;
     if(enabled && panMode){
       panMode=false;canvas.classList.remove("is-panning");
-      moveMode.setAttribute("aria-pressed","false");moveMode.textContent="Déplacer au doigt";
+      moveMode.setAttribute("aria-pressed","false");moveMode.textContent=paperOnly?"Déplacer":"Déplacer au doigt";
     }
     enableEraser(enabled);
+    if(paperOnly)updateWritingMode();
   });
   moveMode.addEventListener("click",()=>{
     if(eraserMode)enableEraser(false);
     panMode=!panMode;
     canvas.classList.toggle("is-panning",panMode);
     moveMode.setAttribute("aria-pressed",String(panMode));
-    moveMode.textContent=panMode?"Reprendre le stylo":"Déplacer au doigt";
+    moveMode.textContent=paperOnly?"Déplacer":panMode?"Reprendre le stylo":"Déplacer au doigt";
+    if(paperOnly)updateWritingMode();
+  });
+  const pen=document.createElement("button");
+  pen.type="button";pen.className="subtle small";pen.textContent="Stylo";
+  function updateWritingMode(){
+    pen.setAttribute("aria-pressed",String(!eraserMode&&!panMode));
+  }
+  pen.addEventListener("click",()=>{
+    if(panMode)moveMode.click();
+    else if(eraserMode)eraser.click();
   });
   sheetControls.append(moveLeft,moveRight,moveUp,moveDown,moveMode,eraser);
   const sheetHelp=document.createElement("p");sheetHelp.className="helper";
@@ -292,12 +303,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     }
     if(persist(updated))renderPages();
   }
-  prev.addEventListener("click",()=>{if(pageIndex>0){lastErasure=null;pageIndex--;renderPages();}});
-  nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1){lastErasure=null;pageIndex++;renderPages();}});
+  function goToPage(index){
+    lastErasure=null;pageIndex=index;
+    sheetViewport.scrollTo({top:0,left:0,behavior:"instant"});
+    renderPages();
+  }
+  prev.addEventListener("click",()=>{if(pageIndex>0)goToPage(pageIndex-1);});
+  nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1)goToPage(pageIndex+1);});
   addPage.addEventListener("click",()=>{
     if(work.pages.length>=8)return;
     lastErasure=null;editPage(w=>w.pages.push([]));
-    if(work.pages.length>pageIndex+1){pageIndex=work.pages.length-1;renderPages();}
+    if(work.pages.length>pageIndex+1)goToPage(work.pages.length-1);
   });
   undo.addEventListener("click",()=>{
     if(lastErasure){
@@ -370,7 +386,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
   const recognition=document.createElement("section");recognition.className="math-notebook-recognition";
   recognition.hidden=readOnly||typeof handwrittenReview?.onRecognized!=="function";
-  const recognitionTitle=document.createElement("h5");recognitionTitle.textContent="Lire ma réponse manuscrite (expérimental)";
+  const recognitionTitle=document.createElement("h5");
+  recognitionTitle.textContent=paperOnly?"Vérifie la lecture":"Lire ma réponse manuscrite (expérimental)";
   const recognitionHelp=document.createElement("p");recognitionHelp.className="helper";
   recognitionHelp.textContent="Pour les questions numériques : écris le résultat final seul sur la page actuelle (ex. 12, −7 ou 3/4). Le calcul complet peut rester sur les pages précédentes. Cette lecture locale n'est pas fiable sur les équations ou écritures complexes.";
   const readButton=document.createElement("button");readButton.type="button";readButton.className="subtle";
@@ -445,12 +462,14 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   }
   rejectReading.addEventListener("click",()=>{
     invalidateRecognition();
-    if(paperOnly)recognition.classList.add("paper-shown");
+    if(paperOnly){recognition.classList.add("paper-shown");manual.classList.add("paper-shown");}
     recognitionStatus.textContent="Lecture rejetée. Réécris le nombre en grand sur la page ou compare ta copie au corrigé.";
   });
   const recognitionButtons=document.createElement("div");recognitionButtons.className="math-notebook-recognition-actions";
   recognitionButtons.append(acceptReading,rejectReading);
   recognitionCandidate.append(recognitionValue,recognitionCaveat,recognitionButtons);
+  recognitionHelp.hidden=paperOnly;readButton.hidden=paperOnly;
+  recognitionCaveat.hidden=paperOnly;
   recognition.append(recognitionTitle,recognitionHelp,readButton,recognitionStatus,recognitionCandidate);
   // Vérification des transformations manuscrites, distincte de la notation d'un quiz.
   // La transcription est proposée AVANT toute analyse et doit être confirmée.
@@ -623,6 +642,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       if(!persist(next))return;
     }
     invalidateRecognition();
+    if(paperOnly)manual.classList.add("paper-shown");
     inkEquationsStatus.textContent="Transcription rejetée. La version corrigée a été écartée ; les traits restent dans le cahier.";
   });
   inkEquationsConfirm.addEventListener("click",()=>{
@@ -649,12 +669,22 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsStatus.textContent="Étapes examinées sur la transcription que tu as confirmée.";
   });
   inkEquationsCandidate.append(inkEquationsLabel,inkEquationsText,inkEquationsEditToggle,inkEquationsEditor,inkEquationsFinal,inkEquationsActions);
+  if(paperOnly){
+    inkEquationsTitle.textContent="Vérifie les étapes lues";
+    inkEquationsHelp.hidden=true;inkEquationsRead.hidden=true;
+  }
   inkEquations.append(inkEquationsTitle,inkEquationsHelp,inkEquationsRead,inkEquationsStatus,inkEquationsCandidate,inkEquationsReport);
   const quickValidate=document.createElement("button");quickValidate.type="button";
   quickValidate.className="primary math-notebook-quick-validate";
   quickValidate.textContent="Valider ma réponse sur la feuille";
   quickValidate.hidden=!handwrittenReview||readOnly;
   const manual=document.createElement("section");manual.className="math-notebook-manual";
+  const invalidateReading=invalidateRecognition;
+  invalidateRecognition=()=>{
+    invalidateReading();
+    if(paperOnly&&!manual.querySelector(".math-notebook-manual-comparison:not([hidden])"))
+      manual.classList.remove("paper-shown");
+  };
   manual.hidden=!handwrittenReview||readOnly;
   if(handwrittenReview){
     if(typeof handwrittenReview.expected!=="string"||typeof handwrittenReview.explanation!=="string"
@@ -709,10 +739,11 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });
     quickValidate.addEventListener("click",()=>{
-      if(paperOnly)manual.classList.add("paper-shown");
+      if(paperOnly)manual.classList.remove("paper-shown");
       manualStatus.textContent="";
       const lastWritten=work.pages.findLastIndex(page=>page.length>0);
       if(lastWritten<0){
+        if(paperOnly)manual.classList.add("paper-shown");
         reveal.click();
         manualStatus.scrollIntoView({behavior:"instant",block:"nearest"});
         return;
@@ -720,7 +751,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       // Une résolution peut occuper plusieurs pages ; chercher la réponse
       // finale sur la dernière page écrite, et non sur une page restée vide.
       if(pageIndex!==lastWritten){
-        pageIndex=lastWritten;lastErasure=null;renderPages();
+        goToPage(lastWritten);
       }
       if(typeof handwrittenReview.onRecognized==="function"&&!readButton.disabled){
         // Lecture locale sans correction ni transfert de données vers un OCR.
@@ -735,10 +766,12 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsCandidate.hidden){
           if(paperOnly)inkEquations.classList.add("paper-shown");
           inkEquationsStatus.textContent="Étapes détectées sur ta feuille. Vérifie et corrige les symboles au toucher ; aucun résultat n'est noté sans confirmation.";
+          if(currentFinalAnswer===null&&paperOnly)manual.classList.add("paper-shown");
           inkEquationsCandidate.scrollIntoView({behavior:"instant",block:"nearest"});
           return;
         }
       }
+      if(paperOnly)manual.classList.add("paper-shown");
       manualStatus.textContent=handwrittenReview.allowEquation===false
         ?"Le numéro du choix n’a pas été reconnu. Réécris-le seul sur la feuille ou ouvre le corrigé."
         :"Le résultat n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé.";
@@ -753,7 +786,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const editorSummary=document.createElement("summary");editorSummary.textContent="Clavier mathématique et vérification des étapes (facultatif)";
   editorDetails.append(editorSummary,keypad,templates,field,preview,correction);
   if(paperOnly){
-    // La feuille reste l'unique surface de travail ; les commandes sont repliées.
+    // Les modes de tracé restent accessibles au-dessous de la feuille.
     const tools=document.createElement("details");tools.className="math-notebook-paper-tools";
     const summary=document.createElement("summary");summary.textContent="Outils de la feuille";
     summary.setAttribute("aria-label","Afficher les outils de la feuille : pages, gomme, déplacement et zoom");
@@ -769,8 +802,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     };
     zoom.addEventListener("click",()=>{expanded=!expanded;updateZoom();});
     if(readOnly){controls.replaceChildren(prev,nextPage,indicator);sheetControls.hidden=true;}
+    const bar=document.createElement("div");bar.className="math-notebook-paper-bar";
+    if(!readOnly){
+      const modes=document.createElement("div");modes.className="math-notebook-paper-modes";
+      modes.setAttribute("role","group");modes.setAttribute("aria-label","Mode de la feuille");
+      eraser.textContent="Gomme";
+      updateWritingMode();
+      modes.append(pen,eraser,moveMode);
+      bar.append(modes,quickValidate);
+    }
     tools.append(summary,controls,zoom,sheetControls);
-    section.append(tools,sheetViewport,quickValidate,recognition,inkEquations,manual,status,editorDetails);
+    section.append(tools,sheetViewport,bar,recognition,inkEquations,manual,status,editorDetails);
     updateZoom();
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();

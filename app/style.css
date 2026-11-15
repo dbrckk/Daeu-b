@@ -413,7 +413,39 @@
 
 /* v56 — immersive paper: just the question, sheet and one collapsible tool tab. */
 .quiz.paper-mode:not([hidden]),.exam-active.paper-exam-active:not([hidden]){background:#e8e6e0;color:#18283a;padding:5px clamp(5px,1.5vw,20px) 10px}
-.quiz.paper-mode .quiz-top,.quiz.paper-mode>progress{display:none}
+.quiz.paper-mode .quiz-top{
+  max-width:960px;margin:0 auto;align-items:center;min-height:44px;
+  font-size:.8rem;font-weight:700;color:#263c4d
+}
+.quiz.paper-mode #quizCount{font-variant-numeric:tabular-nums}
+.quiz.paper-mode #quizTopic,.quiz.paper-mode>progress{display:none}
+.quiz.paper-mode #pauseQuiz{min-height:44px;background:transparent;color:#263c4d;border-color:#b0bfca}
+.quiz.paper-mode #quizNotebook,.quiz.paper-mode .feedback{max-width:960px}
+.quiz.paper-mode #quizNotebook .math-notebook-sheet-viewport{height:calc(100dvh - 213px);min-height:260px}
+.math-notebook.is-paper-only .math-notebook-paper-bar:not(:empty){
+  display:grid;gap:6px;
+  padding:6px 0 max(6px,env(safe-area-inset-bottom));
+  background:#e8e6e0;
+}
+.quiz.paper-mode .math-notebook-paper-bar{position:sticky;bottom:0;z-index:16}
+.quiz.paper-mode .math-notebook:has(.paper-shown) .math-notebook-paper-bar{position:static}
+.quiz.paper-mode .math-notebook-recognition-candidate,
+.quiz.paper-mode .math-notebook-equations-candidate,
+.quiz.paper-mode .math-notebook-manual [role="status"]{scroll-margin:52px 0 112px}
+.math-notebook-paper-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.math-notebook.is-paper-only .math-notebook-paper-modes button{
+  min-height:44px;background:#fff;color:#23394a;border-color:#aab9c4;
+  padding:4px;font-size:.86rem
+}
+.math-notebook.is-paper-only .math-notebook-paper-modes button[aria-pressed="true"]{
+  background:#d5e9ed;border-color:#4a7c8a;color:#173b4a;box-shadow:inset 0 -2px #4a7c8a
+}
+.math-notebook.is-paper-only :focus-visible{outline-color:#235972}
+@media(min-width:660px){
+  .math-notebook.is-paper-only .math-notebook-paper-bar:not(:empty){display:flex;align-items:center;justify-content:space-between}
+  .math-notebook-paper-modes{min-width:315px}
+  .math-notebook.is-paper-only .math-notebook-paper-bar .math-notebook-quick-validate{width:auto;margin:0}
+}
 .math-notebook.is-paper-only .math-notebook-paper-tools{position:sticky;top:0;z-index:15;display:block;width:max-content;max-width:100%;margin:0 0 4px auto;color:#1f344a}
 .math-notebook.is-paper-only .math-notebook-paper-tools>summary{cursor:pointer;display:list-item;list-style:disclosure-closed;min-height:44px;line-height:44px;padding:0 13px;border:1px solid #aab8c9;border-radius:4px;background:#fff;color:#1b3044;font-size:.88rem;font-weight:650;user-select:none}
 .math-notebook.is-paper-only .math-notebook-paper-tools[open]{width:100%;background:#f6f4ee;border:1px solid #afb8c3;border-radius:5px;padding:4px 8px 9px;box-shadow:0 5px 20px #22334421}
@@ -429,9 +461,21 @@
 .math-notebook.is-paper-only .math-notebook-paper-prompt{font-size:clamp(1rem,3.5vw,1.3rem);line-height:1.55;white-space:pre-wrap;margin:9px 0 0}
 .math-notebook.is-paper-only .math-notebook-paper-instruction{font-size:.75rem;line-height:1.35;color:#6c7888;margin:11px 0 0}
 .math-notebook.is-paper-only .math-notebook-canvas{height:auto;max-width:none}
-.math-notebook.is-paper-only .math-notebook-quick-validate{display:block;width:100%;margin:5px 0 0;background:#fff;color:#213347;border:1px solid #8f9ca9;border-radius:3px;min-height:48px;box-shadow:none}
+.math-notebook.is-paper-only .math-notebook-quick-validate{display:block;width:100%;margin:0;background:#183c52;color:#fff;border:1px solid #183c52;border-radius:8px;min-height:48px;box-shadow:none}
 .math-notebook.is-paper-only button{touch-action:manipulation}
-.math-notebook.is-paper-only .math-notebook-quick-validate:hover{background:#f4f2ea}
+.math-notebook.is-paper-only .math-notebook-quick-validate:hover{background:#245672}
+.quiz.paper-mode:has(#feedback:not([hidden])) .math-notebook-paper-bar{position:static}
+.quiz.paper-mode:has(#feedback:not([hidden])) .math-notebook-quick-validate{display:none}
+.quiz.paper-mode #feedback{border-inline-start:4px solid #9d5028;border-radius:8px;padding:16px}
+.quiz.paper-mode #feedback[data-result="correct"]{border-inline-start-color:#27745d}
+.quiz.paper-mode #lessonLink{color:#195773}
+.quiz.paper-mode #next{min-height:48px}
+.math-notebook.is-paper-only .math-notebook-recognition-actions>button,
+.math-notebook.is-paper-only .math-notebook-equations-actions>button,
+.math-notebook.is-paper-only .math-notebook-manual-decisions>button{min-height:44px}
+@media(max-width:490px){
+  .quiz.paper-mode #next{width:100%}
+}
 .math-notebook.is-paper-only .math-notebook-recognition.paper-shown,.math-notebook.is-paper-only .math-notebook-equations.paper-shown,.math-notebook.is-paper-only .math-notebook-manual.paper-shown{background:#fff;color:#1d3046;border:1px solid #b6c4d4;border-radius:2px;max-width:100%;margin:4px 0;padding:15px;box-shadow:0 5px 18px #1b274016}
 .math-notebook.is-paper-only .math-notebook-recognition.paper-shown h5,.math-notebook.is-paper-only .math-notebook-equations.paper-shown h5{color:#1d3046}
 .math-notebook.is-paper-only .math-notebook-recognition.paper-shown .helper,.math-notebook.is-paper-only .math-notebook-equations.paper-shown .helper,.math-notebook.is-paper-only .math-notebook-manual.paper-shown .helper{color:#3f5166}
