@@ -317,6 +317,35 @@ try{
   assert.ok(Math.abs(paperCenter.x-target.x)<.02&&Math.abs(paperCenter.y-target.y)<.02,
     "La zone touchée doit être affichée au centre de la feuille");
   assert.deepEqual(await snapshot(),beforePreview);
+  await previewButton.click();
+  const visibleFrame=writtenThumbnail.locator(".math-notebook-visible-frame");
+  await visibleFrame.waitFor();
+  assert.equal(await previewDialog.locator(".math-notebook-visible-frame").count(),1);
+  const framePosition=()=>visibleFrame.evaluate(frame=>({
+    x:parseFloat(frame.style.left)/100,y:parseFloat(frame.style.top)/100,
+    width:parseFloat(frame.style.width)/100,height:parseFloat(frame.style.height)/100
+  }));
+  const expectedFrame=()=>zoomSheet.evaluate(el=>{
+    const view=el.getBoundingClientRect(),ink=el.querySelector("canvas").getBoundingClientRect();
+    const dx=view.left+el.clientLeft-ink.left,dy=view.top+el.clientTop-ink.top;
+    const x=Math.max(0,dx)/ink.width,y=Math.max(0,dy)/ink.height;
+    return {x,y,width:Math.min(1,(dx+el.clientWidth)/ink.width)-x,
+      height:Math.min(1,(dy+el.clientHeight)/ink.height)-y};
+  });
+  const frame=await framePosition(),expected=await expectedFrame();
+  for(const axis of ["x","y","width","height"])
+    assert.ok(Math.abs(frame[axis]-expected[axis])<.015,"Cadre visible, axe "+axis);
+  assert.ok(frame.x>0&&frame.y>0&&frame.width<1&&frame.height<1);
+  await page.setViewportSize({width:640,height:360});
+  await page.waitForFunction(()=>{
+    const frame=document.querySelector(".math-notebook-visible-frame");
+    const view=document.querySelector("#quizNotebook .math-notebook-sheet-viewport");
+    const paper=view.querySelector("canvas").getBoundingClientRect();
+    return Math.abs(parseFloat(frame.style.height)/100-view.clientHeight/paper.height)<.015;
+  });
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({width:390,height:844});
+  assert.deepEqual(await snapshot(),beforePreview);
   await context.setOffline(false);
   await zoom.selectOption("100");
   console.log("OK Miniatures à 320 px, accès à une zone précise hors ligne et copie intacte");

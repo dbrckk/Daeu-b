@@ -1120,9 +1120,31 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const thumbnails=document.createElement("div");thumbnails.className="math-notebook-thumbnails";
     const previewHelp=document.createElement("p");
     previewHelp.className="math-notebook-preview-help";
-    previewHelp.textContent="Touche un endroit de la miniature pour l’afficher dans la feuille.";
+    previewHelp.textContent="Le cadre bleu indique la zone visible. Touche une miniature pour te déplacer.";
     previews.append(previewHeader,previewHelp,thumbnails);
-    previews.addEventListener("close",()=>thumbnails.replaceChildren());
+    let visibleFrame=null;
+    const updateVisibleFrame=()=>{
+      if(!visibleFrame)return;
+      const sheet=sheetViewport.getBoundingClientRect();
+      const paper=canvas.getBoundingClientRect();
+      const left=sheet.left+sheetViewport.clientLeft,top=sheet.top+sheetViewport.clientTop;
+      const x1=Math.max(0,left-paper.left);
+      const y1=Math.max(0,top-paper.top);
+      const x2=Math.min(paper.width,left+sheetViewport.clientWidth-paper.left);
+      const y2=Math.min(paper.height,top+sheetViewport.clientHeight-paper.top);
+      visibleFrame.hidden=x2<=x1||y2<=y1;
+      if(visibleFrame.hidden)return;
+      visibleFrame.style.left=x1/paper.width*100+"%";
+      visibleFrame.style.top=y1/paper.height*100+"%";
+      visibleFrame.style.width=(x2-x1)/paper.width*100+"%";
+      visibleFrame.style.height=(y2-y1)/paper.height*100+"%";
+    };
+    const previewResize=new ResizeObserver(updateVisibleFrame);
+    previews.addEventListener("close",()=>{
+      previewResize.disconnect();
+      visibleFrame=null;
+      thumbnails.replaceChildren();
+    });
     const openPreview=document.createElement("button");
     openPreview.type="button";openPreview.className="subtle small math-notebook-preview-pages";
     openPreview.textContent="Aperçu des pages";
@@ -1144,7 +1166,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         }
         const label=document.createElement("strong");label.textContent="Page "+(index+1);
         const state=document.createElement("span");state.textContent=page.length?"Manuscrite":"Vierge";
-        selectPage.append(thumbnail,label,state);
+        const miniature=document.createElement("span");
+        miniature.className="math-notebook-miniature";
+        miniature.append(thumbnail);
+        if(index===pageIndex){
+          visibleFrame=document.createElement("span");
+          visibleFrame.className="math-notebook-visible-frame";
+          visibleFrame.hidden=true;
+          visibleFrame.setAttribute("aria-hidden","true");
+          miniature.append(visibleFrame);
+        }
+        selectPage.append(miniature,label,state);
         selectPage.addEventListener("click",event=>{
           let point=null;
           // Le clavier et le libellé ouvrent la page comme les flèches.
@@ -1172,6 +1204,9 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         thumbnails.append(selectPage);
       }
       previews.showModal();
+      updateVisibleFrame();
+      previewResize.observe(sheetViewport);
+      previewResize.observe(canvas);
     });
     if(!readOnly){
       prev.textContent="‹";prev.setAttribute("aria-label","Page précédente");
