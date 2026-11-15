@@ -228,6 +228,9 @@ try{
     const justified=guide.getByRole("checkbox",{name:/réellement justifié/}).first();
     const target=guide.getByRole("checkbox",{name:"À retravailler",exact:true}).first();
     const revision=examPage.locator("#examRevision");
+    const homeRevision=examPage.locator("#examRevisionHome");
+    const homeSummary=examPage.locator("#examRevisionHomeSummary");
+    assert.ok(await homeRevision.isHidden());
     assert.ok(await revision.getByRole("listitem").count()===0);
     await justified.check();
     await target.check();
@@ -238,16 +241,24 @@ try{
     assert.ok(await revision.getByRole("link",{name:"Revoir le cours"}).isVisible());
 
     await examPage.reload({waitUntil:"networkidle"});
-    await examPage.locator("#examHistory").getByRole("button",{name:"Voir la correction"}).click();
+    assert.match(await homeSummary.textContent(),/1 étape à retravailler dans 1 copie/);
+    await homeSummary.click();
+    const homeRow=homeRevision.getByRole("listitem");
+    assert.equal(await homeRow.count(),1);
+    assert.match(await homeRow.getByRole("link",{name:"Revoir le cours"}).getAttribute("href"),/course\.html\?course=/);
+    await homeRow.getByRole("button",{name:/Exercice 1/}).click();
     await copy.locator("canvas").waitFor({state:"visible"});
-    await guide.locator("summary").click();
+    assert.ok(await guide.evaluate(node=>node.contains(document.activeElement)));
     assert.ok(await target.isChecked());
     assert.equal(await revision.getByRole("listitem").count(),1);
     assert.ok(!(await justified.isChecked()));
     await justified.check();
     assert.ok(!(await target.isChecked()));
     assert.equal(await revision.getByRole("listitem").count(),0);
+    assert.ok(await homeRevision.isHidden());
     await target.check();
+    assert.ok(await homeRevision.isVisible());
+    console.log("OK Accueil : révisions persistantes et accès direct à l’étape sélectionnée");
     const recovered=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
     assert.deepEqual(recovered.workbook.entries[key],saved.workbook.entries[key]);
     const blank=examPage.locator("#examReview .exam-review-group").nth(1);

@@ -563,3 +563,10 @@
 .exam-revision-links a{display:inline-flex;align-items:center;min-height:44px}
 .exam-paper-result .exam-reasoning-step h4{scroll-margin-top:16px}
 .exam-paper-result .exam-check-label{min-height:44px}
+
+#examRevisionHome{margin:0 0 32px}
+#examRevisionHome h2{font-size:1.25rem;margin:0 0 4px}
+#examRevisionHome summary{min-height:44px;padding:9px 0;cursor:pointer;color:var(--teal)}
+.exam-revision-copy{margin:10px 0 16px}
+.exam-revision-copy:last-child{margin-bottom:0}
+.exam-revision-copy h3{margin:0;font-size:.95rem}

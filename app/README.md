@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v62 — retrouver ses révisions depuis l’accueil
+
+- « Mes révisions après examen », sous « Commencer », rassemble les étapes marquées dans les copies conservées. Chaque entrée ouvre l’étape précise de la bonne copie, le cours ou l’entraînement associé.
+- La liste se met à jour quand une étape est cochée ou retirée et se masque quand elle est vide.
+
 ## v61 — choisir les étapes à retravailler
 
 - Dans la correction d’un examen manuscrit, « À retravailler » ajoute une étape à la liste en haut de la copie. Chaque entrée permet de retrouver l’étape, de revoir le cours et de s’entraîner si le chapitre a des questions dédiées.
