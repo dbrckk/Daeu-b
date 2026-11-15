@@ -8,7 +8,8 @@ import {sanitizeInkDrafts} from "./ink-drafts.mjs";
 export const WORKBOOK_VERSION=1;
 export const PAPER_WIDTH=900;
 export const PAPER_HEIGHT=1200;
-export const MAX_WORKBOOK_BYTES=1_200_000;
+// Marge pour le reste du bundle et pour le quota localStorage du navigateur.
+export const MAX_WORKBOOK_BYTES=1_650_000;
 export const MAX_PAGE_STROKES=240;
 const KEY_PATTERN=/^[A-Za-z0-9:_.-]{1,130}$/;
 const STROKE_PATTERN=/^\d{1,4},\d{1,4}(;\d{1,4},\d{1,4}){0,299}$/;

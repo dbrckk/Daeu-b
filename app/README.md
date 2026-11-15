@@ -1,5 +1,11 @@
 # Atelier de maths — application web
 
+## v63 — fiabiliser la sauvegarde des copies
+
+- Le cahier accepte jusqu’à 1 650 000 caractères JSON au total, avec les mêmes tracés et le même format de sauvegarde. Le navigateur peut refuser un enregistrement si son propre quota est atteint.
+- Si un trait ne peut pas être enregistré, la feuille revient à la version sauvegardée et affiche le motif. Le miroir IndexedDB conserve la révision la plus récente.
+- La validation cloud utilise le même plafond que la restauration locale. Le parcours cloud automatisé utilise des réponses simulées.
+
 ## v62 — retrouver ses révisions depuis l’accueil
 
 - « Mes révisions après examen », sous « Commencer », rassemble les étapes marquées dans les copies conservées. Chaque entrée ouvre l’étape précise de la bonne copie, le cours ou l’entraînement associé.

@@ -417,7 +417,7 @@ function exportProgress(){
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
   const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,transfers:snapshot.transfers,workbook:snapshot.workbook};
-  const blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+  const blob=new Blob([JSON.stringify(backup)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
   link.href=url;link.download="daeu-b-progression-"+new Date().toISOString().slice(0,10)+".json";
@@ -428,7 +428,7 @@ function exportProgress(){
 
 async function importProgress(file) {
   if(!file) return;
-  if(file.size>1_000_000){notification("Sauvegarde refusée : fichier trop volumineux.");return;}
+  if(file.size>8_000_000){notification("Sauvegarde refusée : fichier trop volumineux.");return;}
   try {
     const raw=JSON.parse(await file.text());
     const bundled=raw?.backupVersion===1;
