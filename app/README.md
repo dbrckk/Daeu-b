@@ -75,6 +75,10 @@
 - Navigation : gomme, annulation, pages et déplacement tactile ; une page peut conserver jusqu'à 240 traits. Au-delà, une nouvelle page permet de continuer. L'écriture ne nécessite aucun papier ni export manuel.
 
 
+## v71 — fractions posées sur la feuille
+
+- Dans une question numérique, écris le numérateur au-dessus d’une barre horizontale et le dénominateur en dessous. Laisse de l’espace avant la fraction quand elle suit des calculs. Si la lecture aboutit, relis la fraction proposée avant de la valider.
+
 ## v54 — validation manuscrite en priorité, sans révélation prématurée (14 novembre 2026)
 
 - Le bouton principal « Valider ma réponse sur la feuille » cherche d'abord la réponse numérique sur la dernière page écrite ; si besoin, il propose la transcription des équations et de leur dernière ligne `x = nombre`. **Une confirmation visuelle reste indispensable** avant toute correction objective ; aucune note n'est produite à partir d'un OCR non confirmé.

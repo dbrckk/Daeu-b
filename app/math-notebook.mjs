@@ -6,7 +6,7 @@
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
-import {recognizeBottomNumericInk,recognizeNumericInk} from "./numeric-ink.mjs";
+import {recognizeBottomNumericInk,recognizeNumericInk,recognizeStackedFractionInk} from "./numeric-ink.mjs";
 import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
 import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-transcript.mjs";
 import {nearestInkStroke} from "./ink-eraser.mjs";
@@ -438,6 +438,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     invalidateRecognition();
     const page=work.pages[pageIndex];
     let result=recognizeNumericInk(page);
+    if(result.status!=="recognized"&&handwrittenReview.allowEquation!==false)
+      result=recognizeStackedFractionInk(page)??result;
     if(allowBottom&&result.status!=="recognized")result=recognizeBottomNumericInk(page)??result;
     if(result.status!=="recognized"){
       recognitionStatus.textContent=result.message;

@@ -110,6 +110,57 @@ export function recognizeNumericInk(page){
   return {status:"recognized",text,score:weakest};
 }
 
+/**
+ * Lit une fraction posée sur deux lignes, seule ou séparée des calculs.
+ * Une barre isolée et deux entiers centrés doivent être géométriquement cohérents.
+ */
+export function recognizeStackedFractionInk(page){
+  if(!Array.isArray(page)||page.length<3||page.length>MAX_PAGE_STROKES)return null;
+  let strokes;
+  try{strokes=page.map(raw=>({raw,box:bounds([parseStroke(raw)])}));}
+  catch{return null;}
+  const proposals=[];
+  for(const bar of strokes){
+    const {minX,maxX,minY,maxY}=bar.box;
+    const width=maxX-minX,midX=(minX+maxX)/2;
+    if(width<28||maxY-minY>Math.min(16,width*.13))continue;
+    const denominator=strokes.filter(stroke=>stroke.box.minY>maxY);
+    if(!denominator.length||denominator.length>12)continue;
+    const above=strokes.filter(stroke=>stroke.box.maxY<minY)
+      .sort((a,b)=>b.box.maxY-a.box.maxY);
+    const numerator=[];
+    let rowTop=minY;
+    for(const stroke of above){
+      // Une ligne de brouillon distincte peut précéder cette fraction.
+      if(rowTop-stroke.box.maxY>36&&numerator.length)break;
+      numerator.push(stroke);
+      rowTop=Math.min(rowTop,stroke.box.minY);
+    }
+    if(!numerator.length||numerator.length>12)continue;
+    if(strokes.some(stroke=>stroke!==bar&&stroke.box.maxY>=minY&&stroke.box.minY<=maxY))continue;
+    // Deux barres rapprochées qui couvrent le milieu ne forment pas une fraction.
+    if(numerator.some(({box})=>minY-box.maxY<=16&&box.maxX-box.minX>=28
+      &&box.maxY-box.minY<=8&&box.minX<=midX&&box.maxX>=midX))continue;
+    const horizontalTolerance=12;
+    const compatible=(row,gap)=>{
+      const left=Math.min(...row.map(({box})=>box.minX));
+      const right=Math.max(...row.map(({box})=>box.maxX));
+      const height=Math.max(...row.map(({box})=>box.maxY))-Math.min(...row.map(({box})=>box.minY));
+      return height>=18&&gap>=2&&gap<=Math.max(20,height*.65)
+        &&left>=minX-horizontalTolerance&&right<=maxX+horizontalTolerance
+        &&Math.abs((left+right)/2-midX)<=Math.max(10,width*.28);
+    };
+    if(!compatible(numerator,minY-above[0].box.maxY)
+      ||!compatible(denominator,Math.min(...denominator.map(({box})=>box.minY))-maxY))continue;
+    const top=recognizeNumericInk(numerator.map(({raw})=>raw));
+    const bottom=recognizeNumericInk(denominator.map(({raw})=>raw));
+    if(top.status!=="recognized"||bottom.status!=="recognized"
+      ||!/^-?\d+$/.test(top.text)||!/^\d+$/.test(bottom.text)||Number(bottom.text)===0)continue;
+    proposals.push({status:"recognized",text:top.text+"/"+bottom.text,score:Math.min(top.score,bottom.score)});
+  }
+  return proposals.length===1?proposals[0]:null;
+}
+
 /** Une ligne de résultat doit être nettement séparée du reste de la copie. */
 export function recognizeBottomNumericInk(page){
   if(!Array.isArray(page)||page.length<2||page.length>MAX_PAGE_STROKES)return null;
