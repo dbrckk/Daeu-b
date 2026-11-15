@@ -1,5 +1,11 @@
 # Atelier de maths — application web
 
+## v57 — valider le résultat sous les calculs
+
+- Pour une question numérique, laisse une ligne vide avant le résultat final. La feuille peut lire ce nombre sur la même page que les calculs et te demande de confirmer la transcription.
+- Si la lecture échoue, le corrigé reste masqué. Tu peux retoucher ta copie ou l’afficher toi-même. Pour un QCM, seuls les numéros correspondant à un choix affiché sont proposés.
+- La lecture locale accepte les décimaux qui commencent par zéro et les fractions simples écrites avec une barre oblique.
+
 ## v56 — feuille immersive à la place des panneaux (14 novembre 2026)
 
 - Une unique grande page blanche occupe presque tout le téléphone et affiche l’énoncé en haut de la copie ; le quadrillage et les traits restent dans le même cahier sauvegardé.

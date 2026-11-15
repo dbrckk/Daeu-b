@@ -3,7 +3,7 @@
  * Gabarits géométriques simples et vérification de la transcription obligatoire.
  * Aucune validation automatique d'un raisonnement ou d'une équation manuscrite.
  */
-import {parseStroke} from "./workbook.mjs";
+import {MAX_PAGE_STROKES,parseStroke} from "./workbook.mjs";
 
 const SHAPES=[
   ["0", [[[49,8],[24,15],[12,35],[12,67],[26,89],[49,97],[72,88],[87,65],[86,37],[70,15],[49,8]]]],
@@ -91,7 +91,7 @@ export function recognizeNumericInk(page){
   if(h<18||h>230)return {status:"unsupported",message:"Écris le résultat isolé sur une seule ligne."};
   const glyphs=splitGlyphs(strokes);
   if(glyphs.length>8)return {status:"unsupported",message:"Écris au maximum huit caractères (chiffres, signe, point ou /)."};
-  const digitBoxes=glyphs.map(g=>g.box).filter(b=>b.maxY-b.minY>=18&&b.maxX-b.minX>=9);
+  const digitBoxes=glyphs.map(g=>g.box).filter(b=>b.maxY-b.minY>=18);
   const centerYs=digitBoxes.map(b=>(b.maxY+b.minY)/2);
   const maxHeight=Math.max(0,...digitBoxes.map(b=>b.maxY-b.minY));
   if(centerYs.length>1&&Math.max(...centerYs)-Math.min(...centerYs)>Math.max(32,maxHeight*.5))
@@ -103,9 +103,37 @@ export function recognizeNumericInk(page){
       return {status:"uncertain",message:"Lecture incertaine : essaie un résultat isolé ou compare au corrigé."};
     text+=c.digit;weakest=Math.min(weakest,c.margin);
   }
-  if(text.length>1&&text.startsWith("0"))
+  if(/^-?0\d/.test(text))
     return {status:"uncertain",message:"Plusieurs chiffres avec zéro initial : lecture ambiguë."};
-  if(!/^-?(?:\d+(?:\.\d+)?|\.\d+)(?:\/\d+)?$/.test(text))
+  if(!/^-?(?:\d+(?:\.\d+)?|\.\d+)(?:\/\d+)?$/.test(text)||Number(text.split("/")[1])===0)
     return {status:"unsupported",message:"La transcription n'est pas un nombre ou une fraction simple."};
   return {status:"recognized",text,score:weakest};
+}
+
+/** Une ligne de résultat doit être nettement séparée du reste de la copie. */
+export function recognizeBottomNumericInk(page){
+  if(!Array.isArray(page)||page.length<2||page.length>MAX_PAGE_STROKES)return null;
+  let positioned;
+  try{
+    positioned=page.map(raw=>({raw,box:bounds([parseStroke(raw)])}))
+      .sort((a,b)=>a.box.minY-b.box.minY);
+  }catch{return null;}
+  let split=0,bottom=positioned[0].box.maxY;
+  for(let i=1;i<positioned.length;i++){
+    const {minY,maxY}=positioned[i].box;
+    if(minY-bottom>=36)split=i;
+    bottom=Math.max(bottom,maxY);
+  }
+  if(!split)return null;
+  const finalLine=positioned.slice(split);
+  const left=Math.min(...finalLine.map(item=>item.box.minX));
+  const right=Math.max(...finalLine.map(item=>item.box.maxX));
+  // Une barre proche au-dessus du résultat peut être celle d'une fraction.
+  const belowBar=positioned.slice(0,split).some(({box:b})=>
+    positioned[split].box.minY-b.maxY<=85&&b.maxX-b.minX>=20&&b.maxY-b.minY<=8
+    &&b.minX<=right&&b.maxX>=left
+  );
+  if(belowBar)return null;
+  const result=recognizeNumericInk(finalLine.map(item=>item.raw));
+  return result.status==="recognized"?result:null;
 }

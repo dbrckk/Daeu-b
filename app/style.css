@@ -430,6 +430,7 @@
 .math-notebook.is-paper-only .math-notebook-paper-instruction{font-size:.75rem;line-height:1.35;color:#6c7888;margin:11px 0 0}
 .math-notebook.is-paper-only .math-notebook-canvas{height:auto;max-width:none}
 .math-notebook.is-paper-only .math-notebook-quick-validate{display:block;width:100%;margin:5px 0 0;background:#fff;color:#213347;border:1px solid #8f9ca9;border-radius:3px;min-height:48px;box-shadow:none}
+.math-notebook.is-paper-only button{touch-action:manipulation}
 .math-notebook.is-paper-only .math-notebook-quick-validate:hover{background:#f4f2ea}
 .math-notebook.is-paper-only .math-notebook-recognition.paper-shown,.math-notebook.is-paper-only .math-notebook-equations.paper-shown,.math-notebook.is-paper-only .math-notebook-manual.paper-shown{background:#fff;color:#1d3046;border:1px solid #b6c4d4;border-radius:2px;max-width:100%;margin:4px 0;padding:15px;box-shadow:0 5px 18px #1b274016}
 .math-notebook.is-paper-only .math-notebook-recognition.paper-shown h5,.math-notebook.is-paper-only .math-notebook-equations.paper-shown h5{color:#1d3046}

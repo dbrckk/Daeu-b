@@ -57,6 +57,60 @@ try{
   assert.ok(await page.locator("#answerForm").isHidden());
   console.log("OK Tracé, nouvelle page et reprise intégrale sans ressaisie");
 
+  const quizNotebook=page.locator("#quizNotebook");
+  const validate=quizNotebook.locator(".math-notebook-quick-validate");
+  const correction=quizNotebook.locator(".math-notebook-manual-comparison");
+  await validate.click();
+  assert.ok(await correction.isHidden(),"Une lecture incertaine doit laisser le corrigé fermé");
+  assert.equal((await snapshot()).round.completed,0);
+  assert.deepEqual((await snapshot()).round.assistedIds,[]);
+
+  const canvas=quizNotebook.locator("canvas");
+  await canvas.scrollIntoViewIfNeeded();
+  const drawing=await canvas.boundingBox();
+  assert.ok(drawing);
+  const touch=await context.newCDPSession(page);
+  const x=drawing.x+drawing.width*.3,y=drawing.y+drawing.height*.50;
+  const touched=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.tagName,{x,y});
+  assert.equal(touched,"CANVAS","Le doigt doit toucher la partie visible de la feuille");
+  await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y}]});
+  await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x,y:y+drawing.height*.14}]});
+  await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
+  await validate.click();
+  const candidate=quizNotebook.locator(".math-notebook-recognition-candidate");
+  assert.ok(await candidate.isVisible());
+  assert.equal(await candidate.locator("strong").textContent(),"Lecture proposée : 1");
+  assert.ok(await correction.isHidden());
+  assert.equal((await snapshot()).round.completed,0);
+  const confirm=candidate.getByRole("button",{name:"Oui, vérifier ce résultat"});
+  // Cadrer le bouton dans le conteneur fixe du quiz et utiliser le même
+  // flux tactile CDP que pour l'écriture, dans les coordonnées du viewport.
+  const confirmPoint=await confirm.evaluate(button=>{
+    window.confirmEvents=[];
+    for(const type of ["pointerdown","pointerup","pointercancel","touchstart","touchend","click"]){
+      document.addEventListener(type,event=>{
+        window.confirmEvents.push([type,event.target.tagName,event.target===button]);
+      },{capture:true,once:true});
+    }
+    button.scrollIntoView({block:"center",behavior:"instant"});
+    const rect=button.getBoundingClientRect();
+    const x=rect.x+rect.width/2,y=rect.y+rect.height/2;
+    return {x,y,hit:button.contains(document.elementFromPoint(x,y))};
+  });
+  assert.ok(confirmPoint.hit,"La confirmation doit être à portée de touche");
+  const {x:confirmX,y:confirmY}=confirmPoint;
+  await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:confirmX,y:confirmY}]});
+  await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  await page.locator("#feedback").waitFor({state:"visible",timeout:2500}).catch(async error=>{
+    const message=await quizNotebook.locator(".math-notebook-recognition [role=status]").textContent();
+    const events=await page.evaluate(()=>window.confirmEvents);
+    throw new Error("Validation tactile : "+message+" "+JSON.stringify(events),{cause:error});
+  });
+  assert.equal((await snapshot()).round.completed,1);
+  assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
+  console.log("OK Lecture au doigt sous les calculs, puis validation explicite et sauvegarde");
+
   const examContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   const examPage=await examContext.newPage();
   examPage.setDefaultTimeout(15000);
