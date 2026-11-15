@@ -7,6 +7,7 @@ on:
       - 'scripts/browser-smoke.mjs'
       - 'scripts/paper-only-smoke.mjs'
       - 'scripts/browser-cloud.mjs'
+      - 'scripts/pwa-upgrade-smoke.mjs'
       - '.github/workflows/browser-smoke.yml'
   pull_request:
     paths:
@@ -15,6 +16,7 @@ on:
       - 'scripts/browser-smoke.mjs'
       - 'scripts/paper-only-smoke.mjs'
       - 'scripts/browser-cloud.mjs'
+      - 'scripts/pwa-upgrade-smoke.mjs'
       - '.github/workflows/browser-smoke.yml'
 permissions:
   contents: read

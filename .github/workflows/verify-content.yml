@@ -4,6 +4,8 @@ on:
     paths:
       - '**/*.md'
       - 'scripts/check_content.py'
+      - 'scripts/verify_app_assets.py'
+      - 'scripts/sync_pwa_integrity.py'
       - 'scripts/verify_worked_cases.py'
       - 'scripts/audit-coverage.mjs'
       - 'scripts/audit-exams.mjs'
@@ -19,6 +21,8 @@ on:
     paths:
       - '**/*.md'
       - 'scripts/check_content.py'
+      - 'scripts/verify_app_assets.py'
+      - 'scripts/sync_pwa_integrity.py'
       - 'scripts/verify_worked_cases.py'
       - 'scripts/audit-coverage.mjs'
       - 'scripts/audit-exams.mjs'
