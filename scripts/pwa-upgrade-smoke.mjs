@@ -60,7 +60,9 @@ export async function verifyPwaUpgrade(browser){
         root=newRoot;
         await page.evaluate(async()=>{
           const registration=await navigator.serviceWorker.getRegistration();
+          const changed=new Promise(resolve=>navigator.serviceWorker.addEventListener("controllerchange",resolve,{once:true}));
           await registration.update();
+          await changed;
         });
         await page.waitForFunction(async cache=>{
           const names=await caches.keys();
@@ -71,6 +73,7 @@ export async function verifyPwaUpgrade(browser){
         await page.reload({waitUntil:"domcontentloaded"});
         await page.locator("#examActive.paper-exam-active").waitFor({state:"visible"});
         assert.deepEqual(await snapshot(),before,"La version actuelle rouvre la copie v62 hors ligne");
+        await page.locator("#examFormulaOpen").waitFor({state:"visible"});
         await page.locator("#examFormulaOpen").focus();
         await page.keyboard.press("Enter");
         await page.locator("#examFormula math").first().waitFor({state:"visible"});
