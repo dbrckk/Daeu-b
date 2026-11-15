@@ -85,14 +85,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     work=readWork(book,context);
     // Migration non destructive de l'ancien texte local, créé avant le cahier intégré.
     const old=storage?.getItem(legacyKey);
-    if(!book.entries?.[context]&&old&&old.length<=MAX_TEXT){
+    if(!readOnly&&!book.entries?.[context]&&old&&old.length<=MAX_TEXT){
       const migrated=changeWork(book,context,{...work,text:old});
       adapter.updateWorkbook(migrated);
       work=readWork(migrated,context);
       try{storage.removeItem(legacyKey);}catch{}
     }else if(!book.entries?.[context]&&old&&old.length>MAX_TEXT)
       status.textContent="Ancien brouillon trop long : conservé sans modification dans l'ancien stockage.";
-  }catch(error){status.textContent="Le cahier n'a pas pu être chargé : "+error.message;}
+  }catch(error){
+    if(readOnly)throw error;
+    status.textContent="Le cahier n’a pas pu être chargé : "+error.message;
+  }
   const field=document.createElement("textarea");
   field.className="math-notebook-editor";field.rows=8;field.maxLength=MAX_TEXT;field.spellcheck=false;
   field.setAttribute("aria-label",title+" — étapes rédigées");
