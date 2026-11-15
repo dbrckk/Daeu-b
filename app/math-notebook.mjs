@@ -1118,7 +1118,10 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     closePreview.addEventListener("click",()=>previews.close());
     const previewHeader=document.createElement("header");previewHeader.append(previewHeading,closePreview);
     const thumbnails=document.createElement("div");thumbnails.className="math-notebook-thumbnails";
-    previews.append(previewHeader,thumbnails);
+    const previewHelp=document.createElement("p");
+    previewHelp.className="math-notebook-preview-help";
+    previewHelp.textContent="Touche un endroit de la miniature pour l’afficher dans la feuille.";
+    previews.append(previewHeader,previewHelp,thumbnails);
     previews.addEventListener("close",()=>thumbnails.replaceChildren());
     const openPreview=document.createElement("button");
     openPreview.type="button";openPreview.className="subtle small math-notebook-preview-pages";
@@ -1142,11 +1145,27 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         const label=document.createElement("strong");label.textContent="Page "+(index+1);
         const state=document.createElement("span");state.textContent=page.length?"Manuscrite":"Vierge";
         selectPage.append(thumbnail,label,state);
-        selectPage.addEventListener("click",()=>{
+        selectPage.addEventListener("click",event=>{
+          let point=null;
+          // Le clavier et le libellé ouvrent la page comme les flèches.
+          if(event.detail>0&&event.target===thumbnail){
+            const bounds=thumbnail.getBoundingClientRect();
+            point={
+              x:(event.clientX-bounds.left)/bounds.width,
+              y:(event.clientY-bounds.top)/bounds.height
+            };
+          }
           previews.close();
           if(index!==pageIndex){
             goToPage(index);
             if(!readOnly)returnToWriting();
+          }
+          if(point){
+            const paperBox=canvas.getBoundingClientRect();
+            const top=sheetViewport.scrollTop+canvasOffset()+point.y*paperBox.height-sheetViewport.clientHeight/2;
+            const left=point.x*paperBox.width-sheetViewport.clientWidth/2;
+            sheetViewport.scrollTo({top,left,behavior:"instant"});
+            savePaperView();
           }
           canvas.focus({preventScroll:true});
         });

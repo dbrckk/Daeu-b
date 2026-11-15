@@ -298,13 +298,28 @@ try{
   assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"CANVAS");
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const beforePreview=await snapshot();
+  await zoom.selectOption("200");
   await context.setOffline(true);
   await previewButton.click();
   assert.equal(await containsInk(previewDialog.getByRole("button",{name:"Page 2 Manuscrite"})),true);
-  await writtenThumbnail.click();
+  const target={x:.70,y:.60};
+  const thumbnail=await writtenThumbnail.locator("canvas").boundingBox();
+  assert.ok(thumbnail);
+  await page.touchscreen.tap(thumbnail.x+thumbnail.width*target.x,thumbnail.y+thumbnail.height*target.y);
+  assert.ok(await previewDialog.isHidden());
+  assert.match(await paperPages.textContent(),/Page 1\/2/);
+  assert.equal(await zoom.inputValue(),"200");
+  const paperCenter=await zoomSheet.evaluate(el=>{
+    const box=el.getBoundingClientRect(),ink=el.querySelector("canvas").getBoundingClientRect();
+    return {x:(box.left+el.clientLeft+el.clientWidth/2-ink.left)/ink.width,
+      y:(box.top+el.clientTop+el.clientHeight/2-ink.top)/ink.height};
+  });
+  assert.ok(Math.abs(paperCenter.x-target.x)<.02&&Math.abs(paperCenter.y-target.y)<.02,
+    "La zone touchée doit être affichée au centre de la feuille");
   assert.deepEqual(await snapshot(),beforePreview);
   await context.setOffline(false);
-  console.log("OK Aperçus manuscrits et vierges à 320 px, navigation hors ligne et copie intacte");
+  await zoom.selectOption("100");
+  console.log("OK Miniatures à 320 px, accès à une zone précise hors ligne et copie intacte");
   await paperPages.getByRole("button",{name:"Lire cette page"}).click();
   assert.match(await paperPages.textContent(),/Page 1\/2/);
   assert.ok(await page.locator("#quizNotebook .math-notebook-manual-comparison").isHidden());
