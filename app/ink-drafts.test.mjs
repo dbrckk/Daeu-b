@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {blankWork,emptyWorkbook,changeWork,readWork,encodeStroke,sanitizeWorkbook} from "./workbook.mjs";
+import {blankWork,emptyWorkbook,changeWork,readWork,encodeStroke,sanitizeWorkbook,MAX_PAGE_STROKES} from "./workbook.mjs";
 import {pageInkFingerprint} from "./ink-drafts.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY} from "./persistence.mjs";
 import {editInkTranscript} from "./ink-transcript.mjs";
@@ -67,4 +67,13 @@ test("Empreinte déterministe : ordre et segmentation des traits comptent",()=>{
   assert.equal(pageInkFingerprint(page),pageInkFingerprint([...page]));
   assert.notEqual(pageInkFingerprint(page),pageInkFingerprint([...page].reverse()));
   assert.notEqual(pageInkFingerprint([sample]),pageInkFingerprint([sample,sample]));
+});
+
+test("Une transcription corrigée se sauvegarde même sur une page pleine",()=>{
+  const page=Array(MAX_PAGE_STROKES).fill(sample);
+  const input={text:"",pages:[page],inkDrafts:{
+    0:{source:pageInkFingerprint(page),text:"x=1",edited:true}
+  }};
+  assert.deepEqual(readWork(changeWork(emptyWorkbook(),key,input),key),input);
+  assert.throws(()=>pageInkFingerprint([...page,sample]));
 });

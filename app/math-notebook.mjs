@@ -7,7 +7,7 @@ import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeBottomNumericInk,recognizeNumericInk,recognizeStackedFractionInk} from "./numeric-ink.mjs";
-import {recognizeEquationInk,extractFinalNumericAnswer,recognizeFinalEquationInk} from "./equation-ink.mjs";
+import {recognizeEquationInk,extractFinalNumericAnswer,recognizeFinalEquationInk,recognizeFinalEquationDraft} from "./equation-ink.mjs";
 import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-transcript.mjs";
 import {nearestInkStroke} from "./ink-eraser.mjs";
 import {pageInkFingerprint} from "./ink-drafts.mjs";
@@ -791,23 +791,27 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsStatus.textContent="";
     inkEquations.classList.remove("paper-shown");
   };
-  inkEquationsRead.addEventListener("click",()=>{
+  function readEquations({allowFinalDraft=false}={}){
     invalidateRecognition();
     const saved=work.inkDrafts?.[pageIndex];
     const validSaved=saved&&saved.source===pageInkFingerprint(work.pages[pageIndex]);
-    const read=validSaved
+    let read=validSaved
       ?{status:"restored",text:saved.text,message:"Transcription corrigée retrouvée dans le cahier. Relis-la avant de valider."}
       :recognizeEquationInk(work.pages[pageIndex],{draft:true});
+    if(allowFinalDraft&&read.status==="unsupported")
+      read=recognizeFinalEquationDraft(work.pages[pageIndex])??read;
     if(!["recognized","partial","restored"].includes(read.status)){
       inkEquationsStatus.textContent=read.message;return;
     }
     currentEquationText=read.text;inkWasEdited=validSaved&&saved.edited===true;
     editCursor=Math.max(0,read.text.indexOf("□"));
     inkEquationsEditor.hidden=read.status==="recognized"||(read.status==="restored"&&validateInkTranscript(read.text));
+    inkEquationsEditToggle.setAttribute("aria-expanded",String(!inkEquationsEditor.hidden));
     inkEquationsCandidate.hidden=false;
     syncEquationCandidate();
     inkEquationsStatus.textContent=read.message;
-  });
+  }
+  inkEquationsRead.addEventListener("click",()=>readEquations());
   inkEquationsGrade.addEventListener("click",()=>{
     if(currentEquationText===null||currentFinalAnswer===null)return;
     try{
@@ -965,10 +969,9 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
           return;
         }
         // Une suite d'équations peut se terminer par x = nombre.
-        if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsRead.disabled)inkEquationsRead.click();
+        if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsRead.disabled)readEquations({allowFinalDraft:true});
         if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsCandidate.hidden){
           if(paperOnly)inkEquations.classList.add("paper-shown");
-          inkEquationsStatus.textContent="Étapes détectées sur ta feuille. Vérifie et corrige les symboles au toucher ; aucun résultat n'est noté sans confirmation.";
           if(currentFinalAnswer===null&&paperOnly)manual.classList.add("paper-shown");
           inkEquationsCandidate.scrollIntoView({behavior:"instant",block:"nearest"});
           return;
