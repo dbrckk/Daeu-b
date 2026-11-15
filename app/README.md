@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v60 — reprendre une copie corrigée
+
+- La correction ouvre le premier exercice qui contient des tracés. Sur un écran large, la feuille et le corrigé se lisent côte à côte. Sur mobile, la feuille se replie pour accéder aux réponses.
+- Chaque exercice propose les cours associés et, quand le chapitre dispose d’une banque, un lien d’entraînement. La grille de rédaction conserve les étapes que tu as cochées.
+
 ## v59 — examen blanc sur mobile
 
 - Les quatre exercices sont accessibles au-dessus de la feuille. Le numéro actif est repéré visuellement et annoncé aux lecteurs d’écran.

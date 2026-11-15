@@ -521,3 +521,31 @@
  .paper-exam-active .exam-actions button{min-height:44px;padding:7px 10px}
  .math-notebook.is-paper-only .math-notebook-paper-heading{padding:16px 14px}
 }
+
+/* Une copie et son corrigé partagent le même espace de lecture. */
+.exam-paper-result .exam-review-group{padding:12px}
+.exam-paper-result .exam-review-group>summary{
+  min-height:44px;padding:9px 6px;overflow-wrap:anywhere
+}
+.exam-paper-comparison{display:grid;gap:12px;align-items:start;margin:8px 0 14px}
+.exam-paper-comparison>*{min-width:0}
+.exam-paper-comparison .exam-paper-review{margin:0}
+.exam-paper-comparison .exam-paper-review>summary{min-height:44px}
+.exam-paper-comparison .exam-paper-review .math-notebook-sheet-viewport{height:clamp(280px,55dvh,540px);min-height:0}
+.exam-paper-solutions{
+  min-width:0;background:#f5f8fc;color:#21374d;
+  border-radius:9px;padding:6px 12px;overflow-wrap:anywhere
+}
+.exam-paper-solutions .helper{color:#40566d;margin:10px 0}
+.exam-paper-solutions .exam-review-item{padding:12px 0;border-color:#c6d2df}
+.exam-paper-solutions .exam-review-item:last-child{padding-bottom:8px}
+.exam-paper-result .exam-remediation{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.exam-paper-result .exam-remediation strong{width:100%}
+.exam-paper-result .exam-remediation a{
+  display:inline-flex;align-items:center;min-height:44px;padding:6px 10px;margin:0
+}
+.exam-review-save-status{color:var(--bad)}
+#examScore{scroll-margin-top:16px}
+@media(min-width:800px){
+  .exam-paper-comparison{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}

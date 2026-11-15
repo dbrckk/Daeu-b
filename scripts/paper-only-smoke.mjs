@@ -204,10 +204,41 @@ try{
     const done=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
     assert.equal(done.exams.active,null);
     assert.equal(done.exams.history.at(-1).paperOnly,true);
-    await examPage.locator("#examReview .exam-review-group").first().evaluate(node=>{node.open=true;});
-    await examPage.locator("#examReview .exam-paper-review").first().evaluate(node=>{node.open=true;});
-    await examPage.locator("#examReview .exam-paper-review canvas").first().waitFor({state:"visible"});
-    console.log("OK Remise : aucune fausse note, copie manuscrite relisible avec correction");
+    const group=examPage.locator("#examReview .exam-review-group").first();
+    const copy=group.locator(".exam-paper-review");
+    const solutions=group.locator(".exam-paper-solutions");
+    await copy.locator("canvas").waitFor({state:"visible"});
+    assert.ok(await group.evaluate(details=>details.open));
+    assert.ok(await solutions.isVisible());
+    assert.ok(await copy.locator(".math-notebook-paper-modes").count()===0);
+    assert.ok(await examPage.evaluate(()=>document.activeElement?.id==="examScore"));
+
+    await examPage.setViewportSize({width:320,height:640});
+    assert.ok(await group.evaluate(details=>details.scrollWidth<=details.clientWidth));
+    await copy.locator(":scope > summary").click();
+    assert.ok(await copy.locator("canvas").isHidden());
+    assert.ok(await solutions.isVisible());
+    await copy.locator(":scope > summary").click();
+    await examPage.setViewportSize({width:1024,height:768});
+    const copyBox=await copy.boundingBox(),solutionsBox=await solutions.boundingBox();
+    assert.ok(copyBox&&solutionsBox&&copyBox.x+copyBox.width<=solutionsBox.x);
+    assert.ok(await group.getByRole("link",{name:/S’entraîner/}).count()>0);
+    const guide=group.locator(".exam-reasoning-guide");
+    await guide.locator("summary").click();
+    await guide.getByRole("checkbox").first().check();
+
+    await examPage.reload({waitUntil:"networkidle"});
+    await examPage.locator("#examHistory").getByRole("button",{name:"Voir la correction"}).click();
+    await copy.locator("canvas").waitFor({state:"visible"});
+    await guide.locator("summary").click();
+    assert.ok(await guide.getByRole("checkbox").first().isChecked());
+    const recovered=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.deepEqual(recovered.workbook.entries[key],saved.workbook.entries[key]);
+    const blank=examPage.locator("#examReview .exam-review-group").nth(1);
+    await blank.locator(":scope > summary").click();
+    await blank.locator(".exam-paper-review > summary").click();
+    assert.match(await blank.locator(".exam-paper-review").textContent(),/Aucun tracé sauvegardé/);
+    console.log("OK Correction : comparaison mobile et bureau, liens d’entraînement et grille sauvegardée");
   }finally{await examContext.close();}
   assert.deepEqual(errors,[]);
   console.log("PAPER-ONLY ANDROID : OK");
