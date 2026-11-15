@@ -789,15 +789,14 @@ try{
           await previousPage.tap();
           assert.ok(await transcript.isHidden(),"Changer de page ferme la lecture de l’ancienne page");
           await nextPage.tap();
-          const tools=densePage.locator("#quizNotebook .math-notebook-paper-tools");
-          if(await tools.getAttribute("open")===null)
-            await tools.locator("summary").tap();
-          const undo=tools.getByRole("button",{name:"Annuler le dernier trait"});
+          const undo=notebook.getByRole("button",{name:"Annuler le dernier trait"});
           for(let i=0;i<4;i++)await undo.tap();
           const erased=(await stored()).workbook.entries[savedCopy.copyKey];
           assert.equal(erased.inkDrafts?.[1],undefined);
           assert.deepEqual(erased.pages[1],savedCopy.pages[1].slice(0,-4));
           const canvas=notebook.locator("canvas");
+          const jump=notebook.getByRole("button",{name:"Aller à la zone d’écriture"});
+          if(await jump.isVisible())await jump.tap();
           await canvas.scrollIntoViewIfNeeded();
           const box=await canvas.boundingBox();
           assert.ok(box);
