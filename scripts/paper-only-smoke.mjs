@@ -83,8 +83,23 @@ try{
   assert.equal(await candidate.locator("strong").textContent(),"Lecture proposée : 1");
   assert.ok(await correction.isHidden());
   assert.equal((await snapshot()).round.completed,0);
-  await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
-  await page.locator("#feedback").waitFor({state:"visible"});
+  const confirm=candidate.getByRole("button",{name:"Oui, vérifier ce résultat"});
+  // Cadrer le bouton dans le conteneur fixe du quiz et utiliser le même
+  // flux tactile CDP que pour l'écriture, dans les coordonnées du viewport.
+  const confirmPoint=await confirm.evaluate(button=>{
+    button.scrollIntoView({block:"center",behavior:"instant"});
+    const rect=button.getBoundingClientRect();
+    const x=rect.x+rect.width/2,y=rect.y+rect.height/2;
+    return {x,y,hit:button.contains(document.elementFromPoint(x,y))};
+  });
+  assert.ok(confirmPoint.hit,"La confirmation doit être à portée de touche");
+  const {x:confirmX,y:confirmY}=confirmPoint;
+  await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:confirmX,y:confirmY}]});
+  await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  await page.locator("#feedback").waitFor({state:"visible",timeout:2500}).catch(async error=>{
+    const message=await quizNotebook.locator(".math-notebook-recognition [role=status]").textContent();
+    throw new Error("Validation tactile : "+message,{cause:error});
+  });
   assert.equal((await snapshot()).round.completed,1);
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
   console.log("OK Lecture au doigt sous les calculs, puis validation explicite et sauvegarde");
