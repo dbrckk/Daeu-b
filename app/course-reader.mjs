@@ -20,7 +20,8 @@ try{
   const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
   const notebookStore=createPersistence(backedStorage(localStorage),ids);
   mountNotebook(byId("courseNotebook"),{context:"cours:"+slug,adapter:notebookStore,
-    title:"Ma prise de notes et mes calculs — "+courseInfo(slug)});
+    title:"Ma prise de notes et mes calculs — "+courseInfo(slug),
+    paperOnly:true,showEditor:true,paperPrompt:"Note tes idées et pose les calculs du chapitre sur cette feuille."});
 }catch{byId("courseNotebook").textContent="Le cahier ne peut pas être ouvert : vérifie le stockage du navigateur.";}
 
 const practice=byId("coursePractice");
