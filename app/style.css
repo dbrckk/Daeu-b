@@ -623,3 +623,9 @@
 .math-notebook.is-paper-only .math-notebook-paper-modes.has-undo button{padding-inline:2px;font-size:.8rem}
 .math-notebook-paper-retry{min-height:44px;margin:0 6px 6px 0;color:#20394c;background:#eef3f5;border-color:#a5b2c1}
 .math-notebook-paper-retry:hover{background:#dce8f1}
+
+.math-notebook-paper-navigation{flex-wrap:wrap;column-gap:8px}
+.math-notebook-paper-navigation .math-notebook-validate-page{
+  font-size:.8rem;padding-inline:8px;color:#20394c;background:#eef3f5;border-color:#a5b2c1
+}
+.math-notebook-recognition-source{margin:6px 0 0}

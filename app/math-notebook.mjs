@@ -419,6 +419,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const recognitionCandidate=document.createElement("div");recognitionCandidate.className="math-notebook-recognition-candidate";
   recognitionCandidate.hidden=true;
   const recognitionValue=document.createElement("strong");
+  const recognitionSource=document.createElement("p");recognitionSource.className="helper math-notebook-recognition-source";
+  recognitionSource.hidden=!paperOnly;
   const recognitionCaveat=document.createElement("p");recognitionCaveat.className="helper";
   recognitionCaveat.textContent="Vérifie impérativement que les chiffres correspondent à ta feuille avant de corriger : l'analyse peut se tromper.";
   const acceptReading=document.createElement("button");acceptReading.type="button";acceptReading.className="primary";
@@ -448,6 +450,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       return false;
     }
     recognizedText=result.text;
+    recognitionSource.textContent="Page "+(pageIndex+1)+" de ta copie";
     recognitionValue.textContent="Lecture proposée : "+formatted;
     recognitionCandidate.hidden=false;
     recognitionStatus.textContent="Confirme la lecture si elle correspond à ce que tu as écrit.";
@@ -462,6 +465,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         return;
       }
       readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
+      validateCurrentPage.disabled=true;
       recognitionStatus.textContent="Résultat reconnu et corrigé avec le moteur des exercices. Progression enregistrée.";
     }catch(error){recognitionStatus.textContent="Correction impossible : "+error.message;}
   }
@@ -484,12 +488,16 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   }
   rejectReading.addEventListener("click",()=>{
     invalidateRecognition();
-    if(paperOnly){recognition.classList.add("paper-shown");manual.classList.add("paper-shown");}
-    recognitionStatus.textContent="Lecture rejetée. Réécris le nombre en grand sur la page ou compare ta copie au corrigé.";
+    const message="Lecture rejetée. Réécris le résultat sur une ligne séparée ou compare ta copie au corrigé.";
+    if(paperOnly){
+      showManualStatus(message);
+      return;
+    }
+    recognitionStatus.textContent=message;
   });
   const recognitionButtons=document.createElement("div");recognitionButtons.className="math-notebook-recognition-actions";
   recognitionButtons.append(acceptReading,rejectReading);
-  recognitionCandidate.append(recognitionValue,recognitionCaveat,recognitionButtons);
+  recognitionCandidate.append(recognitionValue,recognitionSource,recognitionCaveat,recognitionButtons);
   recognitionHelp.hidden=paperOnly;readButton.hidden=paperOnly;
   recognitionCaveat.hidden=paperOnly;
   recognition.append(recognitionTitle,recognitionHelp,readButton,recognitionStatus,recognitionCandidate);
@@ -700,6 +708,10 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   quickValidate.className="primary math-notebook-quick-validate";
   quickValidate.textContent="Valider ma réponse sur la feuille";
   quickValidate.hidden=!handwrittenReview||readOnly;
+  const validateCurrentPage=document.createElement("button");
+  validateCurrentPage.type="button";validateCurrentPage.className="subtle small math-notebook-validate-page";
+  validateCurrentPage.textContent="Lire cette page";
+  validateCurrentPage.hidden=true;
   const manual=document.createElement("section");manual.className="math-notebook-manual";
   const invalidateReading=invalidateRecognition;
   invalidateRecognition=()=>{
@@ -708,6 +720,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       manual.classList.remove("paper-shown");
   };
   manual.hidden=!handwrittenReview||readOnly;
+  let showManualStatus=()=>{};
   if(handwrittenReview){
     if(typeof handwrittenReview.expected!=="string"||typeof handwrittenReview.explanation!=="string"
       ||typeof handwrittenReview.onDecision!=="function")
@@ -718,6 +731,11 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const reveal=document.createElement("button");reveal.type="button";reveal.className="primary";
     reveal.textContent="Afficher le corrigé et valider ma feuille";
     const manualStatus=document.createElement("p");manualStatus.className="helper";manualStatus.setAttribute("role","status");
+    showManualStatus=message=>{
+      manual.classList.add("paper-shown");
+      manualStatus.textContent=message;
+      manualStatus.scrollIntoView({behavior:"instant",block:"nearest"});
+    };
     const retry=document.createElement("button");retry.type="button";retry.className="subtle math-notebook-paper-retry";
     retry.textContent="Revenir à ma feuille";
     retry.hidden=!paperOnly;
@@ -764,28 +782,23 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       reveal.disabled=true;quickValidate.disabled=true;readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
       inkEquationsRead.disabled=true;inkEquationsConfirm.disabled=true;inkEquationsGrade.disabled=true;
       inkEquationsEditToggle.disabled=true;inkEquationsEditor.hidden=true;
-      comparison.hidden=false;retry.hidden=true;
+      comparison.hidden=false;retry.hidden=true;validateCurrentPage.disabled=true;
       manualStatus.textContent="Corrigé affiché. Compare ta réponse manuscrite, puis indique ton résultat.";
     });
-    quickValidate.addEventListener("click",()=>{
+    const validatePage=target=>{
       if(paperOnly)manual.classList.remove("paper-shown");
       manualStatus.textContent="";
-      const lastWritten=work.pages.findLastIndex(page=>page.length>0);
-      if(lastWritten<0){
+      if(target<0){
         if(paperOnly)manual.classList.add("paper-shown");
         reveal.click();
         manualStatus.scrollIntoView({behavior:"instant",block:"nearest"});
         return;
       }
-      // Une résolution peut occuper plusieurs pages ; chercher la réponse
-      // finale sur la dernière page écrite, et non sur une page restée vide.
-      if(pageIndex!==lastWritten){
-        goToPage(lastWritten);
-      }
+      if(pageIndex!==target)goToPage(target);
       if(typeof handwrittenReview.onRecognized==="function"&&!readButton.disabled){
         // Lecture locale sans correction ni transfert de données vers un OCR.
         // Le clic de confirmation reste obligatoire avant toute notation.
-        if(readNumber({allowBottom:handwrittenReview.allowEquation!==false})){
+        if(readNumber({allowBottom:true})){
           if(paperOnly)recognition.classList.add("paper-shown");
           recognitionCandidate.scrollIntoView({behavior:"instant",block:"nearest"});
           return;
@@ -800,12 +813,12 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
           return;
         }
       }
-      if(paperOnly)manual.classList.add("paper-shown");
-      manualStatus.textContent=handwrittenReview.allowEquation===false
-        ?"Le numéro du choix n’a pas été reconnu. Réécris-le seul sur la feuille ou ouvre le corrigé."
-        :"Le résultat n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé.";
-      manualStatus.scrollIntoView({behavior:"instant",block:"nearest"});
-    });
+      showManualStatus(handwrittenReview.allowEquation===false
+        ?"Le numéro du choix n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé."
+        :"Le résultat n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé.");
+    };
+    quickValidate.addEventListener("click",()=>validatePage(work.pages.findLastIndex(page=>page.length>0)));
+    validateCurrentPage.addEventListener("click",()=>validatePage(pageIndex));
     decisions.append(success,failure);
     comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);
     manual.append(manualTitle,manualIntro,retry,reveal,manualStatus,comparison);
@@ -858,8 +871,12 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       prev.textContent="‹";prev.setAttribute("aria-label","Page précédente");
       nextPage.textContent="›";nextPage.setAttribute("aria-label","Page suivante");
       indicator.setAttribute("aria-live","polite");
-      paperNavigation.append(prev,indicator,nextPage);
-      syncPageNavigation=()=>{paperNavigation.hidden=work.pages.length<2;};
+      paperNavigation.append(prev,indicator,nextPage,validateCurrentPage);
+      syncPageNavigation=()=>{
+        paperNavigation.hidden=work.pages.length<2;
+        validateCurrentPage.hidden=!handwrittenReview||work.pages[pageIndex].length===0
+          ||pageIndex===work.pages.findLastIndex(page=>page.length>0);
+      };
     }else paperNavigation.hidden=true;
     const paperTop=document.createElement("div");paperTop.className="math-notebook-paper-top";
     if(paperPrompt&&!readOnly){
