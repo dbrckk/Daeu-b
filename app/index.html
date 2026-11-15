@@ -90,7 +90,11 @@
         <p class="helper">Les variantes changent les données des exercices. Une réussite après indice aide à apprendre, mais ne valide pas la maîtrise. La confirmation exige une réussite sans indice sur une autre date.</p>
         <div id="notification" class="notice" role="status" aria-live="polite" hidden></div>
         <section id="quiz" class="quiz" aria-label="Exercice en cours" hidden>
-          <div class="quiz-top"><span id="quizCount">Question 1/10</span><span id="quizTopic">Chapitre</span></div>
+          <div class="quiz-top">
+            <span id="quizCount"></span>
+            <span id="quizTopic">Chapitre</span>
+            <button type="button" id="pauseQuiz" class="subtle small" hidden>Mettre en pause</button>
+          </div>
           <progress id="quizProgress" max="10" value="0" aria-label="Progression dans la séance"></progress>
           <h3 id="questionText"></h3>
           <div id="quizNotebook"></div>
