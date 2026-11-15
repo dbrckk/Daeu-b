@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v59 — examen blanc sur mobile
+
+- Les quatre exercices sont accessibles au-dessus de la feuille. Le numéro actif est repéré visuellement et annoncé aux lecteurs d’écran.
+- Avant de rendre une copie manuscrite, la confirmation indique quels exercices sont encore sans tracé sauvegardé. Revenir à la feuille conserve la copie et le chronomètre.
+
 ## v58 — travailler sur mobile
 
 - Le quiz affiche le numéro de la question et permet de mettre la séance en pause. Le bouton de reprise rouvre la question en cours avec ses traits sauvegardés.

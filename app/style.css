@@ -486,10 +486,36 @@
 .paper-exam-active>.exam-status h3,.paper-exam-active>.exam-status .eyebrow{display:none}
 .paper-exam-active .exam-time-wrap{color:#364758;font-size:.75rem}
 .paper-exam-active .exam-time-wrap strong{font-size:1rem;color:#1d3046}
-.paper-exam-active>.exam-nav{display:none}
-.paper-exam-active .exam-actions{background:#e8e6e0e8;padding:5px 0;margin-top:4px;gap:6px}
+.paper-exam-active>.exam-nav{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;
+  max-width:960px;margin:4px auto 6px
+}
+.paper-exam-active>.exam-nav button{
+  min-height:44px;padding:4px;background:#fff;color:#23394a;border-color:#aab9c4
+}
+.paper-exam-active>.exam-nav button[aria-current="step"]{
+  background:#183c52;color:#fff;border-color:#183c52
+}
+.paper-exam-active>#examPosition{display:none}
+.paper-exam-active #examNotebook{max-width:960px}
+.paper-exam-active #examNotebook .math-notebook-sheet-viewport{
+  height:calc(100dvh - 235px);min-height:300px
+}
+.exam-paper-submit{
+  color-scheme:light;width:min(440px,calc(100% - 28px));max-height:calc(100dvh - 28px);
+  padding:20px;border:1px solid #aab9c4;border-radius:12px;background:#fff;color:#20394c
+}
+.exam-paper-submit::backdrop{background:#102639b8}
+.exam-paper-submit h3{margin:0;font-size:1.35rem}
+.exam-paper-submit-actions{display:grid;gap:8px}
+.exam-paper-submit-actions button{min-height:48px;touch-action:manipulation}
+.exam-paper-submit-actions .subtle{background:#eef3f5;color:#20394c;border-color:#aab9c4}
+.exam-paper-submit-actions .primary{background:#183c52;color:#fff}
+.exam-paper-submit :focus-visible,.paper-exam-active>.exam-nav :focus-visible{outline-color:#235972}
+#examPaperSubmitError{color:#922d25}
+.paper-exam-active .exam-actions{background:#e8e6e0;padding:5px 0 max(5px,env(safe-area-inset-bottom));margin-top:4px;gap:6px;max-width:960px}
 .paper-exam-active .exam-actions button{background:#fff;color:#1d3046;border:1px solid #a5b2c1;border-radius:3px;font-weight:650}
-.paper-exam-active .exam-actions button.primary{background:#edf1e9}
+.paper-exam-active .exam-actions button.primary{background:#183c52;color:#fff;margin-left:auto}
 @media(max-width:600px){
  .math-notebook.is-paper-only .math-notebook-sheet-viewport{height:calc(100dvh - 112px);min-height:320px}
  .paper-exam-active .exam-actions button{min-height:44px;padding:7px 10px}
