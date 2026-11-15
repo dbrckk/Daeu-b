@@ -19,12 +19,18 @@ export async function verifyPwaUpgrade(browser){
     const archive=execFileSync("git",["archive",BASELINE,"app"],{maxBuffer:16*1024*1024});
     execFileSync("tar",["-xf","-","-C",oldRoot],{input:archive});
     let root=join(oldRoot,"app");
+    let nextRelease=false;
     const server=createServer(async(req,res)=>{
       const pathname=new URL(req.url,"http://127.0.0.1").pathname;
       const path=resolve(root,"."+ (pathname==="/"?"/index.html":pathname));
       if(!path.startsWith(root+sep)){res.writeHead(404).end();return;}
       try{
-        const bytes=await readFile(path);
+        let bytes=await readFile(path);
+        if(nextRelease&&root===newRoot&&pathname==="/sw.js"){
+          bytes=bytes.toString().replace(/const CACHE="([^"]+)"/,'const CACHE="$1-smoke"');
+        }else if(nextRelease&&root===newRoot&&["/","/index.html"].includes(pathname)){
+          bytes=bytes.toString().replace(/id="appVersion">\d+/, 'id="appVersion">Suivante');
+        }
         res.writeHead(200,{"Content-Type":(MIME[extname(path)]??"application/octet-stream"),"Cache-Control":"no-store"});
         res.end(bytes);
       }catch{res.writeHead(404).end();}
@@ -80,6 +86,21 @@ export async function verifyPwaUpgrade(browser){
         await page.keyboard.press("Escape");
         assert.ok(await page.locator("#examFormula").isHidden());
         assert.equal(await page.evaluate(()=>document.activeElement?.id),"examFormulaOpen");
+        const version=page.locator("#appVersion");
+        const displayed=await version.textContent();
+        assert.match(nextCache,new RegExp("-v"+displayed+"$"));
+        await context.setOffline(false);
+        nextRelease=true;
+        const update=page.locator("#appUpdate");
+        await update.click();
+        await page.getByRole("button",{name:"Ouvrir la nouvelle version"}).waitFor();
+        assert.equal(await version.textContent(),displayed,"Aucun rechargement forcé pendant une copie");
+        assert.deepEqual(await snapshot(),before);
+        await update.click();
+        await page.locator("#examActive.paper-exam-active").waitFor({state:"visible"});
+        assert.equal(await version.textContent(),"Suivante");
+        assert.deepEqual(await snapshot(),before,"La recharge demandée préserve la copie");
+        console.log("OK Version affichée et mise à jour à la demande, copie conservée");
         console.log("OK Mise à niveau du cache v62, reprise hors ligne et retour clavier à la copie");
       }finally{await context.close();}
     }finally{await new Promise(ok=>server.close(ok));}

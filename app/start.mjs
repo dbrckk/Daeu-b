@@ -2,6 +2,7 @@
  * Restaure la copie locale secondaire AVANT toute lecture/écriture du moteur.
  * Une indisponibilité d'IndexedDB ne doit jamais bloquer l'application.
  */
+import "./app-update.mjs";
 import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";

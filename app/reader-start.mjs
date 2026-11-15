@@ -1,4 +1,5 @@
 /** Démarrage unifié des lecteurs : récupération locale avant montage, cloud non bloquant. */
+import "./app-update.mjs";
 import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";
