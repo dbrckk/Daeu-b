@@ -357,7 +357,19 @@ try{
     assert.equal(Object.keys(restored.workbook.entries).length,bulk.entries);
     assert.deepEqual(restored.workbook.entries[key],saved.workbook.entries[key]);
     assert.equal(restored.exams.history.length,6);
+    await recoveredPage.locator("#examStart").click();
+    await recoveredPage.locator("#examFormulaOpen").click();
+    await recoveredPage.locator("#examFormula").waitFor({state:"visible"});
+    const deadline=await recoveredPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).exams.active.deadlineAt);
+    await recoveredPage.clock.setSystemTime(deadline+1000);
+    await recoveredPage.locator("#examResult").waitFor({state:"visible",timeout:8000});
+    assert.ok(await recoveredPage.locator("#examFormula").isHidden());
+    const expired=await recoveredPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.equal(expired.exams.active,null);
+    assert.equal(expired.exams.history.at(-1).reason,"timeout");
+    assert.deepEqual(expired.workbook.entries[key],saved.workbook.entries[key]);
     await recoveredPage.close();
+    console.log("OK Échéance hors ligne : le formulaire se ferme et la copie est rendue une fois");
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}

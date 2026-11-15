@@ -20,6 +20,12 @@ La v62 est déjà utilisable pour étudier. Ce plan remplace les anciennes prior
 | Examens blancs | Cinq sujets à quatre exercices, chronomètre et historique | Rejouer une épreuve manuscrite complète. Rendre le formulaire de l’application accessible depuis la copie pendant une simulation, sans quitter l’épreuve. |
 | Publication | URL publique, CI et contrôle du cache | Publier la version candidate et consigner les preuves exactes de ce qui a été validé. |
 
+## Avancement vérifié
+
+- v63 · six examens dont cinq copies d’essai volumineuses, restauration IndexedDB hors ligne après fermeture et absence de perte lors d’un quota simulé. Contrôle de concurrence sur le miroir. La synchronisation avec un compte Supabase réel et une mise à jour v62 vers la version candidate avec copie ouverte restent à vérifier.
+- v64 · formulaire d’entraînement hors ligne dans la copie, retour à la feuille et conservation du délai vérifiés dans Chromium.
+- v65 · [échantillon pédagogique des 20 jalons](audits/REVUE_FINALE_MATHS.md) et correction de l’attribution de `l12`.
+
 ## Lot 1 · Continuité et sécurité des sauvegardes
 
 - [ ] Rejouer dans `scripts/paper-only-smoke.mjs` une séance et un examen manuscrit avec plusieurs pages, puis une reprise après fermeture, rechargement hors réseau et réouverture de l’historique. Comparer la question, l’exercice actif, les traits et les étapes à retravailler avant et après. Rejouer l’actualisation d’un cache v62 vers celui de la version candidate avec des données déjà enregistrées.
@@ -39,7 +45,7 @@ La v62 est déjà utilisable pour étudier. Ce plan remplace les anciennes prior
 
 ## Lot 3 · Dernière revue pédagogique et accessibilité
 
-- [ ] À partir de [l’audit de couverture](AUDIT_COUVERTURE.md), relire un exercice fixe, une variante et un transfert par jalon obligatoire. Vérifier les calculs, les domaines, la cohérence de la correction et le lien vers le cours. Traiter `l12` comme un exercice de dérivation en contexte de fonction rationnelle. Si le classement change, conserver son identifiant et vérifier les révisions existantes. Examiner en priorité les inéquations et les asymptotes, dont les questions fixes sont à choix.
+- [x] À partir de [l’audit de couverture](AUDIT_COUVERTURE.md), relire un exercice fixe, une variante et un transfert par jalon obligatoire. Vérifier les calculs, les domaines, la cohérence de la correction et le lien vers le cours. Traiter `l12` comme un exercice de dérivation en contexte de fonction rationnelle. Si le classement change, conserver son identifiant et vérifier les révisions existantes. Examiner en priorité les inéquations et les asymptotes, dont les questions fixes sont à choix.
 - [ ] Rejouer les cinq examens avec leurs corrigés et vérifier que leurs profils signalent le tronc commun et les compléments. Contrôler au moins une copie complète sans se servir du corrigé avant la remise. Corriger les erreurs démontrées avant d’ajouter du contenu.
 - [ ] Vérifier à 320 px puis en paysage la feuille, la zone d’écriture, le passage entre pages, la confirmation et le retour au corrigé. Vérifier au clavier sur ordinateur les commandes, tabulations et focus. Faire un essai sur Android physique et avec TalkBack dès qu’un appareil est disponible. Consigner clairement la différence avec les résultats Chromium en mode mobile.
 

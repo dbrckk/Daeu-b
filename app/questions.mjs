@@ -48,9 +48,9 @@ export const TOPICS=[
 ]},
 {slug:"statistiques",title:"Statistiques descriptives",lesson:"11-statistiques.md",jalons:[9],questions:[
  n("st01","Moyenne des notes 2, 4, 6 ?",4,"Somme divisée par l'effectif.","(2+4+6)/3=4. La somme vaut 12, puis on la divise par les 3 observations."),
- n("st02","Médiane de 1, 3, 5, 7, 9 ?",5,"Prends la valeur centrale triée.","Cinquième série triée de 5 valeurs : le troisième élément est 5."),
+ n("st02","Médiane de 1, 3, 5, 7, 9 ?",5,"Prends la valeur centrale triée.","La série de cinq valeurs est déjà triée. La médiane est le troisième élément, 5."),
  n("st03","Moyenne pondérée : 10 (coefficient 2), 16 (coefficient 1) ?",12,"Divise par la somme des coefficients.","(10×2+16×1)/(2+1)=36/3=12."),
- n("st04","Étendue des valeurs 3, 8, 2, 12 ?",10,"Maximum moins minimum.","12−2=10. L'étendue mesure l'intervalle entre la plus grande et la plus petite valeur."),
+ n("st04","Étendue des valeurs 3, 8, 2, 12 ?",10,"Maximum moins minimum.","12−2=10. L’étendue est la différence entre le maximum et le minimum."),
  n("st05","Variance population de 1, 2, 3 ?",2/3,"Moyenne 2 puis somme des carrés des écarts divisée par 3.","[(1−2)² + (2−2)² + (3−2)²] /3 = 2/3."),
  c("st06","Deux séries ont la même moyenne. Laquelle est la moins dispersée ?",["celle avec l'écart-type le plus faible","celle avec le plus grand maximum","impossible à déterminer avec les écarts-types"],"celle avec l'écart-type le plus faible","L'écart-type mesure la dispersion.","À moyenne égale, un écart-type plus faible indique une dispersion plus faible."),
  n("st07","Médiane de la série ordonnée 2 ; 4 ; 4 ; 8 ; 12 ; 14 ?",6,"Pour six valeurs, moyenne des rangs 3 et 4.","Avec N=6, les deux valeurs centrales sont 4 et 8. La médiane vaut (4+8)/2 = 6, pas la moyenne de toute la série."),
@@ -74,7 +74,8 @@ export const TOPICS=[
  c("d04","Si f′ est strictement négative sur I, f est…",["strictement décroissante","strictement croissante","constante"],"strictement décroissante","Relie le signe de f′ et la variation.","Une dérivée négative signifie une fonction strictement décroissante."),
  n("d05","Minimum de f(x)=x²−6x+8 ?",-1,"Sommet de parabole ou dérivée nulle.","f=(x−3)²−1, minimum −1 en x=3."),
  c("d06","Dérivée de u(x)v(x) ?",["u′v+uv′","u′v′","uv"],"u′v+uv′","Règle du produit.","Le produit demande u′v + uv′."),
- c("d07","f″(x)>0 partout sur I signifie que f est…",["convexe","concave","forcément positive"],"convexe","Signe de la dérivée seconde.","f″>0 entraîne une fonction convexe sur I.")
+ c("d07","f″(x)>0 partout sur I signifie que f est…",["convexe","concave","forcément positive"],"convexe","Signe de la dérivée seconde.","f″>0 entraîne une fonction convexe sur I."),
+ n("l12","f(x)=x+2+3/(x−1). Calculer f′(3).",0.25,"Dérivée de 3/(x−1) : −3/(x−1)².","Sur x≠1, f′(x)=1−3/(x−1)². En x=3, f′(3)=1−3/4=1/4 ; toujours vérifier le domaine.")
 ]},
 {slug:"limites",title:"Limites et asymptotes",lesson:"07-limites-asymptotes.md",jalons:[11,13],questions:[
  n("l01","Limite de (3x²−x)/(x²+1) quand x→+∞ ?",3,"Divise par x².","(3−1/x)/(1+1/x²) tend vers 3."),
@@ -87,12 +88,11 @@ export const TOPICS=[
  c("l08","Une valeur interdite du domaine entraîne-t-elle toujours une asymptote verticale ?",["non","oui"],"non","Pense à un trou amovible.","(x²−1)/(x−1) n'est pas définie en 1 mais sa limite est 2, pas l'infini."),
  c("l09","Asymptote oblique de f(x)=x+3+4/(x−2) quand x→+∞ ?",["y=x+3","y=x−3","y=4","x=2"],"y=x+3","Soustrais la droite et étudie la limite du reste.","f(x)−(x+3)=4/(x−2)→0 à l’infini. Donc y=x+3 est asymptote oblique ; x=2 est une asymptote verticale."),
  c("l10","Limite de 5/(x−2) quand x tend vers 2 par valeurs inférieures ?",["−∞","+∞","0"],"−∞","Le dénominateur est négatif et tend vers 0.","Pour x<2, x−2<0 et 5>0 ; le quotient devient négatif sans borne en approchant 2 par la gauche."),
- n("l11","Limite de (√(x+4)−2)/x lorsque x→0 ?",0.25,"Multiplie par le conjugué √(x+4)+2.","Pour x≠0, la fraction vaut 1/(√(x+4)+2). La limite en 0 existe et vaut 1/(2+2)=1/4. La fonction initiale reste non définie en x=0."),
- n("l12","f(x)=x+2+3/(x−1). Calculer f′(3).",0.25,"Dérivée de 3/(x−1) : −3/(x−1)².","Sur x≠1, f′(x)=1−3/(x−1)². En x=3, f′(3)=1−3/4=1/4 ; toujours vérifier le domaine.")
+ n("l11","Limite de (√(x+4)−2)/x lorsque x→0 ?",0.25,"Multiplie par le conjugué √(x+4)+2.","Pour x≠0, la fraction vaut 1/(√(x+4)+2). La limite en 0 existe et vaut 1/(2+2)=1/4. La fonction initiale reste non définie en x=0.")
 ]},
 {slug:"continuite",title:"Continuité et TVI",lesson:"08-continuite-tvi.md",jalons:[14],questions:[
  c("t01","f continue sur [0;2], f(0)=−1 et f(2)=4 : le TVI garantit…",["au moins un zéro","exactement un zéro","aucun zéro"],"au moins un zéro","Le signe change entre les deux bornes.","Par continuité et changement de signe, f s'annule au moins une fois."),
- c("t02","Pour montrer qu'une racine est unique après le TVI, on utilise…",["la stricte monotonie","seulement un dessin","l'existence du domaine"],"la stricte monotonie","Une fonction strictement monotone ne prend chaque valeur qu'une fois.","Le TVI donne l'existence ; la stricte monotonie donne l'unicité."),
+ c("t02","Pour montrer qu'une racine est unique après le TVI, on utilise…",["la stricte monotonie","seulement un dessin","l'existence du domaine"],"la stricte monotonie","Une fonction strictement monotone ne prend chaque valeur qu'une fois.","Le TVI donne l’existence sous ses hypothèses. La stricte monotonie donne au plus une racine sur l’intervalle."),
  n("t03","f(x)=x³−2. Combien vaut f(1) ?",-1,"Remplace x par 1.","1³−2=−1. Cette valeur est négative à l'extrémité gauche de l'intervalle."),
  n("t04","f(x)=x³−2. Combien vaut f(2) ?",6,"Remplace x par 2.","2³−2=6. Cette valeur est positive à l'extrémité droite de l'intervalle."),
  c("t05","Le TVI s'applique directement si f est…",["continue sur [a;b]","seulement dérivable en a","non définie en a"],"continue sur [a;b]","Relis ses hypothèses.","L'hypothèse centrale est la continuité sur tout l'intervalle fermé."),

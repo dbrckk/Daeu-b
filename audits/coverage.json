@@ -20,12 +20,7 @@
     "optionalJalons": 3,
     "sparseFixed": [],
     "singleVariant": [],
-    "crossTopic": [
-      {
-        "id": "l12",
-        "jalon": 12
-      }
-    ]
+    "crossTopic": []
   },
   "jalons": [
     {
@@ -438,13 +433,9 @@
         "v17",
         "v18"
       ],
-      "crossTopicFixedIds": [
-        "l12"
-      ],
-      "attention": [
-        "question hors jalons du domaine : l12"
-      ],
-      "priority": "P0",
+      "crossTopicFixedIds": [],
+      "attention": [],
+      "priority": "P1",
       "levelEvidence": "non étiqueté : diagnostic/application/transfert non mesuré",
       "writtenReasoning": "non noté automatiquement"
     },
