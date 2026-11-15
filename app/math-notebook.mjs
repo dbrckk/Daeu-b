@@ -7,7 +7,7 @@ import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeBottomNumericInk,recognizeNumericInk,recognizeStackedFractionInk} from "./numeric-ink.mjs";
-import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
+import {recognizeEquationInk,extractFinalNumericAnswer,recognizeFinalEquationInk} from "./equation-ink.mjs";
 import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-transcript.mjs";
 import {nearestInkStroke} from "./ink-eraser.mjs";
 import {pageInkFingerprint} from "./ink-drafts.mjs";
@@ -439,7 +439,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const page=work.pages[pageIndex];
     let result=recognizeNumericInk(page);
     if(result.status!=="recognized"&&handwrittenReview.allowEquation!==false)
-      result=recognizeStackedFractionInk(page)??result;
+      result=(allowBottom?recognizeFinalEquationInk(page):null)??recognizeStackedFractionInk(page)??result;
     if(allowBottom&&result.status!=="recognized")result=recognizeBottomNumericInk(page)??result;
     if(result.status!=="recognized"){
       recognitionStatus.textContent=result.message;
@@ -452,7 +452,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       return false;
     }
     recognizedText=result.text;
-    recognitionSource.textContent="Page "+(pageIndex+1)+" de ta copie";
+    recognitionSource.textContent="Page "+(pageIndex+1)+" de ta copie"+(result.expression?" · "+result.expression:"");
     recognitionValue.textContent="Lecture proposée : "+formatted;
     recognitionCandidate.hidden=false;
     recognitionStatus.textContent="Confirme la lecture si elle correspond à ce que tu as écrit.";

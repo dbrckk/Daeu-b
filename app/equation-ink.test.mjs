@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {encodeStroke} from "./workbook.mjs";
-import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
+import {recognizeEquationInk,extractFinalNumericAnswer,recognizeFinalEquationInk} from "./equation-ink.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 
 // Tracés d'essai dessinés comme des gestes séparés, pas du texte OCR préencodé.
@@ -553,4 +553,19 @@ test("Sous la barre : coefficients décimaux exacts et expressions partielles re
     assert.equal(extractFinalNumericAnswer(draft.text),null);
     assert.notEqual(recognizeEquationInk(strokes).status,"recognized",expression);
   }
+});
+
+
+test("Proposer le résultat de la dernière égalité même après un brouillon illisible",()=>{
+  const upper=encodeStroke([[200,5],[290,10],[153,30],[290,56]]);
+  const fraction=stackedIntegerInk("3","4").map(raw=>encodeStroke(raw.split(";").map(point=>{
+    const [x,y]=point.split(",").map(Number);
+    return [x,y+200];
+  })));
+  assert.deepEqual(recognizeFinalEquationInk([upper,...fraction]),
+    {status:"recognized",text:"3/4",expression:"x=3/4"});
+  assert.equal(recognizeFinalEquationInk(stackedIntegerInk("3","0")),null);
+  assert.equal(recognizeFinalEquationInk(ink(["x=4","1+2=3"])),null);
+  assert.equal(recognizeFinalEquationInk(ink(["x=4","x+1=5"])),null);
+  assert.equal(recognizeFinalEquationInk(ink(["2x=12","x=6"]))?.text,"6");
 });
