@@ -373,3 +373,7 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 - Tableau détaillé [Markdown](AUDIT_COUVERTURE.md) et [JSON](audits/coverage.json), régénérables et contrôlés en CI via `node scripts/audit-coverage.mjs --check`.
 - Les questions hors domaine, jalons à faible couverture et compléments facultatifs sont explicitement identifiés ; aucune note de maîtrise n'est fabriquée.
 - Aucun changement du moteur, des exercices, de la PWA ni des sauvegardes locales.
+
+## Intégrité du cache hors connexion
+
+Après avoir modifié une ressource listée dans le service worker, actualiser les empreintes SHA-256 avec `python3 scripts/sync_pwa_integrity.py`. La vérification des ressources contrôle ensuite que les empreintes correspondent aux fichiers livrés. Une réponse périmée invalide l’installation et laisse le cache actif disponible.
