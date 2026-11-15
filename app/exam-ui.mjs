@@ -266,6 +266,7 @@ function renderExamSection(){
   byId("examPosition").textContent="Exercice "+(session.sectionIndex+1)+" sur 4 · 5 points";
   byId("examSectionTitle").textContent=section.title;
   byId("examContext").textContent=section.context;
+  byId("examActive").classList.toggle("paper-exam-active",session.paperOnly===true);
   mountNotebook(byId("examNotebook"),{
     context:sheetKey(session,section.id),adapter,title:"Examen — exercice "+(session.sectionIndex+1)+" : "+section.title,
     checkingEnabled:false,paperOnly:session.paperOnly===true,paperPrompt:session.paperOnly?examPaperPrompt(section):""
@@ -273,7 +274,6 @@ function renderExamSection(){
   const form=byId("examQuestions");form.replaceChildren();
   form.hidden=session.paperOnly===true;
   byId("examNotes").closest(".exam-notes").hidden=session.paperOnly===true;
-  byId("examActive").classList.toggle("paper-exam-active",session.paperOnly===true);
   section.questions.forEach((q,i)=>{
     const field=element("fieldset","exam-question");
     const legend=element("legend","","Question "+(i+1)+" · "+q.points+" point"+(q.points>1?"s":""));

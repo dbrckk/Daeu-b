@@ -133,7 +133,16 @@ try{
   const afterDrag=await coordinates();
   assert.ok(afterDrag.left>afterZoom.left&&afterDrag.top>afterZoom.top);
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
-  await pen.click();
+  await context.setOffline(true);
+  await page.reload({waitUntil:"domcontentloaded"});
+  await zoom.waitFor();
+  assert.equal(await zoom.inputValue(),"200");
+  const resumed=await coordinates();
+  assert.ok(Math.abs(resumed.left-afterDrag.left)<.01&&Math.abs(resumed.top-afterDrag.top)<.01,
+    "Le zoom et la position sont restaurés après rechargement hors connexion");
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  assert.equal(await pen.getAttribute("aria-pressed"),"true");
+  await context.setOffline(false);
   await zoom.selectOption("100");
   await page.getByRole("button",{name:"Voir l’énoncé"}).click();
   console.log("OK Zoom progressif et déplacement de la feuille sans nouveau trait");
@@ -181,7 +190,8 @@ try{
   await page.reload({waitUntil:"networkidle"});
   assert.ok(await page.locator("#quiz.paper-mode").isVisible());
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages.length,2);
-  assert.match(await paperPages.textContent(),/Page 2\/2/);
+  assert.match(await paperPages.textContent(),/Page 1\/2/);
+  await paperPages.getByRole("button",{name:"Page suivante"}).click();
   await page.getByRole("button",{name:"Annuler le dernier trait"}).click();
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[1].length,0);
   await paperPages.getByRole("button",{name:"Page précédente"}).click();

@@ -53,6 +53,32 @@ export function insertAtSelection(value,symbol,start,end){
   const result=(text.slice(0,a)+addition+text.slice(b)).slice(0,MAX_TEXT);
   return {value:result,caret:Math.min(result.length,a+addition.length)};
 }
+const VIEW_KEY="daeu-b-paper-views-v1";
+const ZOOM_LEVELS=[["100","Largeur de l’écran"],["150","Zoom 1,5×"],["200","Zoom 2×"],["300","Zoom 3×"]];
+function savedPaperViews(storage){
+  try{
+    const entries=JSON.parse(storage.getItem(VIEW_KEY)??"[]");
+    if(Array.isArray(entries))return new Map(entries.slice(-80));
+  }catch{/* Une préférence locale illisible ne bloque pas le cahier. */}
+  return new Map();
+}
+function readPaperView(storage,context,pageCount){
+  const view=savedPaperViews(storage).get(context);
+  if(!view||!Number.isInteger(view.page)||view.page<0||view.page>=pageCount
+    ||!ZOOM_LEVELS.some(([zoom])=>zoom===view.zoom)
+    ||!Number.isFinite(view.left)||view.left<0||view.left>1
+    ||!Number.isFinite(view.top)||view.top<0||view.top>1
+    ||typeof view.writing!=="boolean")return null;
+  return view;
+}
+function writePaperView(storage,context,view){
+  try{
+    const views=savedPaperViews(storage);
+    views.delete(context);
+    views.set(context,view);
+    storage.setItem(VIEW_KEY,JSON.stringify([...views].slice(-80)));
+  }catch{/* La sauvegarde des traits est indépendante de ce réglage. */}
+}
 function grid(ctx){
   ctx.fillStyle="#fff";ctx.fillRect(0,0,PAPER_WIDTH,PAPER_HEIGHT);
   ctx.beginPath();
@@ -101,7 +127,11 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(readOnly)throw error;
     showSheetStatus("Le cahier n’a pas pu être chargé. "+error.message,"error");
   }
-  if(paperOnly&&!readOnly)pageIndex=Math.max(0,work.pages.findLastIndex(page=>page.length>0));
+  const resumeView=paperOnly&&!readOnly?readPaperView(storage,context,work.pages.length):null;
+  if(paperOnly&&!readOnly)
+    pageIndex=resumeView?.page??Math.max(0,work.pages.findLastIndex(page=>page.length>0));
+  let restorePaperView=()=>{};
+  let savePaperView=()=>{};
   let syncPageNavigation=()=>{};
   let returnToWriting=()=>{};
   const field=document.createElement("textarea");
@@ -328,6 +358,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     lastErasure=null;pageIndex=index;
     sheetViewport.scrollTo({top:0,left:0,behavior:"instant"});
     renderPages();
+    savePaperView();
   }
   prev.addEventListener("click",()=>{if(pageIndex>0)goToPage(pageIndex-1);});
   nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1)goToPage(pageIndex+1);});
@@ -858,11 +889,50 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const zoom=document.createElement("select");
     zoom.className="math-notebook-paper-zoom";
     zoom.setAttribute("aria-label","Zoom de la feuille");
-    for(const [value,label] of [["100","Largeur de l’écran"],["150","Zoom 1,5×"],["200","Zoom 2×"],["300","Zoom 3×"]]){
+    for(const [value,label] of ZOOM_LEVELS){
       const option=document.createElement("option");
       option.value=value;option.textContent=label;zoom.append(option);
     }
     const canvasOffset=()=>canvas.getBoundingClientRect().top-sheetViewport.getBoundingClientRect().top-sheetViewport.clientTop;
+    let previousView="";
+    if(!readOnly){
+      if(resumeView){
+        zoom.value=resumeView.zoom;
+        canvas.style.width=zoom.value+"%";
+      }
+      savePaperView=()=>{
+        const box=canvas.getBoundingClientRect();
+        if(!box.width||!box.height)return;
+        const start=canvasOffset()+sheetViewport.scrollTop;
+        const writing=sheetViewport.scrollTop>=start-1;
+        const view={page:pageIndex,zoom:zoom.value,writing,
+          left:Math.round(sheetViewport.scrollLeft/box.width*10000)/10000,
+          top:Math.round(Math.max(0,writing?-canvasOffset()/box.height:sheetViewport.scrollTop/Math.max(1,start))*10000)/10000};
+        const encoded=JSON.stringify(view);
+        if(previousView===encoded)return;
+        previousView=encoded;
+        writePaperView(storage,context,view);
+      };
+      restorePaperView=()=>{
+        const apply=()=>{
+          const box=canvas.getBoundingClientRect();
+          if(!box.width||!box.height)return false;
+          if(resumeView){
+            const start=canvasOffset()+sheetViewport.scrollTop;
+            const top=resumeView.writing?start+resumeView.top*box.height:resumeView.top*start;
+            sheetViewport.scrollTo({top,left:resumeView.left*box.width,behavior:"instant"});
+          }
+          sheetViewport.addEventListener("scroll",savePaperView,{passive:true});
+          return true;
+        };
+        if(apply())return;
+        // Le cahier d’un cours peut être monté dans un volet encore fermé.
+        const observer=new ResizeObserver(()=>{
+          if(!canvas.isConnected||apply())observer.disconnect();
+        });
+        observer.observe(canvas);
+      };
+    }
     zoom.addEventListener("change",()=>{
       const top=canvasOffset();
       const atWritingArea=sheetViewport.scrollTop>0&&top<=12;
@@ -873,6 +943,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const after=canvas.getBoundingClientRect();
       if(atWritingArea)sheetViewport.scrollTop+=canvasOffset()+vertical*after.height;
       sheetViewport.scrollLeft=horizontal*after.width;
+      savePaperView();
     });
     if(readOnly){controls.replaceChildren(prev,nextPage,indicator);sheetControls.hidden=true;}
     const bar=document.createElement("div");bar.className="math-notebook-paper-bar";
@@ -928,6 +999,6 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     paperTop.append(zoom,tools);
     section.append(paperTop,paperNavigation,sheetViewport,bar,recognition,inkEquations,manual,editorDetails);
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
-  host.replaceChildren(section);renderPages();
+  host.replaceChildren(section);renderPages();restorePaperView();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
 }
