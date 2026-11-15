@@ -701,78 +701,105 @@ try{
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}
-  const denseContext=await browser.newContext({
-    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
-  });
-  try{
-    const densePage=await denseContext.newPage();
-    densePage.on("pageerror",error=>errors.push(error.message));
-    await densePage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
-    await densePage.locator("#firstStart").click();
-    const savedCopy=await densePage.evaluate(async()=>{
-      const {encodeStroke}=await import("/workbook.mjs");
-      const key="daeu-b-data-v1";
-      const state=JSON.parse(localStorage.getItem(key));
-      const copyKey="quiz:"+state.round.ids[0];
-      const strokes=[];
-      for(let row=0;row<4;row++){
-        const y=35+row*100;
-        for(let column=0;column<10;column++){
-          const x=48+column*52;
-          strokes.push(encodeStroke([[x,y],[x,y+33]]));
-          if(column<9){
-            strokes.push(encodeStroke([[x+13,y+16],[x+39,y+16]]));
-            strokes.push(encodeStroke([[x+26,y+3],[x+26,y+30]]));
-          }
-        }
-        strokes.push(encodeStroke([[531,y+12],[556,y+12]]));
-        strokes.push(encodeStroke([[531,y+21],[556,y+21]]));
-        strokes.push(encodeStroke([[576,y],[576,y+33]]));
-        strokes.push(encodeStroke([[607,y],[596,y+8],[595,y+23],[605,y+33],
-          [618,y+29],[624,y+17],[620,y+5],[607,y]]));
-      }
-      for(const points of [
-        [[39,445],[73,487]],[[73,445],[39,487]],
-        [[106,461],[142,461]],[[106,471],[142,471]],[[192,443],[192,490]]
-      ])strokes.push(encodeStroke(points));
-      // Une ancienne réponse lisible en page 1 permet de détecter une
-      // validation accidentelle de la page affichée.
-      const previousAnswer=[
-        ...strokes.slice(-5,-1),
-        encodeStroke([[164,455],[173,446],[185,444],[198,449],[201,459],
-          [195,467],[181,477],[165,490],[202,490]])
-      ];
-      const pages=[previousAnswer,strokes,[]];
-      state.workbook.entries[copyKey]={text:"",pages};
-      state.revision++;
-      localStorage.setItem(key,JSON.stringify(state));
-      return {copyKey,pages};
+  for(const ambiguous of [false,true]){
+    const denseContext=await browser.newContext({
+      viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
     });
-    assert.ok(savedCopy.pages[1].length>100);
-    assert.equal(recognizeFinalEquationInk(savedCopy.pages[0])?.text,"2");
-    await densePage.reload({waitUntil:"networkidle"});
-    await densePage.locator("#quiz").waitFor({state:"visible"});
-    const navigation=densePage.locator("#quizNotebook .math-notebook-paper-navigation");
-    const previousPage=navigation.getByRole("button",{name:"Page précédente"});
-    const nextPage=navigation.getByRole("button",{name:"Page suivante"});
-    while(await nextPage.isEnabled())await nextPage.tap();
-    assert.match(await navigation.textContent(),/Page 3\/3/);
-    await previousPage.tap();
-    await previousPage.tap();
-    assert.match(await navigation.textContent(),/Page 1\/3/);
-    await densePage.locator("#quizNotebook .math-notebook-quick-validate").tap();
-    const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
-    assert.ok(await candidate.isVisible());
-    assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=1$/);
-    const stored=()=>densePage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
-    assert.equal((await stored()).round.completed,0);
-    await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
-    await densePage.locator("#feedback").waitFor({state:"visible"});
-    const corrected=await stored();
-    assert.equal(corrected.round.completed,1);
-    assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages,savedCopy.pages);
-    console.log("OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
-  }finally{await denseContext.close();}
+    try{
+      const densePage=await denseContext.newPage();
+      densePage.on("pageerror",error=>errors.push(error.message));
+      await densePage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+      await densePage.locator("#firstStart").click();
+      const savedCopy=await densePage.evaluate(async ambiguous=>{
+        const {encodeStroke}=await import("/workbook.mjs");
+        const key="daeu-b-data-v1";
+        const state=JSON.parse(localStorage.getItem(key));
+        const copyKey="quiz:"+state.round.ids[0];
+        const strokes=[];
+        for(let row=0;row<4;row++){
+          const y=35+row*100;
+          for(let column=0;column<10;column++){
+            const x=48+column*52;
+            strokes.push(encodeStroke([[x,y],[x,y+33]]));
+            if(column<9){
+              strokes.push(encodeStroke([[x+13,y+16],[x+39,y+16]]));
+              strokes.push(encodeStroke([[x+26,y+3],[x+26,y+30]]));
+            }
+          }
+          strokes.push(encodeStroke([[531,y+12],[556,y+12]]));
+          strokes.push(encodeStroke([[531,y+21],[556,y+21]]));
+          strokes.push(encodeStroke([[576,y],[576,y+33]]));
+          strokes.push(encodeStroke([[607,y],[596,y+8],[595,y+23],[605,y+33],
+            [618,y+29],[624,y+17],[620,y+5],[607,y]]));
+        }
+        for(const points of [
+          [[39,445],[73,487]],[[73,445],[39,487]],
+          [[106,461],[142,461]],[[106,471],[142,471]],[[192,443],[192,490]]
+        ])strokes.push(encodeStroke(points));
+        // Une ancienne réponse lisible en page 1 permet de détecter une
+        // validation accidentelle de la page affichée.
+        const previousAnswer=[
+          ...strokes.slice(-5,-1),
+          encodeStroke([[164,455],[173,446],[185,444],[198,449],[201,459],
+            [195,467],[181,477],[165,490],[202,490]])
+        ];
+        if(ambiguous)strokes.splice(-1,1,...[
+          [[178,466],[210,466]],[[194,446],[194,489]],
+          [[180,451],[208,481]],[[180,481],[208,451]]
+        ].map(encodeStroke));
+        const pages=[previousAnswer,strokes,[]];
+        state.workbook.entries[copyKey]={text:"",pages};
+        state.revision++;
+        localStorage.setItem(key,JSON.stringify(state));
+        return {copyKey,pages};
+      },ambiguous);
+      assert.ok(savedCopy.pages[1].length>100);
+      assert.equal(recognizeFinalEquationInk(savedCopy.pages[0])?.text,"2");
+      await densePage.reload({waitUntil:"networkidle"});
+      await densePage.locator("#quiz").waitFor({state:"visible"});
+      const navigation=densePage.locator("#quizNotebook .math-notebook-paper-navigation");
+      const previousPage=navigation.getByRole("button",{name:"Page précédente"});
+      const nextPage=navigation.getByRole("button",{name:"Page suivante"});
+      while(await nextPage.isEnabled())await nextPage.tap();
+      assert.match(await navigation.textContent(),/Page 3\/3/);
+      await previousPage.tap();
+      await previousPage.tap();
+      assert.match(await navigation.textContent(),/Page 1\/3/);
+      await densePage.locator("#quizNotebook .math-notebook-quick-validate").tap();
+      const stored=()=>densePage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+      assert.equal((await stored()).round.completed,0);
+      if(ambiguous){
+        assert.match(await navigation.textContent(),/Page 2\/3/);
+        const notebook=densePage.locator("#quizNotebook");
+        const transcript=notebook.locator(".math-notebook-equations-transcript");
+        assert.equal(await transcript.textContent(),"x=□");
+        assert.ok(await notebook.locator(".math-notebook-manual-comparison").isHidden());
+        assert.ok(await densePage.locator("#answerForm").isHidden());
+        const grade=notebook.getByRole("button",{name:"Corriger mon résultat final : x = 1"});
+        assert.ok(await grade.isHidden());
+        await notebook.getByRole("button",{name:"Écrire le symbole 1"}).tap();
+        assert.equal(await transcript.textContent(),"x=1");
+        assert.equal((await stored()).round.completed,0);
+        await densePage.reload({waitUntil:"networkidle"});
+        await densePage.locator("#quiz").waitFor({state:"visible"});
+        await notebook.locator(".math-notebook-quick-validate").tap();
+        assert.equal(await transcript.textContent(),"x=1");
+        await grade.tap();
+      }else{
+        const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
+        assert.ok(await candidate.isVisible());
+        assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=1$/);
+        await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
+      }
+      await densePage.locator("#feedback").waitFor({state:"visible"});
+      const corrected=await stored();
+      assert.equal(corrected.round.completed,1);
+      assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages,savedCopy.pages);
+      assert.equal(corrected.round.assistedIds.includes(savedCopy.copyKey.slice(5)),ambiguous);
+      console.log(ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
+        "OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
+    }finally{await denseContext.close();}
+  }
 
   await verifyPwaUpgrade(browser);
   assert.deepEqual(errors,[]);

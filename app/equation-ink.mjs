@@ -342,7 +342,7 @@ function transcription(parts,{draft=false}={}){
 // La dernière ligne explicite suffit pour proposer un résultat. Les calculs
 // précédents, même partiellement lisibles, restent dans la copie. La limite
 // de transcription intégrale ne s’applique pas à cette lecture ciblée.
-export function recognizeFinalEquationInk(page){
+function readLastEquationLine(page,{draft=false}={}){
   if(!Array.isArray(page)||page.length===0||page.length>MAX_PAGE_STROKES)return null;
   let paths;
   try{paths=page.map(parseStroke);}catch{return null;}
@@ -350,10 +350,21 @@ export function recognizeFinalEquationInk(page){
   if(!lines?.length)return null;
   const parts=glyphs(lines.at(-1));
   if(parts.length>MAX_GLYPHS)return null;
-  const finalLine=transcription(parts);
-  if(!finalLine)return null;
-  const value=extractFinalNumericAnswer(finalLine.text);
-  return value===null?null:{status:"recognized",text:value,expression:finalLine.text};
+  return transcription(parts,{draft});
+}
+
+export function recognizeFinalEquationInk(page){
+  const line=readLastEquationLine(page);
+  if(!line)return null;
+  const value=extractFinalNumericAnswer(line.text);
+  return value===null?null:{status:"recognized",text:value,expression:line.text};
+}
+
+export function recognizeFinalEquationDraft(page){
+  const line=readLastEquationLine(page,{draft:true});
+  if(!line?.unreadable||!/^x=[0-9+.\/□-]+$/.test(line.text))return null;
+  return {status:"partial",text:line.text,
+    message:"Dernière ligne partiellement lisible. Corrige les symboles □ au toucher."};
 }
 
 /**
