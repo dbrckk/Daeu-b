@@ -28,7 +28,7 @@ export async function verifyPwaUpgrade(browser){
         let bytes=await readFile(path);
         if(nextRelease&&root===newRoot&&pathname==="/sw.js"){
           bytes=bytes.toString().replace(/const CACHE="([^"]+)"/,'const CACHE="$1-smoke"');
-        }else if(nextRelease&&root===newRoot&&["/","/index.html"].includes(pathname)){
+        }else if(nextRelease&&root===newRoot&&["/","/index.html","/course.html"].includes(pathname)){
           bytes=bytes.toString().replace(/id="appVersion">\d+/, 'id="appVersion">Suivante');
         }
         res.writeHead(200,{"Content-Type":(MIME[extname(path)]??"application/octet-stream"),"Cache-Control":"no-store"});
@@ -90,14 +90,19 @@ export async function verifyPwaUpgrade(browser){
         const displayed=await version.textContent();
         assert.match(nextCache,new RegExp("-v"+displayed+"$"));
         await context.setOffline(false);
+        const coursePage=await context.newPage();
+        await coursePage.goto(origin+"/course.html",{waitUntil:"domcontentloaded"});
+        const update=coursePage.locator("#appUpdate");
+        await update.waitFor();
+        await coursePage.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
         nextRelease=true;
-        const update=page.locator("#appUpdate");
-        await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
         await update.click();
-        await page.getByRole("button",{name:"Ouvrir la nouvelle version"}).waitFor();
+        await coursePage.getByRole("button",{name:"Ouvrir la nouvelle version"}).waitFor();
         assert.equal(await version.textContent(),displayed,"Aucun rechargement forcé pendant une copie");
         assert.deepEqual(await snapshot(),before);
         await update.click();
+        await coursePage.waitForFunction(()=>document.getElementById("appVersion")?.textContent==="Suivante");
+        await page.reload({waitUntil:"domcontentloaded"});
         await page.locator("#examActive.paper-exam-active").waitFor({state:"visible"});
         assert.equal(await version.textContent(),"Suivante");
         assert.deepEqual(await snapshot(),before,"La recharge demandée préserve la copie");
