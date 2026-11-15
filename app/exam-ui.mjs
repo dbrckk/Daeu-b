@@ -10,7 +10,7 @@ import {examOverview} from "./exam-blueprint.mjs";
 import {recommendNextExam} from "./exam-recommendation.mjs";
 import {buildExamRemediation,hasPracticeQuestions} from "./exam-remediation.mjs";
 import {inspectExamDraft} from "./exam-readiness.mjs";
-import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck} from "./exam-engine.mjs";
+import {findExam,isGeneratedExamId,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck,updateReviewTarget} from "./exam-engine.mjs";
 import {StaleDataError} from "./persistence.mjs";
 
 const EXAM_LESSONS={
@@ -351,6 +351,37 @@ function renderActive(){
   }else if(timer!==null){clearInterval(timer);timer=null;}
   renderHistory();
 }
+function renderRevisionTargets(result,steps){
+  const list=byId("examRevisionList");
+  const marked=steps.filter(item=>result.reviewTargets?.[item.key]===true);
+  const status=byId("examRevisionStatus");
+  status.textContent=marked.length
+    ?marked.length+(marked.length===1?" étape à retravailler":" étapes à retravailler")
+    :"Coche « À retravailler » dans une grille de rédaction pour ajouter une étape ici.";
+  list.replaceChildren();
+  list.hidden=marked.length===0;
+  for(const {step,index,group,guide,heading} of marked){
+    const row=element("li","exam-revision-item");
+    const open=element("button","subtle","Exercice "+(index+1)+" · "+step.prompt);
+    open.type="button";
+    open.addEventListener("click",()=>{
+      group.open=true;guide.open=true;
+      heading.focus({preventScroll:true});
+      heading.scrollIntoView({block:"start",behavior:"instant"});
+    });
+    const links=element("div","exam-revision-links");
+    const lesson=element("a","","Revoir le cours");lesson.href=courseUrl(step.lesson);
+    lesson.target="_blank";lesson.rel="noopener noreferrer";
+    links.append(lesson);
+    if(hasPracticeQuestions(step.lesson)){
+      const practice=element("a","","Faire des exercices");
+      practice.href=practiceUrlForCourse(step.lesson);
+      links.append(practice);
+    }
+    row.append(open,links);list.append(row);
+  }
+}
+
 function showResult(result){
   byId("examPaperSubmit").close();
   setVisible("examActive",false);setVisible("examIntro",true);setVisible("examResult",true);
@@ -374,6 +405,8 @@ function showResult(result){
     :"Étapes rédigées déclarées : "+tally.checked+"/"+tally.total+" (auto-évaluation, hors note /20)";
   selfStatus.textContent=selfCheckText(checks);
   const review=byId("examReview");review.replaceChildren();
+  const revisionSteps=[];
+  setVisible("examRevision",result.paperOnly===true);
   const written=result.paperOnly?writtenPaperSections(result,{onError:null}):null;
   const firstReview=result.sections.find(section=>written?.has(section.id))??result.sections[0];
   for(const [index,section] of result.sections.entries()){
@@ -429,26 +462,43 @@ function showResult(result){
       for(let i=0;i<rubric.steps.length;i++){
         const step=rubric.steps[i],key=section.id+":"+step.id;
         const wrap=element("div","exam-reasoning-step");
-        wrap.append(element("h4","","Étape "+(i+1)+" — "+step.prompt),element("p","",step.model));
+        const heading=element("h4","","Étape "+(i+1)+" — "+step.prompt);
+        wrap.append(heading,element("p","",step.model));
         const label=element("label","exam-check-label");
         const input=element("input");input.type="checkbox";input.checked=!!result.selfChecks?.[key];
         label.append(input,element("span","","J'ai réellement justifié cette étape dans ma copie"));
-        input.addEventListener("change",()=>{
+        wrap.append(label);
+        let target=null;
+        if(result.paperOnly){
+          heading.tabIndex=-1;
+          revisionSteps.push({key,step,index,group:details,guide,heading});
+          const targetLabel=element("label","exam-check-label");
+          target=element("input");target.type="checkbox";
+          target.checked=result.reviewTargets?.[key]===true;
+          targetLabel.append(target,element("span","","À retravailler"));
+          wrap.append(targetLabel);
+        }
+        function saveReviewChoice(control,update){
           try{
-            if(!commitExam(updateReviewCheck(store,result.examId,result.startedAt,key,input.checked)))throw new Error("Persistance impossible");
+            if(!commitExam(update(store,result.examId,result.startedAt,key,control.checked)))throw new Error("Persistance impossible");
             const updated=store.history.find(x=>x.examId===result.examId&&x.startedAt===result.startedAt);
-            if(updated){
-              result.selfChecks=updated.selfChecks;
-              selfStatus.textContent=selfCheckText(countChecks(updated,exam));
-              saveStatus.hidden=true;
+            result.selfChecks=updated.selfChecks;
+            result.reviewTargets=updated.reviewTargets;
+            input.checked=result.selfChecks?.[key]===true;
+            if(target){
+              target.checked=result.reviewTargets?.[key]===true;
+              renderRevisionTargets(result,revisionSteps);
             }
+            selfStatus.textContent=selfCheckText(countChecks(updated,exam));
+            saveStatus.hidden=true;
           }catch{
-            input.checked=!input.checked;
+            control.checked=!control.checked;
             saveStatus.textContent="La case n’a pas été enregistrée. Réessaie.";
             saveStatus.hidden=false;
           }
-        });
-        wrap.append(label);
+        }
+        input.addEventListener("change",()=>saveReviewChoice(input,updateReviewCheck));
+        target?.addEventListener("change",()=>saveReviewChoice(target,updateReviewTarget));
         const link=element("a","","Approfondir ce chapitre ↗");
         link.href=courseUrl(step.lesson);
         link.target="_blank";link.rel="noopener noreferrer";wrap.append(link);
@@ -475,6 +525,7 @@ function showResult(result){
     }
     review.append(details);
   }
+  if(result.paperOnly)renderRevisionTargets(result,revisionSteps);
   renderHistory();
   const scoreHeading=byId("examScore");
   scoreHeading.focus({preventScroll:true});
