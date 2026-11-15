@@ -101,6 +101,42 @@ try{
   assert.ok(await page.locator("#quiz").isVisible());
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
   console.log("OK Pause et reprise de la même copie");
+  const zoomSheet=page.locator("#quizNotebook .math-notebook-sheet-viewport");
+  const zoom=page.getByRole("combobox",{name:"Zoom de la feuille"});
+  const coordinates=()=>zoomSheet.evaluate(el=>{
+    const canvas=el.querySelector("canvas");
+    const ink=canvas.getBoundingClientRect(),view=el.getBoundingClientRect();
+    return {left:el.scrollLeft/ink.width,top:(view.top+el.clientTop-ink.top)/ink.height,
+      width:canvas.clientWidth/el.clientWidth};
+  });
+  await zoom.selectOption("150");
+  const size=await coordinates();
+  assert.ok(Math.abs(size.width-1.5)<.03);
+  await page.getByRole("button",{name:"Aller à la zone d’écriture"}).click();
+  await zoomSheet.evaluate(el=>el.scrollBy({left:70,top:150,behavior:"instant"}));
+  const beforeZoom=await coordinates();
+  await zoom.selectOption("200");
+  const afterZoom=await coordinates();
+  assert.ok(Math.abs(afterZoom.width-2)<.03);
+  assert.ok(Math.abs(beforeZoom.left-afterZoom.left)<.01&&Math.abs(beforeZoom.top-afterZoom.top)<.01,
+    "L’endroit visible sur la copie est conservé dans les deux axes");
+  await pan.click();
+  const dragPoint=await zoomSheet.evaluate(el=>{
+    const box=el.getBoundingClientRect();
+    return [box.left+160,box.top+110];
+  });
+  assert.equal(await page.evaluate(([x,y])=>document.elementFromPoint(x,y)?.tagName,dragPoint),"CANVAS");
+  await page.mouse.move(...dragPoint);
+  await page.mouse.down();
+  await page.mouse.move(dragPoint[0]-60,dragPoint[1]-45,{steps:8});
+  await page.mouse.up();
+  const afterDrag=await coordinates();
+  assert.ok(afterDrag.left>afterZoom.left&&afterDrag.top>afterZoom.top);
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  await pen.click();
+  await zoom.selectOption("100");
+  await page.getByRole("button",{name:"Voir l’énoncé"}).click();
+  console.log("OK Zoom progressif et déplacement de la feuille sans nouveau trait");
   await page.setViewportSize({width:640,height:360});
   const landscapeSheet=page.locator("#quizNotebook .math-notebook-sheet-viewport");
   const jump=page.locator("#quizNotebook .math-notebook-paper-jump");

@@ -389,6 +389,27 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(drawing.length<MAX_POINTS)drawing.push(point);
     paint();
   });
+  // Le doigt garde le défilement natif ; la souris et le stylet
+  // peuvent faire glisser la feuille en mode Déplacer.
+  let drag=null;
+  canvas.addEventListener("pointerdown",event=>{
+    if(!paperOnly||(!panMode&&!readOnly)||event.pointerType==="touch"||event.button!==0)return;
+    event.preventDefault();
+    drag={id:event.pointerId,x:event.clientX,y:event.clientY,
+      left:sheetViewport.scrollLeft,top:sheetViewport.scrollTop};
+    canvas.setPointerCapture(event.pointerId);
+    canvas.classList.add("is-dragging");
+  });
+  canvas.addEventListener("pointermove",event=>{
+    if(drag?.id!==event.pointerId)return;
+    sheetViewport.scrollLeft=drag.left+drag.x-event.clientX;
+    sheetViewport.scrollTop=drag.top+drag.y-event.clientY;
+  });
+  canvas.addEventListener("lostpointercapture",event=>{
+    if(drag?.id!==event.pointerId)return;
+    drag=null;
+    canvas.classList.remove("is-dragging");
+  });
   const finish=event=>{
     if(activePointer!==event.pointerId||!drawing)return;
     event.preventDefault();const stroke=drawing;
@@ -834,25 +855,25 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const tools=document.createElement("details");tools.className="math-notebook-paper-tools";
     const summary=document.createElement("summary");summary.textContent="Outils de la feuille";
     summary.setAttribute("aria-label","Afficher les outils de la feuille : pages, gomme, déplacement et zoom");
-    const zoom=document.createElement("button");zoom.type="button";
-    zoom.className="subtle small math-notebook-paper-zoom";
-    let expanded=false;
+    const zoom=document.createElement("select");
+    zoom.className="math-notebook-paper-zoom";
+    zoom.setAttribute("aria-label","Zoom de la feuille");
+    for(const [value,label] of [["100","Largeur de l’écran"],["150","Zoom 1,5×"],["200","Zoom 2×"],["300","Zoom 3×"]]){
+      const option=document.createElement("option");
+      option.value=value;option.textContent=label;zoom.append(option);
+    }
     const canvasOffset=()=>canvas.getBoundingClientRect().top-sheetViewport.getBoundingClientRect().top-sheetViewport.clientTop;
-    const updateZoom=()=>{
+    zoom.addEventListener("change",()=>{
       const top=canvasOffset();
       const atWritingArea=sheetViewport.scrollTop>0&&top<=12;
-      const fraction=Math.max(0,-top)/Math.max(1,canvas.getBoundingClientRect().height);
-      paper.style.width=expanded?"1260px":"100%";
-      canvas.style.width=expanded?"1260px":"100%";
-      zoom.textContent=expanded?"Voir la feuille entière":"Agrandir pour écrire";
-      zoom.setAttribute("aria-pressed",String(expanded));
-      if(atWritingArea){
-        const box=canvas.getBoundingClientRect();
-        sheetViewport.scrollTop+=canvasOffset()+fraction*box.height;
-      }
-      sheetViewport.scrollLeft=0;
-    };
-    zoom.addEventListener("click",()=>{expanded=!expanded;updateZoom();});
+      const before=canvas.getBoundingClientRect();
+      const vertical=Math.max(0,-top)/before.height;
+      const horizontal=sheetViewport.scrollLeft/before.width;
+      canvas.style.width=zoom.value+"%";
+      const after=canvas.getBoundingClientRect();
+      if(atWritingArea)sheetViewport.scrollTop+=canvasOffset()+vertical*after.height;
+      sheetViewport.scrollLeft=horizontal*after.width;
+    });
     if(readOnly){controls.replaceChildren(prev,nextPage,indicator);sheetControls.hidden=true;}
     const bar=document.createElement("div");bar.className="math-notebook-paper-bar";
     if(!readOnly){
@@ -865,7 +886,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       modes.classList.add("has-undo");
       bar.append(modes,quickValidate);
     }
-    tools.append(summary,controls,zoom,sheetControls);
+    tools.append(summary,controls,sheetControls);
     const paperNavigation=document.createElement("nav");
     paperNavigation.className="math-notebook-paper-navigation";
     paperNavigation.setAttribute("aria-label","Pages de la feuille");
@@ -904,9 +925,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       });
       paperTop.append(jump);
     }
-    paperTop.append(tools);
+    paperTop.append(zoom,tools);
     section.append(paperTop,paperNavigation,sheetViewport,bar,recognition,inkEquations,manual,editorDetails);
-    updateZoom();
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
