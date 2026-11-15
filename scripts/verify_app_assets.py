@@ -47,6 +47,10 @@ for source in source_courses:
     if not target.is_file():error(f"Cours manquant hors ligne : {source.name}")
     elif target.read_bytes()!=source.read_bytes():error(f"Cours hors ligne obsolète : {source.name}")
 
+formula=APP/"fiches"/"formulaire.md"
+if not formula.is_file() or formula.read_bytes()!=(ROOT/"fiches"/"formulaire.md").read_bytes():
+    error("Formulaire hors ligne manquant ou obsolète")
+
 for required in ("course.html","course-reader.mjs","course-catalog.mjs","course-search.mjs","reading-tools.mjs","reading-tools.mjs","problems.html","problems-reader.mjs",
                  "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
     if not (APP/required).is_file():error(f"Lecteur offline absent : {required}")
@@ -90,7 +94,7 @@ else:
     for asset in re.findall(r'"(\./[^"]+)"',asset_match.group(1)):
         if asset=="./": continue
         if not (APP/asset[2:]).is_file():error(f"Cache hors ligne : fichier manquant {asset}")
-    for name in ("start.mjs","auto-backup.mjs","math-notebook.mjs","math-preview.mjs","math-step-checker.mjs","quadratic-checker.mjs","derivative-checker.mjs","polynomial-derivative.mjs","cloud-sync.mjs","exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","exam-applied.mjs","exam-blueprint.mjs","exam-recommendation.mjs","exam-remediation.mjs","exam-readiness.mjs","persistence.mjs","round.mjs","jalons.mjs","jalon-progress.mjs","prerequisites.mjs","transfer-progress.mjs","transferts/sujets.md","transferts/corriges.md","transferts/sujets-b.md","transferts/corriges-b.md","transferts/sujets-c.md","transferts/corriges-c.md","problems.html","problems-reader.mjs","problemes/sujets.md","problemes/corriges.md",
+    for name in ("fiches/formulaire.md","math-markdown.mjs","start.mjs","auto-backup.mjs","math-notebook.mjs","math-preview.mjs","math-step-checker.mjs","quadratic-checker.mjs","derivative-checker.mjs","polynomial-derivative.mjs","cloud-sync.mjs","exam-ui.mjs","reasoning.mjs","exam-analytics.mjs","exam-engine.mjs","exam-alternative.mjs","exam-applied.mjs","exam-blueprint.mjs","exam-recommendation.mjs","exam-remediation.mjs","exam-readiness.mjs","persistence.mjs","round.mjs","jalons.mjs","jalon-progress.mjs","prerequisites.mjs","transfer-progress.mjs","transferts/sujets.md","transferts/corriges.md","transferts/sujets-b.md","transferts/corriges-b.md","transferts/sujets-c.md","transferts/corriges-c.md","problems.html","problems-reader.mjs","problemes/sujets.md","problemes/corriges.md",
                  "course.html","course-reader.mjs","course-catalog.mjs",
                  "vendor/showdown-2.1.0.min.js","vendor/dompurify.min.js","vendor/temml.min.js"):
         if f'"./{name}"' not in asset_match.group(1):error(f"Cache hors ligne : ressource manquante {name}")

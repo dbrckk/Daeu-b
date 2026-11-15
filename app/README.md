@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v64 — formulaire d’entraînement pendant l’examen
+
+- Le bouton « Formulaire » ouvre la fiche de mathématiques dans l’épreuve, avec les formules en MathML. Le chronomètre continue et le retour remet le focus sur la commande.
+- La fiche et ses ressources sont disponibles hors ligne une fois l’application chargée. Le formulaire est une fiche d’entraînement propre à l’application.
+
 ## v63 — fiabiliser la sauvegarde des copies
 
 - Le cahier accepte jusqu’à 1 650 000 caractères JSON au total, avec les mêmes tracés et le même format de sauvegarde. Le navigateur peut refuser un enregistrement si son propre quota est atteint.

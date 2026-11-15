@@ -11,8 +11,8 @@
 - Sommet de $ax^2+bx+c$ : $\alpha=-b/(2a)$, $\beta=f(\alpha)$.
 
 ## Dérivation
-- $(x^n)'=nx^{n-1}$ ; $(1/x)'=-1/x^2$ ; $(\sqrt x)'=1/(2\sqrt x)$ pour $x>0$.
-- $(uv)'=u'v+uv'$ ; $(u/v)'=(u'v-uv')/v^2$.
+- $(x^n)'=nx^{n-1}$ sur son domaine de dérivation ; $(1/x)'=-1/x^2$ ; $(\sqrt x)'=1/(2\sqrt x)$ pour $x>0$.
+- $(uv)'=u'v+uv'$ ; $(u/v)'=(u'v-uv')/v^2$ si $v\ne0$.
 - $(e^u)'=u'e^u$ ; $(\ln u)'=u'/u$ pour $u>0$ ; $(u^n)'=nu^{n-1}u'$.
 - Tangente : $y=f'(a)(x-a)+f(a)$.
 - $f'\ge0$ ⇒ non décroissante (sous les hypothèses usuelles) ; $f''\ge0$ ⇒ convexe.
@@ -35,10 +35,12 @@
 - $P(A\mid B)=P(A\cap B)/P(B)$ si $P(B)>0$.
 - Loi $\mathcal B(n,p)$ (essais indépendants, même $p$) : $P(X=k)=\binom nk p^k(1-p)^{n-k}$, $E=np$, $V=np(1-p)$.
 
+## Primitives et intégrales
+- $\int_a^b f(x)\,dx=F(b)-F(a)$ si $F'=f$ sur $[a,b]$.
+
 ## Compléments locaux
 - $\sin^2x+\cos^2x=1$, radians : $180^\circ=\pi$.
 - $u\cdot v=ac+bd$ pour $u=(a;b)$, $v=(c;d)$.
-- $\int_a^b f=F(b)-F(a)$ si $F'=f$.
 - IPP : $\int_a^b uv'=[uv]_a^b-\int_a^b u'v$.
 - $y'=ay$ ⇒ $y=Ce^{ax}$.
 - Pour $z=a+ib$, $|z|=\sqrt{a^2+b^2}$, $\overline z=a-ib$, $i^2=-1$.

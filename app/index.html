@@ -152,6 +152,16 @@
           <p id="examContext" class="exam-context"></p>
           <div id="examQuestions"></div>
           <div id="examNotebook"></div>
+          <dialog id="examFormula" class="exam-paper-submit exam-formula" aria-labelledby="examFormulaTitle">
+            <header>
+              <h3 id="examFormulaTitle">Formulaire d’entraînement</h3>
+              <button type="button" id="examFormulaClose" class="subtle" autofocus>Retour à la copie</button>
+            </header>
+            <p class="helper">Le chronomètre continue. Cette fiche est celle de l’application.</p>
+            <div id="examFormulaBody" aria-busy="false"></div>
+            <p id="examFormulaStatus" role="status" hidden></p>
+            <button type="button" id="examFormulaRetry" class="subtle" hidden>Réessayer</button>
+          </dialog>
           <div class="exam-notes"><label for="examNotes">Mon raisonnement et mes justifications (non corrigés automatiquement)</label><textarea id="examNotes" rows="5" maxlength="3500" spellcheck="true"></textarea></div>
           <dialog id="examPaperSubmit" class="exam-paper-submit" aria-labelledby="examPaperSubmitTitle" aria-describedby="examPaperSubmitSummary">
             <h3 id="examPaperSubmitTitle">Rendre ta copie ?</h3>
@@ -163,7 +173,7 @@
             </div>
             <p id="examPaperSubmitError" role="status" hidden></p>
           </dialog>
-          <div class="exam-actions"><button id="examPrev" type="button" class="subtle">Exercice précédent</button><button id="examNext" type="button" class="subtle">Exercice suivant</button><button id="examSubmit" type="button" class="primary">Rendre ma copie</button></div>
+          <div class="exam-actions"><button id="examFormulaOpen" type="button" class="subtle">Formulaire</button><button id="examPrev" type="button" class="subtle">Exercice précédent</button><button id="examNext" type="button" class="subtle">Exercice suivant</button><button id="examSubmit" type="button" class="primary">Rendre ma copie</button></div>
         </div>
         <div id="examResult" class="exam-result" hidden>
           <p class="eyebrow">BILAN AUTOMATIQUE</p><h3 id="examScore" tabindex="-1">— / 20</h3>
