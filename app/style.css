@@ -623,7 +623,10 @@
 .math-notebook-paper-navigation{display:flex;align-items:center;justify-content:center;gap:10px;margin:3px 0 5px}
 .math-notebook-paper-navigation button{min-width:44px;min-height:44px;padding:3px;font-size:1.3rem}
 .math-notebook.is-paper-only .math-notebook-paper-navigation .math-notebook-page-indicator{margin:0;color:inherit}
-.math-notebook-paper-modes.has-undo{grid-template-columns:repeat(4,minmax(0,1fr))}
+.math-notebook-paper-modes.has-undo{grid-template-columns:repeat(5,minmax(0,1fr))}
+.math-notebook.is-paper-only .math-notebook-paper-modes .math-notebook-next-line{
+  background:#e8f0f6;border-color:#88a5bc;font-weight:750
+}
 .math-notebook.is-paper-only .math-notebook-paper-modes.has-undo button{padding-inline:2px;font-size:.8rem}
 .math-notebook-paper-retry{min-height:44px;margin:0 6px 6px 0;color:#20394c;background:#eef3f5;border-color:#a5b2c1}
 .math-notebook-paper-retry:hover{background:#dce8f1}
