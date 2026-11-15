@@ -11,6 +11,7 @@ export const PAPER_HEIGHT=1200;
 // Marge pour le reste du bundle et pour le quota localStorage du navigateur.
 export const MAX_WORKBOOK_BYTES=1_650_000;
 export const MAX_PAGE_STROKES=240;
+export const MAX_WORK_PAGES=8;
 const KEY_PATTERN=/^[A-Za-z0-9:_.-]{1,130}$/;
 const STROKE_PATTERN=/^\d{1,4},\d{1,4}(;\d{1,4},\d{1,4}){0,299}$/;
 
@@ -41,7 +42,7 @@ export function encodeStroke(points){
 export function sanitizeWork(raw){
   if(!raw||typeof raw!=="object"||Array.isArray(raw)||typeof raw.text!=="string"
     ||raw.text.length>6000||!Array.isArray(raw.pages)
-    ||raw.pages.length<1||raw.pages.length>8)throw Error("Page de calcul incompatible");
+    ||raw.pages.length<1||raw.pages.length>MAX_WORK_PAGES)throw Error("Page de calcul incompatible");
   const pages=raw.pages.map(page=>{
     if(!Array.isArray(page)||page.length>MAX_PAGE_STROKES)throw Error("Trop de traits sur une page");
     return page.map(path=>{parseStroke(path);return path;});

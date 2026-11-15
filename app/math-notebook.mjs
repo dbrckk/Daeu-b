@@ -3,7 +3,7 @@
  * Sauvegarde atomique dans le bundle progression / cloud / IndexedDB.
  * Les traits sont des coordonnées, jamais du HTML, SVG fourni par l'utilisateur ou du code.
  */
-import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES} from "./workbook.mjs";
+import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES,MAX_WORK_PAGES} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeBottomNumericInk,recognizeNumericInk,recognizeStackedFractionInk} from "./numeric-ink.mjs";
@@ -136,6 +136,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   let savePaperView=()=>{};
   let syncPageNavigation=()=>{};
   let returnToWriting=()=>{};
+  let resetLineAction=()=>{};
   const field=document.createElement("textarea");
   field.className="math-notebook-editor";field.rows=8;field.maxLength=MAX_TEXT;field.spellcheck=false;
   field.setAttribute("aria-label",title+" — étapes rédigées");
@@ -332,7 +333,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   function renderPages(){
     invalidateRecognition();
     prev.disabled=pageIndex===0;nextPage.disabled=pageIndex===work.pages.length-1;
-    addPage.disabled=work.pages.length>=8;
+    addPage.disabled=work.pages.length>=MAX_WORK_PAGES;
     undo.disabled=work.pages[pageIndex].length===0&&!lastErasure;
     const undoLabel=lastErasure?"Annuler l’effacement":"Annuler le dernier trait";
     undo.textContent=paperOnly?"Annuler":undoLabel;
@@ -357,24 +358,26 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       else delete updated.inkDrafts;
     }
     const saved=persist(updated);
-    if(saved)renderPages();
+    if(saved){resetLineAction();renderPages();}
     else paint();
     return saved;
   }
   function goToPage(index){
     lastErasure=null;lineGuide=null;pageIndex=index;
+    resetLineAction();
     sheetViewport.scrollTo({top:0,left:0,behavior:"instant"});
     renderPages();
     savePaperView();
   }
   prev.addEventListener("click",()=>{if(pageIndex>0)goToPage(pageIndex-1);});
   nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1)goToPage(pageIndex+1);});
-  addPage.addEventListener("click",()=>{
-    if(work.pages.length>=8)return;
-    if(!editPage(w=>w.pages.push([])))return;
+  function appendPage(){
+    if(work.pages.length>=MAX_WORK_PAGES||!editPage(w=>w.pages.push([])))return false;
     goToPage(work.pages.length-1);
     if(paperOnly)returnToWriting();
-  });
+    return true;
+  }
+  addPage.addEventListener("click",appendPage);
   undo.addEventListener("click",()=>{
     if(lastErasure){
       const erased=lastErasure;
@@ -1049,9 +1052,23 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       updateWritingMode();
       const nextLine=document.createElement("button");
       nextLine.type="button";nextLine.className="subtle small math-notebook-next-line";
-      nextLine.textContent="↵ Ligne";
-      nextLine.setAttribute("aria-label","Ligne suivante sur la feuille");
+      let continueOnPage=false;
+      const updateLineAction=nextPageAction=>{
+        continueOnPage=nextPageAction;
+        nextLine.textContent=continueOnPage?"↵ Page":"↵ Ligne";
+        nextLine.setAttribute("aria-label",continueOnPage?"Continuer sur la page suivante":"Ligne suivante sur la feuille");
+      };
+      resetLineAction=()=>updateLineAction(false);
+      resetLineAction();
       nextLine.addEventListener("click",()=>{
+        if(continueOnPage){
+          if(pageIndex+1<work.pages.length){
+            goToPage(pageIndex+1);
+            returnToWriting();
+          }else if(!appendPage())return;
+          showSheetStatus("Page "+(pageIndex+1)+" sur "+work.pages.length+". Tu peux reprendre au stylo.","saved");
+          return;
+        }
         const box=canvas.getBoundingClientRect();
         if(!box.height)return;
         const top=canvasOffset();
@@ -1063,7 +1080,12 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         const previous=Math.max(visibleLine,inkBottom,lineGuide??0);
         const next=(Math.floor(previous/PAPER_GRID)+2)*PAPER_GRID;
         if(next>PAPER_HEIGHT-PAPER_GRID){
-          showSheetStatus("Bas de la feuille. Ajoute une page dans les outils pour continuer.");
+          const existing=pageIndex+1<work.pages.length;
+          if(existing||work.pages.length<MAX_WORK_PAGES){
+            updateLineAction(true);
+            showSheetStatus(existing?"Bas de la feuille. Appuie sur ↵ Page pour ouvrir la page suivante."
+              :"Bas de la feuille. Appuie sur ↵ Page pour ajouter une page.");
+          }else showSheetStatus("Tu as atteint la limite de "+MAX_WORK_PAGES+" pages pour cet exercice.");
           return;
         }
         lineGuide=next;
@@ -1106,6 +1128,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         section.scrollIntoView({block:"start",behavior:"instant"});
         canvas.focus({preventScroll:true});
         syncJump();
+        savePaperView();
       };
       jump.textContent="Aller à la zone d’écriture";
       sheetViewport.addEventListener("scroll",syncJump,{passive:true});
