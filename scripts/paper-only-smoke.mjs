@@ -215,10 +215,10 @@ try{
 
     await examPage.setViewportSize({width:320,height:640});
     assert.ok(await group.evaluate(details=>details.scrollWidth<=details.clientWidth));
-    await copy.locator("summary").click();
+    await copy.locator(":scope > summary").click();
     assert.ok(await copy.locator("canvas").isHidden());
     assert.ok(await solutions.isVisible());
-    await copy.locator("summary").click();
+    await copy.locator(":scope > summary").click();
     await examPage.setViewportSize({width:1024,height:768});
     const copyBox=await copy.boundingBox(),solutionsBox=await solutions.boundingBox();
     assert.ok(copyBox&&solutionsBox&&copyBox.x+copyBox.width<=solutionsBox.x);
