@@ -415,8 +415,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     return true;
   }
   readButton.addEventListener("click",()=>readNumber());
-  acceptReading.addEventListener("click",()=>{
-    if(recognizedText===null)return;
+  function confirmReading(){
+    if(recognizedText===null||acceptReading.disabled)return;
     try{
       if(handwrittenReview?.onRecognized?.(recognizedText)===false){
         recognitionStatus.textContent="La réponse n'a pas été enregistrée. Vérifie la sauvegarde, puis réessaie.";
@@ -425,7 +425,24 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       readButton.disabled=true;acceptReading.disabled=true;rejectReading.disabled=true;
       recognitionStatus.textContent="Résultat reconnu et corrigé avec le moteur des exercices. Progression enregistrée.";
     }catch(error){recognitionStatus.textContent="Correction impossible : "+error.message;}
-  });
+  }
+  acceptReading.addEventListener("click",confirmReading);
+  if(paperOnly){
+    // Un relâchement tactile peut arriver sans click dans le conteneur
+    // défilant. Le geste doit commencer et finir sur le même bouton.
+    let confirmPointer=null;
+    acceptReading.addEventListener("pointerdown",event=>{
+      if(event.pointerType==="touch"&&event.isPrimary)confirmPointer=event.pointerId;
+    });
+    acceptReading.addEventListener("pointercancel",()=>{confirmPointer=null;});
+    acceptReading.addEventListener("pointerup",event=>{
+      if(event.pointerId!==confirmPointer)return;
+      confirmPointer=null;
+      if(!acceptReading.contains(document.elementFromPoint(event.clientX,event.clientY)))return;
+      event.preventDefault();
+      confirmReading();
+    });
+  }
   rejectReading.addEventListener("click",()=>{
     invalidateRecognition();
     if(paperOnly)recognition.classList.add("paper-shown");

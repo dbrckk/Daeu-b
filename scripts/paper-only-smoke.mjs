@@ -87,6 +87,12 @@ try{
   // Cadrer le bouton dans le conteneur fixe du quiz et utiliser le même
   // flux tactile CDP que pour l'écriture, dans les coordonnées du viewport.
   const confirmPoint=await confirm.evaluate(button=>{
+    window.confirmEvents=[];
+    for(const type of ["pointerdown","pointerup","pointercancel","touchstart","touchend","click"]){
+      document.addEventListener(type,event=>{
+        window.confirmEvents.push([type,event.target.tagName,event.target===button]);
+      },{capture:true,once:true});
+    }
     button.scrollIntoView({block:"center",behavior:"instant"});
     const rect=button.getBoundingClientRect();
     const x=rect.x+rect.width/2,y=rect.y+rect.height/2;
@@ -98,7 +104,8 @@ try{
   await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
   await page.locator("#feedback").waitFor({state:"visible",timeout:2500}).catch(async error=>{
     const message=await quizNotebook.locator(".math-notebook-recognition [role=status]").textContent();
-    throw new Error("Validation tactile : "+message,{cause:error});
+    const events=await page.evaluate(()=>window.confirmEvents);
+    throw new Error("Validation tactile : "+message+" "+JSON.stringify(events),{cause:error});
   });
   assert.equal((await snapshot()).round.completed,1);
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
