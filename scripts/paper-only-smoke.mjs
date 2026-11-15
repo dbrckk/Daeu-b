@@ -707,7 +707,7 @@ try{
       viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
     });
     try{
-      const densePage=await denseContext.newPage();
+      let densePage=await denseContext.newPage();
       densePage.on("pageerror",error=>errors.push(error.message));
       await densePage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
       await densePage.locator("#firstStart").click();
@@ -786,6 +786,8 @@ try{
         await notebook.locator(".math-notebook-quick-validate").tap();
         assert.equal(await transcript.textContent(),"x=1");
         if(scenario==="réécrit"){
+          await densePage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+          await denseContext.setOffline(true);
           await previousPage.tap();
           assert.ok(await transcript.isHidden(),"Changer de page ferme la lecture de l’ancienne page");
           await nextPage.tap();
@@ -812,8 +814,17 @@ try{
           const rewritten=(await stored()).workbook.entries[savedCopy.copyKey];
           assert.equal(rewritten.pages[1].length,erased.pages[1].length+1);
           savedCopy.pages[1]=rewritten.pages[1];
-          await notebook.locator(".math-notebook-quick-validate").tap();
-          const candidate=notebook.locator(".math-notebook-recognition-candidate");
+          const resumeUrl=densePage.url();
+          await densePage.close();
+          densePage=await denseContext.newPage();
+          densePage.on("pageerror",error=>errors.push(error.message));
+          await densePage.goto(resumeUrl,{waitUntil:"domcontentloaded"});
+          await densePage.locator("#quiz.paper-mode").waitFor({state:"visible"});
+          assert.deepEqual((await stored()).workbook.entries[savedCopy.copyKey],rewritten);
+          assert.equal(await densePage.evaluate(()=>navigator.onLine),false);
+          const reopenedNotebook=densePage.locator("#quizNotebook");
+          await reopenedNotebook.locator(".math-notebook-quick-validate").tap();
+          const candidate=reopenedNotebook.locator(".math-notebook-recognition-candidate");
           assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=2$/);
           assert.equal((await stored()).round.completed,0);
           await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
@@ -829,7 +840,7 @@ try{
       assert.equal(corrected.round.completed,1);
       assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages,savedCopy.pages);
       assert.equal(corrected.round.assistedIds.includes(savedCopy.copyKey.slice(5)),scenario==="retouché");
-      console.log(scenario==="réécrit"?"OK Trait réécrit : ancienne transcription écartée et nouveau résultat lu":ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
+      console.log(scenario==="réécrit"?"OK Trait réécrit hors ligne : copie restaurée après fermeture, nouveau résultat confirmé":ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
         "OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
     }finally{await denseContext.close();}
   }
