@@ -64,20 +64,27 @@ function savedPaperViews(storage){
   }catch{/* Une préférence locale illisible ne bloque pas le cahier. */}
   return new Map();
 }
-function readPaperView(storage,context,pageCount){
-  const view=savedPaperViews(storage).get(context);
-  if(!view||!Number.isInteger(view.page)||view.page<0||view.page>=pageCount
-    ||typeof view.zoom!=="string"||!/^\d{3}$/.test(view.zoom)||Number(view.zoom)<MIN_ZOOM||Number(view.zoom)>MAX_ZOOM
+function readPaperView(record,page){
+  const view=record?.views?.[page]??(record?.page===page?record:null);
+  if(!view||typeof view.zoom!=="string"||!/^\d{3}$/.test(view.zoom)||Number(view.zoom)<MIN_ZOOM||Number(view.zoom)>MAX_ZOOM
     ||!Number.isFinite(view.left)||view.left<0||view.left>1
     ||!Number.isFinite(view.top)||view.top<0||view.top>1
     ||typeof view.writing!=="boolean")return null;
   return view;
 }
-function writePaperView(storage,context,view){
+function writePaperView(storage,context,page,view){
   try{
     const views=savedPaperViews(storage);
+    const record=views.get(context);
+    const pages={...record?.views};
+    // Reprendre la vue unique enregistrée par les anciennes versions.
+    if(!record?.views&&Number.isInteger(record?.page)&&record.page>=0&&record.page<MAX_WORK_PAGES){
+      const previous=readPaperView(record,record.page);
+      if(previous)pages[record.page]={zoom:previous.zoom,left:previous.left,top:previous.top,writing:previous.writing};
+    }
+    pages[page]=view;
     views.delete(context);
-    views.set(context,view);
+    views.set(context,{page,views:pages});
     storage.setItem(VIEW_KEY,JSON.stringify([...views].slice(-80)));
   }catch{/* La sauvegarde des traits est indépendante de ce réglage. */}
 }
@@ -134,10 +141,15 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(readOnly)throw error;
     showSheetStatus("Le cahier n’a pas pu être chargé. "+error.message,"error");
   }
-  const resumeView=paperOnly&&!readOnly?readPaperView(storage,context,work.pages.length):null;
-  if(paperOnly&&!readOnly)
-    pageIndex=resumeView?.page??Math.max(0,work.pages.findLastIndex(page=>page.length>0));
+  const savedView=paperOnly&&!readOnly?savedPaperViews(storage).get(context):null;
+  if(paperOnly&&!readOnly){
+    const savedPage=savedView?.page;
+    pageIndex=Number.isInteger(savedPage)&&savedPage>=0&&savedPage<work.pages.length
+      ?savedPage:Math.max(0,work.pages.findLastIndex(page=>page.length>0));
+  }
+  const resumeView=readPaperView(savedView,pageIndex);
   let restorePaperView=()=>{};
+  let restorePagePosition=()=>false;
   let savePaperView=()=>{};
   let syncPageNavigation=()=>{};
   let returnToWriting=()=>{};
@@ -365,18 +377,21 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     else paint();
     return saved;
   }
-  function goToPage(index){
+  function goToPage(index,{restore=true}={}){
+    savePaperView();
     lastErasure=null;lineGuide=null;pageIndex=index;
     resetLineAction();
     sheetViewport.scrollTo({top:0,left:0,behavior:"instant"});
+    const restored=restore&&restorePagePosition();
     renderPages();
     savePaperView();
+    return restored;
   }
   prev.addEventListener("click",()=>{if(pageIndex>0)goToPage(pageIndex-1);});
   nextPage.addEventListener("click",()=>{if(pageIndex<work.pages.length-1)goToPage(pageIndex+1);});
   function appendPage(){
     if(work.pages.length>=MAX_WORK_PAGES||!editPage(w=>w.pages.push([])))return false;
-    goToPage(work.pages.length-1);
+    goToPage(work.pages.length-1,{restore:false});
     if(paperOnly)returnToWriting();
     return true;
   }
@@ -1005,23 +1020,29 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         if(!box.width||!box.height)return;
         const start=canvasOffset()+sheetViewport.scrollTop;
         const writing=sheetViewport.scrollTop>=start-1;
-        const view={page:pageIndex,zoom:zoom.value,writing,
+        const view={zoom:zoom.value,writing,
           left:Math.round(sheetViewport.scrollLeft/box.width*10000)/10000,
           top:Math.round(Math.max(0,writing?-canvasOffset()/box.height:sheetViewport.scrollTop/Math.max(1,start))*10000)/10000};
-        const encoded=JSON.stringify(view);
+        const encoded=pageIndex+":"+JSON.stringify(view);
         if(previousView===encoded)return;
         previousView=encoded;
-        writePaperView(storage,context,view);
+        writePaperView(storage,context,pageIndex,view);
       };
+      const applyPosition=view=>{
+        if(!view)return false;
+        applyPaperZoom(Number(view.zoom));
+        const box=canvas.getBoundingClientRect();
+        const start=canvasOffset()+sheetViewport.scrollTop;
+        const top=view.writing?start+view.top*box.height:view.top*start;
+        sheetViewport.scrollTo({top,left:view.left*box.width,behavior:"instant"});
+        return true;
+      };
+      restorePagePosition=()=>applyPosition(readPaperView(savedPaperViews(storage).get(context),pageIndex));
       restorePaperView=()=>{
         const apply=()=>{
           const box=canvas.getBoundingClientRect();
           if(!box.width||!box.height)return false;
-          if(resumeView){
-            const start=canvasOffset()+sheetViewport.scrollTop;
-            const top=resumeView.writing?start+resumeView.top*box.height:resumeView.top*start;
-            sheetViewport.scrollTo({top,left:resumeView.left*box.width,behavior:"instant"});
-          }
+          applyPosition(resumeView);
           sheetViewport.addEventListener("scroll",savePaperView,{passive:true});
           return true;
         };
@@ -1066,8 +1087,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       nextLine.addEventListener("click",()=>{
         if(continueOnPage){
           if(pageIndex+1<work.pages.length){
-            goToPage(pageIndex+1);
-            returnToWriting();
+            if(!goToPage(pageIndex+1))returnToWriting();
           }else if(!appendPage())return;
           showSheetStatus("Page "+(pageIndex+1)+" sur "+work.pages.length+". Tu peux reprendre au stylo.","saved");
           return;
@@ -1189,8 +1209,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
           }
           previews.close();
           if(index!==pageIndex){
-            goToPage(index);
-            if(!readOnly)returnToWriting();
+            const restored=goToPage(index,{restore:!point});
+            if(!readOnly&&!restored)returnToWriting();
           }
           if(point){
             const paperBox=canvas.getBoundingClientRect();

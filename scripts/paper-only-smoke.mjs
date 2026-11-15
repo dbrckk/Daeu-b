@@ -186,6 +186,15 @@ try{
   console.log("OK Déplacement et zoom à deux doigts sans modifier la copie");
 
   await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  await page.evaluate(id=>{
+    const key="daeu-b-paper-views-v1";
+    const entries=new Map(JSON.parse(localStorage.getItem(key)));
+    const context="quiz:"+id;
+    const record=entries.get(context);
+    // Même copie et réglages, dans le format v82 à une seule vue.
+    entries.set(context,{page:record.page,...record.views[record.page]});
+    localStorage.setItem(key,JSON.stringify([...entries]));
+  },questionId);
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded"});
   await zoom.waitFor();
@@ -246,7 +255,7 @@ try{
   assert.match(await paperPages.textContent(),/Page 2\/2/);
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],copyWithExtraPage.workbook.entries["quiz:"+questionId]);
   await paperPages.getByRole("button",{name:"Page précédente"}).click();
-  await page.getByRole("button",{name:"Aller à la zone d’écriture"}).click();
+  if(await toWriting.isVisible())await toWriting.click();
   console.log("OK Fin de page : erreur de sauvegarde récupérable, création et réutilisation d’une page");
   await zoom.selectOption("100");
   await page.getByRole("button",{name:"Voir l’énoncé"}).click();
@@ -299,6 +308,8 @@ try{
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const beforePreview=await snapshot();
   await zoom.selectOption("200");
+  await zoomSheet.evaluate(el=>el.scrollBy({top:85,left:110,behavior:"instant"}));
+  const pageTwoPosition=await coordinates();
   await context.setOffline(true);
   await previewButton.click();
   assert.equal(await containsInk(previewDialog.getByRole("button",{name:"Page 2 Manuscrite"})),true);
@@ -347,8 +358,21 @@ try{
   await page.setViewportSize({width:390,height:844});
   assert.deepEqual(await snapshot(),beforePreview);
   await context.setOffline(false);
+  await zoom.selectOption("150");
+  const pageOnePosition=await coordinates();
+  await paperPages.getByRole("button",{name:"Page suivante"}).click();
+  assert.equal(await zoom.inputValue(),"200");
+  const reopenedPageTwo=await coordinates();
+  assert.ok(Math.abs(reopenedPageTwo.left-pageTwoPosition.left)<.015
+    &&Math.abs(reopenedPageTwo.top-pageTwoPosition.top)<.015);
+  await paperPages.getByRole("button",{name:"Page précédente"}).click();
+  assert.equal(await zoom.inputValue(),"150");
+  const reopenedPageOne=await coordinates();
+  assert.ok(Math.abs(reopenedPageOne.left-pageOnePosition.left)<.015
+    &&Math.abs(reopenedPageOne.top-pageOnePosition.top)<.015);
+  assert.deepEqual(await snapshot(),beforePreview);
   await zoom.selectOption("100");
-  console.log("OK Miniatures à 320 px, accès à une zone précise hors ligne et copie intacte");
+  console.log("OK Miniatures à 320 px, vues distinctes par page et copie intacte");
   await paperPages.getByRole("button",{name:"Lire cette page"}).click();
   assert.match(await paperPages.textContent(),/Page 1\/2/);
   assert.ok(await page.locator("#quizNotebook .math-notebook-manual-comparison").isHidden());
