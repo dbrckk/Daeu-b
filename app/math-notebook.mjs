@@ -380,6 +380,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   function goToPage(index,{restore=true}={}){
     savePaperView();
     lastErasure=null;lineGuide=null;pageIndex=index;
+    invalidateRecognition();
     resetLineAction();
     sheetViewport.scrollTo({top:0,left:0,behavior:"instant"});
     const restored=restore&&restorePagePosition();
