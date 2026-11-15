@@ -206,15 +206,48 @@ try{
   await nextLine.click();
   assert.ok((await coordinates()).top>firstLine.top,"Un second appui descend encore");
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
-  await zoomSheet.evaluate(el=>{el.scrollTop=el.scrollHeight;});
+  const continuePage=page.getByRole("button",{name:"Continuer sur la page suivante"});
+  const reachPageEnd=async()=>{
+    await zoomSheet.evaluate(el=>{el.scrollTop=el.scrollHeight;});
+    for(let i=0;i<24;i++){
+      await nextLine.click();
+      if(await continuePage.isVisible())return;
+    }
+    assert.fail("La fin de page doit proposer de continuer sur la suivante");
+  };
+  await reachPageEnd();
   const lineStatus=page.locator("#quizNotebook .math-notebook-status");
-  for(let i=0;i<24;i++){
-    await nextLine.click();
-    if((await lineStatus.textContent()).includes("Bas de la feuille"))break;
-  }
   assert.match(await lineStatus.textContent(),/Bas de la feuille/);
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages.length,1);
-  console.log("OK Ligne suivante : retour à gauche, descente et fin de page sans modifier la copie");
+  await page.evaluate(()=>{
+    const original=Storage.prototype.setItem;
+    Storage.prototype.setItem=function(key,value){
+      if(key==="daeu-b-data-v1"){
+        Storage.prototype.setItem=original;
+        throw new DOMException("Quota exceeded","QuotaExceededError");
+      }
+      return original.call(this,key,value);
+    };
+  });
+  await continuePage.click();
+  assert.match(await lineStatus.textContent(),/Modification non enregistrée/);
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  await continuePage.click();
+  const paperPages=page.getByRole("navigation",{name:"Pages de la feuille"});
+  assert.match(await paperPages.textContent(),/Page 2\/2/);
+  const copyWithExtraPage=await snapshot();
+  assert.deepEqual(copyWithExtraPage.workbook.entries["quiz:"+questionId].pages,
+    [...first.workbook.entries["quiz:"+questionId].pages,[]]);
+  assert.equal(await zoom.inputValue(),savedZoom);
+  assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"CANVAS");
+  await paperPages.getByRole("button",{name:"Page précédente"}).click();
+  await reachPageEnd();
+  await continuePage.click();
+  assert.match(await paperPages.textContent(),/Page 2\/2/);
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],copyWithExtraPage.workbook.entries["quiz:"+questionId]);
+  await paperPages.getByRole("button",{name:"Page précédente"}).click();
+  await page.getByRole("button",{name:"Aller à la zone d’écriture"}).click();
+  console.log("OK Fin de page : erreur de sauvegarde récupérable, création et réutilisation d’une page");
   await zoom.selectOption("100");
   await page.getByRole("button",{name:"Voir l’énoncé"}).click();
   console.log("OK Zoom progressif et déplacement de la feuille sans nouveau trait");
@@ -239,19 +272,8 @@ try{
   assert.equal(await jump.textContent(),"Aller à la zone d’écriture");
   assert.equal(await landscapeSheet.evaluate(el=>el.scrollTop),0);
   await page.setViewportSize({width:390,height:844});
-  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],copyWithExtraPage.workbook.entries["quiz:"+questionId]);
   console.log("OK Paysage : accès à la zone d’écriture, validation accessible et copie intacte");
-  assert.ok(await page.locator("#quizNotebook .math-notebook-paper-tools>summary").isVisible());
-  assert.ok(await page.locator("#quizNotebook .math-notebook-pages").isHidden());
-  await page.locator("#quizNotebook .math-notebook-paper-tools>summary").click();
-  await page.locator("#quizNotebook .math-notebook-pages button").filter({hasText:"Ajouter une page"}).click();
-  const updated=await snapshot();
-  assert.equal(updated.workbook.entries["quiz:"+questionId].pages.length,2);
-  assert.equal(updated.workbook.entries["quiz:"+questionId].pages[0].length,1);
-  const paperPages=page.getByRole("navigation",{name:"Pages de la feuille"});
-  assert.match(await paperPages.textContent(),/Page 2\/2/);
-  await paperPages.getByRole("button",{name:"Page précédente"}).click();
-  assert.match(await paperPages.textContent(),/Page 1\/2/);
   await paperPages.getByRole("button",{name:"Page suivante"}).click();
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   await paperPages.getByRole("button",{name:"Page précédente"}).click();
