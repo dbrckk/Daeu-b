@@ -71,6 +71,29 @@ try{
   assert.ok(await page.locator("#quiz").isVisible());
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
   console.log("OK Pause et reprise de la même copie");
+  await page.setViewportSize({width:640,height:360});
+  const landscapeSheet=page.locator("#quizNotebook .math-notebook-sheet-viewport");
+  const jump=page.locator("#quizNotebook .math-notebook-paper-jump");
+  await jump.click();
+  assert.equal(await jump.textContent(),"Voir l’énoncé");
+  assert.ok(await landscapeSheet.evaluate(el=>{
+    const sheet=el.getBoundingClientRect();
+    const ink=el.querySelector("canvas").getBoundingClientRect();
+    return el.scrollTop>0&&el.clientHeight>=190&&el.clientHeight<=250
+      &&ink.top<=sheet.top+el.clientTop+2&&ink.bottom>=sheet.top+150;
+  }),"La zone d’écriture doit remplir la feuille défilante en paysage");
+  const landscapeValidate=page.locator("#quizNotebook .math-notebook-quick-validate");
+  await landscapeValidate.scrollIntoViewIfNeeded();
+  assert.ok(await landscapeValidate.evaluate(button=>{
+    const box=button.getBoundingClientRect();
+    return box.height>=44&&document.elementFromPoint(box.x+box.width/2,box.y+box.height/2)?.closest("button")===button;
+  }),"La validation doit rester accessible en paysage");
+  await jump.click();
+  assert.equal(await jump.textContent(),"Aller à la zone d’écriture");
+  assert.equal(await landscapeSheet.evaluate(el=>el.scrollTop),0);
+  await page.setViewportSize({width:390,height:844});
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  console.log("OK Paysage : accès à la zone d’écriture, validation accessible et copie intacte");
   assert.ok(await page.locator("#quizNotebook .math-notebook-paper-tools>summary").isVisible());
   assert.ok(await page.locator("#quizNotebook .math-notebook-pages").isHidden());
   await page.locator("#quizNotebook .math-notebook-paper-tools>summary").click();

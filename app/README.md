@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v67 — feuille en paysage
+
+- Le bouton « Aller à la zone d’écriture » défile jusqu’au quadrillage. Le même bouton ramène à l’énoncé.
+- En paysage sur un écran peu haut, la barre du quiz tient sur une ligne quand la largeur le permet. L’agrandissement conserve la position verticale dans le quadrillage.
+
 ## v66 — poursuivre après une séance
 
 - Le bilan propose le jalon conseillé, son cours, l’entraînement ciblé et le problème de transfert. Le bilan est aussi disponible après rechargement.
