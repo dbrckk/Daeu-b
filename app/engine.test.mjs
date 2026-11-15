@@ -181,7 +181,7 @@ test("contrôle indépendant des 41 familles de calculs sur 3 280 énoncés",()=
 
 test("16 exercices approfondis : exactitude et compatibilité des données locales",()=>{
   const byTopic=new Map(TOPICS.map(t=>[t.slug,t.questions.length]));
-  for(const [topic,count] of [["statistiques",10],["limites",12],["continuite",10],["probas",13]])
+  for(const [topic,count] of [["statistiques",10],["limites",11],["derivation",8],["continuite",10],["probas",13]])
     assert.equal(byTopic.get(topic),count,topic);
   const map=new Map(questions.map(q=>[q.id,q]));
   const cases=[["st07","6"],["st08","3"],["st09","13"],["st10","4"],

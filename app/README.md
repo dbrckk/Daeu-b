@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v65 — revue des exercices de maths
+
+- L’exercice sur la dérivée d’une fonction rationnelle ouvre désormais le cours sur les dérivées. Les réponses enregistrées sont rattachées au même identifiant.
+- Corrections de formulation dans les exercices sur la médiane, l’étendue et les conditions d’existence et d’unicité d’une racine. Voir la revue des 20 jalons dans le dépôt.
+
 ## v64 — formulaire d’entraînement pendant l’examen
 
 - Le bouton « Formulaire » ouvre la fiche de mathématiques dans l’épreuve, avec les formules en MathML. Le chronomètre continue et le retour remet le focus sur la commande.

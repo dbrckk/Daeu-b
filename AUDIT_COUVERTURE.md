@@ -26,7 +26,7 @@ Les affectations des **questions fixes** sont une classification éditoriale exp
 | 9 | Statistiques descriptives | 11 | 10 (9/1) | 2 | Attribution présente ; profondeur non mesurée |
 | 10 | Introduction aux fonctions | 05 | 7 (3/4) | 2 | Attribution présente ; profondeur non mesurée |
 | 11 | Limites | 07 | 6 (4/2) | 2 | Attribution présente ; profondeur non mesurée |
-| 12 | Dérivées | 06 | 8 (4/4) | 2 | question hors jalons du domaine : l12 |
+| 12 | Dérivées | 06 | 8 (4/4) | 2 | Attribution présente ; profondeur non mesurée |
 | 13 | Asymptotes | 07 | 5 (0/5) | 2 | Attribution présente ; profondeur non mesurée |
 | 14 | Théorème des valeurs intermédiaires | 08 | 10 (5/5) | 2 | Attribution présente ; profondeur non mesurée |
 | 15 | Suites numériques | 10 | 7 (5/2) | 2 | Attribution présente ; profondeur non mesurée |
@@ -43,7 +43,6 @@ Les affectations des **questions fixes** sont une classification éditoriale exp
 
 ## Anomalies et risques observés
 
-- **Attribution inter-domaines :** `l12` porte principalement sur le jalon 12, mais se trouve dans un domaine dont la liste `jalons` ne le mentionne pas. Il faut examiner son classement sans modifier aveuglément les historiques.
 - **Profondeur non certifiée :** les étiquettes *diagnostic / application / transfert*, la qualité de la rédaction, la difficulté et la variété effective des problèmes **ne sont pas présentes de manière vérifiable pour chaque question**. Aucun taux de maîtrise par jalon n'est déduit de cet audit.
 - **Couverture facultative :** les jalons 21–23 ont des cours mais pas de questions interactives dédiées ; ne pas les présenter comme évalués dans l'application.
 

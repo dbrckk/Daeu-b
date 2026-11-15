@@ -16,7 +16,9 @@ test("v24 : attribution exacte et distincte des 157 entrées",()=>{
  assert.equal(a.totals.requiredJalons,20);
  assert.equal(a.totals.optionalJalons,3);
  assert.equal(a.totals.variantJalonAssignments,43);
- assert.deepEqual(a.totals.crossTopic,[{id:"l12",jalon:12}]);
+ assert.deepEqual(a.totals.crossTopic,[]);
+ assert.ok(a.jalons[11].fixedIds.includes("l12"));
+ assert.ok(TOPICS.find(topic=>topic.slug==="derivation").questions.some(question=>question.id==="l12"));
  assert.deepEqual(a.totals.sparseFixed,[]);
  assert.deepEqual(a.totals.singleVariant,[]);
  assert.equal(a.jalons[17].title,"Calcul intégral");

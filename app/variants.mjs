@@ -94,7 +94,7 @@ export const VARIANTS=[
   }),
   v("v20","continuite",[14],r=>{
     const a=pick(r,1,10),b=pick(r,1,10),power=pick(r,1,5);
-    return num("Sur ["+(power-1)+";"+(power+1)+"], f(x)=x³−"+(power**3)+" est continue et strictement croissante. Quelle est son unique racine ?",power,"Recherche la valeur dont le cube vaut "+(power**3)+".","f("+power+")="+(power**3)+"−"+(power**3)+"=0 ; la continuité garantit l’existence d’une solution, et la stricte croissance de x³ assure son unicité.",{a,b,power,kind:"tvi_root"});
+    return num("Sur ["+(power-1)+";"+(power+1)+"], f(x)=x³−"+(power**3)+" est continue et strictement croissante. Quelle est son unique racine ?",power,"Recherche la valeur dont le cube vaut "+(power**3)+".","f("+power+")="+(power**3)+"−"+(power**3)+"=0 ; cette valeur donne une racine. La stricte croissance de x³ assure son unicité sur l’intervalle.",{a,b,power,kind:"tvi_root"});
   }),
   v("v21","continuite",[14],r=>{
     const n=pick(r,2,8),start=pick(r,1,10);
