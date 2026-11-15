@@ -50,3 +50,16 @@ test("Réparer une sauvegarde secondaire dépassée sans perdre le stockage prin
   assert.deepEqual(written,[latest]);
   assert.equal(memory.getItem(DATA_KEY),latest);
 });
+
+test("La restauration relit localStorage après l’attente IndexedDB",async()=>{
+  const memory=createVolatileStorage(),older=make(1),mirror=make(2),newer=make(3);
+  memory.setItem(DATA_KEY,older);
+  const writes=[];
+  const backend={
+    async read(){memory.setItem(DATA_KEY,newer);return mirror;},
+    async write(raw){writes.push(raw);}
+  };
+  assert.equal((await restoreAutoBackup(memory,known,backend)).source,"local");
+  assert.equal(memory.getItem(DATA_KEY),newer);
+  assert.deepEqual(writes,[newer]);
+});

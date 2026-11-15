@@ -49,7 +49,7 @@ function openDatabase(idb){
     request.onblocked=()=>reject(new Error("IndexedDB bloquée par un autre onglet"));
   });
 }
-export function createIndexedDbBackend(idb){
+export function createIndexedDbBackend(idb,knownIds){
   const dbPromise=openDatabase(idb);
   return {
     async read(){
@@ -66,7 +66,20 @@ export function createIndexedDbBackend(idb){
       const db=await dbPromise;
       return new Promise((resolve,reject)=>{
         const tx=db.transaction(MIRROR_STORE,"readwrite");
-        tx.objectStore(MIRROR_STORE).put(raw,MIRROR_KEY);
+        const snapshots=tx.objectStore(MIRROR_STORE);
+        const current=snapshots.get(MIRROR_KEY);
+        const revision=JSON.parse(raw).revision;
+        current.onsuccess=()=>{
+          // Une écriture encore en file dans un autre onglet ne doit pas
+          // remplacer une révision plus récente déjà copiée dans IndexedDB.
+          const existing=current.result;
+          if(typeof existing==="string"&&existing.length<=MAX_BYTES){
+            try{
+              if(JSON.parse(existing).revision>revision&&parseValidatedBundle(existing,knownIds))return;
+            }catch{/* Une copie secondaire illisible peut être remplacée. */}
+          }
+          snapshots.put(raw,MIRROR_KEY);
+        };
         tx.oncomplete=()=>resolve();
         tx.onabort=()=>reject(tx.error||new Error("Transaction de copie annulée"));
         tx.onerror=()=>reject(tx.error||new Error("Copie impossible"));
@@ -75,8 +88,10 @@ export function createIndexedDbBackend(idb){
   };
 }
 export async function restoreAutoBackup(storage,knownIds,backend){
-  const localRaw=storage.getItem(DATA_KEY);
   const mirrored=await backend.read();
+  // Lire le stockage principal après l’attente IndexedDB : un autre onglet
+  // a pu enregistrer une nouvelle révision pendant cette attente.
+  const localRaw=storage.getItem(DATA_KEY);
   const selected=chooseRecovery(localRaw,mirrored,knownIds);
   if(selected.source==="mirror"){
     // Restaurer AVANT le chargement du moteur : pas de sauvegarde partielle.
@@ -90,7 +105,7 @@ export async function restoreAutoBackup(storage,knownIds,backend){
 export async function initializeAutoBackup(storage,knownIds,idb=globalThis.indexedDB){
   if(!storage||!knownIds?.has)return {available:false,source:"none"};
   try{
-    const backend=createIndexedDbBackend(idb);
+    const backend=createIndexedDbBackend(idb,knownIds);
     const result=await restoreAutoBackup(storage,knownIds,backend);
     activeBackend=backend;
     status(result.source==="mirror"?"restauree":"sauvegarde-automatique");

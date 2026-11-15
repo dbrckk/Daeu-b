@@ -13,7 +13,6 @@ export const CLOUD_BASE_KEY="daeu-b-cloud-base-v1";
 export const CLOUD_OWNER_KEY="daeu-b-cloud-owner-v1";
 const TABLE="/rest/v1/daeu_b_progress";
 const HEADERS={"apikey":CLOUD_KEY,"Content-Type":"application/json"};
-const MAX_BODY=1_000_000;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 let session=null,knownIds=null,storage=null,base=null,conflict=null;
 let onChange=()=>{},onRestore=()=>{},status="déconnecté",busy=false,pending=false,timer=null,queue=Promise.resolve(),importing=false;
@@ -114,7 +113,7 @@ async function adoptRemote(row){
   // prenne le dessus à l'ouverture suivante.
   const next={...remote,revision:Math.max(old?.revision||0,remote.revision)+1};
   const raw=JSON.stringify(next);
-  if(raw.length>MAX_BODY)throw Error("Copie distante trop volumineuse");
+  if(!parseValidatedBundle(raw,knownIds))throw Error("Copie distante invalide après restauration");
   const safe=backedStorage(storage);
   importing=true;
   try{safe.setItem(DATA_KEY,raw);await flushAutoBackup();}

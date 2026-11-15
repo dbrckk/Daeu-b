@@ -177,6 +177,27 @@ try{
     assert.equal(saved.exams.active.paperOnly,true);
     const key=Object.keys(saved.workbook.entries).find(k=>k.startsWith("exam:"));
     assert.ok(key&&saved.workbook.entries[key].pages[0].length===1);
+    const canvasBefore=await viewport.locator("canvas").evaluate(canvas=>canvas.toDataURL());
+    await examPage.evaluate(()=>{
+      const write=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){
+        if(key==="daeu-b-data-v1")throw new DOMException("Quota exceeded","QuotaExceededError");
+        return write.call(this,key,value);
+      };
+    });
+    await examPage.mouse.move(x,y+8);
+    await examPage.mouse.down();
+    await examPage.mouse.move(x+75,y+28,{steps:10});
+    await examPage.mouse.up();
+    const error=examPage.locator("#examNotebook .math-notebook-save-error");
+    await error.waitFor({state:"visible"});
+    assert.match(await error.textContent(),/stockage du navigateur est plein/);
+    assert.equal(await viewport.locator("canvas").evaluate(canvas=>canvas.toDataURL()),canvasBefore);
+    const refused=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.deepEqual(refused,saved);
+    await examPage.reload({waitUntil:"networkidle"});
+    console.log("OK Quota : dernier état conservé et trait refusé retiré de la feuille");
+
     await navigation.getByRole("button",{name:"Aller à l'exercice 3"}).click();
     assert.equal(await navigation.getByRole("button",{name:"Exercice 3 en cours"}).getAttribute("aria-current"),"step");
     await examPage.reload({waitUntil:"networkidle"});
@@ -266,6 +287,57 @@ try{
     await blank.locator(".exam-paper-review > summary").click();
     assert.match(await blank.locator(".exam-paper-review").textContent(),/Aucun tracé sauvegardé/);
     console.log("OK Correction : comparaison mobile et bureau, révisions choisies et grille sauvegardée");
+
+    // Copies manuscrites volumineuses produites avec le format de tracé réel.
+    const bulk=await examPage.evaluate(async()=>{
+      const {encodeStroke}=await import("/workbook.mjs");
+      const {createPersistence,DATA_KEY}=await import("/persistence.mjs");
+      const {backedStorage,flushAutoBackup,createIndexedDbBackend}=await import("/auto-backup.mjs");
+      const {startExam,finishExam,findExam}=await import("/exam-engine.mjs");
+      const raw=JSON.parse(localStorage.getItem(DATA_KEY));
+      const knownIds=new Set([...Object.keys(raw.practice.items),...(raw.round?.ids??[])]);
+      const repository=createPersistence(backedStorage(localStorage),knownIds);
+      const {workbook,exams}=repository.snapshot();
+      const examId="blanc-1";
+      const exam=findExam(examId);
+      const pages=Array.from({length:3},(_,page)=>Array.from({length:155},(_,i)=>
+        encodeStroke(Array.from({length:18},(_,j)=>[
+          100+(i%15)*40+j,100+Math.floor(i/15)*57+Math.round(12*Math.sin(j/3))+page*10
+        ]))
+      ));
+      for(let index=1;index<=5;index++){
+        const started=Date.now()-index*86_400_000;
+        exams.history.unshift(finishExam(startExam(examId,started,null,true),started+3600_000));
+        for(const section of exam.sections)
+          workbook.entries["exam:"+examId+":"+started+":"+section.id]={text:"",pages};
+      }
+      const current=repository.snapshot();
+      const data=repository.replaceAll(current.practice,exams,current.round,current.transfers,workbook);
+      await flushAutoBackup();
+      const serialized=localStorage.getItem(DATA_KEY);
+      const mirror=createIndexedDbBackend(indexedDB,knownIds);
+      await mirror.write(JSON.stringify({...data,revision:data.revision-1}));
+      if(await mirror.read()!==serialized)throw Error("Une ancienne révision a écrasé le miroir");
+      return {revision:data.revision,entries:Object.keys(data.workbook.entries).length,size:serialized.length};
+    });
+    assert.ok(bulk.size>1_200_000&&bulk.entries>=21,"Le scénario doit franchir l’ancienne limite");
+    await examPage.evaluate(async()=>{
+      await navigator.serviceWorker.ready;
+      localStorage.removeItem("daeu-b-data-v1");
+    });
+    await examContext.setOffline(true);
+    await examPage.close();
+    const recoveredPage=await examContext.newPage();
+    await recoveredPage.goto(BASE,{waitUntil:"domcontentloaded"});
+    await recoveredPage.waitForFunction(revision=>
+      JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.revision===revision,bulk.revision);
+    const restored=await recoveredPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.equal(Object.keys(restored.workbook.entries).length,bulk.entries);
+    assert.deepEqual(restored.workbook.entries[key],saved.workbook.entries[key]);
+    assert.equal(restored.exams.history.length,6);
+    await recoveredPage.close();
+    console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
+
   }finally{await examContext.close();}
   assert.deepEqual(errors,[]);
   console.log("PAPER-ONLY ANDROID : OK");

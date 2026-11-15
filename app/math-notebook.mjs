@@ -78,6 +78,11 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   const help=document.createElement("p");help.className="helper";
   help.textContent="Écris sur la grande feuille au doigt ou au stylet. Tu peux corriger un trait avec la gomme, puis vérifier tes équations. Si un symbole est mal lu, corrige la transcription en touchant les symboles proposés, sans clavier ni ressaisie de la copie. Chaque modification de la feuille est sauvegardée automatiquement. La reconnaissance reste expérimentale : vérifie-la avant toute notation.";
   const status=document.createElement("p");status.className="helper math-notebook-status";status.setAttribute("role","status");
+  function showSheetStatus(message,kind="info"){
+    status.textContent=message;
+    status.classList.toggle("math-notebook-save-ok",kind==="saved");
+    status.classList.toggle("math-notebook-save-error",kind==="error");
+  }
   let work=blankWork(),pageIndex=0;
   let invalidateRecognition=()=>{};
   try{
@@ -94,7 +99,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       status.textContent="Ancien brouillon trop long : conservé sans modification dans l'ancien stockage.";
   }catch(error){
     if(readOnly)throw error;
-    status.textContent="Le cahier n’a pas pu être chargé : "+error.message;
+    showSheetStatus("Le cahier n’a pas pu être chargé. "+error.message,"error");
   }
   const field=document.createElement("textarea");
   field.className="math-notebook-editor";field.rows=8;field.maxLength=MAX_TEXT;field.spellcheck=false;
@@ -115,13 +120,17 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const current=adapter.snapshot().workbook;
       const updated=changeWork(current,context,next);
       adapter.updateWorkbook(updated);
-      work=next;if(!keepReading)invalidateRecognition();status.textContent="Cahier enregistré automatiquement avec la progression.";
+      work=next;if(!keepReading)invalidateRecognition();
+      showSheetStatus("Cahier enregistré automatiquement avec la progression.","saved");
       // Ne jamais afficher un ancien verdict après une édition par touche ou modèle.
       if(typeof feedback!=="undefined")feedback.hidden=true;
       renderMathPreview(previewBody,field.value);
       return true;
     }catch(error){
-      status.textContent="Cahier non enregistré : "+error.message+". Recharge si la progression a changé dans un autre onglet.";
+      const detail=error.name==="QuotaExceededError"
+        ?"Le stockage du navigateur est plein."
+        :error.message;
+      showSheetStatus("Modification non enregistrée. Ta dernière copie sauvegardée est conservée. "+detail,"error");
       return false;
     }
   }
@@ -305,6 +314,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       else delete updated.inkDrafts;
     }
     if(persist(updated))renderPages();
+    else paint();
   }
   function goToPage(index){
     lastErasure=null;pageIndex=index;
@@ -345,18 +355,18 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(eraserMode){
       event.preventDefault();
       const index=nearestInkStroke(work.pages[pageIndex],pointOf(event));
-      if(index===null){status.textContent="Aucun trait assez proche : touche le symbole à effacer.";return;}
+      if(index===null){showSheetStatus("Aucun trait assez proche : touche le symbole à effacer.");return;}
       const erased=work.pages[pageIndex][index],before=work;
       editPage(w=>w.pages[pageIndex].splice(index,1));
       if(work!==before){
         lastErasure={index,stroke:erased};
-        status.textContent="Un trait effacé. Tu peux annuler ou reprendre le stylo.";
+        showSheetStatus("Un trait effacé. Tu peux annuler ou reprendre le stylo.");
         renderPages();
       }
       return;
     }
     if(work.pages[pageIndex].length>=MAX_PAGE_STROKES){
-      status.textContent="Cette page est pleine : ajoute une page pour continuer ton calcul.";
+      showSheetStatus("Cette page est pleine : ajoute une page pour continuer ton calcul.");
       return;
     }
     lastErasure=null;
@@ -384,7 +394,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   canvas.addEventListener("pointercancel",event=>{
     if(activePointer!==event.pointerId)return;
     activePointer=null;drawing=null;paint();
-    status.textContent="Geste interrompu : aucun trait incomplet n'a été enregistré.";
+    showSheetStatus("Geste interrompu : aucun trait incomplet n’a été enregistré.");
   });
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
   const recognition=document.createElement("section");recognition.className="math-notebook-recognition";
@@ -807,6 +817,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     if(readOnly){controls.replaceChildren(prev,nextPage,indicator);sheetControls.hidden=true;}
     const bar=document.createElement("div");bar.className="math-notebook-paper-bar";
     if(!readOnly){
+      bar.append(status);
       const modes=document.createElement("div");modes.className="math-notebook-paper-modes";
       modes.setAttribute("role","group");modes.setAttribute("aria-label","Mode de la feuille");
       eraser.textContent="Gomme";
@@ -815,7 +826,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       bar.append(modes,quickValidate);
     }
     tools.append(summary,controls,zoom,sheetControls);
-    section.append(tools,sheetViewport,bar,recognition,inkEquations,manual,status,editorDetails);
+    section.append(tools,sheetViewport,bar,recognition,inkEquations,manual,editorDetails);
     updateZoom();
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();
