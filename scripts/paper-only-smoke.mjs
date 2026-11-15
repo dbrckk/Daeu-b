@@ -59,7 +59,11 @@ try{
   assert.ok(await page.locator("#quizNotebook .math-notebook-manual [role=status]")
     .textContent().then(t=>t.includes("Trace d'abord")));
   assert.ok(await page.locator("#quizNotebook .math-notebook-manual-comparison").isHidden());
-  console.log("OK Copie vierge non corrigée et non notée");
+  const retryOnPaper=page.getByRole("button",{name:"Revenir à ma feuille"});
+  await retryOnPaper.click();
+  assert.ok(await retryOnPaper.isHidden());
+  assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"CANVAS");
+  console.log("OK Copie vierge non corrigée et retour direct au stylo");
 
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
@@ -101,9 +105,19 @@ try{
   const updated=await snapshot();
   assert.equal(updated.workbook.entries["quiz:"+questionId].pages.length,2);
   assert.equal(updated.workbook.entries["quiz:"+questionId].pages[0].length,1);
+  const paperPages=page.getByRole("navigation",{name:"Pages de la feuille"});
+  assert.match(await paperPages.textContent(),/Page 2\/2/);
+  await paperPages.getByRole("button",{name:"Page précédente"}).click();
+  assert.match(await paperPages.textContent(),/Page 1\/2/);
+  await paperPages.getByRole("button",{name:"Page suivante"}).click();
+  await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   await page.reload({waitUntil:"networkidle"});
   assert.ok(await page.locator("#quiz.paper-mode").isVisible());
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages.length,2);
+  assert.match(await paperPages.textContent(),/Page 2\/2/);
+  await page.getByRole("button",{name:"Annuler le dernier trait"}).click();
+  assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[1].length,0);
+  await paperPages.getByRole("button",{name:"Page précédente"}).click();
   assert.ok(await page.locator("#answerForm").isHidden());
   console.log("OK Tracé, nouvelle page et reprise intégrale sans ressaisie");
 

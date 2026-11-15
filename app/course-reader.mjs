@@ -20,12 +20,14 @@ try{
   const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
   const notebookStore=createPersistence(backedStorage(localStorage),ids);
   mountNotebook(byId("courseNotebook"),{context:"cours:"+slug,adapter:notebookStore,
-    title:"Ma prise de notes et mes calculs — "+courseInfo(slug)});
+    title:"Ma prise de notes et mes calculs — "+courseInfo(slug),
+    paperOnly:true,showEditor:true,paperPrompt:"Note tes idées et pose les calculs du chapitre sur cette feuille."});
 }catch{byId("courseNotebook").textContent="Le cahier ne peut pas être ouvert : vérifie le stockage du navigateur.";}
 
 const practice=byId("coursePractice");
-practice.href=practiceUrlForCourse(slug);
-byId("courseNotebookPractice").href=practice.href;
+const exerciseUrl=practiceUrlForCourse(slug);
+practice.href=exerciseUrl;
+byId("courseNotebookPractice").href=exerciseUrl;
 practice.textContent=practiceTopicForCourse(slug)
   ?"M'entraîner sur ce chapitre"
   :"M'entraîner sur le tronc commun";

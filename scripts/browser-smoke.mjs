@@ -1128,6 +1128,12 @@ try {
   await check(async()=>await courseOnline.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),
     "Lecture agrandie sans défilement horizontal à 320 px");
   await courseOnline.setViewportSize({width:390,height:844});
+  await courseOnline.locator("#courseNotebookPanel > summary").click();
+  await check(async()=>await courseOnline.locator("#courseNotebook .is-paper-only").isVisible()
+    &&await courseOnline.locator("#courseNotebook .math-notebook-paper-jump").isVisible()
+    &&await courseOnline.locator("#courseNotebookPractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
+  "Le cahier de cours reprend la feuille des exercices et mène à la validation");
+  await courseOnline.locator("#courseNotebookPanel > summary").click();
   await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
     "Cours de limites relié directement au bon chapitre d'entraînement");
   await courseOnline.locator("#coursePractice").click();

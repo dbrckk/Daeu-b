@@ -390,7 +390,6 @@
 .math-notebook-paper-instruction{font-size:15px;color:#65758a;margin:16px 0 0}
 .math-notebook.is-paper-only .math-notebook-quick-validate{margin:9px 0 6px;min-height:54px}
 .math-notebook.is-paper-only .math-notebook-recognition:not(.paper-shown),.math-notebook.is-paper-only .math-notebook-equations:not(.paper-shown),.math-notebook.is-paper-only .math-notebook-manual:not(.paper-shown){display:none}
-.math-notebook.is-paper-only .math-notebook-editor-disclosure{display:none!important}
 .math-notebook.is-read-only .math-notebook-quick-validate,.math-notebook.is-read-only .math-notebook-status{display:none}
 .quiz.paper-mode:not([hidden]){position:fixed;inset:0;z-index:1000;margin:0;border:0;border-radius:0;padding:10px clamp(8px,2vw,30px) 22px;background:#202b3b;overflow:auto;overscroll-behavior:contain;display:block}
 .quiz.paper-mode .quiz-top{color:#e0e6ef}.quiz.paper-mode>progress{height:4px;margin:3px 0 7px}
@@ -615,3 +614,12 @@
 
 .app-version button{min-height:44px;margin-inline-start:8px}
 #appUpdateStatus:empty{display:none}
+
+
+.math-notebook-paper-navigation{display:flex;align-items:center;justify-content:center;gap:10px;margin:3px 0 5px}
+.math-notebook-paper-navigation button{min-width:44px;min-height:44px;padding:3px;font-size:1.3rem}
+.math-notebook.is-paper-only .math-notebook-paper-navigation .math-notebook-page-indicator{margin:0;color:inherit}
+.math-notebook-paper-modes.has-undo{grid-template-columns:repeat(4,minmax(0,1fr))}
+.math-notebook.is-paper-only .math-notebook-paper-modes.has-undo button{padding-inline:2px;font-size:.8rem}
+.math-notebook-paper-retry{min-height:44px;margin:0 6px 6px 0;color:#20394c;background:#eef3f5;border-color:#a5b2c1}
+.math-notebook-paper-retry:hover{background:#dce8f1}
