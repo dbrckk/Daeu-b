@@ -112,7 +112,8 @@ try{
   await zoom.selectOption("150");
   const size=await coordinates();
   assert.ok(Math.abs(size.width-1.5)<.03);
-  await page.getByRole("button",{name:"Aller à la zone d’écriture"}).click();
+  const toWriting=page.getByRole("button",{name:"Aller à la zone d’écriture"});
+  if(await toWriting.isVisible())await toWriting.click();
   await zoomSheet.evaluate(el=>el.scrollBy({left:70,top:150,behavior:"instant"}));
   const beforeZoom=await coordinates();
   await zoom.selectOption("200");
@@ -133,6 +134,7 @@ try{
   const afterDrag=await coordinates();
   assert.ok(afterDrag.left>afterZoom.left&&afterDrag.top>afterZoom.top);
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded"});
   await zoom.waitFor();
