@@ -134,13 +134,33 @@ try{
   const afterDrag=await coordinates();
   assert.ok(afterDrag.left>afterZoom.left&&afterDrag.top>afterZoom.top);
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
+  await pen.click();
+  const touchPan=await context.newCDPSession(page);
+  const finger=(id,x,y)=>({id,x,y});
+  const left=finger(1,dragPoint[0]-25,dragPoint[1]);
+  const right=finger(2,dragPoint[0]+35,dragPoint[1]+25);
+  await touchPan.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[left]});
+  await touchPan.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{...left,x:left.x-8}]});
+  await touchPan.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{...left,x:left.x-8},right]});
+  await touchPan.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[
+    {...left,x:left.x-55,y:left.y-42},{...right,x:right.x-55,y:right.y-42}
+  ]});
+  await touchPan.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  await touchPan.detach();
+  const afterTouchPan=await coordinates();
+  assert.ok(afterTouchPan.left>afterDrag.left+.025&&afterTouchPan.top>afterDrag.top+.025,
+    "Le geste à deux doigts doit déplacer les deux axes");
+  assert.equal(await pen.getAttribute("aria-pressed"),"true");
+  assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId],
+    "Le début du geste à deux doigts n’est jamais enregistré comme trait");
+  console.log("OK Déplacement à deux doigts sans quitter le stylo ni modifier la copie");
   await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded"});
   await zoom.waitFor();
   assert.equal(await zoom.inputValue(),"200");
   const resumed=await coordinates();
-  assert.ok(Math.abs(resumed.left-afterDrag.left)<.01&&Math.abs(resumed.top-afterDrag.top)<.01,
+  assert.ok(Math.abs(resumed.left-afterTouchPan.left)<.01&&Math.abs(resumed.top-afterTouchPan.top)<.01,
     "Le zoom et la position sont restaurés après rechargement hors connexion");
   assert.deepEqual((await snapshot()).workbook.entries["quiz:"+questionId],first.workbook.entries["quiz:"+questionId]);
   assert.equal(await pen.getAttribute("aria-pressed"),"true");
