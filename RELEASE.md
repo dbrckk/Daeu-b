@@ -1,5 +1,13 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v65 — version mathématiques publiée et vérifiée (15 novembre 2026)
+
+- Application publique et cache v65 vérifiés sur Render. Les 280 tests Node, les contrôles de contenu et les parcours Chromium sur la branche principale sont passés. [Publication et tests sur `main`](https://github.com/dbrckk/Daeu-b/commit/def986e9b2a050f39e412f83ebf92a8319b94e30).
+- Révision pédagogique d’un exercice fixe, d’un générateur et d’un transfert pour chacun des 20 jalons obligatoires. `l12` est rattaché au cours sur les dérivées et garde son identifiant de progression. [Détail de la revue](audits/REVUE_FINALE_MATHS.md).
+- Sur Chromium en mode mobile, six examens dont cinq chargés de tracés générés ont été récupérés depuis IndexedDB après fermeture et hors ligne. Le scénario contient 1 376 383 caractères. Un refus de sauvegarde simulé laisse le dernier état intact et retire le trait non enregistré.
+- Le formulaire d’entraînement s’ouvre hors ligne pendant l’examen. Le retour conserve la copie et le délai. Si le temps expire pendant la consultation, l’application ferme le formulaire et rend la copie.
+- L’authentification et la continuité cloud ont été couvertes par les parcours à réponses réseau simulées. L’essai avec deux appareils sur le service réel, Android physique et TalkBack restent à documenter. La [feuille de route](PLAN_FINALISATION.md) conserve les vérifications restantes.
+
 ## v56 — feuille immersive à la place des panneaux (14 novembre 2026)
 
 - Une unique grande page blanche occupe presque tout le téléphone et affiche l’énoncé en haut de la copie ; le quadrillage et les traits restent dans le même cahier sauvegardé.

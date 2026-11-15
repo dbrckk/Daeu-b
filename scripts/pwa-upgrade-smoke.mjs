@@ -16,7 +16,7 @@ export async function verifyPwaUpgrade(browser){
   try{
     try{execFileSync("git",["cat-file","-e",BASELINE+"^{commit}"],{stdio:"ignore"});}
     catch{execFileSync("git",["fetch","--no-tags","--depth=1","origin",BASELINE],{stdio:"inherit"});}
-    const archive=execFileSync("git",["archive",BASELINE,"app"]);
+    const archive=execFileSync("git",["archive",BASELINE,"app"],{maxBuffer:16*1024*1024});
     execFileSync("tar",["-xf","-","-C",oldRoot],{input:archive});
     let root=join(oldRoot,"app");
     const server=createServer(async(req,res)=>{
