@@ -9,29 +9,25 @@ on:
   schedule:
     - cron: '37 6 * * *'
   push:
+    branches: [main]
     paths:
       - '.github/workflows/live-health.yml'
       - 'scripts/healthcheck.py'
       - 'scripts/test_healthcheck.py'
-      - 'app/index.html'
-      - 'app/app.mjs'
-      - 'app/sw.js'
+      - 'app/**'
 permissions:
   contents: read
 concurrency:
-  group: daeu-b-live-health
+  group: daeu-b-live-health-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   public-healthcheck:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Attendre la fin du déploiement Render après un push
-        if: github.event_name == 'push'
-        run: sleep 35
       - name: Tester le contrôle de publication sans réseau
         run: python3 -m unittest discover -s scripts -p 'test_healthcheck.py'
       - name: Vérifier le domaine, les ressources PWA et la sécurité
         if: github.event_name != 'pull_request'
-        run: python3 scripts/healthcheck.py
+        run: python3 scripts/healthcheck.py --wait-seconds 480
