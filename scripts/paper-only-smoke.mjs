@@ -701,7 +701,8 @@ try{
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}
-  for(const ambiguous of [false,true]){
+  for(const scenario of ["lisible","retouché","réécrit"]){
+    const ambiguous=scenario!=="lisible";
     const denseContext=await browser.newContext({
       viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
     });
@@ -784,7 +785,40 @@ try{
         await densePage.locator("#quiz").waitFor({state:"visible"});
         await notebook.locator(".math-notebook-quick-validate").tap();
         assert.equal(await transcript.textContent(),"x=1");
-        await grade.tap();
+        if(scenario==="réécrit"){
+          await previousPage.tap();
+          assert.ok(await transcript.isHidden(),"Changer de page ferme la lecture de l’ancienne page");
+          await nextPage.tap();
+          const tools=densePage.locator("#quizNotebook .math-notebook-paper-tools");
+          if(await tools.getAttribute("open")===null)
+            await tools.locator("summary").tap();
+          const undo=tools.getByRole("button",{name:"Annuler le dernier trait"});
+          for(let i=0;i<4;i++)await undo.tap();
+          const erased=(await stored()).workbook.entries[savedCopy.copyKey];
+          assert.equal(erased.inkDrafts?.[1],undefined);
+          assert.deepEqual(erased.pages[1],savedCopy.pages[1].slice(0,-4));
+          const canvas=notebook.locator("canvas");
+          await canvas.scrollIntoViewIfNeeded();
+          const box=await canvas.boundingBox();
+          assert.ok(box);
+          const point=(x,y)=>[box.x+x*box.width/900,box.y+y*box.height/1200];
+          const path=[[164,455],[173,446],[185,444],[198,449],[201,459],
+            [195,467],[181,477],[165,490],[202,490]];
+          const start=point(...path[0]);
+          assert.equal(await densePage.evaluate(([x,y])=>document.elementFromPoint(x,y)?.tagName,start),"CANVAS");
+          await densePage.mouse.move(...start);
+          await densePage.mouse.down();
+          for(const xy of path.slice(1))await densePage.mouse.move(...point(...xy),{steps:3});
+          await densePage.mouse.up();
+          const rewritten=(await stored()).workbook.entries[savedCopy.copyKey];
+          assert.equal(rewritten.pages[1].length,erased.pages[1].length+1);
+          savedCopy.pages[1]=rewritten.pages[1];
+          await notebook.locator(".math-notebook-quick-validate").tap();
+          const candidate=notebook.locator(".math-notebook-recognition-candidate");
+          assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=2$/);
+          assert.equal((await stored()).round.completed,0);
+          await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
+        }else await grade.tap();
       }else{
         const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
         assert.ok(await candidate.isVisible());
@@ -795,8 +829,8 @@ try{
       const corrected=await stored();
       assert.equal(corrected.round.completed,1);
       assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages,savedCopy.pages);
-      assert.equal(corrected.round.assistedIds.includes(savedCopy.copyKey.slice(5)),ambiguous);
-      console.log(ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
+      assert.equal(corrected.round.assistedIds.includes(savedCopy.copyKey.slice(5)),scenario==="retouché");
+      console.log(scenario==="réécrit"?"OK Trait réécrit : ancienne transcription écartée et nouveau résultat lu":ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
         "OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
     }finally{await denseContext.close();}
   }
