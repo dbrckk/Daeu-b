@@ -1010,6 +1010,32 @@ try {
     await check(async()=>await diagnosisPage.locator("#jalonList li").first().textContent().then(s=>s.includes("1/")),"v25 : suivi mis à jour après réponse");
     await diagnosisPage.reload({waitUntil:"networkidle"});
     await check(async()=>await diagnosisPage.locator("#quizCount").textContent().then(s=>s.includes("2 / 10")),"v25 : repérage restauré après rechargement");
+    for(let index=1;index<10;index++){
+      await diagnosisPage.locator("#unknownButton").click();
+      await diagnosisPage.locator("#next").click();
+    }
+    const result=diagnosisPage.locator("#results");
+    const followUp=result.locator("#resultsNextActions");
+    assert.ok(await result.isVisible());
+    assert.equal(await diagnosisPage.evaluate(()=>document.activeElement?.id),"resultsTitle");
+    const href=await followUp.getByRole("link",{name:"Lire le cours"}).getAttribute("href");
+    assert.equal(href,await diagnosisPage.locator("#pathNext").getByRole("link",{name:"Lire le cours"}).getAttribute("href"));
+    const transfer=followUp.getByRole("link",{name:"Problème de transfert"});
+    assert.equal(await transfer.getAttribute("href"),await diagnosisPage.locator("#pathNext").getByRole("link",{name:"Problème de transfert"}).getAttribute("href"));
+    await diagnosisPage.reload({waitUntil:"networkidle"});
+    assert.ok(await result.isVisible());
+    assert.equal(await followUp.getByRole("link",{name:"Lire le cours"}).getAttribute("href"),href);
+    assert.notEqual(await diagnosisPage.evaluate(()=>document.activeElement?.id),"resultsTitle");
+    const courseUrl=new URL(href,BASE);
+    await followUp.getByRole("link",{name:"Lire le cours"}).click();
+    await diagnosisPage.waitForURL(courseUrl.href);
+    await diagnosisPage.locator("#courseBody h2").first().waitFor({state:"visible"});
+    const nextPractice=diagnosisPage.getByRole("link",{name:/M'entraîner sur ce chapitre/});
+    await nextPractice.click();
+    await diagnosisPage.waitForURL(/topic=/);
+    assert.notEqual(await diagnosisPage.locator("#topic").inputValue(),"all");
+    console.log("OK Fin de diagnostic : prochaine notion, cours et retour à l’entraînement ciblé");
+
   }finally{await diagnosisContext.close();}
   // Deux rappels rédigés arrivés à échéance : tri, recommandations B/C
   // et critères auto-déclarés sont vérifiés dans un navigateur isolé.

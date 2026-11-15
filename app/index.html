@@ -114,7 +114,11 @@
           <div id="hint" class="hint" hidden></div>
           <div id="feedback" class="feedback" aria-live="polite" hidden><strong id="feedbackTitle"></strong><p id="feedbackText"></p><a id="lessonLink" target="_blank" rel="noopener noreferrer">Revoir le chapitre ↗</a><div><button type="button" id="next" class="primary">Question suivante</button></div></div>
         </section>
-        <section id="results" class="results" aria-live="polite" hidden><h3>Séance terminée</h3><p id="resultsText"></p><button type="button" id="restart" class="primary">Nouvelle séance</button></section>
+        <section id="results" class="results" aria-live="polite" hidden><h3 id="resultsTitle" tabindex="-1">Séance terminée</h3>
+          <p id="resultsText"></p>
+          <h4 id="resultsNextTitle"></h4>
+          <div id="resultsNextActions"></div>
+          <button type="button" id="restart" class="subtle">Nouvelle séance générale</button></section>
       </section>
 
       <section class="exam-area" aria-labelledby="exam-title">

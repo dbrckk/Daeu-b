@@ -120,6 +120,16 @@ function renderTransferQueue(){
     ?(pending.length-5)+" autre(s) rappel(s) : retrouve-les en ouvrant les jalons détaillés."
     :"Les critères sont déclarés par toi, sans correction automatique.";
 }
+function jalonActions(jalon){
+  const actions=document.createElement("div");actions.className="path-buttons";
+  const practice=document.createElement("button");practice.className="primary";practice.type="button";
+  practice.textContent="Travailler ce jalon";
+  practice.addEventListener("click",()=>startJalonSession(jalon.id,jalon.mode));
+  const course=document.createElement("a");course.href=courseUrl(jalon.lesson);course.textContent="Lire le cours";
+  const transfer=document.createElement("a");transfer.href=transferUrl(jalon.id);transfer.textContent="Problème de transfert";
+  actions.append(practice,course,transfer);
+  return actions;
+}
 function renderJalonPath(){
   const rows=jalonProgress(state,questions,jalonIndex);
   const next=recommendJalon(rows);
@@ -146,14 +156,7 @@ function renderJalonPath(){
       area.append(review);
     }
   }
-  if(next){
-    const actions=document.createElement("div");actions.className="path-buttons";
-    const play=document.createElement("button");play.className="primary";play.type="button";play.textContent="Travailler ce jalon";
-    play.addEventListener("click",()=>startJalonSession(next.id,next.mode));
-    const course=document.createElement("a");course.href=courseUrl(next.lesson);course.textContent="Lire le cours";
-    const transfer=document.createElement("a");transfer.href=transferUrl(next.id);transfer.textContent="Problème de transfert";
-    actions.append(play,course,transfer);area.append(actions);
-  }
+  if(next)area.append(jalonActions(next));
   const diagnostic=el("diagnosticStart");diagnostic.disabled=notAttempted===0;
   diagnostic.textContent=notAttempted?"Repérage initial · jusqu’à 10 jalons":"Tous les jalons ont été abordés";
   const list=el("jalonList");list.replaceChildren();
@@ -271,7 +274,7 @@ function resumeSession(){
   try{
     session=restoreRound(round,questions);
     score=round.score;index=round.completed;done=false;
-    if(index>=session.length)finish();
+    if(index>=session.length)finish({focus:false});
     else{
       el("quiz").hidden=false;
       renderQuestion();
@@ -404,11 +407,19 @@ function submit(raw,unknown=false) {
   showFeedback(grade.correct,unknown);
 }
 
-function finish(){
+function finish({focus=true}={}){
   el("quiz").hidden=true;
   el("results").hidden=false;
   el("resultsText").textContent="Tu as réussi "+score+" réponse"+(score>1?"s":"")+" sur "+session.length+". Les rappels à valeurs variables et sans indice consolident les acquis. Une aide n’augmente pas la maîtrise.";
-  el("restart").focus();
+  const next=recommendJalon(jalonProgress(state,questions,jalonIndex));
+  const heading=el("resultsNextTitle"),actions=el("resultsNextActions");
+  heading.textContent=next?"Jalon conseillé · "+next.id+" — "+next.title:"Passer à un examen blanc";
+  if(next)actions.replaceChildren(jalonActions(next));
+  else{
+    const exam=document.createElement("a");exam.href="#exam-title";exam.textContent="Voir les examens blancs";
+    actions.replaceChildren(exam);
+  }
+  if(focus)el("resultsTitle").focus();
   refreshOverview();
 }
 
