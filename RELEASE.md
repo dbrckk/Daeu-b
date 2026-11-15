@@ -377,3 +377,5 @@ La sauvegarde de la progression et des examens utilise maintenant une **seule cl
 ## Intégrité du cache hors connexion
 
 Après avoir modifié une ressource listée dans le service worker, actualiser les empreintes SHA-256 avec `python3 scripts/sync_pwa_integrity.py`. La vérification des ressources contrôle ensuite que les empreintes correspondent aux fichiers livrés. Une réponse périmée invalide l’installation et laisse le cache actif disponible.
+
+Le [contrôle de publication](.github/workflows/live-health.yml) compare le service worker et les empreintes des fichiers servis par HTTPS à chaque changement de l’application sur `main`. Il réessaie pendant la propagation du cache Render et signale les URL encore indisponibles ou différentes si la publication reste incomplète. Pour relancer la vérification, utiliser `python3 scripts/healthcheck.py --wait-seconds 480`.
