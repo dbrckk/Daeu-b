@@ -92,6 +92,7 @@ export async function verifyPwaUpgrade(browser){
         await context.setOffline(false);
         nextRelease=true;
         const update=page.locator("#appUpdate");
+        await page.evaluate(()=>window.scrollTo({top:document.documentElement.scrollHeight,behavior:"instant"}));
         await update.click();
         await page.getByRole("button",{name:"Ouvrir la nouvelle version"}).waitFor();
         assert.equal(await version.textContent(),displayed,"Aucun rechargement forcé pendant une copie");
