@@ -88,13 +88,18 @@ function grid(ctx){
   for(let y=0;y<=PAPER_HEIGHT;y+=PAPER_GRID){ctx.moveTo(0,y);ctx.lineTo(PAPER_WIDTH,y);}
   ctx.lineWidth=0.7;ctx.strokeStyle="#dce8f2";ctx.stroke();
 }
-function path(ctx,points){
+function path(ctx,points,lineWidth=2.8){
   if(!points.length)return;
   ctx.beginPath();ctx.moveTo(...points[0]);
   for(const point of points.slice(1))ctx.lineTo(...point);
-  ctx.lineWidth=2.8;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#162c47";
+  ctx.lineWidth=lineWidth;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#162c47";
   if(points.length===1){ctx.lineTo(points[0][0]+0.05,points[0][1]+0.05);}
   ctx.stroke();
+}
+function paintInk(ctx,page,lineWidth){
+  for(const stroke of page){
+    try{path(ctx,parseStroke(stroke),lineWidth);}catch{/* Les données ont déjà été validées à la lecture. */}
+  }
 }
 export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null,paperOnly=false,paperPrompt="",readOnly=false,showEditor=!paperOnly}){
   if(!host)throw new Error("Emplacement de cahier absent");
@@ -325,9 +330,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       ctx.moveTo(0,lineGuide);ctx.lineTo(PAPER_WIDTH,lineGuide);
       ctx.lineWidth=1.5;ctx.strokeStyle="#6a9dc2";ctx.stroke();
     }
-    for(const stroke of work.pages[pageIndex]){
-      try{path(ctx,parseStroke(stroke));}catch{/* Les données ont déjà été validées à la lecture. */}
-    }
+    paintInk(ctx,work.pages[pageIndex]);
     if(drawing)path(ctx,drawing);
   }
   function renderPages(){
@@ -1104,17 +1107,65 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const paperNavigation=document.createElement("nav");
     paperNavigation.className="math-notebook-paper-navigation";
     paperNavigation.setAttribute("aria-label","Pages de la feuille");
+    const previews=document.createElement("dialog");
+    previews.className="math-notebook-page-preview";
+    previews.setAttribute("aria-label","Aperçu des pages de la copie");
+    const previewHeading=document.createElement("h4");
+    previewHeading.textContent="Pages de la copie";
+    const closePreview=document.createElement("button");
+    closePreview.type="button";closePreview.className="subtle small";
+    closePreview.textContent="Fermer";closePreview.autofocus=true;
+    closePreview.addEventListener("click",()=>previews.close());
+    const previewHeader=document.createElement("header");previewHeader.append(previewHeading,closePreview);
+    const thumbnails=document.createElement("div");thumbnails.className="math-notebook-thumbnails";
+    previews.append(previewHeader,thumbnails);
+    previews.addEventListener("close",()=>thumbnails.replaceChildren());
+    const openPreview=document.createElement("button");
+    openPreview.type="button";openPreview.className="subtle small math-notebook-preview-pages";
+    openPreview.textContent="Aperçu des pages";
+    openPreview.setAttribute("aria-haspopup","dialog");
+    openPreview.addEventListener("click",()=>{
+      thumbnails.replaceChildren();
+      for(const [index,page] of work.pages.entries()){
+        const selectPage=document.createElement("button");
+        selectPage.type="button";
+        if(index===pageIndex)selectPage.setAttribute("aria-current","page");
+        const thumbnail=document.createElement("canvas");
+        thumbnail.width=120;thumbnail.height=160;
+        thumbnail.setAttribute("aria-hidden","true");
+        const thumbnailContext=thumbnail.getContext("2d");
+        if(thumbnailContext){
+          thumbnailContext.scale(thumbnail.width/PAPER_WIDTH,thumbnail.height/PAPER_HEIGHT);
+          grid(thumbnailContext);
+          paintInk(thumbnailContext,page,9);
+        }
+        const label=document.createElement("strong");label.textContent="Page "+(index+1);
+        const state=document.createElement("span");state.textContent=page.length?"Manuscrite":"Vierge";
+        selectPage.append(thumbnail,label,state);
+        selectPage.addEventListener("click",()=>{
+          previews.close();
+          if(index!==pageIndex){
+            goToPage(index);
+            if(!readOnly)returnToWriting();
+          }
+          canvas.focus({preventScroll:true});
+        });
+        thumbnails.append(selectPage);
+      }
+      previews.showModal();
+    });
     if(!readOnly){
       prev.textContent="‹";prev.setAttribute("aria-label","Page précédente");
       nextPage.textContent="›";nextPage.setAttribute("aria-label","Page suivante");
       indicator.setAttribute("aria-live","polite");
       paperNavigation.append(prev,indicator,nextPage,validateCurrentPage);
-      syncPageNavigation=()=>{
-        paperNavigation.hidden=work.pages.length<2;
-        validateCurrentPage.hidden=!handwrittenReview||work.pages[pageIndex].length===0
-          ||pageIndex===work.pages.findLastIndex(page=>page.length>0);
-      };
-    }else paperNavigation.hidden=true;
+    }
+    paperNavigation.append(openPreview);
+    syncPageNavigation=()=>{
+      paperNavigation.hidden=work.pages.length<2;
+      validateCurrentPage.hidden=readOnly||!handwrittenReview||work.pages[pageIndex].length===0
+        ||pageIndex===work.pages.findLastIndex(page=>page.length>0);
+    };
     const paperTop=document.createElement("div");paperTop.className="math-notebook-paper-top";
     if(paperPrompt&&!readOnly){
       const jump=document.createElement("button");jump.type="button";jump.className="subtle small math-notebook-paper-jump";
@@ -1141,7 +1192,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       paperTop.append(jump);
     }
     paperTop.append(zoom,tools);
-    section.append(paperTop,paperNavigation,sheetViewport,bar,recognition,inkEquations,manual,editorDetails);
+    section.append(paperTop,paperNavigation,sheetViewport,bar,recognition,inkEquations,manual,editorDetails,previews);
   }else section.append(heading,help,drawLabel,recognition,quickValidate,controls,sheetControls,sheetViewport,sheetHelp,inkEquations,manual,status,editorDetails);
   host.replaceChildren(section);renderPages();restorePaperView();
   return {element:section,field,canvas,save:()=>persist({...work,text:field.value})};
