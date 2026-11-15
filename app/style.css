@@ -612,3 +612,6 @@
   }
   .paper-exam-active .exam-actions{position:static}
 }
+
+.app-version button{min-height:44px;margin-inline-start:8px}
+#appUpdateStatus:empty{display:none}

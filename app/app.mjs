@@ -541,9 +541,6 @@ el("reset").addEventListener("click",()=>{
     else notification("Réinitialisation annulée : sauvegarde impossible. Aucune donnée existante effacée.");
   }
 });
-if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1")){
-  navigator.serviceWorker.register("./sw.js").catch(()=>{/* mode en ligne reste fonctionnel */});
-}
 el("syncReload").addEventListener("click",()=>location.reload());
 window.addEventListener("storage",event=>{
   if((event.key===DATA_KEY||event.key===null)&&dataStore.isStale())conflictWarning();

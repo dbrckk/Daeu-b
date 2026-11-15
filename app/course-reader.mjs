@@ -25,6 +25,7 @@ try{
 
 const practice=byId("coursePractice");
 practice.href=practiceUrlForCourse(slug);
+byId("courseNotebookPractice").href=practice.href;
 practice.textContent=practiceTopicForCourse(slug)
   ?"M'entraîner sur ce chapitre"
   :"M'entraîner sur le tronc commun";
