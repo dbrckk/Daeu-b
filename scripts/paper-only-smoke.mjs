@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {chromium} from "playwright";
+import {verifyPwaUpgrade} from "./pwa-upgrade-smoke.mjs";
 
 const BASE=process.env.TEST_BASE_URL||"http://127.0.0.1:8000";
 const browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
@@ -373,6 +374,7 @@ try{
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}
+  await verifyPwaUpgrade(browser);
   assert.deepEqual(errors,[]);
   console.log("PAPER-ONLY ANDROID : OK");
 }finally{await context.close();await browser.close();}
