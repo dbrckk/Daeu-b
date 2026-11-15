@@ -1033,7 +1033,10 @@ try {
     const nextPractice=diagnosisPage.getByRole("link",{name:/M'entraîner sur ce chapitre/});
     await nextPractice.click();
     await diagnosisPage.waitForURL(/topic=/);
-    assert.notEqual(await diagnosisPage.locator("#topic").inputValue(),"all");
+    await diagnosisPage.waitForFunction(()=>{
+      const expected=new URL(location.href).searchParams.get("topic");
+      return expected&&document.querySelector("#topic")?.value===expected;
+    });
     console.log("OK Fin de diagnostic : prochaine notion, cours et retour à l’entraînement ciblé");
 
   }finally{await diagnosisContext.close();}
