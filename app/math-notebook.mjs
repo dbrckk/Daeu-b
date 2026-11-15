@@ -253,7 +253,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const label=document.createElement("strong");label.textContent=title;print.append(label);
     if(paperPrompt){const prompt=document.createElement("p");prompt.className="math-notebook-paper-prompt";prompt.textContent=String(paperPrompt).slice(0,12000);print.append(prompt);}
     const note=document.createElement("p");note.className="math-notebook-paper-instruction";
-    note.textContent=readOnly?"Copie en lecture seule":"Sauvegarde automatique";
+    note.textContent=readOnly?"Copie en lecture seule":"Sauvegarde automatique · Glisse à deux doigts pour déplacer la feuille.";
     print.append(note);paper.append(print,canvas);sheetViewport.append(paper);
   }else sheetViewport.append(canvas);
   const sheetControls=document.createElement("div");sheetControls.className="math-notebook-view-tools";
@@ -390,8 +390,39 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       Math.max(0,Math.min(PAPER_HEIGHT,Math.round((event.clientY-rect.top)*PAPER_HEIGHT/rect.height)))
     ];
   }
+  const fingers=new Map();
+  let twoFingerPan=false,panAnchor=null;
+  function anchorTwoFingers(){
+    const [first,second]=fingers.values();
+    panAnchor=second?{
+      x:(first.x+second.x)/2,y:(first.y+second.y)/2,
+      left:sheetViewport.scrollLeft,top:sheetViewport.scrollTop
+    }:null;
+  }
+  function stopTouch(event){
+    if(!fingers.delete(event.pointerId))return;
+    if(fingers.size===0)twoFingerPan=false;
+    if(twoFingerPan)anchorTwoFingers();
+    else panAnchor=null;
+  }
   canvas.addEventListener("pointerdown",event=>{
-    if(readOnly||panMode||activePointer!==null||event.button!==0)return;
+    if(readOnly||panMode||event.button!==0)return;
+    if(paperOnly&&!eraserMode&&event.pointerType==="touch"){
+      // L’arrivée du deuxième doigt transforme le trait en déplacement.
+      if(activePointer!==null&&!fingers.has(activePointer))return;
+      fingers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+      if(fingers.size>=2||twoFingerPan){
+        event.preventDefault();
+        canvas.setPointerCapture(event.pointerId);
+        twoFingerPan=true;
+        anchorTwoFingers();
+        activePointer=null;
+        drawing=null;
+        paint();
+        return;
+      }
+    }
+    if(activePointer!==null||twoFingerPan)return;
     if(eraserMode){
       event.preventDefault();
       const index=nearestInkStroke(work.pages[pageIndex],pointOf(event));
@@ -409,11 +440,21 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       showSheetStatus("Cette page est pleine : ajoute une page pour continuer ton calcul.");
       return;
     }
-    lastErasure=null;
     event.preventDefault();activePointer=event.pointerId;drawing=[pointOf(event)];
     canvas.setPointerCapture(event.pointerId);paint();
   });
   canvas.addEventListener("pointermove",event=>{
+    if(fingers.has(event.pointerId)){
+      fingers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+      if(twoFingerPan){
+        if(panAnchor){
+          const [first,second]=fingers.values();
+          sheetViewport.scrollLeft=panAnchor.left+panAnchor.x-(first.x+second.x)/2;
+          sheetViewport.scrollTop=panAnchor.top+panAnchor.y-(first.y+second.y)/2;
+        }
+        return;
+      }
+    }
     if(activePointer!==event.pointerId||!drawing)return;
     const point=pointOf(event),last=drawing.at(-1);
     if((Math.abs(point[0]-last[0])+Math.abs(point[1]-last[1]))<2)return;
@@ -442,21 +483,26 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     canvas.classList.remove("is-dragging");
   });
   const finish=event=>{
+    stopTouch(event);
     if(activePointer!==event.pointerId||!drawing)return;
     event.preventDefault();const stroke=drawing;
     activePointer=null;drawing=null;
     if(stroke.length&&work.pages[pageIndex].length<MAX_PAGE_STROKES){
+      lastErasure=null;
       editPage(w=>w.pages[pageIndex].push(encodeStroke(stroke)));
     }else renderPages();
   };
   canvas.addEventListener("pointerup",finish);
   // Android peut interrompre un geste (changement d'application, appel, scroll).
   // Ne jamais sauvegarder comme résultat un trait interrompu.
-  canvas.addEventListener("pointercancel",event=>{
+  const cancelStroke=event=>{
+    stopTouch(event);
     if(activePointer!==event.pointerId)return;
     activePointer=null;drawing=null;paint();
     showSheetStatus("Geste interrompu : aucun trait incomplet n’a été enregistré.");
-  });
+  };
+  canvas.addEventListener("pointercancel",cancelStroke);
+  canvas.addEventListener("lostpointercapture",cancelStroke);
   controls.append(prev,nextPage,addPage,undo,clear,indicator);
   const recognition=document.createElement("section");recognition.className="math-notebook-recognition";
   recognition.hidden=readOnly||typeof handwrittenReview?.onRecognized!=="function";
