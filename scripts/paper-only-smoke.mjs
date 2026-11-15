@@ -111,6 +111,11 @@ try{
   assert.match(await paperPages.textContent(),/Page 1\/2/);
   await paperPages.getByRole("button",{name:"Page suivante"}).click();
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
+  await paperPages.getByRole("button",{name:"Page précédente"}).click();
+  await paperPages.getByRole("button",{name:"Lire cette page"}).click();
+  assert.match(await paperPages.textContent(),/Page 1\/2/);
+  assert.ok(await page.locator("#quizNotebook .math-notebook-manual-comparison").isHidden());
+  assert.deepEqual((await snapshot()).round.assistedIds,[]);
   await page.reload({waitUntil:"networkidle"});
   assert.ok(await page.locator("#quiz.paper-mode").isVisible());
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages.length,2);
@@ -145,6 +150,13 @@ try{
   const candidate=quizNotebook.locator(".math-notebook-recognition-candidate");
   assert.ok(await candidate.isVisible());
   assert.equal(await candidate.locator("strong").textContent(),"Lecture proposée : 1");
+  assert.equal(await candidate.locator(".math-notebook-recognition-source").textContent(),"Page 1 de ta copie");
+  await candidate.getByRole("button",{name:"Non, la lecture est incorrecte"}).click();
+  assert.match(await quizNotebook.locator(".math-notebook-manual [role=status]").textContent(),/Lecture rejetée/);
+  await quizNotebook.getByRole("button",{name:"Revenir à ma feuille"}).click();
+  assert.equal(await page.evaluate(()=>document.activeElement?.tagName),"CANVAS");
+  assert.equal((await snapshot()).round.completed,0);
+  await validate.click();
   assert.ok(await correction.isHidden());
   assert.equal((await snapshot()).round.completed,0);
   const confirm=candidate.getByRole("button",{name:"Oui, vérifier ce résultat"});
