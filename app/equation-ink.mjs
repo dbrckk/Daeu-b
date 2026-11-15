@@ -339,6 +339,22 @@ function transcription(parts,{draft=false}={}){
   }
   return {text,unreadable};
 }
+// La dernière ligne explicite suffit pour proposer un résultat. Les calculs
+// précédents, même partiellement lisibles, restent dans la copie.
+export function recognizeFinalEquationInk(page){
+  if(!Array.isArray(page)||page.length===0||page.length>MAX_STROKES)return null;
+  let paths;
+  try{paths=page.map(parseStroke);}catch{return null;}
+  const lines=sortedLines(foldRadicals(foldFractions(paths)));
+  if(!lines?.length)return null;
+  const parts=glyphs(lines.at(-1));
+  if(parts.length>MAX_GLYPHS)return null;
+  const finalLine=transcription(parts);
+  if(!finalLine)return null;
+  const value=extractFinalNumericAnswer(finalLine.text);
+  return value===null?null:{status:"recognized",text:value,expression:finalLine.text};
+}
+
 /**
  * En mode draft, une expression partiellement illisible conserve les symboles
  * reconnaissables et marque les autres par □ ; elle n'est jamais notée.
