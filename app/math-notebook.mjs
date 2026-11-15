@@ -697,7 +697,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       const lastWritten=work.pages.findLastIndex(page=>page.length>0);
       if(lastWritten<0){
         reveal.click();
-        manualStatus.scrollIntoView({behavior:"smooth",block:"nearest"});
+        manualStatus.scrollIntoView({behavior:"instant",block:"nearest"});
         return;
       }
       // Une résolution peut occuper plusieurs pages ; chercher la réponse
@@ -710,7 +710,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         // Le clic de confirmation reste obligatoire avant toute notation.
         if(readNumber({allowBottom:handwrittenReview.allowEquation!==false})){
           if(paperOnly)recognition.classList.add("paper-shown");
-          recognitionCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
+          recognitionCandidate.scrollIntoView({behavior:"instant",block:"nearest"});
           return;
         }
         // Une suite d'équations peut se terminer par x = nombre.
@@ -718,14 +718,14 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         if(handwrittenReview.allowEquation!==false&&!inkEquations.hidden&&!inkEquationsCandidate.hidden){
           if(paperOnly)inkEquations.classList.add("paper-shown");
           inkEquationsStatus.textContent="Étapes détectées sur ta feuille. Vérifie et corrige les symboles au toucher ; aucun résultat n'est noté sans confirmation.";
-          inkEquationsCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
+          inkEquationsCandidate.scrollIntoView({behavior:"instant",block:"nearest"});
           return;
         }
       }
       manualStatus.textContent=handwrittenReview.allowEquation===false
         ?"Le numéro du choix n’a pas été reconnu. Réécris-le seul sur la feuille ou ouvre le corrigé."
         :"Le résultat n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé.";
-      manualStatus.scrollIntoView({behavior:"smooth",block:"nearest"});
+      manualStatus.scrollIntoView({behavior:"instant",block:"nearest"});
     });
     decisions.append(success,failure);
     comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);

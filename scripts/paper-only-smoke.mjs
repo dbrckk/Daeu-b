@@ -84,8 +84,9 @@ try{
   assert.ok(await correction.isHidden());
   assert.equal((await snapshot()).round.completed,0);
   await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
+  await page.locator("#feedback").waitFor({state:"visible"});
   assert.equal((await snapshot()).round.completed,1);
-  assert.ok(await page.locator("#feedback").isVisible());
+  assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
   console.log("OK Lecture au doigt sous les calculs, puis validation explicite et sauvegarde");
 
   const examContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
