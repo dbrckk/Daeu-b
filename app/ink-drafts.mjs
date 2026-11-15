@@ -2,6 +2,7 @@
  * Métadonnées de transcription manuscrite liées aux traits exacts de la page.
  * Aucune copie du manuscrit, aucun réseau, aucun HTML ; validation déterministe.
  */
+import {MAX_PAGE_STROKES} from "./workbook.mjs";
 import {validInkDraft} from "./ink-transcript.mjs";
 
 /**
@@ -10,7 +11,7 @@ import {validInkDraft} from "./ink-transcript.mjs";
  * Ce n'est PAS une signature de sécurité ni une preuve d'identité.
  */
 export function pageInkFingerprint(page){
-  if(!Array.isArray(page)||page.length>100||page.some(s=>typeof s!=="string"))
+  if(!Array.isArray(page)||page.length>MAX_PAGE_STROKES||page.some(s=>typeof s!=="string"))
     throw Error("Page manuscrite invalide");
   let a=0x811c9dc5,b=0x9e3779b9,bytes=0;
   for(const stroke of page){
