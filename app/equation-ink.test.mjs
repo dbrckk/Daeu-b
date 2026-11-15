@@ -569,3 +569,16 @@ test("Proposer le résultat de la dernière égalité même après un brouillon 
   assert.equal(recognizeFinalEquationInk(ink(["x=4","x+1=5"])),null);
   assert.equal(recognizeFinalEquationInk(ink(["2x=12","x=6"]))?.text,"6");
 });
+
+test("Lire la réponse finale d’une page dense, au-delà de cent traits",()=>{
+  const strokes=[];
+  const longLine="1+1+1+1+1+1+1+1+1+1=10";
+  for(let line=0;line<4;line++)
+    strokes.push(...compactLineInk(longLine,{step:26,scale:.36,originY:35+line*100}));
+  const answer=compactLineInk("x=6",{step:68,scale:.52,originY:440});
+  assert.ok(strokes.length>100);
+  assert.deepEqual(recognizeFinalEquationInk([...strokes,...answer]),
+    {status:"recognized",text:"6",expression:"x=6"});
+  const unfinished=compactLineInk("x+1=7",{step:68,scale:.52,originY:540});
+  assert.equal(recognizeFinalEquationInk([...strokes,...answer,...unfinished]),null);
+});

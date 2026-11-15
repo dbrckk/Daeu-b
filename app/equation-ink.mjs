@@ -11,7 +11,7 @@
  * en x (x² inclus), éventuellement avec une constante additionnelle.
  * Les expressions non polynomiales ne sont pas corrigées automatiquement.
  */
-import {parseStroke,encodeStroke} from "./workbook.mjs";
+import {parseStroke,encodeStroke,MAX_PAGE_STROKES} from "./workbook.mjs";
 import {recognizeNumericInk} from "./numeric-ink.mjs";
 import {parsePolynomial} from "./quadratic-checker.mjs";
 
@@ -340,9 +340,10 @@ function transcription(parts,{draft=false}={}){
   return {text,unreadable};
 }
 // La dernière ligne explicite suffit pour proposer un résultat. Les calculs
-// précédents, même partiellement lisibles, restent dans la copie.
+// précédents, même partiellement lisibles, restent dans la copie. La limite
+// de transcription intégrale ne s’applique pas à cette lecture ciblée.
 export function recognizeFinalEquationInk(page){
-  if(!Array.isArray(page)||page.length===0||page.length>MAX_STROKES)return null;
+  if(!Array.isArray(page)||page.length===0||page.length>MAX_PAGE_STROKES)return null;
   let paths;
   try{paths=page.map(parseStroke);}catch{return null;}
   const lines=sortedLines(foldRadicals(foldFractions(paths)));
