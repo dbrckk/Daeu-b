@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v61 — choisir les étapes à retravailler
+
+- Dans la correction d’un examen manuscrit, « À retravailler » ajoute une étape à la liste en haut de la copie. Chaque entrée permet de retrouver l’étape, de revoir le cours et de s’entraîner si le chapitre a des questions dédiées.
+- Les choix sont sauvegardés avec la copie. Cocher qu’une étape était justifiée la retire de la liste.
+
 ## v60 — reprendre une copie corrigée
 
 - La correction ouvre le premier exercice qui contient des tracés. Sur un écran large, la feuille et le corrigé se lisent côte à côte. Sur mobile, la feuille se replie pour accéder aux réponses.

@@ -108,6 +108,11 @@ export function sanitizeExamStore(raw){
     if(!session)continue;
     const restored=finishExam(session,h.finishedAt,h.reason);
     restored.selfChecks=sanitizeSelfChecks(h.selfChecks,exam);
+    if(restored.paperOnly){
+      const targets=sanitizeSelfChecks(h.reviewTargets,exam);
+      for(const key of Object.keys(restored.selfChecks))delete targets[key];
+      if(Object.keys(targets).length)restored.reviewTargets=targets;
+    }
     history.push(restored);
   }
   return {version:EXAM_STORE_VERSION,active,history};
@@ -117,22 +122,34 @@ export function addHistory(store,result){
 }
 
 
-/** Enregistre une étape de rédaction déclarée acquise, sans changer la note. */
+/** Enregistre un choix de relecture dans la copie historique. */
 export function updateReviewCheck(store,examId,startedAt,key,checked){
+  return updateReviewChoice(store,examId,startedAt,key,checked,"selfChecks");
+}
+
+export function updateReviewTarget(store,examId,startedAt,key,checked){
+  return updateReviewChoice(store,examId,startedAt,key,checked,"reviewTargets");
+}
+
+function updateReviewChoice(store,examId,startedAt,key,checked,field){
   const matching=store.history.filter(result=>result.examId===examId&&result.startedAt===startedAt);
   if(matching.length!==1)throw new Error("Copie introuvable ou ambiguë");
-  const exam=examFor(matching[0]);
-  if(!exam||!Number.isSafeInteger(startedAt)||!validReviewKeys(exam).has(key)||typeof checked!=="boolean")
+  const [result]=matching;
+  const exam=examFor(result);
+  if(!exam||!Number.isSafeInteger(startedAt)||!validReviewKeys(exam).has(key)||typeof checked!=="boolean"
+     ||(field==="reviewTargets"&&!result.paperOnly))
     throw new Error("Étape de raisonnement inconnue");
-  let found=false;
-  const history=store.history.map(result=>{
-    if(result.examId!==examId||result.startedAt!==startedAt)return result;
-    found=true;
-    const next={...result.selfChecks};
-    if(checked)next[key]=true;
-    else delete next[key];
-    return {...result,selfChecks:next};
-  });
-  if(!found)throw new Error("Copie introuvable");
-  return {...store,history};
+
+  const values={...result[field]};
+  const updated={...result,[field]:values};
+  if(checked){
+    values[key]=true;
+    const other=field==="reviewTargets"?"selfChecks":"reviewTargets";
+    if(updated[other]?.[key]){
+      updated[other]={...updated[other]};
+      delete updated[other][key];
+    }
+  }else delete values[key];
+  if(updated.reviewTargets&&!Object.keys(updated.reviewTargets).length)delete updated.reviewTargets;
+  return {...store,history:store.history.map(record=>record===result?updated:record)};
 }

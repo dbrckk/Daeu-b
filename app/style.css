@@ -549,3 +549,17 @@
 @media(min-width:800px){
   .exam-paper-comparison{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 }
+
+.exam-revision{
+  margin:16px 0;padding:12px;border:1px solid var(--stroke);
+  border-radius:10px;background:#15243c
+}
+.exam-revision h4{margin:0}
+.exam-revision .helper{margin:6px 0}
+.exam-revision ul{list-style:none;margin:0;padding:0}
+.exam-revision-item{border-top:1px solid var(--stroke);padding:10px 0 0;margin-top:10px}
+.exam-revision-item button{width:100%;min-height:44px;text-align:left;overflow-wrap:anywhere}
+.exam-revision-links{display:flex;flex-wrap:wrap;gap:0 16px}
+.exam-revision-links a{display:inline-flex;align-items:center;min-height:44px}
+.exam-paper-result .exam-reasoning-step h4{scroll-margin-top:16px}
+.exam-paper-result .exam-check-label{min-height:44px}
