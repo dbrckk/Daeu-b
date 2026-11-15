@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {recognizeNumericInk} from "./numeric-ink.mjs";
+import {recognizeBottomNumericInk,recognizeNumericInk} from "./numeric-ink.mjs";
 import {encodeStroke} from "./workbook.mjs";
 import {gradeAnswer} from "./engine.mjs";
 
@@ -34,7 +34,7 @@ test("Lecture pure locale : chiffres isolés avec échelle et décalage",()=>{
   }
 });
 test("Réponse à plusieurs chiffres, nombre signé, fraction et décimal",()=>{
-  for(const value of ["12","21","-7","-12","3/4","1.2","2/3"]){
+  for(const value of ["12","21","-7","-12","3/4","1.2","0.75","-0.5","0/4","2/3"]){
     const result=recognizeNumericInk(ink(value));
     assert.equal(result.status,"recognized",value+" "+JSON.stringify(result));
     assert.equal(result.text,value);
@@ -62,4 +62,21 @@ test("Le classement de 300 points manuscrits reste borné sur téléphone",()=>{
   const result=recognizeNumericInk([stroke]);
   assert.ok(["recognized","uncertain","unsupported"].includes(result.status));
   assert.ok(performance.now()-start<1500,"Un trait long ne doit pas bloquer le navigateur");
+});
+
+test("Lire la dernière ligne isolée sous les calculs, quel que soit l'ordre de dessin",()=>{
+  const lower=ink("0.75").map(raw=>encodeStroke(raw.split(";").map(point=>{
+    const [x,y]=point.split(",").map(Number);
+    return [x,y+240];
+  })));
+  const upper=[...ink("12"),encodeStroke([[250,60],[275,90],[250,110]])];
+  assert.equal(recognizeBottomNumericInk([...lower,...upper])?.text,"0.75");
+  assert.equal(recognizeBottomNumericInk(upper),null);
+  assert.equal(recognizeBottomNumericInk([...upper,...lower,encodeStroke([[40,210],[650,320]])]),null);
+  assert.equal(recognizeBottomNumericInk([...upper,encodeStroke([[30,245],[100,245]]),...lower]),null);
+  assert.equal(recognizeBottomNumericInk([...upper,...lower,"invalid"]),null);
+  assert.notEqual(recognizeNumericInk([
+    encodeStroke([[70,50],[70,115]]),encodeStroke([[180,135],[180,200]])
+  ]).status,"recognized");
+  assert.notEqual(recognizeNumericInk(ink("3/0")).status,"recognized");
 });

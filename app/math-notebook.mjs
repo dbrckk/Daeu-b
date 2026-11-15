@@ -6,7 +6,7 @@
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
-import {recognizeNumericInk} from "./numeric-ink.mjs";
+import {recognizeBottomNumericInk,recognizeNumericInk} from "./numeric-ink.mjs";
 import {recognizeEquationInk,extractFinalNumericAnswer} from "./equation-ink.mjs";
 import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-transcript.mjs";
 import {nearestInkStroke} from "./ink-eraser.mjs";
@@ -390,20 +390,31 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   invalidateRecognition=()=>{
     recognizedText=null;recognitionCandidate.hidden=true;
     recognitionStatus.textContent="";
+    recognition.classList.remove("paper-shown");
   };
-  readButton.addEventListener("click",()=>{
-    if(recognition.hidden)return;
+  function readNumber({allowBottom=false}={}){
+    if(recognition.hidden)return false;
     invalidateRecognition();
-    const result=recognizeNumericInk(work.pages[pageIndex]);
+    const page=work.pages[pageIndex];
+    let result=recognizeNumericInk(page);
+    if(allowBottom&&result.status!=="recognized")result=recognizeBottomNumericInk(page)??result;
     if(result.status!=="recognized"){
       recognitionStatus.textContent=result.message;
-      return;
+      return false;
+    }
+    const formatted=handwrittenReview.formatRecognized
+      ?handwrittenReview.formatRecognized(result.text):result.text;
+    if(formatted===null){
+      recognitionStatus.textContent="Écris le numéro d’un des choix imprimés sur la feuille.";
+      return false;
     }
     recognizedText=result.text;
-    recognitionValue.textContent="Lecture proposée : "+(handwrittenReview?.formatRecognized?.(result.text)??result.text);
+    recognitionValue.textContent="Lecture proposée : "+formatted;
     recognitionCandidate.hidden=false;
-    recognitionStatus.textContent="Valeur détectée localement, non encore corrigée. Confirme seulement si elle correspond exactement au nombre écrit.";
-  });
+    recognitionStatus.textContent="Confirme la lecture si elle correspond à ce que tu as écrit.";
+    return true;
+  }
+  readButton.addEventListener("click",()=>readNumber());
   acceptReading.addEventListener("click",()=>{
     if(recognizedText===null)return;
     try{
@@ -417,6 +428,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   });
   rejectReading.addEventListener("click",()=>{
     invalidateRecognition();
+    if(paperOnly)recognition.classList.add("paper-shown");
     recognitionStatus.textContent="Lecture rejetée. Réécris le nombre en grand sur la page ou compare ta copie au corrigé.";
   });
   const recognitionButtons=document.createElement("div");recognitionButtons.className="math-notebook-recognition-actions";
@@ -550,6 +562,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     inkEquationsCandidate.hidden=true;
     inkEquationsReport.hidden=true;
     inkEquationsStatus.textContent="";
+    inkEquations.classList.remove("paper-shown");
   };
   inkEquationsRead.addEventListener("click",()=>{
     invalidateRecognition();
@@ -632,7 +645,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       throw Error("Correction manuscrite mal configurée");
     const manualTitle=document.createElement("h5");manualTitle.textContent="Valider ma réponse écrite sur la feuille";
     const manualIntro=document.createElement("p");manualIntro.className="helper";
-    manualIntro.textContent="Après avoir écrit, utilise « Valider ma réponse sur la feuille ». Pour une question numérique, l'application propose d'abord une lecture locale du résultat final, à confirmer sans dévoiler la correction. Si la lecture est incertaine, corrige les symboles au toucher ou utilise « Afficher le corrigé et valider ma feuille » ci-dessous. Cette dernière voie est une auto-évaluation assistée, jamais une maîtrise vérifiée.";
+    manualIntro.textContent="Laisse une ligne vide entre tes calculs et ton résultat final. Si la lecture échoue, tu peux réécrire le résultat ou ouvrir le corrigé pour comparer ta copie.";
     const reveal=document.createElement("button");reveal.type="button";reveal.className="primary";
     reveal.textContent="Afficher le corrigé et valider ma feuille";
     const manualStatus=document.createElement("p");manualStatus.className="helper";manualStatus.setAttribute("role","status");
@@ -680,6 +693,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     });
     quickValidate.addEventListener("click",()=>{
       if(paperOnly)manual.classList.add("paper-shown");
+      manualStatus.textContent="";
       const lastWritten=work.pages.findLastIndex(page=>page.length>0);
       if(lastWritten<0){
         reveal.click();
@@ -694,10 +708,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       if(typeof handwrittenReview.onRecognized==="function"&&!readButton.disabled){
         // Lecture locale sans correction ni transfert de données vers un OCR.
         // Le clic de confirmation reste obligatoire avant toute notation.
-        readButton.click();
-        if(!recognitionCandidate.hidden){
+        if(readNumber({allowBottom:handwrittenReview.allowEquation!==false})){
           if(paperOnly)recognition.classList.add("paper-shown");
-          recognitionStatus.textContent="Résultat proposé depuis la feuille. Confirme le nombre affiché avant de corriger, ou refuse cette lecture.";
           recognitionCandidate.scrollIntoView({behavior:"smooth",block:"nearest"});
           return;
         }
@@ -710,11 +722,10 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
           return;
         }
       }
-      // QCM, démonstrations et écritures hors périmètre : seule la
-      // comparaison explicite au corrigé permet de valider la copie.
-      reveal.click();
-      if(!comparison.hidden)comparison.scrollIntoView({behavior:"smooth",block:"nearest"});
-      else manualStatus.scrollIntoView({behavior:"smooth",block:"nearest"});
+      manualStatus.textContent=handwrittenReview.allowEquation===false
+        ?"Le numéro du choix n’a pas été reconnu. Réécris-le seul sur la feuille ou ouvre le corrigé."
+        :"Le résultat n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé.";
+      manualStatus.scrollIntoView({behavior:"smooth",block:"nearest"});
     });
     decisions.append(success,failure);
     comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);

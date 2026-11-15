@@ -309,7 +309,7 @@ function renderQuestion() {
   el("questionText").textContent=q.prompt;
   mountNotebook(el("quizNotebook"),{
     context:"quiz:"+q.id,adapter:dataStore,title:"Ma feuille de réponse — "+q.topicTitle,
-    paperOnly,paperPrompt:q.prompt+(q.type==="choice"?"\n\n"+q.options.map((option,i)=>(i+1)+". "+option).join("\n")+"\n\nÉcris le numéro du choix retenu sur la feuille.":"\n\nÉcris toutes tes étapes et termine par le résultat."),
+    paperOnly,paperPrompt:q.prompt+(q.type==="choice"?"\n\n"+q.options.map((option,i)=>(i+1)+". "+option).join("\n")+"\n\nÉcris le numéro du choix retenu sur la feuille.":"\n\nÉcris tes étapes, puis laisse une ligne vide avant le résultat."),
     onGuidance:markGuidedQuestion,
     handwrittenReview:{
       expected:q.type==="number"?fmt(q.answer):String(q.answer),
@@ -317,8 +317,11 @@ function renderQuestion() {
       onRevealed:markGuidedQuestion,
       onDecision:submitHandwritten,
       allowEquation:q.type==="number",
-      formatRecognized:value=>q.type==="choice"&&/^[1-9]$/.test(value)&&Number(value)<=q.options.length
-        ?value+" — "+q.options[Number(value)-1]:value,
+      formatRecognized:value=>{
+        if(q.type!=="choice")return value.replaceAll(".",",");
+        const choice=/^[1-9]$/.test(value)?q.options[Number(value)-1]:undefined;
+        return choice===undefined?null:value+" — "+choice;
+      },
       // Lecture géométrique locale : même correcteur objectif qu'une saisie numérique.
       // Le résultat n'est soumis qu'après confirmation visuelle par l'élève.
       onRecognized:(value,{edited=false}={})=>{

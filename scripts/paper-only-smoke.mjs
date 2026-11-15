@@ -57,6 +57,37 @@ try{
   assert.ok(await page.locator("#answerForm").isHidden());
   console.log("OK Tracé, nouvelle page et reprise intégrale sans ressaisie");
 
+  const quizNotebook=page.locator("#quizNotebook");
+  const validate=quizNotebook.locator(".math-notebook-quick-validate");
+  const correction=quizNotebook.locator(".math-notebook-manual-comparison");
+  await validate.click();
+  assert.ok(await correction.isHidden(),"Une lecture incertaine doit laisser le corrigé fermé");
+  assert.equal((await snapshot()).round.completed,0);
+  assert.deepEqual((await snapshot()).round.assistedIds,[]);
+
+  const canvas=quizNotebook.locator("canvas");
+  await canvas.scrollIntoViewIfNeeded();
+  const drawing=await canvas.boundingBox();
+  assert.ok(drawing);
+  const touch=await context.newCDPSession(page);
+  const x=drawing.x+drawing.width*.3,y=drawing.y+drawing.height*.50;
+  const touched=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.tagName,{x,y});
+  assert.equal(touched,"CANVAS","Le doigt doit toucher la partie visible de la feuille");
+  await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x,y}]});
+  await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x,y:y+drawing.height*.14}]});
+  await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+  assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
+  await validate.click();
+  const candidate=quizNotebook.locator(".math-notebook-recognition-candidate");
+  assert.ok(await candidate.isVisible());
+  assert.equal(await candidate.locator("strong").textContent(),"Lecture proposée : 1");
+  assert.ok(await correction.isHidden());
+  assert.equal((await snapshot()).round.completed,0);
+  await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
+  assert.equal((await snapshot()).round.completed,1);
+  assert.ok(await page.locator("#feedback").isVisible());
+  console.log("OK Lecture au doigt sous les calculs, puis validation explicite et sauvegarde");
+
   const examContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   const examPage=await examContext.newPage();
   examPage.setDefaultTimeout(15000);
