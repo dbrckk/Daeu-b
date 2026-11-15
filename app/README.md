@@ -1,5 +1,10 @@
 # Atelier de maths — application web
 
+## v66 — poursuivre après une séance
+
+- Le bilan propose le jalon conseillé, son cours, l’entraînement ciblé et le problème de transfert. Le bilan est aussi disponible après rechargement.
+- La validation cloud simulée vérifie la restauration d’une réponse, de tracés d’examen et d’un point à retravailler dans un deuxième profil Chromium.
+
 ## v65 — revue des exercices de maths
 
 - L’exercice sur la dérivée d’une fonction rationnelle ouvre désormais le cours sur les dérivées. Les réponses enregistrées sont rattachées au même identifiant.

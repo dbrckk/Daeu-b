@@ -54,6 +54,21 @@ try{
  await first.locator("#firstStart").click();
  await first.locator("#unknownButton").click();
  await first.waitForFunction(()=>Number(document.querySelector("#attempted")?.textContent)>0);
+ const expected=await first.evaluate(async()=>{
+   const [{DATA_KEY,createPersistence},{backedStorage},{startExam,finishExam,addHistory,updateReviewTarget},{changeWork,encodeStroke}] =
+     await Promise.all(["persistence","auto-backup","exam-engine","workbook"].map(name=>import("./"+name+".mjs")));
+   const saved=JSON.parse(localStorage.getItem(DATA_KEY));
+   const ids=new Set([...Object.keys(saved.practice.items),...saved.round.ids]);
+   const adapter=createPersistence(backedStorage(localStorage),ids);
+   const started=Date.now()-60_000,examId="blanc-1";
+   const copy=finishExam(startExam(examId,started,null,true),started+30_000);
+   const exams=updateReviewTarget(addHistory(saved.exams,copy),examId,started,"a-analyse:domain",true);
+   const key="exam:"+examId+":"+started+":a-analyse";
+   const workbook=changeWork(saved.workbook,key,{text:"",pages:[[encodeStroke([[40,60],[80,100],[90,40]])]]});
+   const next=adapter.replaceAll(saved.practice,exams,saved.round,saved.transfers,workbook);
+   return {key,entry:next.workbook.entries[key],targets:next.exams.history.at(-1).reviewTargets};
+ });
+ await first.reload({waitUntil:"networkidle"});
  assert.equal(posts,0,"Aucune donnée envoyée sans connexion explicite");
  await first.locator("#cloudEmail").fill(email);
  await first.locator("#cloudPassword").fill("motdepassefort");
@@ -83,10 +98,11 @@ try{
  assert.equal(posts,1,"Le téléphone secondaire doit télécharger, pas écraser la copie distante");
  const adopted=await second.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
  assert.ok(adopted.practice.items&&Object.keys(adopted.practice.items).length>0);
- console.log("OK Deuxième téléphone : restauration réelle par la connexion sans fichier JSON");
+ assert.deepEqual(adopted.workbook.entries[expected.key],expected.entry);
+ assert.deepEqual(adopted.exams.history.at(-1).reviewTargets,expected.targets);
+ console.log("OK Deux profils Chromium, réseau simulé : réponse, copie et révision restaurées sans fichier JSON");
  // Ajouter un nouveau résultat sur le premier téléphone ; il doit être envoyé
  // par le listener de la sauvegarde principale, sans bouton « enregistrer ».
- await first.locator("#next").click();
  await first.locator("#unknownButton").click();
  await first.waitForFunction(()=>document.querySelector("#cloudStatus")?.textContent.includes("synchronisée"));
  assert.ok(patches>=1,"Modifications propagées automatiquement par PATCH conditionnel");
