@@ -150,6 +150,16 @@ try{
       .textContent().then(t=>t.includes("Question 1")));
     assert.ok(await examPage.locator("#examQuestions").isHidden());
     assert.ok(await examPage.locator(".exam-notes").isHidden());
+    const navigation=examPage.getByRole("group",{name:"Navigation entre les quatre exercices"});
+    assert.equal(await navigation.getByRole("button").count(),4);
+    await examPage.setViewportSize({width:320,height:640});
+    assert.ok(await navigation.evaluate(group=>
+      [...group.children].every(button=>{
+        const box=button.getBoundingClientRect();
+        return box.height>=44&&box.left>=0&&box.right<=innerWidth;
+      })
+    ));
+    await examPage.setViewportSize({width:390,height:844});
     // The page uses its own browser tab; record a real mouse gesture.
     const viewport=examPage.locator("#examNotebook .math-notebook-sheet-viewport");
     await viewport.scrollIntoViewIfNeeded();
@@ -167,12 +177,27 @@ try{
     assert.equal(saved.exams.active.paperOnly,true);
     const key=Object.keys(saved.workbook.entries).find(k=>k.startsWith("exam:"));
     assert.ok(key&&saved.workbook.entries[key].pages[0].length===1);
+    await navigation.getByRole("button",{name:"Aller à l'exercice 3"}).click();
+    assert.equal(await navigation.getByRole("button",{name:"Exercice 3 en cours"}).getAttribute("aria-current"),"step");
     await examPage.reload({waitUntil:"networkidle"});
     assert.ok(await examPage.locator("#examActive.paper-exam-active").isVisible());
     assert.equal((await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")))).exams.active.paperOnly,true);
     console.log("OK Examen : quatre exercices sur copies réelles, sauvegarde et reprise");
 
+    assert.ok(await navigation.getByRole("button",{name:"Exercice 3 en cours"}).isVisible());
+    await navigation.getByRole("button",{name:"Aller à l'exercice 1"}).click();
     await examPage.locator("#examSubmit").click();
+    const submit=examPage.getByRole("dialog",{name:"Rendre ta copie ?"});
+    assert.ok(await submit.isVisible());
+    assert.match(await examPage.locator("#examPaperSubmitSummary").textContent(),/2, 3, 4/);
+    assert.ok(await examPage.locator("#examResult").isHidden());
+    await submit.getByRole("button",{name:"Continuer l’examen"}).click();
+    assert.ok(await submit.isHidden());
+    const stillWorking=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    assert.equal(stillWorking.exams.active.deadlineAt,saved.exams.active.deadlineAt);
+    assert.deepEqual(stillWorking.workbook.entries[key],saved.workbook.entries[key]);
+    await examPage.locator("#examSubmit").click();
+    await submit.getByRole("button",{name:"Rendre définitivement"}).click();
     assert.ok(await examPage.locator("#examResult").isVisible());
     assert.match(await examPage.locator("#examScore").textContent(),/Copie manuscrite rendue/);
     assert.match(await examPage.locator("#examHistory").textContent(),/non notée/);

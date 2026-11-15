@@ -146,6 +146,16 @@
           <div id="examQuestions"></div>
           <div id="examNotebook"></div>
           <div class="exam-notes"><label for="examNotes">Mon raisonnement et mes justifications (non corrigés automatiquement)</label><textarea id="examNotes" rows="5" maxlength="3500" spellcheck="true"></textarea></div>
+          <dialog id="examPaperSubmit" class="exam-paper-submit" aria-labelledby="examPaperSubmitTitle" aria-describedby="examPaperSubmitSummary">
+            <h3 id="examPaperSubmitTitle">Rendre ta copie ?</h3>
+            <p id="examPaperSubmitSummary"></p>
+            <p>Après la remise, tu pourras relire ta copie avec le corrigé. La copie manuscrite est évaluée par comparaison avec le corrigé.</p>
+            <div class="exam-paper-submit-actions">
+              <button id="examPaperContinue" type="button" class="subtle" autofocus>Continuer l’examen</button>
+              <button id="examPaperConfirm" type="button" class="primary">Rendre définitivement</button>
+            </div>
+            <p id="examPaperSubmitError" role="status" hidden></p>
+          </dialog>
           <div class="exam-actions"><button id="examPrev" type="button" class="subtle">Exercice précédent</button><button id="examNext" type="button" class="subtle">Exercice suivant</button><button id="examSubmit" type="button" class="primary">Rendre ma copie</button></div>
         </div>
         <div id="examResult" class="exam-result" hidden>
