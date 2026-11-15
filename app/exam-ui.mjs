@@ -210,6 +210,7 @@ function renderHistory(){
   const container=byId("examHistory");
   container.replaceChildren();
   renderConsolidation();
+  renderRevisionHome();
   if(!store.history.length){container.append(element("p","helper","Aucun examen terminé pour le moment."));renderAnalytics();renderExamRecommendation();return;}
   for(const result of [...store.history].reverse()){
     const row=element("div","exam-history-row");
@@ -351,6 +352,30 @@ function renderActive(){
   }else if(timer!==null){clearInterval(timer);timer=null;}
   renderHistory();
 }
+function revisionRow(step,index,onOpen){
+  const row=element("li","exam-revision-item");
+  const open=element("button","subtle","Exercice "+(index+1)+" · "+step.prompt);
+  open.type="button";
+  open.addEventListener("click",onOpen);
+  const links=element("div","exam-revision-links");
+  const lesson=element("a","","Revoir le cours");lesson.href=courseUrl(step.lesson);
+  lesson.target="_blank";lesson.rel="noopener noreferrer";
+  links.append(lesson);
+  if(hasPracticeQuestions(step.lesson)){
+    const practice=element("a","","Faire des exercices");
+    practice.href=practiceUrlForCourse(step.lesson);
+    links.append(practice);
+  }
+  row.append(open,links);
+  return row;
+}
+
+function openRevisionStep({group,guide,heading}){
+  group.open=true;guide.open=true;
+  heading.focus({preventScroll:true});
+  heading.scrollIntoView({block:"start",behavior:"instant"});
+}
+
 function renderRevisionTargets(result,steps){
   const list=byId("examRevisionList");
   const marked=steps.filter(item=>result.reviewTargets?.[item.key]===true);
@@ -360,29 +385,42 @@ function renderRevisionTargets(result,steps){
     :"Coche « À retravailler » dans une grille de rédaction pour ajouter une étape ici.";
   list.replaceChildren();
   list.hidden=marked.length===0;
-  for(const {step,index,group,guide,heading} of marked){
-    const row=element("li","exam-revision-item");
-    const open=element("button","subtle","Exercice "+(index+1)+" · "+step.prompt);
-    open.type="button";
-    open.addEventListener("click",()=>{
-      group.open=true;guide.open=true;
-      heading.focus({preventScroll:true});
-      heading.scrollIntoView({block:"start",behavior:"instant"});
-    });
-    const links=element("div","exam-revision-links");
-    const lesson=element("a","","Revoir le cours");lesson.href=courseUrl(step.lesson);
-    lesson.target="_blank";lesson.rel="noopener noreferrer";
-    links.append(lesson);
-    if(hasPracticeQuestions(step.lesson)){
-      const practice=element("a","","Faire des exercices");
-      practice.href=practiceUrlForCourse(step.lesson);
-      links.append(practice);
-    }
-    row.append(open,links);list.append(row);
-  }
+  for(const item of marked)list.append(revisionRow(item.step,item.index,()=>openRevisionStep(item)));
 }
 
-function showResult(result){
+function renderRevisionHome(){
+  const copies=byId("examRevisionHomeCopies");
+  copies.replaceChildren();
+  let total=0,copyCount=0;
+  for(const result of [...store.history].reverse()){
+    if(!result.paperOnly||!result.reviewTargets)continue;
+    const exam=findExam(result.examId,result.seed??null);
+    const list=element("ul");
+    for(const [index,section] of exam.sections.entries()){
+      for(const step of rubricForSection(section)?.steps??[]){
+        const key=section.id+":"+step.id;
+        if(result.reviewTargets[key]!==true)continue;
+        list.append(revisionRow(step,index,()=>showResult(result,key)));
+      }
+    }
+    if(!list.childElementCount)continue;
+    total+=list.childElementCount;
+    copyCount++;
+    const group=element("section","exam-revision-copy");
+    const date=new Date(result.finishedAt).toLocaleDateString("fr-FR");
+    group.append(element("h3","",result.title+" · "+date),list);
+    copies.append(group);
+  }
+  setVisible("examRevisionHome",total>0);
+  if(!total){
+    copies.parentElement.open=false;
+    return;
+  }
+  byId("examRevisionHomeSummary").textContent=
+    total+(total===1?" étape":" étapes")+" à retravailler dans "+copyCount+(copyCount===1?" copie":" copies");
+}
+
+function showResult(result,revisionKey=null){
   byId("examPaperSubmit").close();
   setVisible("examActive",false);setVisible("examIntro",true);setVisible("examResult",true);
   if(!store.active&&timer!==null){clearInterval(timer);timer=null;}
@@ -488,6 +526,7 @@ function showResult(result){
             if(target){
               target.checked=result.reviewTargets?.[key]===true;
               renderRevisionTargets(result,revisionSteps);
+              renderRevisionHome();
             }
             selfStatus.textContent=selfCheckText(countChecks(updated,exam));
             saveStatus.hidden=true;
@@ -527,6 +566,8 @@ function showResult(result){
   }
   if(result.paperOnly)renderRevisionTargets(result,revisionSteps);
   renderHistory();
+  const selected=revisionKey&&revisionSteps.find(item=>item.key===revisionKey);
+  if(selected){openRevisionStep(selected);return;}
   const scoreHeading=byId("examScore");
   scoreHeading.focus({preventScroll:true});
   scoreHeading.scrollIntoView({block:"start",behavior:"instant"});
