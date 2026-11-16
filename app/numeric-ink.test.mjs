@@ -125,6 +125,22 @@ test("Lire les 7 barrés même lorsque l’ordre ou le sens des traits change",(
   assert.equal(recognizeNumericInk(ink("4")).text,"4");
 });
 
+test("Distinguer un 7 à hampe presque verticale des 4, seul et dans une fraction",()=>{
+  const head=[[34,29],[41,28],[55,27],[57,29],[55,44],[55,56],[55,62],[55,60]];
+  const cross=[[46,47],[56,48],[70,47],[84,47],[79,47]];
+  const seven=[head,cross].map(encodeStroke);
+  assert.equal(recognizeNumericInk(seven).text,"7");
+  assert.equal(recognizeNumericInk([[...cross].reverse(),[...head].reverse()].map(encodeStroke)).text,"7");
+  const fractionBar=encodeStroke([[20,80],[100,80]]);
+  const five=GLYPHS["5"].map(stroke=>encodeStroke(stroke.map(([x,y])=>[x,90+y])));
+  assert.equal(recognizeStackedFractionInk([...seven,fractionBar,...five])?.text,"7/5");
+  assert.equal(recognizeNumericInk(ink("4")).text,"4");
+  const openFour=[[[31,32],[31,52],[78,52]],[[57,33],[57,69]]].map(encodeStroke);
+  assert.equal(recognizeNumericInk(openFour).text,"4");
+  const missingHead=[[[56,27],[55,44],[55,62]],cross].map(encodeStroke);
+  assert.notEqual(recognizeNumericInk(missingHead).text,"7");
+});
+
 test("Lire le 1 avec un pied joint ou détaché sans le transformer en nombre négatif",()=>{
   for(const one of [
     ["195,35;195,106","180,113;216,113"],

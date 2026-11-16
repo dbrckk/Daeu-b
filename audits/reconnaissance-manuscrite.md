@@ -116,3 +116,22 @@ node scripts/compare-ink-on.mjs --local /tmp/daeu-crohme-2019.json
 ```
 
 Pour le lot de mise au point et les éditions 2012 et 2013, utiliser le fichier `Train.zip` du dossier `Task1_onlineRec/MainTask_formula` et les valeurs `Train_2014`, `TestINKMLGT_2012` et `TestINKMLGT_2013` pour `--split`. Pour mesurer la v94 avec les mêmes paramètres, exécuter le comparateur v95 dans une copie de travail de la v94.
+
+## Lecteur local v96
+
+La v95 comparait le contour du `7` barré presque vertical aux gabarits. La barre médiane et la hampe droite rapprochaient ce tracé du `4`. La v96 vérifie la présence d’une tête horizontale suivie d’une hampe presque verticale et exige que la barre traverse cette hampe. Les autres formes continuent à passer par les gabarits existants.
+
+| Lot | v95 exact / erreur / abstention | v96 exact / erreur / abstention |
+| --- | --- | --- |
+| 60 chiffres `7` à deux traits, CROHME 2014 | 8 / 9 / 43 | 23 / 7 / 30 |
+| 9 chiffres `7` à deux traits, CROHME 2013 | 1 / 1 / 7 | 2 / 1 / 6 |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 20 / 55 / 116 | 20 / 55 / 116 |
+| 228 expressions des lots précédents | 10 / 1 / 217 | 12 / 0 / 216 |
+
+Les 1 789 autres symboles annotés des lots 2013 et 2014 ont tous conservé leur résultat de lecture. Deux fractions changent dans le lot d’expressions. Le cas de mise au point `7/5` était lu `4/5`. Le cas indépendant `4/7` de CROHME 2019 était illisible. Les tests isolent le chiffre grâce à la segmentation fournie par CROHME. La lecture d’une copie entière dépend aussi de la séparation des symboles par le moteur.
+
+```sh
+python3 scripts/export-crohme-ink.py /tmp/crohme-formulas.zip --symbols > /tmp/daeu-symboles-2014.json
+python3 scripts/export-crohme-ink.py /tmp/Train.zip --split TestINKMLGT_2013 --symbols > /tmp/daeu-symboles-2013.json
+node scripts/compare-ink-on.mjs --local /tmp/daeu-symboles-2014.json /tmp/daeu-symboles-2013.json
+```
