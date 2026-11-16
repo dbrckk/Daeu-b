@@ -131,3 +131,13 @@ test("Lire le 1 avec un pied joint ou détaché sans le transformer en nombre n�
   assert.equal(recognizeNumericInk(ink("-1")).text,"-1");
   assert.notEqual(recognizeNumericInk(["195,35;195,106","145,116;245,116"]).text,"1");
 });
+
+test("Lire le 2 bouclé au pied et le distinguer du 7",()=>{
+  const loopedTwo=[
+    [170,54],[174,36],[194,26],[211,35],[215,56],[203,81],
+    [183,103],[169,113],[163,103],[173,95],[193,102],[220,113]
+  ];
+  for(const path of [loopedTwo,[...loopedTwo].reverse()])
+    assert.equal(recognizeNumericInk([encodeStroke(path)]).text,"2");
+  assert.equal(recognizeNumericInk(ink("7")).text,"7");
+});
