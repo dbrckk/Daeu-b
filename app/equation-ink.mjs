@@ -12,7 +12,7 @@
  * Les expressions non polynomiales ne sont pas corrigées automatiquement.
  */
 import {parseStroke,encodeStroke,MAX_PAGE_STROKES} from "./workbook.mjs";
-import {recognizeNumericInk} from "./numeric-ink.mjs";
+import {isFootedOne,recognizeNumericInk} from "./numeric-ink.mjs";
 import {parsePolynomial} from "./quadratic-checker.mjs";
 
 const MAX_STROKES=100,MAX_LINES=12,MAX_GLYPHS=48;
@@ -150,6 +150,7 @@ function readGlyph(group){
     if(width(b)<=9&&height(b)<=15&&group.paths[0].length<=12)
       return ".";
   }
+  if(isFootedOne(group.paths))return "1";
   const op=special(group.paths);
   if(op)return op;
   const result=recognizeNumericInk(group.paths.map(encodeStroke));

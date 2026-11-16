@@ -701,8 +701,8 @@ try{
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}
-  for(const scenario of ["lisible","retouché","réécrit"]){
-    const ambiguous=scenario!=="lisible";
+  for(const scenario of ["sept barré","un à pied","retouché","réécrit"]){
+    const ambiguous=scenario==="retouché"||scenario==="réécrit";
     const denseContext=await browser.newContext({
       viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
     });
@@ -711,7 +711,7 @@ try{
       densePage.on("pageerror",error=>errors.push(error.message));
       await densePage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
       await densePage.locator("#firstStart").click();
-      const savedCopy=await densePage.evaluate(async ambiguous=>{
+      const savedCopy=await densePage.evaluate(async ({ambiguous,scenario})=>{
         const {encodeStroke}=await import("/workbook.mjs");
         const key="daeu-b-data-v1";
         const state=JSON.parse(localStorage.getItem(key));
@@ -748,7 +748,8 @@ try{
           [[178,466],[210,466]],[[194,446],[194,489]],
           [[180,451],[208,481]],[[180,481],[208,451]]
         ].map(encodeStroke));
-        if(!ambiguous)strokes.splice(-1,1,...[
+        if(scenario==="un à pied")strokes.push(encodeStroke([[175,496],[210,496]]));
+        if(scenario==="sept barré")strokes.splice(-1,1,...[
           [[170,441],[220,441],[186,514]],[[181,478],[210,478]]
         ].map(encodeStroke));
         const pages=[previousAnswer,strokes,[]];
@@ -756,7 +757,7 @@ try{
         state.revision++;
         localStorage.setItem(key,JSON.stringify(state));
         return {copyKey,pages};
-      },ambiguous);
+      },{ambiguous,scenario});
       assert.ok(savedCopy.pages[1].length>100);
       assert.equal(recognizeFinalEquationInk(savedCopy.pages[0])?.text,"2");
       await densePage.reload({waitUntil:"networkidle"});
@@ -835,7 +836,8 @@ try{
       }else{
         const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
         assert.ok(await candidate.isVisible());
-        assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=7$/);
+        assert.equal(await candidate.locator(".math-notebook-recognition-source").textContent(),
+          "Page 2 de ta copie · x="+(scenario==="un à pied"?"1":"7"));
         await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
       }
       await densePage.locator("#feedback").waitFor({state:"visible"});
@@ -859,7 +861,7 @@ try{
         console.log("OK Reconnexion : une seule tentative, copie intacte et reprise à la question 2");
       }
       console.log(scenario==="réécrit"?"OK Trait réécrit hors ligne : copie restaurée après fermeture, nouveau résultat confirmé":ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
-        "OK Copie dense sur deux pages : 7 barré reconnu en page 2 et validé au toucher");
+        "OK Copie dense sur deux pages : "+scenario+" reconnu en page 2 et validé au toucher");
     }finally{await denseContext.close();}
   }
 

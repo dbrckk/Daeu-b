@@ -582,3 +582,12 @@ test("Lire la réponse finale d’une page dense, au-delà de cent traits",()=>{
   const unfinished=compactLineInk("x+1=7",{step:68,scale:.52,originY:540});
   assert.equal(recognizeFinalEquationInk([...strokes,...answer,...unfinished]),null);
 });
+
+test("Lire un 1 à pied détaché sans confondre le pied avec une barre de fraction",()=>{
+  const prefix=["25,39;61,91","61,39;25,91","83,58;121,58","84,71;121,71"];
+  const stem="195,35;195,106";
+  assert.equal(recognizeFinalEquationInk([...prefix,stem,"180,113;216,113"])?.text,"1");
+  const fraction=["25,100;61,152","61,100;25,152","83,120;121,120","84,133;121,133",
+    stem,"145,126;245,126","195,145;195,215"];
+  assert.equal(recognizeFinalEquationInk(fraction)?.text,"1/1");
+});
