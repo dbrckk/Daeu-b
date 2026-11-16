@@ -101,6 +101,13 @@ test("Lire une fraction posée sous les calculs sans dépendre de l’ordre des 
   assert.equal(recognizeStackedFractionInk([...numerator,bar,encodeStroke([[45,140],[115,140]]),...denominator]),null);
   assert.equal(recognizeStackedFractionInk([...numerator,bar,encodeStroke([[300,160],[300,230]])]),null);
 });
+test("Lire les chiffres presque au contact de la barre, en refusant un trait qui la touche",()=>{
+  const top=encodeStroke([[75,41],[75,97]]);
+  const bottom=encodeStroke([[60,121],[73,113],[88,114],[92,127],[89,136],
+    [73,145],[59,156],[65,164],[81,167],[99,162]]);
+  assert.equal(recognizeStackedFractionInk([top,encodeStroke([[43,98],[115,98]]),bottom])?.text,"1/2");
+  assert.equal(recognizeStackedFractionInk([top,encodeStroke([[43,97],[115,97]]),bottom]),null);
+});
 
 
 test("Lire les 7 barrés même lorsque l’ordre ou le sens des traits change",()=>{

@@ -83,6 +83,30 @@ function horizontal(path){
   const b=rect([path]);
   return directLine(path)&&width(b)>=15&&height(b)<=Math.max(5,width(b)*.18);
 }
+function dominantAxis(path,box,axis){
+  const sizes=[width(box),height(box)];
+  const span=sizes[axis];
+  if(span<10||sizes[1-axis]>Math.max(4,span*.28))return false;
+  let travel=0;
+  for(let i=1;i<path.length;i++)travel+=Math.abs(path[i][axis]-path[i-1][axis]);
+  return travel<=span*1.5;
+}
+function equalsBars(a,b,ra,rb){
+  const wa=width(ra),wb=width(rb),shorter=Math.min(wa,wb);
+  const separation=Math.abs(cy(ra)-cy(rb));
+  if(shorter<10||overlap(ra,rb)<shorter*.65||separation<4||separation>30)return false;
+  if(separation>=5&&horizontal(a)&&horizontal(b))return true;
+  if(shorter<Math.max(wa,wb)*.55||(ra.top<rb.bottom&&rb.top<ra.bottom))return false;
+  // Une petite barre peut être légèrement inclinée ou se terminer par un retour du stylo.
+  // Les deux tracés doivent rester horizontaux et avancer dans une seule direction dominante.
+  return dominantAxis(a,ra,0)&&dominantAxis(b,rb,0);
+}
+function plusBars(a,b,ra,rb){
+  if(!dominantAxis(a,ra,0)||!dominantAxis(b,rb,1))return false;
+  // Chaque branche doit dépasser l’autre de part et d’autre du croisement.
+  const x=cx(rb),y=cy(ra),w=width(ra),h=height(rb);
+  return Math.min(x-ra.left,ra.right-x)>=w*.15&&Math.min(y-rb.top,rb.bottom-y)>=h*.15;
+}
 function vertical(path){
   const b=rect([path]);
   return directLine(path)&&height(b)>=19&&width(b)<=Math.max(5,height(b)*.18);
@@ -135,11 +159,10 @@ function special(paths){
   }
   if(paths.length!==2)return null;
   const [a,b]=paths,ra=rect([a]),rb=rect([b]);
-  if(horizontal(a)&&horizontal(b)&&
-    overlap(ra,rb)>=Math.min(width(ra),width(rb))*.65&&
-    Math.abs(cy(ra)-cy(rb))>=5&&Math.abs(cy(ra)-cy(rb))<=30)return "=";
+  if(equalsBars(a,b,ra,rb))return "=";
   if((horizontal(a)&&vertical(b)||vertical(a)&&horizontal(b))&&sameGlyph(ra,rb))
     return "+";
+  if(plusBars(a,b,ra,rb)||plusBars(b,a,rb,ra))return "+";
   const da=diagonal(a),db=diagonal(b);
   if(da&&db&&da!==db&&sameGlyph(ra,rb))return "x";
   return null;
@@ -179,9 +202,7 @@ function foldFractions(paths){
     if(used.has(bar.id))continue;
     const y=cy(bar.box),w=width(bar.box);
     // Les deux traits du signe "=" ne forment jamais une barre de fraction.
-    if(bars.some(other=>other.id!==bar.id
-      &&Math.abs(cy(other.box)-y)>=5&&Math.abs(cy(other.box)-y)<=30
-      &&overlap(other.box,bar.box)>=Math.min(width(other.box),w)*.65))
+    if(entries.some(other=>other.id!==bar.id&&equalsBars(bar.paths[0],other.paths[0],bar.box,other.box)))
       continue;
     const gap=Math.min(60,Math.max(38,w*.55));
     const inside=e=>e.id!==bar.id&&!used.has(e.id)

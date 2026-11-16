@@ -1,4 +1,4 @@
-"""Select DAEU B-style handwriting from the labelled CROHME 2014 test split."""
+"""Select DAEU B-style handwriting from a CROHME split."""
 import argparse
 import json
 from pathlib import PurePosixPath
@@ -12,17 +12,30 @@ EXPRESSION = re.compile(rf"(?:{FRACTION}|\^2|[0-9x+*/().=\-])+")
 SINGLE_FRACTION = re.compile(FRACTION)
 
 
-def load_cases(path):
+def normalize_label(label, contextual):
+    label = re.sub(r"\s+", "", label.strip().strip("$"))
+    label = re.sub(r"\\(?:left|right)", "", label).replace("^{2}", "^2")
+    if contextual:
+        label = label.replace(r"\times", "*").replace(r"\cdot", "*")
+        # Preserve the fraction's argument braces while unwrapping isolated numbers.
+        label = re.sub(rf"({FRACTION})|\{{([0-9x]+)\}}",
+                       lambda match: match[1] or match[2], label)
+        if len(label) > 45:
+            return ""
+    return label
+
+
+def load_cases(path, split, labels=None):
     cases = []
     with ZipFile(path) as archive:
         for name in sorted(archive.namelist()):
             item = PurePosixPath(name)
-            if item.parent.name != "TestEM2014GT_INKMLs" or item.suffix != ".inkml" or item.name.startswith("."):
+            if item.parent.name != split or item.suffix != ".inkml" or item.name.startswith("."):
                 continue
             root = ET.fromstring(archive.read(name))
-            label = root.findtext("i:annotation[@type='truth']", namespaces=NS) or ""
-            label = re.sub(r"\s+", "", label.strip().strip("$"))
-            label = re.sub(r"\\(?:left|right)", "", label).replace("^{2}", "^2")
+            raw_label = (labels.get(item.name) if labels is not None else
+                         root.findtext("i:annotation[@type='truth']", namespaces=NS))
+            label = normalize_label(raw_label or "", labels is not None)
             if not EXPRESSION.fullmatch(label):
                 continue
             if SINGLE_FRACTION.fullmatch(label):
@@ -40,9 +53,13 @@ def load_cases(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("zip", help="Labelled online formula valid.zip from CROHME")
+    parser.add_argument("zip", help="CROHME online formula archive")
+    parser.add_argument("--split", default="TestEM2014GT_INKMLs", help="Directory containing the InkML files")
+    parser.add_argument("--labels", type=argparse.FileType("r", encoding="utf-8"),
+                        help="CROHME Contextual Dataset JSON for separately labelled traces")
     args = parser.parse_args()
-    cases = load_cases(args.zip)
+    labels = {row["input_file"]: row["input_latex"] for row in json.load(args.labels)} if args.labels else None
+    cases = load_cases(args.zip, args.split, labels)
     if not cases:
-        parser.error("No eligible labelled CROHME 2014 cases in archive")
+        parser.error(f"No eligible labelled CROHME cases in {args.split}")
     print(json.dumps(cases))
