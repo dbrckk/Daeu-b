@@ -141,3 +141,19 @@ test("Lire le 2 bouclé au pied et le distinguer du 7",()=>{
     assert.equal(recognizeNumericInk([encodeStroke(path)]).text,"2");
   assert.equal(recognizeNumericInk(ink("7")).text,"7");
 });
+
+test("Lire les fractions dont le 8 manuscrit a des boucles serrées ou commence sur le bord",()=>{
+  const eights=[
+    [[91,161],[77,166],[78,180],[89,200],[99,220],[87,237],[70,236],[73,219],
+      [87,195],[93,176],[90,161]],
+    [[110,164],[79,160],[58,168],[64,180],[85,194],[102,208],[109,222],[97,233],
+      [78,237],[67,219],[68,200],[78,179],[91,163]]
+  ];
+  const bar=encodeStroke([[38,137],[123,139]]);
+  for(const eight of eights){
+    for(const numerator of ["1","3"]){
+      const result=recognizeStackedFractionInk([...ink(numerator),bar,encodeStroke(eight)]);
+      assert.equal(result?.text,numerator+"/8");
+    }
+  }
+});

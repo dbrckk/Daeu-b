@@ -72,22 +72,24 @@ try{
   const fractionBox=await fractionCanvas.boundingBox();
   assert.ok(fractionBox);
   const fractionStrokes=[
-    [20,241,58,293],[58,241,20,293],[74,258,104,258],[74,276,104,276],
-    [170,180,170,245],[120,267,220,267],[170,290,170,355]
+    [[20,241],[58,293]],[[58,241],[20,293]],[[74,258],[104,258]],[[74,276],[104,276]],
+    [[170,180],[170,245]],[[120,267],[220,267]],
+    [[180,290],[158,294],[159,312],[172,333],[182,353],[166,366],[148,365],[152,347],
+      [166,328],[174,307],[175,291]]
   ];
-  for(const [x1,y1,x2,y2] of fractionStrokes){
-    const point=(x,y)=>[fractionBox.x+x*fractionBox.width/900,fractionBox.y+y*fractionBox.height/1200];
-    const [startX,startY]=point(x1,y1);
+  const point=(x,y)=>[fractionBox.x+x*fractionBox.width/900,fractionBox.y+y*fractionBox.height/1200];
+  for(const [start,...rest] of fractionStrokes){
+    const [startX,startY]=point(...start);
     assert.equal(await page.evaluate(([x,y])=>document.elementFromPoint(x,y)?.tagName,[startX,startY]),"CANVAS");
     await page.mouse.move(startX,startY);
     await page.mouse.down();
-    await page.mouse.move(...point(x2,y2),{steps:8});
+    for(const end of rest)await page.mouse.move(...point(...end),{steps:8});
     await page.mouse.up();
   }
   await page.locator("#quizNotebook .math-notebook-quick-validate").click();
   const fractionCandidate=page.locator("#quizNotebook .math-notebook-recognition-candidate");
-  assert.match(await fractionCandidate.locator("strong").textContent(),/Lecture proposée : 1\/1/);
-  assert.match(await fractionCandidate.locator(".math-notebook-recognition-source").textContent(),/x=1\/1/);
+  assert.match(await fractionCandidate.locator("strong").textContent(),/Lecture proposée : 1\/8/);
+  assert.match(await fractionCandidate.locator(".math-notebook-recognition-source").textContent(),/x=1\/8/);
   assert.equal((await snapshot()).round.completed,0);
   const undoFraction=page.getByRole("button",{name:"Annuler le dernier trait"});
   for(const _ of fractionStrokes)await undoFraction.click();
