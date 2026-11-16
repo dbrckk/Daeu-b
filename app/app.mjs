@@ -306,6 +306,7 @@ function renderQuestion() {
   const quiz=el("quiz");
   quiz.classList.toggle("paper-mode",paperOnly);
   el("pauseQuiz").hidden=!paperOnly;
+  el("paperUnknown").hidden=!paperOnly;
   done=false;hintUsed=!!round?.assistedIds?.includes(q.id);
   el("quizCount").textContent="Question "+(index+1)+" / "+session.length;
   el("quizTopic").textContent=q.topicTitle;
@@ -365,13 +366,14 @@ function renderQuestion() {
 
 function showFeedback(correct,wasUnknown=false,manual=false) {
   const q=session[index];
+  el("paperUnknown").hidden=true;
   el("feedback").hidden=false;el("feedback").dataset.result=correct?"correct":"wrong";
   el("feedbackTitle").textContent=manual?(correct?"Réponse manuscrite déclarée correcte":"Réponse manuscrite à retravailler"):
     correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
   const expected=q.type==="number"?fmt(q.answer):q.answer;
   el("feedbackText").textContent=manual?
     "Auto-évaluation enregistrée : le tracé manuscrit n'a pas été reconnu par ordinateur et cette réponse n'attribue pas de maîtrise autonome.\n\nRéponse attendue : "+expected+"\n\n"+q.explanation:
-    (correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\\n\\n")+q.explanation;
+    (correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\n\n")+q.explanation;
   el("lessonLink").href=courseUrl(q.lesson);
   el("answerForm").hidden=true;
   el("next").textContent=index===session.length-1?"Terminer la séance":"Question suivante";
@@ -506,7 +508,7 @@ el("answerForm").addEventListener("submit",evt=>{
   const raw=q.type==="number"?el("answer").value:el("choiceList").querySelector("input:checked")?.value;
   submit(raw);
 });
-el("unknownButton").addEventListener("click",()=>submit(null,true));
+for(const id of ["unknownButton","paperUnknown"])el(id).addEventListener("click",()=>submit(null,true));
 el("hintButton").addEventListener("click",()=>{
   if(done)return;markGuidedQuestion();el("hint").hidden=false;el("hint").textContent=session[index].hint;
 });

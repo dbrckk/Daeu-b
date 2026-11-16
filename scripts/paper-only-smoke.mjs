@@ -12,8 +12,8 @@ page.setDefaultTimeout(15000);
 page.on("pageerror",error=>errors.push(error.message));
 page.on("dialog",dialog=>dialog.accept());
 
-async function drawOnSheet(selector){
-  const viewport=page.locator(selector);
+async function drawOnSheet(selector,targetPage=page){
+  const viewport=targetPage.locator(selector);
   await viewport.scrollIntoViewIfNeeded();
   await viewport.locator("canvas").scrollIntoViewIfNeeded();
   const box=await viewport.boundingBox(),ink=await viewport.locator("canvas").boundingBox();
@@ -21,10 +21,10 @@ async function drawOnSheet(selector){
   const x=Math.max(box.x+25,ink.x+35),y=Math.max(box.y+25,ink.y+35);
   assert.ok(x+75<Math.min(box.x+box.width,ink.x+ink.width)
     &&y+40<Math.min(box.y+box.height,ink.y+ink.height),"Zone d'écriture réellement visible");
-  await page.mouse.move(x,y);
-  await page.mouse.down();
-  await page.mouse.move(x+75,y+35,{steps:10});
-  await page.mouse.up();
+  await targetPage.mouse.move(x,y);
+  await targetPage.mouse.down();
+  await targetPage.mouse.move(x+75,y+35,{steps:10});
+  await targetPage.mouse.up();
 }
 const snapshot=()=>page.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
 try{
@@ -465,11 +465,56 @@ try{
   assert.equal((await snapshot()).workbook.entries["quiz:"+questionId].pages[0].length,2);
   console.log("OK Lecture au doigt sous les calculs, puis validation explicite et sauvegarde");
 
+  const skipOnPaper=page.getByRole("button",{name:"Je ne sais pas",exact:true});
+  assert.ok(await skipOnPaper.isHidden());
+  await page.locator("#next").tap();
+  const beforeSkip=await snapshot();
+  const skippedId=beforeSkip.round.ids[1];
+  await page.setViewportSize({width:320,height:640});
+  assert.ok(await page.locator("#quiz .quiz-top").evaluate(top=>
+    top.scrollWidth<=top.clientWidth&&[...top.querySelectorAll("button")].every(button=>
+      button.getBoundingClientRect().height>=44)));
+  await skipOnPaper.tap();
+  assert.ok(await page.locator("#feedback").isVisible());
+  assert.ok(await skipOnPaper.isHidden());
+  assert.match(await page.locator("#feedbackText").textContent(),/^Réponse à connaître : [^\n]+\n\n/);
+  const afterSkip=await snapshot();
+  assert.equal(afterSkip.round.completed,2);
+  assert.equal(afterSkip.round.score,beforeSkip.round.score);
+  assert.equal(afterSkip.practice.items[skippedId].attempts,1);
+  assert.equal(afterSkip.practice.items[skippedId].confirmed,false);
+  assert.deepEqual(afterSkip.workbook,beforeSkip.workbook);
+  assert.deepEqual(afterSkip.round.assistedIds,beforeSkip.round.assistedIds);
+
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.locator("#quiz.paper-mode").waitFor({state:"visible"});
+  assert.equal(await page.locator("#quizCount").textContent(),"Question 3 / 10");
+  assert.deepEqual(await snapshot(),afterSkip);
+  for(let index=2;index<afterSkip.round.ids.length;index++){
+    await skipOnPaper.tap();
+    await page.locator("#next").tap();
+  }
+  const nextCourse=page.locator("#resultsNextActions").getByRole("link",{name:"Lire le cours"});
+  await nextCourse.tap();
+  await page.locator("#courseBody h2").first().waitFor({state:"visible"});
+  await page.locator("#coursePractice").tap();
+  await page.waitForURL(/topic=/);
+  await page.locator("#start").tap();
+  await page.locator("#quiz.paper-mode").waitFor({state:"visible"});
+  assert.ok(await page.locator("#answerForm").isHidden());
+  assert.deepEqual((await snapshot()).workbook,beforeSkip.workbook);
+  console.log("OK Diagnostic sur feuille à 320 px : réponse inconnue, reprise et accès au cours puis à l’entraînement");
+
   const examContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
-  const examPage=await examContext.newPage();
-  examPage.setDefaultTimeout(15000);
-  examPage.on("dialog",dialog=>dialog.accept());
-  examPage.on("pageerror",error=>errors.push("examen : "+error.message));
+  const newExamPage=async()=>{
+    const tab=await examContext.newPage();
+    tab.setDefaultTimeout(15000);
+    tab.on("dialog",dialog=>dialog.accept());
+    tab.on("pageerror",error=>errors.push("examen : "+error.message));
+    return tab;
+  };
+  let examPage=await newExamPage();
+  const examSnapshot=()=>examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
   try{
     await examPage.goto(BASE,{waitUntil:"networkidle"});
     await examPage.locator("#examStart").click();
@@ -488,23 +533,17 @@ try{
       })
     ));
     await examPage.setViewportSize({width:390,height:844});
-    // The page uses its own browser tab; record a real mouse gesture.
-    const viewport=examPage.locator("#examNotebook .math-notebook-sheet-viewport");
-    await viewport.scrollIntoViewIfNeeded();
-    await viewport.locator("canvas").scrollIntoViewIfNeeded();
-    const box=await viewport.boundingBox(),ink=await viewport.locator("canvas").boundingBox();
-    assert.ok(box&&ink&&box.height>=300&&box.width>=200,"Copie d'examen invisible");
-    const x=Math.max(box.x+25,ink.x+35),y=Math.max(box.y+25,ink.y+35);
-    assert.ok(x+75<Math.min(box.x+box.width,ink.x+ink.width)
-      &&y+40<Math.min(box.y+box.height,ink.y+ink.height),"Zone d'examen réellement visible");
-    await examPage.mouse.move(x,y);
-    await examPage.mouse.down();
-    await examPage.mouse.move(x+75,y+35,{steps:10});
-    await examPage.mouse.up();
-    const saved=await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+    const sheet="#examNotebook .math-notebook-sheet-viewport";
+    const viewport=examPage.locator(sheet);
+    await drawOnSheet(sheet,examPage);
+    const tools=examPage.locator("#examNotebook .math-notebook-paper-tools");
+    await tools.locator("summary").click();
+    await tools.getByRole("button",{name:"Ajouter une page"}).click();
+    await drawOnSheet(sheet,examPage);
+    const saved=await examSnapshot();
     assert.equal(saved.exams.active.paperOnly,true);
     const key=Object.keys(saved.workbook.entries).find(k=>k.startsWith("exam:"));
-    assert.ok(key&&saved.workbook.entries[key].pages[0].length===1);
+    assert.deepEqual(saved.workbook.entries[key].pages.map(page=>page.length),[1,1]);
     await examPage.evaluate(async()=>{
       await navigator.serviceWorker.ready;
       if(!navigator.serviceWorker.controller)
@@ -550,13 +589,18 @@ try{
 
     await navigation.getByRole("button",{name:"Aller à l'exercice 3"}).click();
     assert.equal(await navigation.getByRole("button",{name:"Exercice 3 en cours"}).getAttribute("aria-current"),"step");
-    await examPage.reload({waitUntil:"networkidle"});
-    assert.ok(await examPage.locator("#examActive.paper-exam-active").isVisible());
-    assert.equal((await examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")))).exams.active.paperOnly,true);
-    console.log("OK Examen : quatre exercices sur copies réelles, sauvegarde et reprise");
+    const beforeClose=await examSnapshot();
+    await examContext.setOffline(true);
+    await examPage.close();
+    examPage=await newExamPage();
+    await examPage.goto(BASE,{waitUntil:"domcontentloaded"});
+    const reopenedNavigation=examPage.getByRole("group",{name:"Navigation entre les quatre exercices"});
+    await reopenedNavigation.getByRole("button",{name:"Exercice 3 en cours"}).waitFor();
+    assert.deepEqual(await examSnapshot(),beforeClose);
+    await reopenedNavigation.getByRole("button",{name:"Aller à l'exercice 1"}).click();
+    assert.match(await examPage.getByRole("navigation",{name:"Pages de la feuille"}).textContent(),/Page 2\/2/);
+    console.log("OK Examen hors ligne après fermeture : exercice actif et deux pages manuscrites retrouvés");
 
-    assert.ok(await navigation.getByRole("button",{name:"Exercice 3 en cours"}).isVisible());
-    await navigation.getByRole("button",{name:"Aller à l'exercice 1"}).click();
     await examPage.locator("#examSubmit").click();
     const submit=examPage.getByRole("dialog",{name:"Rendre ta copie ?"});
     assert.ok(await submit.isVisible());
@@ -611,7 +655,8 @@ try{
     assert.ok(await guide.evaluate(node=>node.contains(document.activeElement)));
     assert.ok(await revision.getByRole("link",{name:"Revoir le cours"}).isVisible());
 
-    await examPage.reload({waitUntil:"networkidle"});
+    await examPage.reload({waitUntil:"domcontentloaded"});
+    await homeSummary.waitFor();
     assert.match(await homeSummary.textContent(),/1 étape à retravailler dans 1 copie/);
     await homeSummary.click();
     const homeRow=homeRevision.getByRole("listitem");
@@ -620,6 +665,11 @@ try{
     await homeRow.getByRole("button",{name:/Exercice 1/}).click();
     await copy.locator("canvas").waitFor({state:"visible"});
     assert.ok(await guide.evaluate(node=>node.contains(document.activeElement)));
+    const thumbnails=copy.getByRole("button",{name:"Aperçu des pages"});
+    await thumbnails.click();
+    await copy.getByRole("dialog",{name:"Aperçu des pages de la copie"})
+      .getByRole("button",{name:/Page 2/}).click();
+    assert.match(await copy.locator(".math-notebook-page-indicator").textContent(),/Page 2\/2/);
     assert.ok(await target.isChecked());
     assert.equal(await revision.getByRole("listitem").count(),1);
     assert.ok(!(await justified.isChecked()));
@@ -636,7 +686,8 @@ try{
     await blank.locator(":scope > summary").click();
     await blank.locator(".exam-paper-review > summary").click();
     assert.match(await blank.locator(".exam-paper-review").textContent(),/Aucun tracé sauvegardé/);
-    console.log("OK Correction : comparaison mobile et bureau, révisions choisies et grille sauvegardée");
+    await examContext.setOffline(false);
+    console.log("OK Correction : comparaison mobile et bureau, deuxième page et révision retrouvées hors ligne");
 
     // Copies manuscrites volumineuses produites avec le format de tracé réel.
     const bulk=await examPage.evaluate(async()=>{

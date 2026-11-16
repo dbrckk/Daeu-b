@@ -1,5 +1,13 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v93 — terminer le diagnostic sur la feuille (16 novembre 2026)
+
+- « Je ne sais pas » est accessible en mode feuille. La commande ouvre le corrigé et enregistre une réponse à retravailler. Le tracé et le score sont préservés.
+- Chromium mobile à 320 px · réponse inconnue, reprise après rechargement sans double tentative, fin du diagnostic, cours conseillé et démarrage de l’entraînement sur la feuille.
+- Examen manuscrit · deux pages et exercice actif restitués après fermeture de l’onglet hors ligne. La deuxième page et l’étape à retravailler restent accessibles après remise et rechargement. Le passage du cache v62 au cache v93 a conservé la copie ouverte.
+- La récupération IndexedDB après disparition de la copie principale a restauré un ensemble de six examens (1 376 472 caractères). Le refus simulé d’une écriture a laissé la sauvegarde précédente intacte.
+- La synchronisation a été testée avec deux profils Chromium et des réponses réseau simulées. Un essai avec un compte Supabase réel et un essai sur Android physique avec TalkBack restent à faire.
+
 ## v65 — version mathématiques publiée et vérifiée (15 novembre 2026)
 
 - Application publique et cache v65 vérifiés sur Render. Les 280 tests Node, les contrôles de contenu et les parcours Chromium sur la branche principale sont passés. [Publication et tests sur `main`](https://github.com/dbrckk/Daeu-b/commit/def986e9b2a050f39e412f83ebf92a8319b94e30).
