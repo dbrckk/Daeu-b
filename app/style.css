@@ -416,8 +416,10 @@
   font-size:.8rem;font-weight:700;color:#263c4d
 }
 .quiz.paper-mode #quizCount{font-variant-numeric:tabular-nums}
+.quiz.paper-mode .quiz-top{gap:8px;flex-wrap:wrap}
+.quiz.paper-mode #paperUnknown{margin-inline-start:auto}
 .quiz.paper-mode #quizTopic,.quiz.paper-mode>progress{display:none}
-.quiz.paper-mode #pauseQuiz{min-height:44px;background:transparent;color:#263c4d;border-color:#b0bfca}
+.quiz.paper-mode :is(#pauseQuiz,#paperUnknown){min-height:44px;background:transparent;color:#263c4d;border-color:#b0bfca}
 .quiz.paper-mode #quizNotebook,.quiz.paper-mode .feedback{max-width:960px}
 .quiz.paper-mode #quizNotebook .math-notebook-sheet-viewport{height:calc(100dvh - 213px);min-height:260px}
 .math-notebook.is-paper-only .math-notebook-paper-bar:not(:empty){

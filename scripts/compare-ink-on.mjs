@@ -4,7 +4,7 @@ import {pathToFileURL} from "node:url";
 import {resolve} from "node:path";
 import {encodeStroke,parseStroke,PAPER_WIDTH,PAPER_HEIGHT} from "../app/workbook.mjs";
 import {recognizeStackedFractionInk} from "../app/numeric-ink.mjs";
-import {validateInkTranscript} from "../app/ink-transcript.mjs";
+import {normalizeInk,inkOutcome,eligibleInkFallback} from "./benchmark-policy.mjs";
 import {recognizeEquationInk} from "../app/equation-ink.mjs";
 
 const [, , inkOnPath, ...sampleFiles]=process.argv;
@@ -30,10 +30,6 @@ const engine=new InferenceEngine({
 const vocab=JSON.parse(await readFile(new URL("vocab.json",model),"utf8"));
 const samples=(await Promise.all(sampleFiles.map(async file=>JSON.parse(await readFile(file,"utf8"))))).flat();
 if(!samples.length)throw Error("No samples");
-const normalize=value=>value?.replace(/\s/g,"").replace(/\\(?:left|right)/g,"")
-  .replace(/\\(?:cdot|times)/g,"*").replace(/\^\{([0-9])\}/g,"^$1")
-  .replace(/_\{([a-zA-Z0-9])\}/g,"_$1")
-  .replace(/\\frac\{([0-9]+)\}\{([0-9]+)\}/g,"$1/$2")??null;
 const start=performance.now();
 await engine.init();
 const initializationMs=performance.now()-start;
@@ -60,12 +56,9 @@ for(const {id,expected,paths,group} of samples){
   const predicted=(await engine.recognize(input,vocab,"expression")).latex;
   const inkOnMs=performance.now()-t;
   const local=current?.status==="recognized"?current.text:null;
-  const outcome=value=>!value?"abstention":normalize(value)===normalize(expected)?"exact":"error";
-  const candidate=normalize(predicted);
-  // Only simulate this policy on the targeted CROHME suites.
-  const eligible=candidate&&(isolatedFraction?/^\d+\/[1-9]\d*$/.test(candidate)
-    :/^[0-9x+*/().=^\-]+$/.test(candidate)&&validateInkTranscript(candidate));
-  const fallback=group.startsWith("crohme-")?outcome(local??(eligible?candidate:null)):undefined;
+  const outcome=value=>inkOutcome(value,expected);
+  const eligible=eligibleInkFallback(predicted,group);
+  const fallback=group.startsWith("crohme-")?outcome(local??(eligible?normalizeInk(predicted):null)):undefined;
   rows.push({id,group,expected,local,predicted,daeuMs,inkOnMs,
     daeu:outcome(local),inkOn:outcome(predicted),fallback});
 }

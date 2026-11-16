@@ -78,3 +78,15 @@ unzip -p /tmp/crohme-package.zip 'Task1_and_Task2/Task1_and_Task2/Task1_onlineRe
 python3 scripts/export-crohme-ink.py /tmp/crohme-formulas.zip > /tmp/daeu-crohme-cases.json
 node scripts/compare-ink-on.mjs /tmp/ink-on /tmp/daeu-crohme-cases.json
 ```
+
+## Lecteur local v94
+
+Le même lot CROHME a été rejoué sur les versions v93 et v94. Les trois transcriptions corrigées concernent des fractions isolées. `4/3` était illisible, `1/8` était proposée comme `1/1` et `3/8` comme `3/5`.
+
+| Lot | v93 exact / erreur / abstention | v94 exact / erreur / abstention |
+| --- | --- | --- |
+| 9 fractions isolées CROHME | 0 / 2 / 7 | 3 / 0 / 6 |
+| 13 égalités CROHME | 0 / 0 / 13 | 0 / 0 / 13 |
+| 24 expressions de l’extrait MathWriting | 0 / 0 / 24 | 0 / 0 / 24 |
+
+Les 22 tracés CROHME avaient servi à orienter la correction. Ces résultats décrivent les cas rejoués. Une mesure sur des tracés indépendants reste nécessaire pour estimer le gain sur d’autres écritures.
