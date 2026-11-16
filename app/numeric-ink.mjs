@@ -128,7 +128,8 @@ function hasOpenFour(paths,box){
     const rise=endY-startY;
     if(rise<height*.23||endY<topY+height*.18||endY>bottomY-height*.18)return false;
     const stemX=topX+(bottomX-topX)*(endY-topY)/(bottomY-topY);
-    if(endX<stemX-height*.12||endX>stemX+height*.44||startX>stemX+height*.12)return false;
+    // Une boucle de 9 peut repartir de la hampe avant de dessiner son arrondi.
+    if(endX<stemX-height*.12||endX>stemX+height*.44||startX>stemX-height*.08)return false;
 
     return path.some(([x,y],i)=>{
       if(i===0||i===path.length-1||endX-x<height*.25||x>stemX-height*.24

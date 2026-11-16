@@ -180,3 +180,19 @@ test("Lire les fractions dont le 8 manuscrit a des boucles serrées ou commence 
     }
   }
 });
+
+test("Distinguer un 4 ouvert d’un 9 à deux traits, seul et dans une fraction",()=>{
+  const four=[[[183,173],[170,192],[156,210],[200,210]],[[205,183],[203,264]]];
+  const nine=[
+    [[58,26],[54,19],[45,16],[31,20],[22,31],[20,45],[24,51],[34,51],[49,46],[52,45]],
+    [[59,29],[58,48],[54,69],[49,82],[47,93]]
+  ];
+  for(const [paths,digit] of [[four,"4"],[nine,"9"]]){
+    assert.equal(recognizeNumericInk(paths.map(encodeStroke)).text,digit);
+    const reversed=[...paths].reverse().map(path=>encodeStroke([...path].reverse()));
+    assert.equal(recognizeNumericInk(reversed).text,digit);
+  }
+  const fraction=[...four,[[120,280],[236,281]],
+    [[185,305],[153,305],[151,330],[171,328],[187,335],[191,349],[182,364],[166,369],[150,364]]].map(encodeStroke);
+  assert.equal(recognizeStackedFractionInk(fraction)?.text,"4/5");
+});
