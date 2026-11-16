@@ -840,6 +840,21 @@ try{
       assert.equal(corrected.round.completed,1);
       assert.deepEqual(corrected.workbook.entries[savedCopy.copyKey].pages,savedCopy.pages);
       assert.equal(corrected.round.assistedIds.includes(savedCopy.copyKey.slice(5)),scenario==="retouché");
+      if(scenario==="réécrit"){
+        const questionId=savedCopy.copyKey.slice(5);
+        assert.equal(await densePage.evaluate(()=>navigator.onLine),false);
+        assert.equal(corrected.practice.items[questionId].attempts,1);
+        await denseContext.setOffline(false);
+        await densePage.waitForFunction(()=>navigator.onLine);
+        await densePage.reload({waitUntil:"domcontentloaded"});
+        await densePage.locator("#quiz.paper-mode").waitFor({state:"visible"});
+        assert.equal(await densePage.locator("#quizCount").textContent(),"Question 2 / 10");
+        const resumed=await stored();
+        assert.deepEqual(resumed.round,corrected.round);
+        assert.deepEqual(resumed.practice.items[questionId],corrected.practice.items[questionId]);
+        assert.deepEqual(resumed.workbook.entries[savedCopy.copyKey],corrected.workbook.entries[savedCopy.copyKey]);
+        console.log("OK Reconnexion : une seule tentative, copie intacte et reprise à la question 2");
+      }
       console.log(scenario==="réécrit"?"OK Trait réécrit hors ligne : copie restaurée après fermeture, nouveau résultat confirmé":ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
         "OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
     }finally{await denseContext.close();}
