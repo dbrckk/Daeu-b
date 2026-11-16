@@ -18,6 +18,11 @@ const SHAPES=[
   ["9", [[[75,43],[57,57],[34,52],[20,34],[29,14],[51,7],[74,20],[78,48],[66,73],[41,94],[19,97]]]],
   ["/", [[[83,10],[17,94]]]]
 ];
+// Le 7 barré est fréquent avec un stylet, dans les deux sens du tracé.
+const BARRED_SEVEN=[
+  [[[15,12],[87,12],[43,96]],[[31,53],[76,53]]],
+  [[[15,14],[37,9],[87,14],[45,96]],[[27,59],[77,48]]]
+];
 const far=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 function bounds(paths){
   const pts=paths.flat(),xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
@@ -53,6 +58,20 @@ function distance(a,b){
   return (nearest(a,b)+nearest(b,a))/2;
 }
 const TEMPLATES=SHAPES.map(([digit,...variants])=>[digit,variants.map(sample)]);
+const BARRED_SEVEN_TEMPLATES=BARRED_SEVEN.map(sample);
+
+function hasSevenBar(paths,box){
+  if(paths.length!==2)return false;
+  const width=box.maxX-box.minX,height=box.maxY-box.minY;
+  return paths.some((path,index)=>{
+    const bar=bounds([path]),body=bounds([paths[1-index]]);
+    const center=(bar.minY+bar.maxY)/2;
+    return bar.maxX-bar.minX>=width*.4&&bar.maxY-bar.minY<=height*.2
+      &&center>=body.minY+height*.28&&center<=body.maxY-height*.25
+      &&body.maxY-body.minY>=height*.85
+      &&body.minX<bar.maxX&&bar.minX<body.maxX;
+  });
+}
 function classify(paths){
   if(!paths.length||paths.length>3)return null;
   const b=bounds(paths),w=b.maxX-b.minX,h=b.maxY-b.minY;
@@ -60,8 +79,9 @@ function classify(paths){
   if(w>20&&h<Math.max(8,w*.22))return {digit:"-",score:0,margin:1};
   const p=sample(paths);
   if(!p.length)return null;
+  const barred=hasSevenBar(paths,b);
   const scores=TEMPLATES.map(([digit,variants])=>({
-    digit,score:Math.min(...variants.map(t=>distance(p,t)))
+    digit,score:Math.min(...(digit==="7"&&barred?[...variants,...BARRED_SEVEN_TEMPLATES]:variants).map(t=>distance(p,t)))
   })).sort((a,b)=>a.score-b.score);
   return {...scores[0],margin:scores[1].score-scores[0].score};
 }

@@ -748,6 +748,9 @@ try{
           [[178,466],[210,466]],[[194,446],[194,489]],
           [[180,451],[208,481]],[[180,481],[208,451]]
         ].map(encodeStroke));
+        if(!ambiguous)strokes.splice(-1,1,...[
+          [[170,441],[220,441],[186,514]],[[181,478],[210,478]]
+        ].map(encodeStroke));
         const pages=[previousAnswer,strokes,[]];
         state.workbook.entries[copyKey]={text:"",pages};
         state.revision++;
@@ -832,7 +835,7 @@ try{
       }else{
         const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
         assert.ok(await candidate.isVisible());
-        assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=1$/);
+        assert.match(await candidate.locator(".math-notebook-recognition-source").textContent(),/^Page 2 de ta copie · x=7$/);
         await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
       }
       await densePage.locator("#feedback").waitFor({state:"visible"});
@@ -856,7 +859,7 @@ try{
         console.log("OK Reconnexion : une seule tentative, copie intacte et reprise à la question 2");
       }
       console.log(scenario==="réécrit"?"OK Trait réécrit hors ligne : copie restaurée après fermeture, nouveau résultat confirmé":ambiguous?"OK Dernière page ambiguë : retouche tactile restaurée, copie conservée":
-        "OK Copie dense sur deux pages : réponse de la page 2 validée depuis la page 1, copie conservée");
+        "OK Copie dense sur deux pages : 7 barré reconnu en page 2 et validé au toucher");
     }finally{await denseContext.close();}
   }
 
