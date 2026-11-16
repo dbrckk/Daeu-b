@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v97 — distinguer le 4 ouvert du 9 (16 novembre 2026)
+
+- Le lecteur reconnaît le `4` à deux traits lorsque le trait coudé part à gauche de la hampe et rejoint celle-ci par une barre presque horizontale. La forme dessinée en boucle reste éligible à la lecture du `9`.
+- L’essai Chromium mobile trace `4/5` au doigt et vérifie que la proposition attend une confirmation. Le [bilan sur tracés annotés](audits/reconnaissance-manuscrite.md#lecteur-local-v97) relève 24 confusions corrigées sur 42 à l’échelle de mesure retenue. Un essai sur un appareil Android physique reste à faire.
+
 ## v96 — distinguer le 7 barré du 4 (16 novembre 2026)
 
 - Le lecteur reconnaît le `7` barré presque vertical grâce à la tête horizontale et à la hampe qui traverse la barre. La détection accepte les deux sens et les deux ordres de tracé. La lecture reste soumise à confirmation.

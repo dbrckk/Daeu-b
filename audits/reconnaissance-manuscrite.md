@@ -135,3 +135,16 @@ python3 scripts/export-crohme-ink.py /tmp/crohme-formulas.zip --symbols > /tmp/d
 python3 scripts/export-crohme-ink.py /tmp/Train.zip --split TestINKMLGT_2013 --symbols > /tmp/daeu-symboles-2013.json
 node scripts/compare-ink-on.mjs --local /tmp/daeu-symboles-2014.json /tmp/daeu-symboles-2013.json
 ```
+
+## Lecteur local v97
+
+Un `4` écrivant séparément la hampe peut présenter un contour proche du `9` pour le comparateur de gabarits. Le lecteur recherche désormais deux traits précis. Le trait coudé commence à gauche de la hampe, descend vers un coude puis rejoint la hampe par une barre voisine de l’horizontale. La hampe est presque droite et se prolonge sous la barre. L’écart au départ sert à écarter la boucle d’un `9` repartant de la hampe.
+
+Le lot de mise au point `Train_2014` a servi à vérifier le critère de départ à gauche sur deux vrais `9` que la première règle lisait comme des `4`. Les deux lots de test gardent la préparation v96, à 70 unités de haut pour chaque symbole. Le nombre d’abstentions correspond aux cas où le lecteur ne propose aucun chiffre.
+
+| Tracés de `4` à deux traits | v96 exact / erreur / abstention | v97 exact / erreur / abstention | Confusions `4` → `9` v96 → v97 |
+| --- | --- | --- | --- |
+| CROHME 2013, 56 symboles | 4 / 19 / 33 | 26 / 9 / 21 | 15 → 5 |
+| CROHME 2014, 135 symboles | 16 / 36 / 83 | 43 / 22 / 70 | 27 → 13 |
+
+Les 1 667 autres symboles des deux lots de test conservent leur résultat, dont les `9`. La mesure rejoue les tracés déjà segmentés. Le parcours Chromium vérifie séparément la lecture de `4/5` écrite dans le cahier.

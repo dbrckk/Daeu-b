@@ -112,6 +112,20 @@ try{
   for(const _ of uprightFraction)await undoFraction.click();
   console.log("OK 7 barré presque vertical lu comme 7/5 au doigt, sans notation préalable");
 
+  const openFourFraction=[
+    [[183,173],[170,192],[156,210],[200,210]],
+    [[205,183],[203,264]],
+    [[120,280],[236,281]],
+    [[185,305],[153,305],[151,330],[171,328],[187,335],[191,349],[182,364],[166,369],[150,364]]
+  ];
+  await traceFraction(touch,page.locator("#quizNotebook canvas"),openFourFraction);
+  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+  await fractionCandidate.waitFor({state:"visible"});
+  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 4/5");
+  assert.equal((await snapshot()).round.completed,0);
+  for(const _ of openFourFraction)await undoFraction.click();
+  console.log("OK 4 ouvert lu comme 4/5 au doigt, sans notation préalable");
+
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);
