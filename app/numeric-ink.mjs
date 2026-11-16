@@ -112,6 +112,35 @@ function hasUprightSeven(paths,box){
     return x>=bar.minX+inset&&x<=bar.maxX-inset;
   });
 }
+// Une hampe rectiligne croise la barre du 4 au-dessous du sommet.
+function hasOpenFour(paths,box){
+  if(paths.length!==2)return false;
+  const height=box.maxY-box.minY;
+  return paths.some((arm,index)=>{
+    const stroke=paths[1-index];
+    const stem=stroke[0][1]<=stroke.at(-1)[1]?stroke:[...stroke].reverse();
+    const [topX,topY]=stem[0], [bottomX,bottomY]=stem.at(-1);
+    if(bottomY-topY<height*.64||Math.abs(bottomX-topX)>height*.27)return false;
+    if(stem.some(([x,y])=>Math.abs(x-topX-(bottomX-topX)*(y-topY)/(bottomY-topY))>height*.10))return false;
+
+    const path=arm[0][1]<=arm.at(-1)[1]?arm:[...arm].reverse();
+    const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+    const rise=endY-startY;
+    if(rise<height*.23||endY<topY+height*.18||endY>bottomY-height*.18)return false;
+    const stemX=topX+(bottomX-topX)*(endY-topY)/(bottomY-topY);
+    if(endX<stemX-height*.12||endX>stemX+height*.44||startX>stemX+height*.12)return false;
+
+    return path.some(([x,y],i)=>{
+      if(i===0||i===path.length-1||endX-x<height*.25||x>stemX-height*.24
+        ||y-startY<rise*.82||Math.abs(y-endY)>height*.11||x>startX+height*.06)return false;
+      const down=path.slice(0,i);
+      const across=path.slice(i+1);
+      return down.every(([px,py])=>px<=Math.max(startX,x)+height*.12&&py<=y+height*.10)
+        &&across.every(([px,py])=>px>=x-height*.05&&px<=endX+height*.10&&Math.abs(py-y)<=height*.11);
+    });
+  });
+}
+
 // Un pied peut être légèrement détaché, mais reste centré sous une hampe.
 export function isFootedOne(paths){
   if(paths.length!==2)return false;
@@ -140,6 +169,7 @@ function classify(paths){
   if(w>20&&h<Math.max(8,w*.22))return {digit:"-",score:0,margin:1};
   const barred=hasSevenBar(paths,b);
   if(barred&&hasUprightSeven(paths,b))return {digit:"7",score:0,margin:1};
+  if(hasOpenFour(paths,b))return {digit:"4",score:0,margin:1};
   const p=sample(paths);
   if(!p.length)return null;
   const scores=TEMPLATES.map(([digit,variants])=>({

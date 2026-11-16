@@ -180,3 +180,66 @@ test("Lire les fractions dont le 8 manuscrit a des boucles serrées ou commence 
     }
   }
 });
+
+test("Mesurer les quatre sur des symboles CROHME hors dépôt", {timeout:120_000}, async()=>{
+  const {execFileSync}=await import("node:child_process");
+  const {mkdtempSync,readFileSync,rmSync}=await import("node:fs");
+  const {tmpdir}=await import("node:os");
+  const {join}=await import("node:path");
+  const dir=mkdtempSync(join(tmpdir(),"daeu-ink-"));
+  try{
+    const zip=join(dir,"task.zip");
+    execFileSync("curl",["-fsSL","--retry","1","--max-time","65","https://www.cs.rit.edu/~crohme2019/downloads/Task1_and_Task2.zip","-o",zip]);
+    execFileSync("python3",["-c",`from pathlib import Path
+from zipfile import ZipFile
+import sys
+folder = Path(sys.argv[1])
+with ZipFile(folder / 'task.zip') as archive:
+  for name in ('Train', 'valid'):
+    path = next(p for p in archive.namelist() if p.endswith('/Task1_onlineRec/MainTask_formula/' + name + '.zip'))
+    (folder / (name + '.zip')).write_bytes(archive.read(path))
+`,dir]);
+    const {PAPER_WIDTH,MAX_PAGE_STROKES,parseStroke}=await import("./workbook.mjs");
+    const source=readFileSync(new URL("./numeric-ink.mjs",import.meta.url),"utf8")
+      .replace(/^import .*?;\n/m,"").replace(/^export /gm,"");
+    const load=code=>new Function("MAX_PAGE_STROKES","parseStroke",code+"\nreturn {recognizeNumericInk,recognizeStackedFractionInk,hasOpenFour};")(MAX_PAGE_STROKES,parseStroke);
+    function pageOf(paths,height){
+      const points=paths.flat(), xs=points.map(p=>p[0]), ys=points.map(p=>p[1]);
+      const left=Math.min(...xs), top=Math.min(...ys);
+      const scale=Math.min((PAPER_WIDTH-40)/(Math.max(...xs)-left||1),height/(Math.max(...ys)-top||1));
+      return paths.map(path=>{
+        const count=Math.min(path.length,180);
+        return encodeStroke(Array.from({length:count},(_,i)=>{
+          const [x,y]=path[Math.round(i*(path.length-1)/Math.max(1,count-1))];
+          return [20+(x-left)*scale,20+(y-top)*scale];
+        }));
+      });
+    }
+    const before=load(source.replace("  if(hasOpenFour(paths,b))return {digit:\"4\",score:0,margin:1};\n",""));
+    const candidate=load(source);
+    const splits=[
+      ["Train.zip","Train_2014"],["Train.zip","TestINKMLGT_2013"],["valid.zip","TestEM2014GT_INKMLs"]
+    ];
+    for(const [archive,split] of splits){
+      const rows=JSON.parse(execFileSync("python3",["scripts/export-crohme-ink.py",join(dir,archive),"--split",split,"--symbols"],{maxBuffer:80_000_000}));
+      for(const height of split==="Train_2014"?[70]:[25,70]){
+        const counts={};
+        const examples=[];
+        for(const {id,expected,paths} of rows){
+          const page=pageOf(paths,height), old=before.recognizeNumericInk(page).text??"_", next=candidate.recognizeNumericInk(page).text??"_";
+          if(old!==next||expected==="4"&&old==="9"){
+            const key=expected+" "+old+" "+next;
+            counts[key]=(counts[key]??0)+1;
+            if(expected==="4"&&old==="9"&&next==="9"&&examples.length<12){
+              const points=page.map(parseStroke).map(p=>p.filter((_,i)=>i===0||i===p.length-1||i%Math.ceil(p.length/10)===0));
+              examples.push([id,points]);
+            }
+          }
+        }
+        console.log("DAEU96BENCH",JSON.stringify({split,height,total:rows.length,counts}));
+        if(height===70&&split==="Train_2014")console.log("DAEU96SAMPLES",JSON.stringify(examples));
+      }
+    }
+    console.log("DAEU96BENCH DONE");
+  }finally{rmSync(dir,{recursive:true,force:true});}
+});
