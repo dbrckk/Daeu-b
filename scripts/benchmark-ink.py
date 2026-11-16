@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 NS = {"i": "http://www.w3.org/2003/InkML"}
 SIMPLE = re.compile(r"[0-9x+*/().=\-]+")
 DIGIT = re.compile(r"[0-9]")
+COMPARISON = re.compile(r"(?:[0-9a-zA-Z+*/().=\-^{}_ ,]|\\(?:frac|cdot|prime|sqrt))+")
 NODE = """
 import {readFileSync} from 'node:fs';
 import {recognizeNumericInk} from './app/numeric-ink.mjs';
@@ -40,7 +41,7 @@ console.log(JSON.stringify(outputs));
 """
 
 
-def load_samples(archive):
+def load_samples(archive, comparison=False):
     samples = []
     totals = Counter()
     with tarfile.open(archive, "r:gz") as inks:
@@ -56,7 +57,11 @@ def load_samples(archive):
             label = root.findtext("i:annotation[@type='normalizedLabel']", namespaces=NS)
             label = label or root.findtext("i:annotation[@type='label']", namespaces=NS)
             text = re.sub(r"\s+", "", label or "")
-            if split == "test":
+            if comparison:
+                if (split != "test" or len(text) > 55 or not COMPARISON.fullmatch(text)
+                        or not ("=" in text or r"\frac" in text)):
+                    continue
+            elif split == "test":
                 text = text.replace(r"\cdot", "*").replace(r"\times", "*")
                 if not SIMPLE.fullmatch(text) or text.count("=") != 1 or not all(text.split("=")):
                     continue
@@ -67,8 +72,12 @@ def load_samples(archive):
                 for trace in root.findall("i:trace", NS) if trace.text
             ]
             if paths and all(paths):
-                samples.append({"id": path.stem, "suite": "digits" if split == "symbols" else "equations",
-                                "expected": text, "paths": paths})
+                sample = {"id": path.stem, "expected": text, "paths": paths}
+                if comparison:
+                    sample["group"] = "fraction" if r"\frac" in text else "equation"
+                else:
+                    sample["suite"] = "digits" if split == "symbols" else "equations"
+                samples.append(sample)
     return samples, totals
 
 
@@ -76,8 +85,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
     parser.add_argument("--details", action="store_true", help="Print mismatches and abstentions")
+    parser.add_argument("--export-comparison", action="store_true",
+                        help="Output MathWriting test equations and fractions as JSON")
     args = parser.parse_args()
-    samples, totals = load_samples(args.archive)
+    samples, totals = load_samples(args.archive, comparison=args.export_comparison)
+    if args.export_comparison:
+        if not samples:
+            parser.error("No eligible MathWriting equations or fractions")
+        print(json.dumps(samples))
+        return
     if not samples:
         parser.error("No eligible MathWriting test equations or digit symbols")
     result = subprocess.run(["node", "--input-type=module", "-e", NODE], cwd=ROOT,
