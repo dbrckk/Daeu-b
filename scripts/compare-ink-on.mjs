@@ -3,6 +3,8 @@ import {createRequire} from "node:module";
 import {pathToFileURL} from "node:url";
 import {resolve} from "node:path";
 import {encodeStroke,parseStroke,PAPER_WIDTH,PAPER_HEIGHT} from "../app/workbook.mjs";
+import {recognizeStackedFractionInk} from "../app/numeric-ink.mjs";
+import {validateInkTranscript} from "../app/ink-transcript.mjs";
 import {recognizeEquationInk} from "../app/equation-ink.mjs";
 
 const [, , inkOnPath, ...sampleFiles]=process.argv;
@@ -50,14 +52,21 @@ for(const {id,expected,paths,group} of samples){
     }));
   });
   let t=performance.now();
-  const current=recognizeEquationInk(page);
+  const isolatedFraction=group==="crohme-isolated-fraction";
+  const current=isolatedFraction?recognizeStackedFractionInk(page):recognizeEquationInk(page);
   const daeuMs=performance.now()-t;
   t=performance.now();
   const input=preprocessStrokes(page.map(raw=>({lineWidth:3,points:parseStroke(raw).map(([x,y])=>({x,y}))})));
   const predicted=(await engine.recognize(input,vocab,"expression")).latex;
   const inkOnMs=performance.now()-t;
-  const local=current.status==="recognized"?current.text:null;
+  const local=current?.status==="recognized"?current.text:null;
   const outcome=value=>!value?"abstention":normalize(value)===normalize(expected)?"exact":"error";
-  rows.push({id,group,expected,local,predicted,daeuMs,inkOnMs,daeu:outcome(local),inkOn:outcome(predicted)});
+  const candidate=normalize(predicted);
+  // Only simulate this policy on the targeted CROHME suites.
+  const eligible=candidate&&(isolatedFraction?/^\d+\/[1-9]\d*$/.test(candidate)
+    :/^[0-9x+*/().=^\-]+$/.test(candidate)&&validateInkTranscript(candidate));
+  const fallback=group.startsWith("crohme-")?outcome(local??(eligible?candidate:null)):undefined;
+  rows.push({id,group,expected,local,predicted,daeuMs,inkOnMs,
+    daeu:outcome(local),inkOn:outcome(predicted),fallback});
 }
 console.log(JSON.stringify({initializationMs,rows},null,2));

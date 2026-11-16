@@ -50,3 +50,31 @@ git -C /tmp/ink-on checkout 2585994ee11fe2ed98065c555c4aae8ee9096209
 python3 scripts/benchmark-ink.py /tmp/mathwriting-2024-excerpt.tgz --export-comparison >/tmp/daeu-ink-cases.json
 node scripts/compare-ink-on.mjs /tmp/ink-on /tmp/daeu-ink-cases.json audits/ink-cases.json
 ```
+
+## Seconde lecture sur des écritures proches du DAEU B
+
+Le lot cible provient du test annoté [CROHME 2014](https://www.isical.ac.in/~crohme/data2.html). Il contient toutes les égalités et fractions numériques isolées retenues par le filtre décrit dans `scripts/export-crohme-ink.py`. Il s’agit d’écritures humaines sur des expressions proches du programme, collectées hors du DAEU B. Le modèle ink-on a déjà été évalué sur CROHME 2014, ce qui limite la portée de cette comparaison. Le filtre accepte les carrés, mais le lot retenu ne contient aucune égalité avec un carré.
+
+Chaque moteur reçoit les mêmes traits. Une fraction isolée est lue avec le lecteur de fractions posées du DAEU B. La simulation conserve la lecture locale lorsqu’elle existe. Lors d’une abstention, elle propose le résultat ink-on uniquement si la transcription correspond à la forme attendue. Ce contrôle de forme ne vérifie pas l’exactitude de la transcription.
+
+| Lot | DAEU B exact / erreur / abstention | ink-on exact / erreur / abstention | Seconde lecture simulée exact / erreur / abstention | Médiane ink-on |
+| --- | --- | --- | --- | --- |
+| 7 égalités sans fraction posée | 0 / 0 / 7 | 6 / 1 / 0 | 6 / 1 / 0 | 1 201 ms |
+| 6 égalités avec fractions posées | 0 / 0 / 6 | 5 / 1 / 0 | 5 / 0 / 1 | 1 271 ms |
+| 9 fractions isolées | 0 / 2 / 7 | 5 / 4 / 0 | 4 / 3 / 2 | 277 ms |
+| Total | 0 / 2 / 20 | 16 / 6 / 0 | 15 / 4 / 3 | |
+
+Sur les 20 abstentions du lecteur local, la seconde lecture récupère 15 transcriptions exactes et ajoute deux erreurs. Le modèle ajoute notamment un terme à `4x=x+x+x+x` et transforme le dénominateur `38973` en `38897373`. Les deux erreurs du lecteur local restent visibles dans la colonne de simulation, puisque la seconde lecture ne se déclenche qu’après abstention.
+
+La mesure utilise le même environnement WASM/CPU à un thread que le premier essai. Elle ne couvre pas la latence Android. Ces résultats justifient de poursuivre l’essai comme seconde lecture à confirmer, en priorité sur les fractions simples, avant toute intégration publique.
+
+### Reproduire le lot ciblé
+
+Après l’installation locale d’ink-on décrite plus haut :
+
+```sh
+curl -fL https://www.cs.rit.edu/~crohme2019/downloads/Task1_and_Task2.zip -o /tmp/crohme-package.zip
+unzip -p /tmp/crohme-package.zip 'Task1_and_Task2/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid.zip' > /tmp/crohme-formulas.zip
+python3 scripts/export-crohme-ink.py /tmp/crohme-formulas.zip > /tmp/daeu-crohme-cases.json
+node scripts/compare-ink-on.mjs /tmp/ink-on /tmp/daeu-crohme-cases.json
+```
