@@ -4,6 +4,11 @@ on:
     paths:
       - '**/*.md'
       - 'scripts/check_content.py'
+      - 'scripts/compare-ink-on.mjs'
+      - 'scripts/benchmark-ink.py'
+      - 'scripts/export-crohme-ink.py'
+      - 'scripts/benchmark-policy.test.mjs'
+      - 'scripts/benchmark-policy.mjs'
       - 'scripts/verify_app_assets.py'
       - 'scripts/sync_pwa_integrity.py'
       - 'scripts/verify_worked_cases.py'
@@ -57,6 +62,8 @@ jobs:
         run: node scripts/audit-coverage.mjs --check
       - name: Vérifier les cinq examens et le rapport de couverture
         run: node scripts/audit-exams.mjs --check
+      - name: Vérifier les règles de comparaison manuscrite
+        run: node --test scripts/benchmark-policy.test.mjs
       - name: Vérifier syntaxe JS (sans dépendances npm)
         run: |
           node --check scripts/audit-coverage.mjs
