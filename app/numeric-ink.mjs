@@ -7,7 +7,9 @@ import {MAX_PAGE_STROKES,parseStroke} from "./workbook.mjs";
 
 const SHAPES=[
   ["0", [[[49,8],[24,15],[12,35],[12,67],[26,89],[49,97],[72,88],[87,65],[86,37],[70,15],[49,8]]]],
-  ["1", [[[43,21],[57,8],[57,96]]], [[[51,8],[51,96]]]],
+  ["1", [[[43,21],[57,8],[57,96]]], [[[51,8],[51,96]]],
+    [[[31,29],[52,10],[52,94],[22,94]]],
+    [[[32,27],[52,9],[52,92],[79,92]]]],
   ["2", [[[18,26],[30,11],[55,7],[77,17],[83,37],[72,54],[49,73],[20,94],[86,94]]]],
   ["3", [[[19,14],[47,7],[75,14],[83,31],[68,47],[46,51],[71,53],[85,70],[74,89],[48,97],[17,88]]]],
   ["4", [[[65,9],[17,66],[91,66]],[[66,9],[66,97]]], [[[77,10],[20,66],[88,66],[88,95]]]],
@@ -72,8 +74,29 @@ function hasSevenBar(paths,box){
       &&body.minX<bar.maxX&&bar.minX<body.maxX;
   });
 }
+// Un pied peut être légèrement détaché, mais reste centré sous une hampe.
+export function isFootedOne(paths){
+  if(paths.length!==2)return false;
+  return paths.some((path,i)=>{
+    const stem=paths[1-i];
+    const foot=bounds([path]),body=bounds([stem]);
+    const height=body.maxY-body.minY,width=foot.maxX-foot.minX;
+    const gap=(foot.minY+foot.maxY)/2-body.maxY;
+    const x=stem[0][1]>stem.at(-1)[1]?stem[0][0]:stem.at(-1)[0];
+    return height>=24&&body.maxX-body.minX<=height*.34
+      &&width>=height*.30&&width<=height*.86
+      &&foot.maxY-foot.minY<=width*.16
+      &&gap>=-height*.06&&gap<=height*.15
+      &&x>=foot.minX+width*.15&&x<=foot.maxX-width*.15
+      &&stem.every(([px,py])=>py<body.minY+height*.32||Math.abs(px-x)<=height*.12)
+      &&Math.abs(stem[0][1]-stem.at(-1)[1])>=height*.90
+      &&Math.abs(path[0][0]-path.at(-1)[0])>=width*.90;
+  });
+}
+
 function classify(paths){
   if(!paths.length||paths.length>3)return null;
+  if(isFootedOne(paths))return {digit:"1",score:0,margin:1};
   const b=bounds(paths),w=b.maxX-b.minX,h=b.maxY-b.minY;
   if(Math.max(w,h)<15)return {digit:".",score:0,margin:1};
   if(w>20&&h<Math.max(8,w*.22))return {digit:"-",score:0,margin:1};
@@ -90,8 +113,9 @@ function splitGlyphs(strokes){
   const groups=[];
   for(const item of sorted){
     const last=groups.at(-1);
-    if(last&&item.box.minX<=last.box.maxX+Math.min(5,(last.box.maxX-last.box.minX)*.1)
-      &&item.box.maxY>=last.box.minY&&item.box.minY<=last.box.maxY){
+    if(last&&((item.box.minX<=last.box.maxX+Math.min(5,(last.box.maxX-last.box.minX)*.1)
+      &&item.box.maxY>=last.box.minY&&item.box.minY<=last.box.maxY)
+      ||(last.paths.length===1&&isFootedOne([last.paths[0],item.paths[0]])))){
       last.paths.push(...item.paths);last.box=bounds(last.paths);
     }else groups.push(item);
   }

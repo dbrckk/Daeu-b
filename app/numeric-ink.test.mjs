@@ -117,3 +117,17 @@ test("Lire les 7 barrés même lorsque l’ordre ou le sens des traits change",(
   assert.notEqual(recognizeNumericInk(crossedSlash).text,"7");
   assert.equal(recognizeNumericInk(ink("4")).text,"4");
 });
+
+test("Lire le 1 avec un pied joint ou détaché sans le transformer en nombre négatif",()=>{
+  for(const one of [
+    ["195,35;195,106","180,113;216,113"],
+    ["216,113;180,113","195,106;195,35"],
+    ["182,52;200,36;200,106;176,106"],
+    ["182,52;200,36;200,106;223,106"]
+  ]){
+    assert.equal(recognizeNumericInk(one).text,"1");
+    assert.equal(recognizeNumericInk([...one,"260,39;260,101"]).text,"11");
+  }
+  assert.equal(recognizeNumericInk(ink("-1")).text,"-1");
+  assert.notEqual(recognizeNumericInk(["195,35;195,106","145,116;245,116"]).text,"1");
+});
