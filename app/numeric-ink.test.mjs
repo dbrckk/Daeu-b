@@ -101,3 +101,19 @@ test("Lire une fraction posée sous les calculs sans dépendre de l’ordre des 
   assert.equal(recognizeStackedFractionInk([...numerator,bar,encodeStroke([[45,140],[115,140]]),...denominator]),null);
   assert.equal(recognizeStackedFractionInk([...numerator,bar,encodeStroke([[300,160],[300,230]])]),null);
 });
+
+
+test("Lire les 7 barrés même lorsque l’ordre ou le sens des traits change",()=>{
+  const examples=[
+    ["170,35;220,35;186,108","181,72;210,72"],
+    ["169,37;180,34;187,36;218,38;209,54;201,68;194,84;187,102","177,70;193,69;211,66"],
+    ["211,72;181,72","186,108;220,35;170,35"]
+  ];
+  for(const seven of examples){
+    assert.equal(recognizeNumericInk(seven).text,"7");
+    assert.equal(recognizeNumericInk([...seven,"260,39;260,101"]).text,"71");
+  }
+  const crossedSlash=["220,35;186,108","181,72;210,72"];
+  assert.notEqual(recognizeNumericInk(crossedSlash).text,"7");
+  assert.equal(recognizeNumericInk(ink("4")).text,"4");
+});
