@@ -41,6 +41,31 @@ export function insertTemplate(value,template,start,end){
 const MAX_TEXT=6000;
 const MAX_POINTS=300;
 const PAPER_GRID=25;
+function onPaperButtonActivation(button,activate,paperOnly){
+  let touchPointer=null,touchHandled=false;
+  button.addEventListener("click",event=>{
+    if(event.detail>0&&touchHandled)return;
+    activate();
+  });
+  if(!paperOnly)return;
+  // Chromium peut supprimer le clic après un tracé ou un défilement tactile.
+  button.addEventListener("pointerdown",event=>{
+    touchHandled=false;
+    touchPointer=event.pointerType==="touch"&&event.isPrimary?event.pointerId:null;
+  });
+  button.addEventListener("pointercancel",()=>{touchPointer=null;});
+  button.addEventListener("pointerup",event=>{
+    if(event.pointerId!==touchPointer)return;
+    touchPointer=null;
+    touchHandled=true;
+    if(!button.disabled&&button.contains(document.elementFromPoint(event.clientX,event.clientY)))activate();
+  });
+  // La lecture déplace la feuille. Bloquer le clic tactile de compatibilité
+  // avant qu’il soit envoyé à une autre commande sous le doigt.
+  button.addEventListener("touchend",event=>{
+    if(touchHandled)event.preventDefault();
+  },{passive:false});
+}
 export function notebookKey(context){
   if(typeof context!=="string"||!/^[-\w:.]{1,120}$/.test(context))
     throw new Error("Identifiant de brouillon invalide");
@@ -631,23 +656,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       recognitionStatus.textContent="Résultat reconnu et corrigé avec le moteur des exercices. Progression enregistrée.";
     }catch(error){recognitionStatus.textContent="Correction impossible : "+error.message;}
   }
-  acceptReading.addEventListener("click",confirmReading);
-  if(paperOnly){
-    // Un relâchement tactile peut arriver sans click dans le conteneur
-    // défilant. Le geste doit commencer et finir sur le même bouton.
-    let confirmPointer=null;
-    acceptReading.addEventListener("pointerdown",event=>{
-      if(event.pointerType==="touch"&&event.isPrimary)confirmPointer=event.pointerId;
-    });
-    acceptReading.addEventListener("pointercancel",()=>{confirmPointer=null;});
-    acceptReading.addEventListener("pointerup",event=>{
-      if(event.pointerId!==confirmPointer)return;
-      confirmPointer=null;
-      if(!acceptReading.contains(document.elementFromPoint(event.clientX,event.clientY)))return;
-      event.preventDefault();
-      confirmReading();
-    });
-  }
+  onPaperButtonActivation(acceptReading,confirmReading,paperOnly);
   rejectReading.addEventListener("click",()=>{
     invalidateRecognition();
     const message="Lecture rejetée. Réécris le résultat sur une ligne séparée ou compare ta copie au corrigé.";
@@ -982,8 +991,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         ?"Le numéro du choix n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé."
         :"Le résultat n’a pas été reconnu. Réécris-le sur une ligne séparée ou ouvre le corrigé.");
     };
-    quickValidate.addEventListener("click",()=>validatePage(work.pages.findLastIndex(page=>page.length>0)));
-    validateCurrentPage.addEventListener("click",()=>validatePage(pageIndex));
+    onPaperButtonActivation(quickValidate,()=>validatePage(work.pages.findLastIndex(page=>page.length>0)),paperOnly);
+    onPaperButtonActivation(validateCurrentPage,()=>validatePage(pageIndex),paperOnly);
     decisions.append(success,failure);
     comparison.append(answerTitle,answer,explanationTitle,detail,compareInstruction,decisions);
     manual.append(manualTitle,manualIntro,retry,reveal,manualStatus,comparison);

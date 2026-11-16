@@ -1,5 +1,12 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v94 — lire et valider les fractions sur la feuille (16 novembre 2026)
+
+- Le lecteur local reconnaît davantage de formes manuscrites des chiffres 3, 8 et 9, notamment les 8 à boucles serrées dans une fraction posée. La note n’est enregistrée qu’après confirmation de la lecture.
+- Les boutons de lecture et de confirmation de la feuille répondent au relâchement du doigt lorsque Chromium ne génère pas de clic. Un relâchement en dehors du bouton n’active pas la commande. La souris et le clavier restent utilisables.
+- En Chromium mobile à 320 px, l’exercice de probabilités `p03` a accepté `3/8` écrit au doigt hors ligne. Après fermeture et réouverture de l’onglet, les trois traits, le score et l’unique tentative ont été retrouvés.
+- [Mesure sur 22 écritures CROHME](audits/reconnaissance-manuscrite.md#lecteur-local-v94) · 3 lectures exactes, 0 erreur et 19 abstentions. La mesure sur Android physique reste à faire.
+
 ## v93 — terminer le diagnostic sur la feuille (16 novembre 2026)
 
 - « Je ne sais pas » est accessible en mode feuille. La commande ouvre le corrigé et enregistre une réponse à retravailler. Le tracé et le score sont préservés.
