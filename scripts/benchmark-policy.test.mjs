@@ -4,6 +4,8 @@ import {normalizeInk,inkOutcome,eligibleInkFallback} from "./benchmark-policy.mj
 
 test("notations LaTeX courantes comparées sans équivalence algébrique",()=>{
   assert.equal(normalizeInk(String.raw`\frac{3}{4}`),"3/4");
+  assert.equal(normalizeInk(String.raw`\dfrac{3}{4}`),"3/4");
+  assert.equal(normalizeInk(String.raw`\tfrac{3}{4}`),"3/4");
   assert.equal(normalizeInk(String.raw`x ^{2} = 4`),"x^2=4");
   assert.equal(inkOutcome(String.raw`\frac{3}{4}`,"3/4"),"exact");
   assert.equal(inkOutcome("x+x","2x"),"error");
