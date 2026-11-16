@@ -5,7 +5,7 @@ export function normalizeInk(value){
   return value?.replace(/\s/g,"").replace(/\\(?:left|right)/g,"")
     .replace(/\\(?:cdot|times)/g,"*").replace(/\^\{([0-9])\}/g,"^$1")
     .replace(/_\{([a-zA-Z0-9])\}/g,"_$1")
-    .replace(/\\frac\{([0-9]+)\}\{([0-9]+)\}/g,"$1/$2")??null;
+    .replace(/\\(?:dfrac|tfrac|frac)\{([0-9]+)\}\{([0-9]+)\}/g,"$1/$2")??null;
 }
 export function inkOutcome(value,expected){
   return !value?"abstention":normalizeInk(value)===normalizeInk(expected)?"exact":"error";
