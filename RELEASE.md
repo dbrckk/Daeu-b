@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v95 — lire les égalités manuscrites compactes (16 novembre 2026)
+
+- La feuille lit les signes `=` courts, légèrement inclinés ou terminés par un petit retour du stylo. Un `+` incliné et un `2` au pied arrondi sont également pris en compte. Les chiffres d’une fraction peuvent être très proches de la barre tant que les traits restent distincts.
+- Le scénario Chromium mobile trace `x = 1/8` avec un `=` irrégulier sur la feuille et vérifie que l’application propose `1/8` avant toute notation. La fraction `3/8` est toujours corrigée et restaurée hors connexion après confirmation.
+- Sur le [lot indépendant de 38 tracés CROHME 2019](audits/reconnaissance-manuscrite.md#lecteur-local-v95), une fraction est désormais lue correctement et 37 tracés restent sans proposition. Les essais avec un téléphone Android physique restent à faire.
+
 ## v94 — lire et valider les fractions sur la feuille (16 novembre 2026)
 
 - Le lecteur local reconnaît davantage de formes manuscrites des chiffres 3, 8 et 9, notamment les 8 à boucles serrées dans une fraction posée. La note n’est enregistrée qu’après confirmation de la lecture.

@@ -11,6 +11,7 @@ const SHAPES=[
     [[[31,29],[52,10],[52,94],[22,94]]],
     [[[32,27],[52,9],[52,92],[79,92]]]],
   ["2", [[[18,26],[30,11],[55,7],[77,17],[83,37],[72,54],[49,73],[20,94],[86,94]]],
+    [[[30,15],[59,10],[80,12],[83,38],[74,51],[43,62],[17,78],[22,91],[47,97],[76,96],[93,87]]],
     [[[19,34],[23,16],[43,6],[60,15],[65,37],[53,62],[30,85],[16,94],
       [10,83],[22,76],[44,84],[70,94]]]],
   ["3", [[[19,14],[47,7],[75,14],[83,31],[68,47],[46,51],[71,53],[85,70],[74,89],[48,97],[17,88]]],
@@ -199,7 +200,7 @@ export function recognizeStackedFractionInk(page){
       const left=Math.min(...row.map(({box})=>box.minX));
       const right=Math.max(...row.map(({box})=>box.maxX));
       const height=Math.max(...row.map(({box})=>box.maxY))-Math.min(...row.map(({box})=>box.minY));
-      return height>=18&&gap>=2&&gap<=Math.max(20,height*.65)
+      return height>=18&&gap>=1&&gap<=Math.max(20,height*.65)
         &&left>=minX-horizontalTolerance&&right<=maxX+horizontalTolerance
         &&Math.abs((left+right)/2-midX)<=Math.max(10,width*.28);
     };

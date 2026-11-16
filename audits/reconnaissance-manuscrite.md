@@ -90,3 +90,29 @@ Le même lot CROHME a été rejoué sur les versions v93 et v94. Les trois trans
 | 24 expressions de l’extrait MathWriting | 0 / 0 / 24 | 0 / 0 / 24 |
 
 Les 22 tracés CROHME avaient servi à orienter la correction. Ces résultats décrivent les cas rejoués. Une mesure sur des tracés indépendants reste nécessaire pour estimer le gain sur d’autres écritures.
+
+## Lecteur local v95
+
+L’analyse des groupes de traits annotés a montré que des barres courtes ou irrégulières du signe `=` empêchaient la transcription, notamment pour `200−200=0`. Le lecteur tolère une légère inclinaison et un petit retour du stylo lorsque les deux barres restent séparées et se superposent horizontalement. Pour les fractions, l’écart minimal à la barre passe de deux à une unité sur la feuille de 900 × 1 200. Les traits qui touchent la barre restent exclus par ce lecteur.
+
+| Lot | v94 exact / erreur / abstention | v95 exact / erreur / abstention |
+| --- | --- | --- |
+| CROHME 2019, 38 tracés indépendants du réglage | 0 / 0 / 38 | 1 / 0 / 37 |
+| CROHME 2012 et 2013, 22 tracés retenus | 0 / 1 / 21 | 0 / 1 / 21 |
+| CROHME 2014, 22 tracés du lot v94 | 3 / 0 / 19 | 3 / 0 / 19 |
+| `Train_2014`, 122 tracés du lot de mise au point | 1 / 0 / 121 | 6 / 0 / 116 |
+| MathWriting, 24 tracés de l’extrait déjà mesuré | 0 / 0 / 24 | 0 / 0 / 24 |
+
+La nouvelle lecture exacte du lot 2019 est `777/400`. Elle était bloquée par l’écart d’une unité entre le numérateur et la barre. Aucune des 15 égalités de ce lot n’a été transcrite entièrement. Sur les éditions 2012 et 2013, l’erreur `7/5` lu `4/5` reste à traiter. Ces échantillons ne représentent pas la variété de l’écriture d’un utilisateur sur Android.
+
+### Rejouer la mesure sans modèle externe
+
+Extraire `Task1_onlineRec.zip` de l’archive de test CROHME 2019 et récupérer le fichier `CROHME2019st.json`. Les références sont associées aux tracés par nom de fichier. Le filtre retient les fractions entières posées et les égalités compatibles avec son alphabet, jusqu’à 45 caractères de notation normalisée pour ce lot. Le comparateur ramène chaque expression à 70 unités de haut au maximum, en préservant les proportions. Les tracés et labels restent hors du dépôt. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Références CROHME 2019](https://zenodo.org/records/17122781)
+
+```sh
+python3 scripts/export-crohme-ink.py /tmp/Task1_onlineRec.zip --split TestSet2019 \
+  --labels /tmp/CROHME2019st.json > /tmp/daeu-crohme-2019.json
+node scripts/compare-ink-on.mjs --local /tmp/daeu-crohme-2019.json
+```
+
+Pour le lot de mise au point et les éditions 2012 et 2013, utiliser le fichier `Train.zip` du dossier `Task1_onlineRec/MainTask_formula` et les valeurs `Train_2014`, `TestINKMLGT_2012` et `TestINKMLGT_2013` pour `--split`. Pour mesurer la v94 avec les mêmes paramètres, exécuter le comparateur v95 dans une copie de travail de la v94.

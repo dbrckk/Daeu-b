@@ -7,32 +7,38 @@ import {recognizeStackedFractionInk} from "../app/numeric-ink.mjs";
 import {normalizeInk,inkOutcome,eligibleInkFallback} from "./benchmark-policy.mjs";
 import {recognizeEquationInk} from "../app/equation-ink.mjs";
 
-const [, , inkOnPath, ...sampleFiles]=process.argv;
-if(!inkOnPath||sampleFiles.length===0){
-  console.error("Usage: node scripts/compare-ink-on.mjs <ink-on checkout> <samples.json> [...]");
+const [, , reader, ...sampleFiles]=process.argv;
+if(!reader||sampleFiles.length===0){
+  console.error("Usage: node scripts/compare-ink-on.mjs <ink-on checkout|--local> <samples.json> [...]");
   process.exit(2);
 }
-const inkOn=pathToFileURL(resolve(inkOnPath)+"/");
-const dependencies=createRequire(new URL("package.json",inkOn));
-const {createCanvas}=dependencies("@napi-rs/canvas");
-const {env}=await import(new URL("node_modules/onnxruntime-web/dist/ort.node.min.mjs",inkOn));
-const {InferenceEngine, preprocessStrokes}=await import(new URL("dist-lib/core.js",inkOn));
-
-
-globalThis.document={createElement:()=>createCanvas(1,1)};
-globalThis.fetch=async url=>new Response(await readFile(new URL(url)));
-env.wasm.numThreads=1;
-const model=new URL("public/models/comer/",inkOn);
-const engine=new InferenceEngine({
-  encoderUrl:new URL("encoder_int8.onnx",model).href,
-  decoderUrl:new URL("decoder_int8.onnx",model).href
-});
-const vocab=JSON.parse(await readFile(new URL("vocab.json",model),"utf8"));
 const samples=(await Promise.all(sampleFiles.map(async file=>JSON.parse(await readFile(file,"utf8"))))).flat();
 if(!samples.length)throw Error("No samples");
-const start=performance.now();
-await engine.init();
-const initializationMs=performance.now()-start;
+
+async function loadInkOn(checkout){
+  const inkOn=pathToFileURL(resolve(checkout)+"/");
+  const dependencies=createRequire(new URL("package.json",inkOn));
+  const {createCanvas}=dependencies("@napi-rs/canvas");
+  const {env}=await import(new URL("node_modules/onnxruntime-web/dist/ort.node.min.mjs",inkOn));
+  const {InferenceEngine,preprocessStrokes}=await import(new URL("dist-lib/core.js",inkOn));
+  globalThis.document={createElement:()=>createCanvas(1,1)};
+  globalThis.fetch=async url=>new Response(await readFile(new URL(url)));
+  env.wasm.numThreads=1;
+  const model=new URL("public/models/comer/",inkOn);
+  const engine=new InferenceEngine({
+    encoderUrl:new URL("encoder_int8.onnx",model).href,
+    decoderUrl:new URL("decoder_int8.onnx",model).href
+  });
+  const vocab=JSON.parse(await readFile(new URL("vocab.json",model),"utf8"));
+  const start=performance.now();
+  await engine.init();
+  return {initializationMs:performance.now()-start,async predict(page){
+    const input=preprocessStrokes(page.map(raw=>({lineWidth:3,points:parseStroke(raw).map(([x,y])=>({x,y}))})));
+    return (await engine.recognize(input,vocab,"expression")).latex;
+  }};
+}
+
+const model=reader==="--local"?null:await loadInkOn(reader);
 const rows=[];
 for(const {id,expected,paths,group} of samples){
   const points=paths.flat();
@@ -51,15 +57,17 @@ for(const {id,expected,paths,group} of samples){
   const isolatedFraction=group==="crohme-isolated-fraction";
   const current=isolatedFraction?recognizeStackedFractionInk(page):recognizeEquationInk(page);
   const daeuMs=performance.now()-t;
-  t=performance.now();
-  const input=preprocessStrokes(page.map(raw=>({lineWidth:3,points:parseStroke(raw).map(([x,y])=>({x,y}))})));
-  const predicted=(await engine.recognize(input,vocab,"expression")).latex;
-  const inkOnMs=performance.now()-t;
   const local=current?.status==="recognized"?current.text:null;
   const outcome=value=>inkOutcome(value,expected);
-  const eligible=eligibleInkFallback(predicted,group);
-  const fallback=group.startsWith("crohme-")?outcome(local??(eligible?normalizeInk(predicted):null)):undefined;
-  rows.push({id,group,expected,local,predicted,daeuMs,inkOnMs,
-    daeu:outcome(local),inkOn:outcome(predicted),fallback});
+  const row={id,group,expected,local,daeuMs,daeu:outcome(local)};
+  if(model){
+    t=performance.now();
+    const predicted=await model.predict(page);
+    const inkOnMs=performance.now()-t;
+    const eligible=eligibleInkFallback(predicted,group);
+    const fallback=group.startsWith("crohme-")?outcome(local??(eligible?normalizeInk(predicted):null)):undefined;
+    Object.assign(row,{predicted,inkOnMs,inkOn:outcome(predicted),fallback});
+  }
+  rows.push(row);
 }
-console.log(JSON.stringify({initializationMs,rows},null,2));
+console.log(JSON.stringify({initializationMs:model?.initializationMs,rows},null,2));

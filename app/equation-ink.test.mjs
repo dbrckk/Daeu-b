@@ -57,6 +57,15 @@ test("Lire les opérations et les égalités de chiffres sur des lignes distinct
   assert.equal(result.text,"3+4=7\n6-2=4");
   assert.equal(checkMathSteps(result.text).errors,0);
 });
+test("Lire un égal court et un plus incliné dans une même équation",()=>{
+  const paths=ink(["x+1=4"]);
+  paths.splice(2,2,encodeStroke([[120,67],[145,67],[161,69]]),encodeStroke([[146,42],[142,61],[137,92]]));
+  paths.splice(5,2,encodeStroke([[257,59],[267,57],[270,57],[267,57]]),encodeStroke([[270,70],[263,69],[256,68]]));
+  assert.equal(recognizeEquationInk(paths).text,"x+1=4");
+  const separated=paths.slice();
+  separated[6]=encodeStroke([[271,90],[263,90],[258,89]]);
+  assert.notEqual(recognizeEquationInk(separated).status,"recognized");
+});
 test("Ne jamais inventer une correction à partir de traits invalides",()=>{
   assert.equal(recognizeEquationInk([]).status,"empty");
   assert.equal(recognizeEquationInk(["<svg>"]).status,"unsupported");

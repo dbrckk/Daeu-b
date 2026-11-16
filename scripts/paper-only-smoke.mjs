@@ -84,7 +84,8 @@ try{
 
   const touch=await context.newCDPSession(page);
   const fractionStrokes=[
-    [[20,241],[58,293]],[[58,241],[20,293]],[[74,258],[104,258]],[[74,276],[104,276]],
+    [[20,241],[58,293]],[[58,241],[20,293]],
+    [[74,258],[98,256],[106,257],[100,257]],[[76,276],[100,277],[104,277]],
     [[170,180],[170,245]],[[120,267],[220,267]],tightEight
   ];
   await traceFraction(touch,page.locator("#quizNotebook canvas"),fractionStrokes);
@@ -95,7 +96,7 @@ try{
   assert.equal((await snapshot()).round.completed,0);
   const undoFraction=page.getByRole("button",{name:"Annuler le dernier trait"});
   for(const _ of fractionStrokes)await undoFraction.click();
-  console.log("OK Dernière égalité avec fraction posée lue sur la feuille, confirmation obligatoire");
+  console.log("OK Dernière égalité avec signe = irrégulier et fraction posée, confirmation obligatoire");
 
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
