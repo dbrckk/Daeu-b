@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import {normalizeInk,inkOutcome,eligibleInkFallback} from "./benchmark-policy.mjs";
 
 test("notations LaTeX courantes comparées sans équivalence algébrique",()=>{
-  assert.equal(normalizeInk(String.raw`\\frac{3}{4}`),"3/4");
+  assert.equal(normalizeInk(String.raw`\frac{3}{4}`),"3/4");
   assert.equal(normalizeInk(String.raw`x ^{2} = 4`),"x^2=4");
-  assert.equal(inkOutcome(String.raw`\\frac{3}{4}`,"3/4"),"exact");
+  assert.equal(inkOutcome(String.raw`\frac{3}{4}`,"3/4"),"exact");
   assert.equal(inkOutcome("x+x","2x"),"error");
   assert.equal(inkOutcome(null,"2"),"abstention");
 });
 test("fractions isolées : rejeter zéro, caractères étrangers et chiffres ajoutés non vérifiables",()=>{
-  assert.equal(eligibleInkFallback(String.raw`\\frac{3}{4}`,"crohme-isolated-fraction"),true);
+  assert.equal(eligibleInkFallback(String.raw`\frac{3}{4}`,"crohme-isolated-fraction"),true);
   assert.equal(eligibleInkFallback("3/0","crohme-isolated-fraction"),false);
   assert.equal(eligibleInkFallback("3/4+1","crohme-isolated-fraction"),false);
   assert.equal(eligibleInkFallback("3/4","synthetic"),false);
