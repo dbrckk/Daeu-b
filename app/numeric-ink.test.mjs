@@ -216,29 +216,34 @@ with ZipFile(folder / 'task.zip') as archive:
       });
     }
     const before=load(source.replace("  if(hasOpenFour(paths,b))return {digit:\"4\",score:0,margin:1};\n",""));
-    const candidate=load(source);
+    const gates=[
+      ["initial",source],
+      ...[0.08,0.12,0.16,0.20,0.24].map(gap=>["left "+gap,source.replace("startX>stemX+height*.12","startX>stemX-height*"+gap)]),
+      ...[0.08,0.12,0.16,0.20,0.24].map(gap=>["top "+gap,source.replace("rise<height*.23","startY>box.minY+height*"+gap+"||rise<height*.23")]),
+      ["left or rise",source.replace("startX>stemX+height*.12","startX>stemX-height*.12&&rise<height*.46")]
+    ].map(([name,code])=>[name,load(code)]);
     const splits=[
       ["Train.zip","Train_2014"],["Train.zip","TestINKMLGT_2013"],["valid.zip","TestEM2014GT_INKMLs"]
     ];
     for(const [archive,split] of splits){
       const rows=JSON.parse(execFileSync("python3",["scripts/export-crohme-ink.py",join(dir,archive),"--split",split,"--symbols"],{maxBuffer:80_000_000}));
-      for(const height of split==="Train_2014"?[70]:[25,70]){
-        const counts={};
-        const examples=[];
-        for(const {id,expected,paths} of rows){
-          const page=pageOf(paths,height), old=before.recognizeNumericInk(page).text??"_", next=candidate.recognizeNumericInk(page).text??"_";
-          if(old!==next||expected==="4"&&old==="9"){
-            const key=expected+" "+old+" "+next;
-            counts[key]=(counts[key]??0)+1;
-            if(expected==="4"&&old==="9"&&next==="9"&&examples.length<12){
-              const points=page.map(parseStroke).map(p=>p.filter((_,i)=>i===0||i===p.length-1||i%Math.ceil(p.length/10)===0));
-              examples.push([id,points]);
-            }
+      const stats=Object.fromEntries(gates.map(([name])=>[name,{}]));
+      const nines=[];
+      for(const {id,expected,paths} of rows){
+        const page=pageOf(paths,70), previous=before.recognizeNumericInk(page).text??"_";
+        const points=page.map(parseStroke), all=points.flat();
+        const [xs,ys]=[0,1].map(i=>all.map(p=>p[i]));
+        const box={minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};
+        for(const [name,model] of gates){
+          if(!model.hasOpenFour(points,box)||previous==="4")continue;
+          const key=expected+" "+previous;
+          stats[name][key]=(stats[name][key]??0)+1;
+          if(name==="initial"&&expected==="9"){
+            nines.push([id,points.map(p=>p.filter((_,i)=>i===0||i===p.length-1||i%Math.ceil(p.length/12)===0))]);
           }
         }
-        console.log("DAEU96BENCH",JSON.stringify({split,height,total:rows.length,counts}));
-        if(height===70&&split==="Train_2014")console.log("DAEU96SAMPLES",JSON.stringify(examples));
       }
+      console.log("DAEUFOURBENCH",JSON.stringify({split,total:rows.length,stats,nines}));
     }
     console.log("DAEU96BENCH DONE");
   }finally{rmSync(dir,{recursive:true,force:true});}
