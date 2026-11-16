@@ -591,3 +591,16 @@ test("Lire un 1 à pied détaché sans confondre le pied avec une barre de fract
     stem,"145,126;245,126","195,145;195,215"];
   assert.equal(recognizeFinalEquationInk(fraction)?.text,"1/1");
 });
+
+test("Distinguer le 4 ouvert ou triangulaire du 9 arrondi dans une réponse",()=>{
+  const prefix=ink(["x="]);
+  const examples=[
+    ["4",["204,31;168,81;230,81","209,55;207,108"]],
+    ["4",["160,35;160,80;225,80","208,41;208,109"]],
+    ["4",["211,32;167,82;212,82;211,32;212,110"]],
+    ["4",["210,108;210,30;168,80;210,80;210,30"]],
+    ["9",["204,72;191,78;173,74;166,61;171,44;187,36;203,43;211,61;206,87;188,104;172,109"]]
+  ];
+  for(const [digit,paths] of examples)
+    assert.equal(recognizeFinalEquationInk([...prefix,...paths])?.text,digit);
+});

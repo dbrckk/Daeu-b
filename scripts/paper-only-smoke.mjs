@@ -701,7 +701,7 @@ try{
     console.log("OK Six examens conservés après fermeture et récupération IndexedDB hors ligne : "+bulk.size+" caractères");
 
   }finally{await examContext.close();}
-  for(const scenario of ["sept barré","un à pied","retouché","réécrit"]){
+  for(const scenario of ["sept barré","un à pied","quatre fermé","retouché","réécrit"]){
     const ambiguous=scenario==="retouché"||scenario==="réécrit";
     const denseContext=await browser.newContext({
       viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
@@ -748,6 +748,7 @@ try{
           [[178,466],[210,466]],[[194,446],[194,489]],
           [[180,451],[208,481]],[[180,481],[208,451]]
         ].map(encodeStroke));
+        if(scenario==="quatre fermé")strokes.splice(-1,1,encodeStroke([[211,442],[167,492],[212,492],[211,442],[212,520]]));
         if(scenario==="un à pied")strokes.push(encodeStroke([[175,496],[210,496]]));
         if(scenario==="sept barré")strokes.splice(-1,1,...[
           [[170,441],[220,441],[186,514]],[[181,478],[210,478]]
@@ -837,7 +838,7 @@ try{
         const candidate=densePage.locator("#quizNotebook .math-notebook-recognition-candidate");
         assert.ok(await candidate.isVisible());
         assert.equal(await candidate.locator(".math-notebook-recognition-source").textContent(),
-          "Page 2 de ta copie · x="+(scenario==="un à pied"?"1":"7"));
+          "Page 2 de ta copie · x="+({"un à pied":"1","sept barré":"7","quatre fermé":"4"}[scenario]));
         await candidate.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
       }
       await densePage.locator("#feedback").waitFor({state:"visible"});

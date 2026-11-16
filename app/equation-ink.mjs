@@ -101,9 +101,13 @@ function parenthesis(path){
   const ordered=forward?path:[...path].reverse();
   const first=ordered[0],last=ordered.at(-1);
   if(first[1]>b.top+h*.22||last[1]<b.bottom-h*.22)return null;
-  let backwards=0;
-  for(let i=1;i<ordered.length;i++)if(ordered[i][1]<ordered[i-1][1]-h*.06)backwards++;
-  if(backwards>1)return null;
+  // Un arc peut trembler légèrement, mais il ne remonte pas vers son
+  // sommet en cours de tracé comme le triangle fermé d'un 4.
+  let lowest=first[1];
+  for(const [,y] of ordered){
+    if(y<lowest-h*.12)return null;
+    lowest=Math.max(lowest,y);
+  }
   const middle=ordered.filter(p=>p[1]>=b.top+h*.33&&p[1]<=b.bottom-h*.33);
   if(!middle.length)return null;
   const mx=middle.reduce((n,p)=>n+p[0],0)/middle.length;
