@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v96 — distinguer le 7 barré du 4 (16 novembre 2026)
+
+- Le lecteur reconnaît le `7` barré presque vertical grâce à la tête horizontale et à la hampe qui traverse la barre. La détection accepte les deux sens et les deux ordres de tracé. La lecture reste soumise à confirmation.
+- La fraction `7/5`, auparavant lue `4/5`, est correctement proposée sur le tracé CROHME concerné et sur la feuille en Chromium mobile. `4/7` est aussi reconnue sur un tracé qui restait illisible.
+- Le [bilan sur 1 858 symboles annotés](audits/reconnaissance-manuscrite.md#lecteur-local-v96) montre 25 lectures exactes de `7` sur 69, contre 9 auparavant. Les 191 lectures de `4` donnent les mêmes résultats qu’en v95. L’essai sur Android physique reste à faire.
+
 ## v95 — lire les égalités manuscrites compactes (16 novembre 2026)
 
 - La feuille lit les signes `=` courts, légèrement inclinés ou terminés par un petit retour du stylo. Un `+` incliné et un `2` au pied arrondi sont également pris en compte. Les chiffres d’une fraction peuvent être très proches de la barre tant que les traits restent distincts.

@@ -84,6 +84,34 @@ function hasSevenBar(paths,box){
       &&body.minX<bar.maxX&&bar.minX<body.maxX;
   });
 }
+// Un 7 presque vertical peut ressembler à un 4 dans les gabarits.
+// Sa tête part vers la droite au sommet avant que la hampe traverse la barre.
+function hasUprightSeven(paths,box){
+  const height=box.maxY-box.minY;
+  return paths.some((body,index)=>{
+    const bar=bounds([paths[1-index]]);
+    const cross=(bar.minY+bar.maxY)/2;
+    const shape=bounds([body]);
+    if(shape.maxY-shape.minY<height*.9)return false;
+    const path=body[0][1]<=body.at(-1)[1]?body:[...body].reverse();
+    const [startX,startY]=path[0];
+    const [endX,endY]=path.at(-1);
+    if(startY>box.minY+height*.16||endY<box.maxY-height*.12)return false;
+    const shoulder=path.findIndex(([,y])=>y>box.minY+height*.24);
+    if(shoulder<2)return false;
+    const headRight=Math.max(...path.slice(0,shoulder).map(([x])=>x));
+    if(headRight-startX<height*.48||Math.abs(headRight-endX)>height*.26)return false;
+    const stem=path.slice(shoulder);
+    if(stem.some(([x,y])=>Math.abs(x-headRight)>height*.28||y<box.minY+height*.18))return false;
+    const crossing=stem.findIndex(([,y])=>y>=cross);
+    if(crossing<0)return false;
+    const [x1,y1]=crossing?stem[crossing-1]:path[shoulder-1];
+    const [x2,y2]=stem[crossing];
+    const x=x1+(x2-x1)*(cross-y1)/(y2-y1);
+    const inset=(bar.maxX-bar.minX)*.12;
+    return x>=bar.minX+inset&&x<=bar.maxX-inset;
+  });
+}
 // Un pied peut être légèrement détaché, mais reste centré sous une hampe.
 export function isFootedOne(paths){
   if(paths.length!==2)return false;
@@ -110,9 +138,10 @@ function classify(paths){
   const b=bounds(paths),w=b.maxX-b.minX,h=b.maxY-b.minY;
   if(Math.max(w,h)<15)return {digit:".",score:0,margin:1};
   if(w>20&&h<Math.max(8,w*.22))return {digit:"-",score:0,margin:1};
+  const barred=hasSevenBar(paths,b);
+  if(barred&&hasUprightSeven(paths,b))return {digit:"7",score:0,margin:1};
   const p=sample(paths);
   if(!p.length)return null;
-  const barred=hasSevenBar(paths,b);
   const scores=TEMPLATES.map(([digit,variants])=>({
     digit,score:Math.min(...(digit==="7"&&barred?[...variants,...BARRED_SEVEN_TEMPLATES]:variants).map(t=>distance(p,t)))
   })).sort((a,b)=>a.score-b.score);

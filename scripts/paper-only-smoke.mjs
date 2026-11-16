@@ -98,6 +98,20 @@ try{
   for(const _ of fractionStrokes)await undoFraction.click();
   console.log("OK Dernière égalité avec signe = irrégulier et fraction posée, confirmation obligatoire");
 
+  const uprightFraction=[
+    [[128,189],[145,190],[165,186],[186,185],[188,188],[182,211],[182,234],[182,239],[182,236]],
+    [[156,219],[179,221],[205,219],[226,219],[218,219]],
+    [[120,267],[236,269]],
+    [[185,295],[153,295],[151,320],[171,318],[187,325],[191,339],[182,354],[166,359],[150,354]]
+  ];
+  await traceFraction(touch,page.locator("#quizNotebook canvas"),uprightFraction);
+  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+  await fractionCandidate.waitFor({state:"visible"});
+  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 7/5");
+  assert.equal((await snapshot()).round.completed,0);
+  for(const _ of uprightFraction)await undoFraction.click();
+  console.log("OK 7 barré presque vertical lu comme 7/5 au doigt, sans notation préalable");
+
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);

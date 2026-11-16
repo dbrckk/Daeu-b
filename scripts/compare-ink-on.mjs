@@ -3,7 +3,7 @@ import {createRequire} from "node:module";
 import {pathToFileURL} from "node:url";
 import {resolve} from "node:path";
 import {encodeStroke,parseStroke,PAPER_WIDTH,PAPER_HEIGHT} from "../app/workbook.mjs";
-import {recognizeStackedFractionInk} from "../app/numeric-ink.mjs";
+import {recognizeNumericInk,recognizeStackedFractionInk} from "../app/numeric-ink.mjs";
 import {normalizeInk,inkOutcome,eligibleInkFallback} from "./benchmark-policy.mjs";
 import {recognizeEquationInk} from "../app/equation-ink.mjs";
 
@@ -54,8 +54,8 @@ for(const {id,expected,paths,group} of samples){
     }));
   });
   let t=performance.now();
-  const isolatedFraction=group==="crohme-isolated-fraction";
-  const current=isolatedFraction?recognizeStackedFractionInk(page):recognizeEquationInk(page);
+  const current=group==="crohme-symbol"?recognizeNumericInk(page)
+    :group==="crohme-isolated-fraction"?recognizeStackedFractionInk(page):recognizeEquationInk(page);
   const daeuMs=performance.now()-t;
   const local=current?.status==="recognized"?current.text:null;
   const outcome=value=>inkOutcome(value,expected);
@@ -65,7 +65,8 @@ for(const {id,expected,paths,group} of samples){
     const predicted=await model.predict(page);
     const inkOnMs=performance.now()-t;
     const eligible=eligibleInkFallback(predicted,group);
-    const fallback=group.startsWith("crohme-")?outcome(local??(eligible?normalizeInk(predicted):null)):undefined;
+    const fallback=group.startsWith("crohme-")&&group!=="crohme-symbol"
+      ?outcome(local??(eligible?normalizeInk(predicted):null)):undefined;
     Object.assign(row,{predicted,inkOnMs,inkOn:outcome(predicted),fallback});
   }
   rows.push(row);
