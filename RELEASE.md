@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v103 — reconnaître le 4 à descente courte et la barre retracée (17 novembre 2026)
+
+- Le lecteur reconnaît les `4` ouverts dont le premier trait commence bas, descend presque à la verticale, puis forme une longue barre. Il accepte aussi un bref retour en arrière à droite de la hampe.
+- À 70 unités, les lectures exactes passent de 116 à 120 sur 191 tracés et les confusions avec le `9` de 4 à 1. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v103)
+- Les deux gestes sont vérifiés en écrivant `4/5` au doigt. La notation attend la confirmation et la séance retrouve la copie et le point hors connexion.
+
 ## v102 — reconnaître le 4 ouvert qui descend vers la droite (17 novembre 2026)
 
 - Le lecteur reconnaît les `4` dont le premier trait descend vers la droite avant de former la barre. Il vérifie que le coude reste à gauche de la hampe et que la barre passe à droite.

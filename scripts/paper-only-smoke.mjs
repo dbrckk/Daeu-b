@@ -575,6 +575,20 @@ try{
       [[172,175],[172,194],[173,217],[172,246],[173,272]],
       [[115,286],[223,287]],
       denominatorFive
+    ]},
+    // Le premier trait démarre bas et descend peu avant la barre.
+    {id:"p08",answer:"4/5",paths:[
+      [[134,201],[133,207],[136,217],[138,219],[151,221],[169,220],[189,216]],
+      [[179,175],[175,183],[174,204],[177,240],[179,272]],
+      [[115,286],[223,287]],
+      denominatorFive
+    ]},
+    // La barre revient légèrement en arrière après avoir traversé la hampe.
+    {id:"p08",answer:"4/5",paths:[
+      [[131,175],[129,192],[128,204],[130,224],[147,227],[176,224],[193,222],[180,221]],
+      [[143,191],[139,191],[137,199],[140,214],[149,229],[158,263],[159,272]],
+      [[115,286],[223,287]],
+      denominatorFive
     ]}
   ];
   for(const {id,answer,detached,paths} of fractions){
