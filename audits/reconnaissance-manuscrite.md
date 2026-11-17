@@ -181,3 +181,14 @@ Une barre ascendante peut se terminer près du sommet du `4`. La position haute 
 | 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
 
 Les mêmes trois tracés progressent à 25, 45, 70 et 105 unités. Deux étaient lus `9` et le troisième faisait l’objet d’une abstention. Les autres tracés de test conservent leur lecture aux quatre tailles. L’essai tactile à 320 px reproduit la lecture `9/5` en v99. En v100, le lecteur propose `4/5`, le quiz attribue un seul point après confirmation et la réouverture hors connexion restaure la copie, le score et la tentative.
+
+## Lecteur local v101
+
+Une barre courte peut s’arrêter avant la hampe. Le lecteur vérifie que le premier trait garde un coude, que son extrémité revient près du milieu et que la hampe descend plus bas. Si un petit espace sépare les deux boîtes de tracé, le regroupement applique ces mêmes critères après avoir vérifié que le trait coudé est plus court que la hampe.
+
+| Lot à 70 unités | v100 exact / erreur / abstention | v101 exact / erreur / abstention |
+| --- | --- | --- |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 108 / 21 / 62 | 112 / 19 / 60 |
+| 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
+
+Deux `4` auparavant lus `9` et deux abstentions supplémentaires sont correctement lus à 70 unités. Aux quatre tailles testées, 25, 45, 70 et 105 unités, seules des lectures de `4` sont modifiées et elles deviennent exactes. À 320 px dans Chromium, le même tracé de `4/5` avec un espace entre les deux traits du `4` ouvre la comparaison au corrigé en v100 et reçoit une proposition en v101. La confirmation attribue un point. Après fermeture et réouverture hors connexion, la copie, le score et la tentative sont restaurés.

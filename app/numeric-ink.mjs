@@ -195,22 +195,49 @@ function hasRisingFourArm(path,topY,bottomY,stemX,height){
   });
 }
 
+// Même avec un petit espace avant la hampe, le bras du 4 garde
+// un coude suivi d'une barre qui revient vers le milieu du chiffre.
+function hasShortFourArm(path,topY,bottomY,stemX,height){
+  const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+  const endOffset=endX-stemX(endY);
+  if(bottomY-topY<height*.75||startX>stemX(startY)-height*.17||startY>topY+height*.20
+    ||endOffset<-height*.20||endOffset>height*.025
+    ||endY<topY+height*.27||endY>bottomY-height*.23)return false;
+  if(path.some(([x,y])=>x>stemX(y)+height*.035))return false;
+
+  return path.some(([x,y],i)=>{
+    const run=endX-x,drop=y-startY;
+    if(i===0||i===path.length-1||run<height*.18||drop<height*.28
+      ||x>startX+height*.07||Math.abs(endY-y)>run*.58
+      ||y>bottomY-height*.20)return false;
+    return followsFourCorner(path,i,height);
+  });
+}
+
+function fourStem(stroke,height){
+  const [top,bottom]=[stroke[0],stroke.at(-1)].sort((a,b)=>a[1]-b[1]);
+  const [topX,topY]=top, [bottomX,bottomY]=bottom;
+  const span=bottomY-topY;
+  if(span<height*.64||Math.abs(bottomX-topX)>height*.46)return null;
+  const xAt=y=>topX+(bottomX-topX)*(y-topY)/span;
+  if(stroke.some(([x,y])=>Math.abs(x-xAt(y))>height*.12))return null;
+  return {top,bottom,span,xAt};
+}
+const leftToRight=path=>path[0][0]<=path.at(-1)[0]?path:[...path].reverse();
+
 function hasSlantedFour(paths,box){
   if(paths.length!==2)return false;
   const height=box.maxY-box.minY;
   return paths.some((arm,index)=>{
-    const stem=paths[1-index];
-    const ends=[stem[0],stem.at(-1)].sort((a,b)=>a[1]-b[1]);
-    const [top,bottom]=ends;
-    const [topX,topY]=top, [bottomX,bottomY]=bottom;
-    const stemHeight=bottomY-topY;
-    if(stemHeight<height*.64||Math.abs(bottomX-topX)>height*.46)return false;
-    const stemX=y=>topX+(bottomX-topX)*(y-topY)/stemHeight;
-    if(stem.some(([x,y])=>Math.abs(x-stemX(y))>height*.12))return false;
+    const stem=fourStem(paths[1-index],height);
+    if(!stem)return false;
+    const {top,bottom,span:stemHeight,xAt:stemX}=stem;
+    const topY=top[1],bottomY=bottom[1];
     if(stemHeight>=height*.76&&hasJoinedFourArm(arm,top,bottom,stemX,height))return true;
 
-    const path=arm[0][0]<=arm.at(-1)[0]?arm:[...arm].reverse();
+    const path=leftToRight(arm);
     if(stemHeight>=height*.73&&hasRisingFourArm(path,topY,bottomY,stemX,height))return true;
+    if(hasShortFourArm(path,topY,bottomY,stemX,height))return true;
     const [startX,startY]=path[0], [endX,endY]=path.at(-1);
     const startsLeft=startX<=stemX(startY)-height*.09;
     const endOffset=endX-stemX(endY);
@@ -279,6 +306,15 @@ function classify(paths){
     return {digit:"4",score:0,margin:1};
   return {...best,margin};
 }
+// Un espace entre le bras et la hampe peut les placer dans deux boîtes.
+function isDetachedFour(left,right){
+  if(left.paths.length!==1||right.box.minX<=left.box.maxX)return false;
+  const height=Math.max(left.box.maxY,right.box.maxY)-Math.min(left.box.minY,right.box.minY);
+  if(right.box.minX-left.box.maxX>height*.15
+    ||left.box.maxY-left.box.minY>height*.62)return false;
+  const stem=fourStem(right.paths[0],height);
+  return !!stem&&hasShortFourArm(leftToRight(left.paths[0]),stem.top[1],stem.bottom[1],stem.xAt,height);
+}
 function splitGlyphs(strokes){
   const sorted=strokes.map(s=>({paths:[s],box:bounds([s])})).sort((a,b)=>a.box.minX-b.box.minX);
   const groups=[];
@@ -286,7 +322,8 @@ function splitGlyphs(strokes){
     const last=groups.at(-1);
     if(last&&((item.box.minX<=last.box.maxX+Math.min(5,(last.box.maxX-last.box.minX)*.1)
       &&item.box.maxY>=last.box.minY&&item.box.minY<=last.box.maxY)
-      ||(last.paths.length===1&&isFootedOne([last.paths[0],item.paths[0]])))){
+      ||(last.paths.length===1&&isFootedOne([last.paths[0],item.paths[0]]))
+      ||isDetachedFour(last,item))){
       last.paths.push(...item.paths);last.box=bounds(last.paths);
     }else groups.push(item);
   }
