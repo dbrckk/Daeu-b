@@ -192,3 +192,14 @@ Une barre courte peut s’arrêter avant la hampe. Le lecteur vérifie que le pr
 | 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
 
 Deux `4` auparavant lus `9` et deux abstentions supplémentaires sont correctement lus à 70 unités. Aux quatre tailles testées, 25, 45, 70 et 105 unités, seules des lectures de `4` sont modifiées et elles deviennent exactes. À 320 px dans Chromium, le même tracé de `4/5` avec un espace entre les deux traits du `4` ouvre la comparaison au corrigé en v100 et reçoit une proposition en v101. La confirmation attribue un point. Après fermeture et réouverture hors connexion, la copie, le score et la tentative sont restaurés.
+
+## Lecteur local v102
+
+Lorsque le premier trait d’un `4` ouvert descend vers la droite, son coude se trouve à droite de son point de départ. La v102 accepte ce mouvement si le coude reste à gauche de la hampe et que la barre traverse celle-ci en se prolongeant à droite. Le contrôle vérifie aussi que les deux segments restent assez droits autour du coude.
+
+| Lot à 70 unités | v101 exact / erreur / abstention | v102 exact / erreur / abstention |
+| --- | --- | --- |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 112 / 19 / 60 | 116 / 17 / 58 |
+| 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
+
+À 70 unités, deux `4` lus `9` et deux tracés sans proposition sont correctement reconnus. À 25, 45, 70 et 105 unités, seuls des tracés de `4` sont modifiés et ils deviennent exacts. Le parcours Chromium mobile à 320 px reproduit le geste qui donnait `9/5` en v101. En v102, le quiz propose `4/5`, attend la confirmation avant d’accorder le point et restaure la copie, le score et la tentative à la réouverture hors connexion.

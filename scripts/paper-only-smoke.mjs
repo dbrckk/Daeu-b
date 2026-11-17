@@ -568,6 +568,13 @@ try{
       [[185,175],[185,197],[182,220],[181,244],[180,270]],
       [[115,286],[223,287]],
       denominatorFive
+    ]},
+    // Le premier trait descend vers la droite puis croise la hampe.
+    {id:"p08",answer:"4/5",paths:[
+      [[132,180],[130,183],[136,195],[147,214],[152,213],[177,209],[187,207]],
+      [[172,175],[172,194],[173,217],[172,246],[173,272]],
+      [[115,286],[223,287]],
+      denominatorFive
     ]}
   ];
   for(const {id,answer,detached,paths} of fractions){
