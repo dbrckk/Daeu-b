@@ -555,6 +555,13 @@ try{
       [[183,179],[181,198],[174,223],[163,254],[158,272]],
       [[115,286],[223,287]],
       denominatorFive
+    ]},
+    // La barre du numérateur remonte jusqu'à la hauteur du sommet.
+    {id:"p08",answer:"4/5",paths:[
+      [[154,175],[150,185],[140,199],[134,212],[142,212],[168,204],[186,197],[201,189]],
+      [[158,178],[161,195],[168,216],[182,248],[190,272]],
+      [[115,286],[223,287]],
+      denominatorFive
     ]}
   ];
   for(const {id,answer,paths} of fractions){

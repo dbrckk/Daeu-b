@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v100 — reconnaître le 4 à barre montante (17 novembre 2026)
+
+- Le lecteur reconnaît les `4` dont la barre remonte près du sommet après avoir traversé la hampe. Il vérifie que le trait coudé reste rectiligne de part et d’autre de l’angle et que la barre dépasse nettement à droite.
+- Sur 191 tracés annotés, les lectures exactes passent de 105 à 108 et les confusions avec le `9` de 10 à 8. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v100)
+- Le parcours tactile vérifie la lecture de `4/5` avec cette écriture, la notation après confirmation et la reprise hors connexion avec la copie et le point.
+
 ## v99 — reconnaître le 4 fermé (17 novembre 2026)
 
 - Le lecteur reconnaît les `4` à deux traits qui se rejoignent au sommet même quand la barre s’arrête près de la hampe. Il vérifie que le premier trait forme un coude entre deux segments presque droits.

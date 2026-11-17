@@ -143,6 +143,25 @@ function hasOpenFour(paths,box){
   });
 }
 
+// Vérifie la diagonale et la barre de part et d'autre du coude.
+function followsFourCorner(path,index,height){
+  const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+  const [x,y]=path[index],run=endX-x,drop=y-startY,drift=x-startX;
+  const diagonalLength=Math.hypot(drift,drop);
+  for(let k=0;k<index;k++){
+    const [px,py]=path[k];
+    // L'écart perpendiculaire reste comparable quelle que soit la pente.
+    const offset=Math.abs((px-startX)*drop-(py-startY)*drift)/diagonalLength;
+    if(offset>height*.12||py>y+height*.05||py<startY-height*.07)return false;
+  }
+  const barSlope=(endY-y)/run;
+  for(let k=index+1;k<path.length;k++){
+    const [px,py]=path[k],barY=y+(px-x)*barSlope;
+    if(px<x-height*.05||px>endX+height*.16||Math.abs(py-barY)>height*.12)return false;
+  }
+  return true;
+}
+
 // Le 4 fermé garde un coude entre sa diagonale et sa barre, même quand
 // la barre s'arrête sur la hampe. La boucle du 9 revient de façon arrondie.
 function hasJoinedFourArm(arm,top,bottom,stemX,height){
@@ -156,18 +175,23 @@ function hasJoinedFourArm(arm,top,bottom,stemX,height){
     const run=endX-x,drop=y-startY,left=startX-x;
     if(i===0||i===path.length-1||run<height*.27||drop<height*.18||left<height*.25
       ||Math.abs(endY-y)>run*.36||stemX(y)-x<height*.21)return false;
-    // L'écart perpendiculaire reste comparable même pour une diagonale peu pentue.
-    const diagonalLength=Math.hypot(left,drop);
-    for(let k=0;k<i;k++){
-      const [px,py]=path[k];
-      const offset=Math.abs((px-startX)*drop+(py-startY)*left)/diagonalLength;
-      if(offset>height*.12||py>y+height*.05||py<startY-height*.07)return false;
-    }
-    for(let k=i+1;k<path.length;k++){
-      const [px,py]=path[k],barY=y+(endY-y)*(px-x)/run;
-      if(px<x-height*.05||px>endX+height*.16||Math.abs(py-barY)>height*.12)return false;
-    }
-    return true;
+    return followsFourCorner(path,i,height);
+  });
+}
+
+// Une longue barre ascendante peut finir près du sommet. Elle traverse
+// la hampe en partant d'un coude bas puis se prolonge nettement à droite.
+function hasRisingFourArm(path,topY,bottomY,stemX,height){
+  const startY=path[0][1], [endX,endY]=path.at(-1);
+  if(endX-stemX(endY)<height*.33||endY>topY+height*.30
+    ||startY>topY+height*.18||endY<startY-height*.05)return false;
+
+  return path.some(([x,y],i)=>{
+    const run=endX-x,drop=y-startY,rise=y-endY;
+    if(i===0||i===path.length-1||run<height*.37||drop<height*.23||rise<height*.15
+      ||rise<run*.22||rise>run*.68||stemX(y)-x<height*.17
+      ||y>bottomY-height*.26)return false;
+    return followsFourCorner(path,i,height);
   });
 }
 
@@ -186,6 +210,7 @@ function hasSlantedFour(paths,box){
     if(stemHeight>=height*.76&&hasJoinedFourArm(arm,top,bottom,stemX,height))return true;
 
     const path=arm[0][0]<=arm.at(-1)[0]?arm:[...arm].reverse();
+    if(stemHeight>=height*.73&&hasRisingFourArm(path,topY,bottomY,stemX,height))return true;
     const [startX,startY]=path[0], [endX,endY]=path.at(-1);
     const startsLeft=startX<=stemX(startY)-height*.09;
     const endOffset=endX-stemX(endY);

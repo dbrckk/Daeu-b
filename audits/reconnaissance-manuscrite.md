@@ -170,3 +170,14 @@ Quand le `4` se ferme au sommet, sa barre peut finir sur la hampe. La v98 demand
 | 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
 
 Trois `4` lus comme des `9` et six tracés auparavant sans proposition sont désormais lus correctement. Les 1 667 autres symboles de test conservent leur résultat à 25, 45, 70 et 105 unités. Le parcours Chromium à 320 px reproduit le même geste en v98 et en v99. En v99, le lecteur propose `4/5` et le quiz n’attribue le point qu’après confirmation. La copie et la séance sont restaurées après fermeture et réouverture hors connexion.
+
+## Lecteur local v100
+
+Une barre ascendante peut se terminer près du sommet du `4`. La position haute de son extrémité et son dépassement à droite pouvaient faire rejeter ces tracés par les filtres de la v99. La v100 exige que la barre remonte à partir d’un coude situé à gauche de la hampe puis dépasse nettement à droite. Le contrôle des deux segments autour du coude est commun aux `4` fermés et aux `4` à barre montante. La règle intervient après une proposition `9` ou incertaine.
+
+| Lot à 70 unités | v99 exact / erreur / abstention | v100 exact / erreur / abstention |
+| --- | --- | --- |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 105 / 23 / 63 | 108 / 21 / 62 |
+| 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
+
+Les mêmes trois tracés progressent à 25, 45, 70 et 105 unités. Deux étaient lus `9` et le troisième faisait l’objet d’une abstention. Les autres tracés de test conservent leur lecture aux quatre tailles. L’essai tactile à 320 px reproduit la lecture `9/5` en v99. En v100, le lecteur propose `4/5`, le quiz attribue un seul point après confirmation et la réouverture hors connexion restaure la copie, le score et la tentative.
