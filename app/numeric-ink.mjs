@@ -248,8 +248,16 @@ function hasSlantedFour(paths,box){
 
     return path.some(([x,y],i)=>{
       const rightRun=endX-x,drop=y-startY;
-      if(i===0||i===path.length-1||rightRun<height*.24||drop<height*.23
+      if(i===0||i===path.length-1||rightRun<height*.24||drop<height*.14
         ||Math.abs(endY-y)>rightRun*.48||y<topY+height*.23||y>bottomY-height*.16)return false;
+      // Une descente courte peut suffire quand le trait commence bas à
+      // gauche et que sa barre, bien plus longue, traverse la hampe.
+      if(drop<height*.23){
+        return startY>=topY+height*.14&&endY>=startY+height*.04
+          &&stemX(startY)-startX>=height*.23&&stemX(y)-x>=height*.25&&endOffset>=height*.08&&rightRun>=height*.38
+          &&path.slice(0,i+1).every(([px])=>Math.abs(px-startX)<=drop*.45)
+          &&followsFourCorner(path,i,height);
+      }
       const rightDrift=x-startX;
       // Si la descente part vers la droite, le coude reste à gauche de
       // la hampe et la barre la dépasse au-delà du croisement.
@@ -264,9 +272,14 @@ function hasSlantedFour(paths,box){
         if(px>Math.max(x,startX)+height*.10||py>y+height*.10||py<startY-height*.09)return false;
         if(!startsLeft&&Math.abs(px-startX-(x-startX)*(py-startY)/drop)>height*.11)return false;
       }
+      // Une barre peut revenir légèrement en arrière après avoir franchi
+      // la hampe. Son extrémité doit rester à droite du croisement.
+      const canRetrace=startsLeft&&endOffset>=height*.12&&stemX(y)-x>=height*.14
+        &&Math.abs(endY-y)<=rightRun*.25;
+      const rightLimit=endX+height*(canRetrace ? .20 : .12);
       for(let k=i+1;k<path.length;k++){
         const [px,py]=path[k];
-        if(px<x-height*.04||px>endX+height*.12||Math.abs(py-barY(px))>height*.12)return false;
+        if(px<x-height*.04||px>rightLimit||Math.abs(py-barY(px))>height*.12)return false;
       }
       return true;
     });

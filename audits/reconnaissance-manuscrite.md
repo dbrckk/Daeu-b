@@ -203,3 +203,14 @@ Lorsque le premier trait d’un `4` ouvert descend vers la droite, son coude se 
 | 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
 
 À 70 unités, deux `4` lus `9` et deux tracés sans proposition sont correctement reconnus. À 25, 45, 70 et 105 unités, seuls des tracés de `4` sont modifiés et ils deviennent exacts. Le parcours Chromium mobile à 320 px reproduit le geste qui donnait `9/5` en v101. En v102, le quiz propose `4/5`, attend la confirmation avant d’accorder le point et restaure la copie, le score et la tentative à la réouverture hors connexion.
+
+## Lecteur local v103
+
+La règle du `4` ouvert peut accepter une courte descente quand elle commence bas, reste presque verticale et précède une barre assez longue pour dépasser la hampe. La barre doit se terminer plus bas que le début de la descente, ce qui écarte des signes `+` fortement inclinés repérés pendant les mesures. Si la descente est plus longue, un léger retour en arrière de la barre est toléré quand son extrémité reste nettement à droite de la hampe.
+
+| Lot à 70 unités | v102 exact / erreur / abstention | v103 exact / erreur / abstention |
+| --- | --- | --- |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 116 / 17 / 58 | 120 / 14 / 57 |
+| 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
+
+Trois lectures `4` → `9` et une abstention sont corrigées à 70 unités. À 25 unités, deux confusions et une abstention sont corrigées. À 45 et 105 unités, les mêmes quatre tracés qu’à 70 unités sont corrigés. Le parcours Chromium mobile à 320 px reproduit la lecture `9/5` en v102 pour chacun des deux gestes. En v103, le quiz propose `4/5`, attend la confirmation et restaure la copie, la tentative et le point après fermeture et réouverture hors connexion.
