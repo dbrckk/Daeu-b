@@ -71,6 +71,7 @@ function distance(a,b){
 }
 const TEMPLATES=SHAPES.map(([digit,...variants])=>[digit,variants.map(sample)]);
 const BARRED_SEVEN_TEMPLATES=BARRED_SEVEN.map(sample);
+const MAX_GLYPH_DISTANCE=.13,MIN_GLYPH_MARGIN=.015;
 
 function hasSevenBar(paths,box){
   if(paths.length!==2)return false;
@@ -142,6 +143,48 @@ function hasOpenFour(paths,box){
   });
 }
 
+function hasSlantedFour(paths,box){
+  if(paths.length!==2)return false;
+  const height=box.maxY-box.minY;
+  return paths.some((arm,index)=>{
+    const stem=paths[1-index];
+    const ends=[stem[0],stem.at(-1)].sort((a,b)=>a[1]-b[1]);
+    const [[topX,topY],[bottomX,bottomY]]=ends;
+    const stemHeight=bottomY-topY;
+    if(stemHeight<height*.64||Math.abs(bottomX-topX)>height*.46)return false;
+    const stemX=y=>topX+(bottomX-topX)*(y-topY)/stemHeight;
+    if(stem.some(([x,y])=>Math.abs(x-stemX(y))>height*.12))return false;
+
+    const path=arm[0][0]<=arm.at(-1)[0]?arm:[...arm].reverse();
+    const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+    const startsLeft=startX<=stemX(startY)-height*.09;
+    const endOffset=endX-stemX(endY);
+    // Quand les deux traits partent près du même point, une barre bien
+    // prolongée à droite de la hampe aide à distinguer le 4 d'une boucle.
+    if(endX-startX<height*.16||endOffset<(startsLeft?-.18:.20)*height||endOffset>height*.50
+      ||endY<topY+height*.13||endY>bottomY-height*.17)return false;
+
+    return path.some(([x,y],i)=>{
+      const rightRun=endX-x,drop=y-startY;
+      if(i===0||i===path.length-1||rightRun<height*.24||drop<height*.23
+        ||x>startX+height*.12||Math.abs(endY-y)>rightRun*.48
+        ||y<topY+height*.23||y>bottomY-height*.16)return false;
+      if(!startsLeft&&startX-x<height*.20)return false;
+      const barY=px=>y+(endY-y)*(px-x)/rightRun;
+      for(let k=0;k<i;k++){
+        const [px,py]=path[k];
+        if(px>Math.max(x,startX)+height*.10||py>y+height*.10||py<startY-height*.09)return false;
+        if(!startsLeft&&Math.abs(px-startX-(x-startX)*(py-startY)/drop)>height*.11)return false;
+      }
+      for(let k=i+1;k<path.length;k++){
+        const [px,py]=path[k];
+        if(px<x-height*.04||px>endX+height*.12||Math.abs(py-barY(px))>height*.12)return false;
+      }
+      return true;
+    });
+  });
+}
+
 // Un pied peut être légèrement détaché, mais reste centré sous une hampe.
 export function isFootedOne(paths){
   if(paths.length!==2)return false;
@@ -176,7 +219,10 @@ function classify(paths){
   const scores=TEMPLATES.map(([digit,variants])=>({
     digit,score:Math.min(...(digit==="7"&&barred?[...variants,...BARRED_SEVEN_TEMPLATES]:variants).map(t=>distance(p,t)))
   })).sort((a,b)=>a.score-b.score);
-  return {...scores[0],margin:scores[1].score-scores[0].score};
+  const [best,second]=scores,margin=second.score-best.score;
+  if((best.digit==="9"||best.score>MAX_GLYPH_DISTANCE||margin<MIN_GLYPH_MARGIN)&&hasSlantedFour(paths,b))
+    return {digit:"4",score:0,margin:1};
+  return {...best,margin};
 }
 function splitGlyphs(strokes){
   const sorted=strokes.map(s=>({paths:[s],box:bounds([s])})).sort((a,b)=>a.box.minX-b.box.minX);
@@ -213,7 +259,7 @@ export function recognizeNumericInk(page){
   let text="",weakest=Infinity;
   for(const glyph of glyphs){
     const c=classify(glyph.paths);
-    if(!c||c.score>.13||c.margin<.015)
+    if(!c||c.score>MAX_GLYPH_DISTANCE||c.margin<MIN_GLYPH_MARGIN)
       return {status:"uncertain",message:"Lecture incertaine : essaie un résultat isolé ou compare au corrigé."};
     text+=c.digit;weakest=Math.min(weakest,c.margin);
   }

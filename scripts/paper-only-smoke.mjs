@@ -537,57 +537,71 @@ try{
   assert.deepEqual((await snapshot()).workbook,beforeSkip.workbook);
   console.log("OK Diagnostic sur feuille à 320 px : réponse inconnue, reprise et accès au cours puis à l’entraînement");
 
-  const probabilityContext=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,locale:"fr-FR"});
-  try{
-    // Conserver l’ordre de la banque pour atteindre l’exercice fixe p03 depuis l’accueil.
-    await probabilityContext.addInitScript(()=>{Math.random=()=>0.999999;});
-    let probabilityPage=await probabilityContext.newPage();
-    probabilityPage.on("pageerror",error=>errors.push(error.message));
-    const stored=()=>probabilityPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
-    await probabilityPage.goto(BASE+"/?topic=probas",{waitUntil:"networkidle"});
-    await probabilityPage.locator("#start").tap();
-    for(let i=0;i<2;i++){
-      await probabilityPage.getByRole("button",{name:"Je ne sais pas",exact:true}).tap();
-      await probabilityPage.locator("#next").tap();
-    }
-    const before=await stored();
-    assert.equal(before.round.ids[before.round.completed],"p03");
-    await probabilityPage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
-    const notebook=probabilityPage.locator("#quizNotebook");
-    const fractionTouch=await probabilityContext.newCDPSession(probabilityPage);
-    await probabilityContext.setOffline(true);
-    await probabilityPage.waitForFunction(()=>!navigator.onLine);
-    await traceFraction(fractionTouch,notebook.locator("canvas"),[
+  const fractions=[
+    {id:"p03",answer:"3/8",paths:[
       [[150,184],[171,179],[192,184],[198,194],[186,206],[169,209],[189,211],
         [201,224],[193,239],[174,245],[150,240]],
       [[120,267],[220,267]],tightEight
-    ]);
-    const copy=(await stored()).workbook.entries["quiz:p03"];
-    assert.equal(copy.pages[0].length,3);
-    await notebook.locator(".math-notebook-quick-validate").tap();
-    const proposed=notebook.locator(".math-notebook-recognition-candidate");
-    await proposed.waitFor({state:"visible"});
-    assert.match(await proposed.locator("strong").textContent(),/Lecture proposée : 3\/8/);
-    assert.ok(await probabilityPage.locator("#answerForm").isHidden());
-    assert.ok(await probabilityPage.locator("#feedback").isHidden());
-    assert.deepEqual((await stored()).round,before.round);
-    await proposed.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
-    await probabilityPage.locator('#feedback[data-result="correct"]').waitFor({state:"visible"});
-    const graded=await stored();
-    assert.equal(graded.round.completed,before.round.completed+1);
-    assert.equal(graded.round.score,before.round.score+1);
-    assert.equal(graded.practice.items.p03.attempts,1);
-    assert.deepEqual(graded.workbook.entries["quiz:p03"],copy);
-    const resumeUrl=probabilityPage.url();
-    await probabilityPage.close();
-    probabilityPage=await probabilityContext.newPage();
-    probabilityPage.on("pageerror",error=>errors.push(error.message));
-    await probabilityPage.goto(resumeUrl,{waitUntil:"domcontentloaded"});
-    await probabilityPage.locator("#quiz.paper-mode").waitFor({state:"visible"});
-    assert.equal(await probabilityPage.evaluate(()=>navigator.onLine),false);
-    assert.deepEqual(await stored(),graded);
-    console.log("OK Fraction 3/8 écrite au doigt à 320 px : correction après confirmation, copie et score restaurés hors ligne");
-  }finally{await probabilityContext.close();}
+    ]},
+    {id:"p08",answer:"4/5",paths:[
+      [[156,177],[144,200],[138,216],[141,222],[163,223],[180,231],[188,232]],
+      [[178,188],[176,205],[172,232],[167,254],[164,266],[164,272]],
+      [[115,286],[223,287]],
+      [[185,311],[153,311],[151,336],[171,334],[187,341],[191,355],[182,370],[166,375],[150,370]]
+    ]}
+  ];
+  for(const {id,answer,paths} of fractions){
+    const probabilityContext=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,locale:"fr-FR"});
+    try{
+      // Conserver l’ordre de la banque pour atteindre les exercices fixes depuis l’accueil.
+      await probabilityContext.addInitScript(()=>{Math.random=()=>0.999999;});
+      let probabilityPage=await probabilityContext.newPage();
+      probabilityPage.on("pageerror",error=>errors.push(error.message));
+      const stored=()=>probabilityPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+      await probabilityPage.goto(BASE+"/?topic=probas",{waitUntil:"networkidle"});
+      await probabilityPage.locator("#start").tap();
+      await probabilityPage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+      const fractionTouch=await probabilityContext.newCDPSession(probabilityPage);
+      await probabilityContext.setOffline(true);
+      await probabilityPage.waitForFunction(()=>!navigator.onLine);
+      const resumeUrl=probabilityPage.url();
+      const {round}=await stored();
+      const target=round.ids.indexOf(id);
+      assert.ok(target>=round.completed);
+      for(let i=round.completed;i<target;i++){
+        await probabilityPage.getByRole("button",{name:"Je ne sais pas",exact:true}).tap();
+        await probabilityPage.locator("#next").tap();
+      }
+      const before=await stored();
+      assert.equal(before.round.ids[before.round.completed],id);
+      const notebook=probabilityPage.locator("#quizNotebook");
+      await traceFraction(fractionTouch,notebook.locator("canvas"),paths);
+      const copy=(await stored()).workbook.entries["quiz:"+id];
+      assert.equal(copy.pages[0].length,paths.length);
+      await notebook.locator(".math-notebook-quick-validate").tap();
+      const proposed=notebook.locator(".math-notebook-recognition-candidate");
+      await proposed.waitFor({state:"visible"});
+      assert.equal(await proposed.locator("strong").textContent(),"Lecture proposée : "+answer);
+      assert.ok(await probabilityPage.locator("#answerForm").isHidden());
+      assert.ok(await probabilityPage.locator("#feedback").isHidden());
+      assert.deepEqual((await stored()).round,before.round);
+      await proposed.getByRole("button",{name:"Oui, vérifier ce résultat"}).tap();
+      await probabilityPage.locator('#feedback[data-result="correct"]').waitFor({state:"visible"});
+      const graded=await stored();
+      assert.equal(graded.round.completed,before.round.completed+1);
+      assert.equal(graded.round.score,before.round.score+1);
+      assert.equal(graded.practice.items[id].attempts,1);
+      assert.deepEqual(graded.workbook.entries["quiz:"+id],copy);
+      await probabilityPage.close();
+      probabilityPage=await probabilityContext.newPage();
+      probabilityPage.on("pageerror",error=>errors.push(error.message));
+      await probabilityPage.goto(resumeUrl,{waitUntil:"domcontentloaded"});
+      await probabilityPage.locator("#quiz.paper-mode").waitFor({state:"visible"});
+      assert.equal(await probabilityPage.evaluate(()=>navigator.onLine),false);
+      assert.deepEqual(await stored(),graded);
+      console.log("OK Fraction "+answer+" écrite au doigt à 320 px : correction après confirmation, copie et score restaurés hors ligne");
+    }finally{await probabilityContext.close();}
+  }
 
   const examContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   const newExamPage=async()=>{
