@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v99 — reconnaître le 4 fermé (17 novembre 2026)
+
+- Le lecteur reconnaît les `4` à deux traits qui se rejoignent au sommet même quand la barre s’arrête près de la hampe. Il vérifie que le premier trait forme un coude entre deux segments presque droits.
+- Sur 191 tracés annotés, les lectures exactes passent de 96 à 105 et les confusions avec le `9` de 13 à 10. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v99)
+- Le parcours tactile reproduit la lecture `9/5` en v98 et vérifie la proposition `4/5` en v99. Le point, la tentative et la copie sont retrouvés hors connexion après confirmation.
+
 ## v98 — reconnaître le 4 incliné (17 novembre 2026)
 
 - Le lecteur prend en compte les `4` à deux traits dont la barre ou la hampe est inclinée. Il vérifie le coude, la longueur de la barre et sa position par rapport à la hampe avant de proposer `4`.

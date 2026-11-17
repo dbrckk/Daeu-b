@@ -143,17 +143,47 @@ function hasOpenFour(paths,box){
   });
 }
 
+// Le 4 fermé garde un coude entre sa diagonale et sa barre, même quand
+// la barre s'arrête sur la hampe. La boucle du 9 revient de façon arrondie.
+function hasJoinedFourArm(arm,top,bottom,stemX,height){
+  const path=far(arm[0],top)<=far(arm.at(-1),top)?arm:[...arm].reverse();
+  const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+  const endOffset=endX-stemX(endY);
+  if(far(path[0],top)>height*.16||endOffset<-height*.08||endOffset>height*.53
+    ||endY<top[1]+height*.17||endY>bottom[1]-height*.21)return false;
+
+  return path.some(([x,y],i)=>{
+    const run=endX-x,drop=y-startY,left=startX-x;
+    if(i===0||i===path.length-1||run<height*.27||drop<height*.18||left<height*.25
+      ||Math.abs(endY-y)>run*.36||stemX(y)-x<height*.21)return false;
+    // L'écart perpendiculaire reste comparable même pour une diagonale peu pentue.
+    const diagonalLength=Math.hypot(left,drop);
+    for(let k=0;k<i;k++){
+      const [px,py]=path[k];
+      const offset=Math.abs((px-startX)*drop+(py-startY)*left)/diagonalLength;
+      if(offset>height*.12||py>y+height*.05||py<startY-height*.07)return false;
+    }
+    for(let k=i+1;k<path.length;k++){
+      const [px,py]=path[k],barY=y+(endY-y)*(px-x)/run;
+      if(px<x-height*.05||px>endX+height*.16||Math.abs(py-barY)>height*.12)return false;
+    }
+    return true;
+  });
+}
+
 function hasSlantedFour(paths,box){
   if(paths.length!==2)return false;
   const height=box.maxY-box.minY;
   return paths.some((arm,index)=>{
     const stem=paths[1-index];
     const ends=[stem[0],stem.at(-1)].sort((a,b)=>a[1]-b[1]);
-    const [[topX,topY],[bottomX,bottomY]]=ends;
+    const [top,bottom]=ends;
+    const [topX,topY]=top, [bottomX,bottomY]=bottom;
     const stemHeight=bottomY-topY;
     if(stemHeight<height*.64||Math.abs(bottomX-topX)>height*.46)return false;
     const stemX=y=>topX+(bottomX-topX)*(y-topY)/stemHeight;
     if(stem.some(([x,y])=>Math.abs(x-stemX(y))>height*.12))return false;
+    if(stemHeight>=height*.76&&hasJoinedFourArm(arm,top,bottom,stemX,height))return true;
 
     const path=arm[0][0]<=arm.at(-1)[0]?arm:[...arm].reverse();
     const [startX,startY]=path[0], [endX,endY]=path.at(-1);

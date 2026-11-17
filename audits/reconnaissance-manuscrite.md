@@ -159,3 +159,14 @@ Sur certains `4` à deux traits, la barre monte ou descend et la hampe est incli
 | 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
 
 Le comparateur des symboles relève 5 corrections de la confusion `4` → `9` et 22 nouvelles lectures de `4`. Les 1 667 autres symboles conservent leur résultat sur ces lots. La mesure porte sur des chiffres déjà segmentés. Le parcours Chromium mobile à 320 px complète la mesure sur un exercice de probabilités entier. L’élève écrit `4/5` sans clavier, confirme la lecture, obtient un point et rouvre la séance hors connexion avec sa copie.
+
+## Lecteur local v99
+
+Quand le `4` se ferme au sommet, sa barre peut finir sur la hampe. La v98 demandait qu’elle dépasse nettement pour retenir cette forme. La v99 mesure l’écart de la diagonale au segment qui relie le sommet au coude. Elle exige une barre qui rejoint la hampe et s’écarte peu de son propre segment. La règle s’applique aux propositions `9` ou incertaines.
+
+| Lot à 70 unités | v98 exact / erreur / abstention | v99 exact / erreur / abstention |
+| --- | --- | --- |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 96 / 26 / 69 | 105 / 23 / 63 |
+| 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
+
+Trois `4` lus comme des `9` et six tracés auparavant sans proposition sont désormais lus correctement. Les 1 667 autres symboles de test conservent leur résultat à 25, 45, 70 et 105 unités. Le parcours Chromium à 320 px reproduit le même geste en v98 et en v99. En v99, le lecteur propose `4/5` et le quiz n’attribue le point qu’après confirmation. La copie et la séance sont restaurées après fermeture et réouverture hors connexion.
