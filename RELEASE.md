@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v102 — reconnaître le 4 ouvert qui descend vers la droite (17 novembre 2026)
+
+- Le lecteur reconnaît les `4` dont le premier trait descend vers la droite avant de former la barre. Il vérifie que le coude reste à gauche de la hampe et que la barre passe à droite.
+- Sur 191 tracés annotés, les lectures exactes passent de 112 à 116 et les confusions avec le `9` de 6 à 4. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v102)
+- Le parcours tactile vérifie la lecture de `4/5` avec ce geste, la notation après confirmation et la reprise hors connexion avec la copie et le point.
+
 ## v101 — reconnaître le 4 à barre courte (17 novembre 2026)
 
 - Le lecteur accepte une barre courte qui s’arrête avant la hampe. Il peut regrouper deux tracés légèrement espacés si leur position et la forme du coude correspondent à un seul `4`.

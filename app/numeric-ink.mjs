@@ -249,8 +249,14 @@ function hasSlantedFour(paths,box){
     return path.some(([x,y],i)=>{
       const rightRun=endX-x,drop=y-startY;
       if(i===0||i===path.length-1||rightRun<height*.24||drop<height*.23
-        ||x>startX+height*.12||Math.abs(endY-y)>rightRun*.48
-        ||y<topY+height*.23||y>bottomY-height*.16)return false;
+        ||Math.abs(endY-y)>rightRun*.48||y<topY+height*.23||y>bottomY-height*.16)return false;
+      const rightDrift=x-startX;
+      // Si la descente part vers la droite, le coude reste à gauche de
+      // la hampe et la barre la dépasse au-delà du croisement.
+      if(rightDrift>height*.12){
+        return startsLeft&&endOffset>=height*.08&&stemX(y)-x>=height*.12
+          &&rightDrift<=drop*.65&&followsFourCorner(path,i,height);
+      }
       if(!startsLeft&&startX-x<height*.20)return false;
       const barY=px=>y+(endY-y)*(px-x)/rightRun;
       for(let k=0;k<i;k++){
