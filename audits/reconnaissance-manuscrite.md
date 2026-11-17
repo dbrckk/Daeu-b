@@ -79,6 +79,31 @@ python3 scripts/export-crohme-ink.py /tmp/crohme-formulas.zip > /tmp/daeu-crohme
 node scripts/compare-ink-on.mjs /tmp/ink-on /tmp/daeu-crohme-cases.json
 ```
 
+## Peut-on réutiliser un moteur existant ?
+
+Mesure avec le lecteur DAEU B v103. Chaque moteur reçoit les mêmes coordonnées, ramenées à 70 unités de haut au maximum. Le comparateur juge la transcription, espaces et variantes simples de notation LaTeX ignorés. Il n’accepte pas d’égalité différente au seul motif qu’elle donne la même solution. Les lots CROHME réutilisent les sélections 2012, 2013 et 2014. Le lot de contrôle ajoute 38 expressions du test CROHME 2019. Le lot MathWriting contient les 24 écritures humaines déjà extraites. Les six tracés de test du DAEU B sont synthétiques.
+
+| Lot | DAEU B v103 exact / erreur / abstention | ink-on | Seshat | MathNote OCR |
+| --- | --- | --- | --- | --- |
+| 44 fractions et égalités CROHME | 4 / 0 / 40 | 37 / 7 / 0 | 16 / 27 / 1 | 4 / 40 / 0 |
+| 38 fractions et égalités CROHME 2019 | 2 / 0 / 36 | 33 / 5 / 0 | 20 / 16 / 2 | 7 / 31 / 0 |
+| 24 expressions MathWriting | 0 / 0 / 24 | 5 / 19 / 0 | 0 / 23 / 1 | 0 / 24 / 0 |
+| 6 tracés synthétiques DAEU B | 6 / 0 / 0 | 4 / 2 / 0 | 0 / 6 / 0 | 0 / 6 / 0 |
+
+- **ink-on** est le moteur Web testé qui lit le plus de formules entières. Sur les 44 cas CROHME, garder la lecture locale et essayer ink-on seulement en cas d’abstention donne 38 lectures exactes, deux erreurs et quatre abstentions après filtrage de la forme. Le filtre laisse passer un dénominateur altéré et une égalité avec un terme ajouté. Le dépôt d’ink-on indique une licence Apache-2.0 et l’amont CoMER ne publie pas de licence pour les poids dans son dépôt. Les conditions de redistribution des poids restent à vérifier avant de les livrer dans la PWA. [ink-on](https://github.com/kimseungdae/ink-on) · [CoMER](https://github.com/Green-Wood/CoMER)
+- **Seshat** est un exécutable C++ sous GPLv3. Dans la même simulation, la seconde lecture filtrée donne 18 lectures exactes, zéro erreur et 26 abstentions sur les 44 cas CROHME. Elle ajoute huit lectures de fractions isolées, quatre d’égalités et deux d’égalités contenant une fraction. Le moteur brut a produit 27 erreurs sur ce lot. Il a dépassé huit secondes sur un tracé CROHME et un tracé MathWriting. L’essai Linux utilise le lecteur SCG_INK avec des adaptations de compilation C++ et Boost, sans charger le lecteur XML. [Seshat](https://github.com/falvaro/seshat)
+- **MathNote OCR 0.2.1** fonctionne en Python avec ses poids fournis. Remonter l’échelle à 220 unités donne les mêmes nombres de lectures exactes pour chaque lot. Sur les sept transcriptions d’une confiance annoncée d’au moins 0,80 à l’échelle de référence, quatre sont erronées. [MathNote OCR](https://github.com/YonatanNemtsov/mathnote-ocr)
+
+**Seconde lecture sur le lot séparé.** Sur CROHME 2019, ink-on après filtrage ajoute 31 lectures exactes et une erreur. Seshat ajoute 18 lectures exactes et deux erreurs, toutes deux liées à un signe de multiplication lu comme la lettre `x`. Sur les 48 fractions numériques isolées des deux séries CROHME, la seconde lecture Seshat seule après filtrage donne 27 lectures exactes contre 6 avec la v103, avec 21 abstentions et zéro erreur observée.
+
+Une simulation conserve la lecture locale et propose une seconde transcription quand ink-on et Seshat s’accordent après normalisation, puis que la forme correspond au type de réponse. Elle donne 17 lectures exactes, zéro erreur et 27 abstentions sur les 44 premiers cas, et 18 lectures exactes, zéro erreur et 20 abstentions sur les 38 cas de 2019. Les réponses restent à confirmer sur la feuille. Cette mesure porte sur un échantillon de fractions et d’égalités courtes. [Corpus CROHME](https://www.cs.rit.edu/~dprl/software.html) · [Références du test 2019](https://zenodo.org/records/17122781)
+
+Les trois moteurs lisent `4` sur le symbole auquel la v103 attribue `9`. Le build d’ink-on a aussi lu `4/3` au doigt en ligne, puis `0,9−0,9=0` et ce `4` après coupure du réseau dans Chromium à 390 px. La tentative de rechargement complet de la page hors ligne a échoué. Ce test émule le toucher et laisse la latence et la compatibilité d’un téléphone Android physique à mesurer. [Démo publique ink-on](https://ink-on.vercel.app/)
+
+**Solutions commerciales.** MyScript Math fournit un cahier Android avec saisie manuscrite et sortie LaTeX. L’application prévoit un essai puis des offres payantes. Le palier développeur Web est réservé aux tests et le déploiement demande un contrat. Mathpix facture l’activation de sa première clé API et la reconnaissance par appel ou session. [MyScript Math](https://help.myscript.com/math/overview/getting-started/) · [MyScript développeurs](https://developer.myscript.com/pricing/) · [Mathpix](https://mathpix.com/ocr)
+
+**Décision.** Garder le cahier, la correction et la progression DAEU B. Étudier la réutilisation d’un moteur existant comme seconde lecture à confirmer sur des réponses courtes. Commencer par évaluer le portage Web de Seshat pour les fractions numériques isolées et vérifier la reprise hors ligne. Pour élargir la lecture aux égalités, le test d’accord des deux moteurs dépend aussi de la clarification des droits sur les poids CoMER. La v103 reste le lecteur public après cette évaluation.
+
 ## Lecteur local v94
 
 Le même lot CROHME a été rejoué sur les versions v93 et v94. Les trois transcriptions corrigées concernent des fractions isolées. `4/3` était illisible, `1/8` était proposée comme `1/1` et `3/8` comme `3/5`.
