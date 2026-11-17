@@ -148,3 +148,14 @@ Le lot de mise au point `Train_2014` a servi à vérifier le critère de départ
 | CROHME 2014, 135 symboles | 16 / 36 / 83 | 43 / 22 / 70 | 27 → 13 |
 
 Les 1 667 autres symboles des deux lots de test conservent leur résultat, dont les `9`. La mesure rejoue les tracés déjà segmentés. Le parcours Chromium vérifie séparément la lecture de `4/5` écrite dans le cahier.
+
+## Lecteur local v98
+
+Sur certains `4` à deux traits, la barre monte ou descend et la hampe est inclinée. Le filtre v97 exigeait une barre presque horizontale et une hampe presque verticale. La v98 vérifie la forme du coude et la trajectoire de la barre pour ces écritures lorsque la lecture par gabarit hésite ou propose `9`. Si les deux traits commencent près l’un de l’autre, la barre doit dépasser nettement à droite de la hampe et le premier segment rester rectiligne. Ces conditions écartent des `9` dont la boucle revient près de la hampe.
+
+| Lot à 70 unités | v97 exact / erreur / abstention | v98 exact / erreur / abstention |
+| --- | --- | --- |
+| 191 chiffres `4` à deux traits, CROHME 2013 et 2014 | 69 / 31 / 91 | 96 / 26 / 69 |
+| 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
+
+Le comparateur des symboles relève 5 corrections de la confusion `4` → `9` et 22 nouvelles lectures de `4`. Les 1 667 autres symboles conservent leur résultat sur ces lots. La mesure porte sur des chiffres déjà segmentés. Le parcours Chromium mobile à 320 px complète la mesure sur un exercice de probabilités entier. L’élève écrit `4/5` sans clavier, confirme la lecture, obtient un point et rouvre la séance hors connexion avec sa copie.

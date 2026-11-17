@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v98 — reconnaître le 4 incliné (17 novembre 2026)
+
+- Le lecteur prend en compte les `4` à deux traits dont la barre ou la hampe est inclinée. Il vérifie le coude, la longueur de la barre et sa position par rapport à la hampe avant de proposer `4`.
+- Dans un exercice de probabilités, `4/5` écrit au doigt sur un écran de 320 px est accepté après confirmation. La feuille manuscrite, le point et l’unique tentative sont restaurés à la réouverture hors connexion.
+- Sur les 191 tracés de `4` des lots de test CROHME, le lecteur passe de 69 à 96 lectures exactes. Les confusions avec le `9` passent de 18 à 13. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v98)
+
 ## v97 — distinguer le 4 ouvert du 9 (16 novembre 2026)
 
 - Le lecteur reconnaît le `4` à deux traits lorsque le trait coudé part à gauche de la hampe et rejoint celle-ci par une barre presque horizontale. La forme dessinée en boucle reste éligible à la lecture du `9`.
