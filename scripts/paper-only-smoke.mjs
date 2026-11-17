@@ -562,9 +562,15 @@ try{
       [[158,178],[161,195],[168,216],[182,248],[190,272]],
       [[115,286],[223,287]],
       denominatorFive
+    ]},
+    {id:"p08",answer:"4/5",detached:true,paths:[
+      [[160,175],[158,186],[152,202],[151,216],[153,220],[161,220],[173,220]],
+      [[185,175],[185,197],[182,220],[181,244],[180,270]],
+      [[115,286],[223,287]],
+      denominatorFive
     ]}
   ];
-  for(const {id,answer,paths} of fractions){
+  for(const {id,answer,detached,paths} of fractions){
     const probabilityContext=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,locale:"fr-FR"});
     try{
       // Conserver l’ordre de la banque pour atteindre les exercices fixes depuis l’accueil.
@@ -592,6 +598,10 @@ try{
       await traceFraction(fractionTouch,notebook.locator("canvas"),paths);
       const copy=(await stored()).workbook.entries["quiz:"+id];
       assert.equal(copy.pages[0].length,paths.length);
+      if(detached){
+        const [arm,stem]=copy.pages[0].slice(0,2).map(parseStroke);
+        assert.ok(Math.max(...arm.map(([x])=>x))<Math.min(...stem.map(([x])=>x)));
+      }
       await notebook.locator(".math-notebook-quick-validate").tap();
       const proposed=notebook.locator(".math-notebook-recognition-candidate");
       await proposed.waitFor({state:"visible"});

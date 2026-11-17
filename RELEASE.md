@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v101 — reconnaître le 4 à barre courte (17 novembre 2026)
+
+- Le lecteur accepte une barre courte qui s’arrête avant la hampe. Il peut regrouper deux tracés légèrement espacés si leur position et la forme du coude correspondent à un seul `4`.
+- Sur 191 tracés annotés, les lectures exactes passent de 108 à 112 et les confusions avec le `9` de 8 à 6. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v101)
+- Le parcours tactile vérifie la proposition `4/5` avec ce geste, la notation après confirmation et la reprise hors connexion avec la copie et le point.
+
 ## v100 — reconnaître le 4 à barre montante (17 novembre 2026)
 
 - Le lecteur reconnaît les `4` dont la barre remonte près du sommet après avoir traversé la hampe. Il vérifie que le trait coudé reste rectiligne de part et d’autre de l’angle et que la barre dépasse nettement à droite.
