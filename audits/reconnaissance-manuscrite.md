@@ -239,3 +239,41 @@ La règle du `4` ouvert peut accepter une courte descente quand elle commence ba
 | 166 expressions des lots CROHME 2012, 2013, 2014 et `Train_2014` | 10 / 0 / 156 | 10 / 0 / 156 |
 
 Trois lectures `4` → `9` et une abstention sont corrigées à 70 unités. À 25 unités, deux confusions et une abstention sont corrigées. À 45 et 105 unités, les mêmes quatre tracés qu’à 70 unités sont corrigés. Le parcours Chromium mobile à 320 px reproduit la lecture `9/5` en v102 pour chacun des deux gestes. En v103, le quiz propose `4/5`, attend la confirmation et restaure la copie, la tentative et le point après fermeture et réouverture hors connexion.
+
+## Application existante et seconde lecture avec Seshat Web
+
+[EulerPad sur Android](https://play.google.com/store/apps/details?id=com.eulerpad.app) est l’option prête à l’emploi la plus proche parmi les applications examinées. Selon l’éditeur, le cahier accepte l’écriture au doigt et la correction porte sur chaque étape. Son catalogue couvre plusieurs thèmes de maths du lycée, la pratique gratuite a un quota quotidien et les fonctions d’IA traitent les entrées via des prestataires distants. [Fonctionnement et crédits](https://eulerpad.app/) · [Politique de confidentialité](https://eulerpad-2d8dac.gitlab.io/privacy.html)
+
+[CalcInk](https://kushagra905.github.io/CalcInk/) dispose d’un cahier avec sauvegarde locale et mode hors connexion après mise en cache. Il calcule les expressions saisies et réutilise le modèle CoMER d’ink-on, déjà mesuré ici. Ses fonctionnalités documentées couvrent le calcul et le tracé de fonctions. [Code et description](https://github.com/Kushagra905/CalcInk)
+
+### Essai hors connexion du moteur Seshat
+
+Seshat, sous GPLv3, est compilé avec Emscripten 3.1.74 et Boost 1.74. Le correctif adapte l’ancien C++ au compilateur et omet le lecteur de fichiers InkML. Le moteur reçoit les coordonnées du cahier au format SCG_INK et produit du LaTeX. Le worker tourne dans Chromium en mode mobile, puis est arrêté après chaque lecture. Le test ferme la page, coupe le réseau et rouvre la page depuis le cache avant de lancer la reconnaissance. [Code amont au commit utilisé](https://github.com/falvaro/seshat/tree/84c677cf3b916646ea122003236b5ca96039ff2a)
+
+| Fractions manuscrites isolées | v103 exact / erreur / abstention | v103 puis Seshat exact / erreur / abstention |
+| --- | --- | --- |
+| 23 fractions CROHME 2019 | 2 / 0 / 21 | 19 / 2 / 2 |
+| 25 fractions CROHME 2012–2014 | 4 / 0 / 21 | 18 / 1 / 6 |
+| **48 fractions** | **6 / 0 / 42** | **37 / 3 / 8** |
+
+L’essai conserve chaque proposition v103 et utilise Seshat sur les 42 abstentions. Il admet une fraction dont le numérateur est entier positif ou nul et le dénominateur entier strictement positif. Les réponses attendues servent au calcul des résultats du benchmark une fois la proposition produite. Parmi les trois nouvelles erreurs, Seshat lit `1/7` comme `1/1`, `7/4` comme `1/4` et `9/5` comme `4/5`. L’essai fournit directement des fractions isolées annotées. La détection d’une fraction parmi les calculs d’une feuille et la latence sur un téléphone physique restent à mesurer. La version publiée conserve le lecteur v103.
+
+### Rejouer l’essai
+
+Préparer les JSON de fractions avec `scripts/export-crohme-ink.py` comme dans la comparaison CROHME ci-dessus. Pour CROHME 2014, utiliser son lot de validation correspondant. Installer Chromium Playwright et activer Emscripten 3.1.74, puis depuis le dépôt avec les en-têtes Boost 1.74 disponibles :
+
+```sh
+npm install --no-save --package-lock=false playwright@1.65.0
+npx playwright install chromium
+bash scripts/seshat-web/build.sh /chemin/vers/boost-1.74/include /tmp/daeu-seshat-wasm
+```
+
+Exécuter ensuite le comparateur :
+
+```sh
+node scripts/seshat-web/compare.mjs /tmp/daeu-seshat-wasm \
+  /tmp/daeu-crohme-2019.json /tmp/daeu-crohme-2014.json \
+  /tmp/daeu-crohme-2012.json /tmp/daeu-crohme-2013.json
+```
+
+La sortie JSONL contient une ligne par fraction avec la mesure locale, la seconde lecture et la durée du worker. Les données du corpus et le binaire compilé restent hors du dépôt.

@@ -1,0 +1,314 @@
+diff --git a/rnnlib4seshat/ClassificationLayer.hpp b/rnnlib4seshat/ClassificationLayer.hpp
+index 4332c79..8698bac 100644
+--- a/rnnlib4seshat/ClassificationLayer.hpp
++++ b/rnnlib4seshat/ClassificationLayer.hpp
+@@ -176,7 +176,7 @@ struct BinaryClassificationLayer: public ClassificationLayer, public NeuronLayer
+ 	real_t set_error(int pt, int targetClass)
+ 	{
+ 		real_t targetProb = class_prob(pt, targetClass);
+-		((View<real_t>&)outputErrors[pt])[0] = (targetClass ? -(1/targetProb) : (1/targetProb));
++		outputErrors[pt][0] = (targetClass ? -(1/targetProb) : (1/targetProb));
+ 		return log(targetProb);
+ 	}
+ };
+diff --git a/rnnlib4seshat/Helpers.hpp b/rnnlib4seshat/Helpers.hpp
+index 8828e9e..5cae9ff 100644
+--- a/rnnlib4seshat/Helpers.hpp
++++ b/rnnlib4seshat/Helpers.hpp
+@@ -266,6 +266,8 @@ template <class T> static T bound (
+   return min(max(minVal, v), maxVal);
+ }
+ //CAST OPERATIONS
++template <class C, class Tr, class R> static basic_ostream<C, Tr>& operator <<(
++    basic_ostream<C, Tr>& out, const R& r);
+ template<class T> static string str(const T& t) {
+   stringstream ss;
+   ss << t;
+@@ -387,10 +389,10 @@ static UnaryFunction for_each(R& r, UnaryFunction f) {
+   return for_each(boost::begin(r), boost::end(r), f);
+ }
+ template <class R, class T> static bool in(const R& r, const T& t) {
+-  return find(r, t) != boost::end(r);
++  return ::find(r, t) != boost::end(r);
+ }
+ template <class R, class T> static size_t index(const R& r, const T& t) {
+-  return distance(boost::begin(r), find(r, t));
++  return std::distance(boost::begin(r), ::find(r, t));
+ }
+ template <class R> static void reverse(R& r) {
+   reverse(boost::begin(r), boost::end(r));
+@@ -408,7 +410,7 @@ pair<typename range_value<R>::type, typename range_value<R>::type>
+ minmax(const R& r) {
+   pair<
+     typename range_const_iterator<R>::type,
+-    typename range_const_iterator<R>::type> p = minmax_element(
++    typename range_const_iterator<R>::type> p = boost::minmax_element(
+         boost::begin(r), boost::end(r));
+   return make_pair(*p.first, *p.second);
+ }
+@@ -539,7 +541,7 @@ static size_t range_min_size (
+       boost::size(d)), boost::size(e));
+ }
+ template <class R> static int arg_max(const R& r) {
+-  return distance(boost::begin(r), max_element(boost::begin(r), boost::end(r)));
++  return std::distance(boost::begin(r), max_element(boost::begin(r), boost::end(r)));
+ }
+ template <class R1, class R2>
+ static pair<
+@@ -805,24 +807,24 @@ template<class R1, class R2> static void range_divide_equals(
+ //TUPLE OPERATIONS
+ template<class T1, class T2> static ostream& operator << (
+     ostream& out, const tuple<T1, T2>& t) {
+-  out << t.get<0>() << " " << t.get<1>();
++  out << t.template get<0>() << " " << t.template get<1>();
+   return out;
+ }
+ template<class T1, class T2, class T3> static ostream& operator << (
+     ostream& out, const tuple<T1, T2, T3>& t) {
+-  out << t.get<0>() << " " << t.get<1>() << " " << t.get<2>();
++  out << t.template get<0>() << " " << t.template get<1>() << " " << t.template get<2>();
+   return out;
+ }
+ template<class T1, class T2, class T3, class T4> static ostream& operator << (
+     ostream& out, const tuple<T1, T2, T3, T4>& t) {
+-  out << t.get<0>() << " " << t.get<1>() << " " << t.get<2>() << " "
+-      << t.get<3>();
++  out << t.template get<0>() << " " << t.template get<1>() << " " << t.template get<2>() << " "
++      << t.template get<3>();
+   return out;
+ }
+ template<class T1, class T2, class T3, class T4, class T5>
+ static ostream& operator << (ostream& out, const tuple<T1, T2, T3, T4, T5>& t) {
+-  out << t.get<0>() << " " << t.get<1>() << " " << t.get<2>() << " "
+-      << t.get<3>() << " " << t.get<4>();
++  out << t.template get<0>() << " " << t.template get<1>() << " " << t.template get<2>() << " "
++      << t.template get<3>() << " " << t.template get<4>();
+   return out;
+ }
+ //PAIR OPERATIONS
+diff --git a/rnnlib4seshat/WeightContainer.cpp b/rnnlib4seshat/WeightContainer.cpp
+index c50fb66..2cdaf9f 100644
+--- a/rnnlib4seshat/WeightContainer.cpp
++++ b/rnnlib4seshat/WeightContainer.cpp
+@@ -45,14 +45,14 @@ void perturb_weight(real_t& weight, real_t stdDev, bool additive)
+ }
+ 
+ 
+-template <class R> void perturb_weights(R& weights, real_t stdDev, bool additive = true)
++template <class R> void perturb_weights(R& weights, real_t stdDev, bool additive)
+ {
+ 	LOOP(real_t& w, weights)
+ 	{
+ 		perturb_weight(w, stdDev, additive);
+ 	}
+ }
+-template <class R> void perturb_weights(R& weights, R& stdDevs, bool additive = true)
++template <class R> void perturb_weights(R& weights, R& stdDevs, bool additive)
+ {
+ 	assert(boost::size(weights) == boost::size(stdDevs));
+ 	LOOP(int i, indices(weights))
+diff --git a/sample.cc b/sample.cc
+index 562926c..e6c58fc 100644
+--- a/sample.cc
++++ b/sample.cc
+@@ -28,18 +28,6 @@
+ #include <queue>
+ #include "sample.h"
+ 
+-#include <xercesc/util/PlatformUtils.hpp>
+-#include <xercesc/parsers/XercesDOMParser.hpp>
+-#include <xercesc/util/XMLUni.hpp>
+-#include <xercesc/dom/DOM.hpp>
+-#include <xercesc/dom/DOMDocument.hpp>
+-#include <xercesc/dom/DOMDocumentType.hpp>
+-#include <xercesc/dom/DOMElement.hpp>
+-#include <xercesc/dom/DOMImplementation.hpp>
+-#include <xercesc/dom/DOMImplementationLS.hpp>
+-#include <xercesc/dom/DOMNodeIterator.hpp>
+-#include <xercesc/dom/DOMNodeList.hpp>
+-#include <xercesc/dom/DOMText.hpp>
+ 
+ #define PI 3.14159265
+ 
+@@ -134,178 +122,9 @@ void Sample::loadSCGInk(char *str) {
+   fclose(fd);
+ }
+ 
+-void Sample::loadInkML(char *str) {
+-  
+-  //Check if file exists
+-  FILE *auxfile=fopen(str,"r");
+-  if( !auxfile ) {
+-    fprintf(stderr, "Error loading InkML file '%s'\n", str);
+-    exit(1);
+-  }
+-  fclose(auxfile);
+-
+-  //If file exists, let the XML library parse the InkML file
+-  
+-  try {
+-    xercesc::XMLPlatformUtils::Initialize();
+-  }
+-  catch (const xercesc::XMLException& toCatch) {
+-    fprintf(stderr, "Error initializing Xerces library: %s\n", xercesc::XMLString::transcode(toCatch.getMessage()));
+-    exit(1);
+-  }
+-
+-  xercesc::XercesDOMParser *inkmlParser;
+-  XMLCh *TAG_trace, *TAG_traceFormat, *TAG_traceGroup, *TAG_traceView, *TAG_annotation;
+-  XMLCh *TAG_annotationXML, *TAG_math;
+-  XMLCh *ATTR_id, *ATTR_xmlid, *ATTR_traceDataRef, *ATTR_href, *ATTR_type;
+-
+-  TAG_trace = xercesc::XMLString::transcode("trace");
+-  TAG_traceFormat = xercesc::XMLString::transcode("traceFormat");
+-  TAG_traceGroup = xercesc::XMLString::transcode("traceGroup");
+-  TAG_traceView  = xercesc::XMLString::transcode("traceView");
+-  TAG_annotation = xercesc::XMLString::transcode("annotation");
+-  TAG_annotationXML = xercesc::XMLString::transcode("annotationXML");
+-  TAG_math = xercesc::XMLString::transcode("math");
+-  
+-  ATTR_id = xercesc::XMLString::transcode("id");
+-  ATTR_xmlid = xercesc::XMLString::transcode("xml:id");
+-  ATTR_traceDataRef = xercesc::XMLString::transcode("traceDataRef");
+-  ATTR_href = xercesc::XMLString::transcode("href");
+-  ATTR_type = xercesc::XMLString::transcode("type");
+-
+-  inkmlParser = new xercesc::XercesDOMParser;
+-  
+-  
+-  //Configure DOM parser
+-  inkmlParser->setValidationScheme( xercesc::XercesDOMParser::Val_Never );
+-  inkmlParser->setDoNamespaces( false );
+-  inkmlParser->setDoSchema( false );
+-  inkmlParser->setLoadExternalDTD( false );
+-
+-
+-  //Parse document
+-  try{
+-    
+-    inkmlParser->parse( str );
+-    
+-    //No need to free this pointer - owned by the parent parser object
+-    xercesc::DOMDocument* xmlDoc = inkmlParser->getDocument();
+-
+-    xercesc::DOMElement *elementRoot = xmlDoc->getDocumentElement();
+-    if( !elementRoot ) fprintf(stderr, "Error: '%s' empty XML document\n", str);
+-    
+-    
+-    xercesc::DOMNodeList*     children = elementRoot->getChildNodes();
+-    const XMLSize_t nodeCount = children->getLength();
+-    
+-    for( XMLSize_t xx = 0; xx < nodeCount; ++xx ) {
+-      
+-      xercesc::DOMNode* currentNode = children->item(xx);
+-      
+-      if( currentNode->getNodeType() && 
+-	  currentNode->getNodeType() == xercesc::DOMNode::ELEMENT_NODE ) {
+-	
+-	xercesc::DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
+-	if( xercesc::XMLString::equals(currentElement->getTagName(), TAG_trace) ) {
+-	  
+-	  const XMLCh* xmlch_id = currentElement->getAttribute(ATTR_id);
+-	  char *id = xercesc::XMLString::transcode(xmlch_id);
+-	  
+-	  int idstroke=atoi(id);
+-	  next_id = idstroke;
+-
+-	  xercesc::XMLString::release( &id );
+-	  
+-	  xercesc::DOMNodeList *puntos = currentElement->getChildNodes();
+-	  for( XMLSize_t pp = 0; pp < puntos->getLength(); pp++ ) {
+-	    xercesc::DOMNode *pt = puntos->item(pp);
+-	    if( pt->getNodeType() && pt->getNodeType() == xercesc::DOMNode::TEXT_NODE ) {
+-	      char *aux = xercesc::XMLString::transcode(pt->getNodeValue());
+-
+-	      dataon.push_back(new Stroke(aux, idstroke));
+-
+-	      xercesc::XMLString::release( &aux );
+-	    }
+-	  }
+-	  
+-	}
+-	else if( xercesc::XMLString::equals(currentElement->getTagName(), TAG_annotation) ) {
+-	  const XMLCh* xmlch_type = currentElement->getAttribute(ATTR_type);
+-	  char *type = xercesc::XMLString::transcode(xmlch_type);
+-	  
+-	  if( !strcmp(type, "UI") ) {
+-
+-	    xercesc::DOMNodeList *nodes = currentElement->getChildNodes();
+-	    for( XMLSize_t pp = 0; pp < nodes->getLength(); pp++ ) {
+-	      xercesc::DOMNode *pt = nodes->item(pp);
+-	      if( pt->getNodeType() && pt->getNodeType() == xercesc::DOMNode::TEXT_NODE ) {
+-		char *aux = xercesc::XMLString::transcode(pt->getNodeValue());
+-		
+-		UItag = aux;
+-
+-		xercesc::XMLString::release( &aux );
+-	      }
+-	    }
+-
+-	  }
+-	  
+-	  xercesc::XMLString::release( &type );
+-	}
+-
+-      }
+-    }
+-  }
+-  catch( xercesc::XMLException& e ) {
+-    fprintf(stderr, "Error parsing file '%s': %s\n", str, xercesc::XMLString::transcode(e.getMessage()));
+-    exit(1);    
+-  }
+-
+-  delete inkmlParser;
+-  xercesc::XMLString::release( &TAG_trace );
+-  
+-  xercesc::XMLPlatformUtils::Terminate();
+-
+-  //Compute bounding box of the input expression
+-  float xmin=FLT_MAX, ymin=FLT_MAX;
+-  float xmax=-FLT_MAX, ymax=-FLT_MAX;
+-
+-  for(int i=0; i<nStrokes(); i++)
+-    for(int j=0; j<dataon[i]->getNpuntos(); j++) {
+-      Punto *p = dataon[i]->get(j);
+-      if( p->x < xmin )	xmin = p->x;
+-      if( p->x > xmax )	xmax = p->x;
+-      if( p->y < ymin )	ymin = p->y;
+-      if( p->y > ymax )	ymax = p->y;
+-    }
+-
+-  //Just in case there is only one point or a sequence of points perfectly
+-  //aligned with the x or y axis
+-  if( xmax == xmin ) xmax = xmin + 1;
+-  if( ymax == ymin ) ymax = ymin + 1;
+-
+-  //Renormalize to height [0,10000] keeping the aspect ratio
+-  float H=10000;
+-  float W=H*(xmax-xmin)/(ymax-ymin);
+-
+-  for(int i=0; i<nStrokes(); i++) {
+-
+-    dataon[i]->rx = dataon[i]->ry =  INT_MAX;
+-    dataon[i]->rs = dataon[i]->rt = -INT_MAX;
+-
+-    for(int j=0; j < dataon[i]->getNpuntos(); j++) {
+-      Punto *p = dataon[i]->get(j);
+-
+-      p->x = (int)(W*(p->x-xmin)/(xmax-xmin));
+-      p->y = (int)(H*(p->y-ymin)/(ymax-ymin));
+-
+-      //Compute bounding box
+-      if( p->x < dataon[i]->rx ) dataon[i]->rx = (int)p->x;
+-      if( p->x > dataon[i]->rs ) dataon[i]->rs = (int)p->x;
+-      if( p->y < dataon[i]->ry ) dataon[i]->ry = (int)p->y;
+-      if( p->y > dataon[i]->rt ) dataon[i]->rt = (int)p->y;
+-    }
+-  }
+-
++void Sample::loadInkML(char *) {
++  fprintf(stderr, "Use SCG_INK.\n");
++  exit(1);
+ }
+ 
+ 
