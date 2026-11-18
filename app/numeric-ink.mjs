@@ -330,12 +330,60 @@ function hasOpenThree(paths,box){
   return indent<=minX+width*.52&&Math.min(upper,lower)-indent>=width*.28;
 }
 
+function crossingPoint([ax,ay],[bx,by],[cx,cy],[dx,dy]){
+  const ux=bx-ax,uy=by-ay,vx=dx-cx,vy=dy-cy;
+  const area=ux*vy-uy*vx;
+  if(area===0||area*area<.04*(ux*ux+uy*uy)*(vx*vx+vy*vy))return null;
+  const t=((cx-ax)*vy-(cy-ay)*vx)/area;
+  const s=((cx-ax)*uy-(cy-ay)*ux)/area;
+  return t>=0&&t<=1&&s>=0&&s<=1?[ax+t*ux,ay+t*uy]:null;
+}
+
+function signedDoubleArea(path){
+  return path.reduce((sum,[x,y],index)=>{
+    const [nextX,nextY]=path[(index+1)%path.length];
+    return sum+x*nextY-y*nextX;
+  },0);
+}
+
+// Un 8 en un trait revient près de son départ après deux boucles de sens opposés.
+function hasCrossedEight(paths,box){
+  if(paths.length!==1)return false;
+  const path=paths[0], first=path[0],last=path.at(-1);
+  const height=box.maxY-box.minY,width=box.maxX-box.minX;
+  if(path.length<7||height<18||width<height*.20||far(first,last)>height*.26)return false;
+  const fromTop=first[1]+last[1]<=box.minY+box.maxY;
+  const depth=y=>fromTop?y-box.minY:box.maxY-y;
+  if(Math.max(depth(first[1]),depth(last[1]))>height*.28)return false;
+  const depths=path.map(([,y])=>depth(y)),turn=depths.indexOf(height);
+  for(let i=0;i<turn;i++){
+    if(depths[i+1]<height*.25||depths[i]>height*.75||depths[i]>depths[i+1])continue;
+    for(let j=Math.max(turn,i+2);j<path.length-1;j++){
+      if(depths[j]<height*.25||depths[j+1]>height*.75||depths[j]<depths[j+1])continue;
+      const crossing=crossingPoint(path[i],path[i+1],path[j],path[j+1]);
+      if(crossing===null)continue;
+      const center=depth(crossing[1]);
+      if(center<height*.25||center>height*.75)continue;
+      const slack=height*.12;
+      if(!depths.slice(i+1,j+1).every(d=>d>=center-slack)
+        ||!depths.slice(0,i+1).every(d=>d<=center+slack)
+        ||!depths.slice(j+1).every(d=>d<=center+slack))continue;
+      const inner=signedDoubleArea([crossing,...path.slice(i+1,j+1)]);
+      const outer=signedDoubleArea([crossing,...path.slice(j+1),...path.slice(0,i+1)]);
+      const minArea=width*height*.04;
+      if(inner*outer<0&&Math.min(Math.abs(inner),Math.abs(outer))>=minArea)return true;
+    }
+  }
+  return false;
+}
+
 function classify(paths){
   if(!paths.length||paths.length>3)return null;
   if(isFootedOne(paths))return {digit:"1",score:0,margin:1};
   const b=bounds(paths),w=b.maxX-b.minX,h=b.maxY-b.minY;
   if(Math.max(w,h)<15)return {digit:".",score:0,margin:1};
   if(w>20&&h<Math.max(8,w*.22))return {digit:"-",score:0,margin:1};
+  if(hasCrossedEight(paths,b))return {digit:"8",score:0,margin:1};
   const barred=hasSevenBar(paths,b);
   if(barred&&hasUprightSeven(paths,b))return {digit:"7",score:0,margin:1};
   if(hasOpenFour(paths,b))return {digit:"4",score:0,margin:1};
