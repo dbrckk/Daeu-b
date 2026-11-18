@@ -343,6 +343,21 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Audit des chiffres à deux traits — chantier suivant
+
+Le benchmark `scripts/audit-two-stroke-eight.mjs` prend les chiffres isolés et annotés des exports CROHME (`--symbols`). Il mesure séparément les `8` à deux traits et les autres chiffres à deux traits, avec trois issues exclusives : exact, erreur, abstention. Il signale les **faux `8` parmi les autres chiffres** par identifiant. Il permet aussi de comparer un lecteur antérieur sur **les mêmes coordonnées normalisées** et d'identifier chaque transcription modifiée.
+
+```sh
+python3 scripts/export-crohme-ink.py /tmp/Train.zip --split TestINKMLGT_2013 --symbols > /tmp/crohme-2013-symbols.json
+python3 scripts/export-crohme-ink.py /tmp/crohme-formulas.zip --symbols > /tmp/crohme-2014-symbols.json
+git show 64e0aded0012e43e950a17c6f1b54d99b5cd1966:app/numeric-ink.mjs > app/numeric-ink-v106.mjs
+node scripts/audit-two-stroke-eight.mjs --baseline app/numeric-ink-v106.mjs \
+  /tmp/crohme-2013-symbols.json /tmp/crohme-2014-symbols.json
+rm app/numeric-ink-v106.mjs
+```
+
+Les archives doivent être obtenues séparément et ne sont ni téléchargées ni publiées par ce script. La comparaison de référence est facultative : retirer `--baseline app/numeric-ink-v106.mjs` pour mesurer uniquement la version courante. Les contrôles de l'audit lui-même tournent en CI, **mais les scores CROHME ne sont pas encore mesurés pour la v107**. Ne pas interpréter un faible taux de faux positifs sur les seules formes synthétiques comme une précision démontrée en production.
+
 ## Lecteur local v107
 
 Certains élèves écrivent le `8` comme deux ovales indépendants plutôt qu'en traçant un croisement central. Le lecteur regroupe désormais ces traits uniquement lorsque leurs largeurs et hauteurs sont comparables, leurs centres horizontaux sont alignés, les ovales sont presque joints verticalement et chacun forme une boucle fermée d'aire suffisante.

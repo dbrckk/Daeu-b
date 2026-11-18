@@ -6,6 +6,8 @@ on:
       - '!app/README.md'
       - 'scripts/browser-smoke.mjs'
       - 'scripts/paper-only-smoke.mjs'
+      - 'scripts/audit-two-stroke-eight.mjs'
+      - 'scripts/audit-two-stroke-eight.test.mjs'
       - 'scripts/browser-cloud.mjs'
       - 'scripts/pwa-upgrade-smoke.mjs'
       - '.github/workflows/browser-smoke.yml'
@@ -15,6 +17,8 @@ on:
       - '!app/README.md'
       - 'scripts/browser-smoke.mjs'
       - 'scripts/paper-only-smoke.mjs'
+      - 'scripts/audit-two-stroke-eight.mjs'
+      - 'scripts/audit-two-stroke-eight.test.mjs'
       - 'scripts/browser-cloud.mjs'
       - 'scripts/pwa-upgrade-smoke.mjs'
       - '.github/workflows/browser-smoke.yml'
@@ -45,7 +49,7 @@ jobs:
       - name: Tester le parcours réel et le hors ligne
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 --directory app > /tmp/daeu-http.log 2>&1 &
-          node --test app/irrational-roots.test.mjs app/constraint-solver.test.mjs app/quadratic-checker.test.mjs app/math-step-checker.test.mjs app/numeric-ink.test.mjs app/equation-ink.test.mjs app/ink-eraser.test.mjs app/ink-transcript.test.mjs app/ink-drafts.test.mjs
+          node --test app/irrational-roots.test.mjs app/constraint-solver.test.mjs app/quadratic-checker.test.mjs app/math-step-checker.test.mjs app/numeric-ink.test.mjs app/equation-ink.test.mjs app/ink-eraser.test.mjs app/ink-transcript.test.mjs app/ink-drafts.test.mjs scripts/audit-two-stroke-eight.test.mjs
           node scripts/browser-smoke.mjs
           node scripts/paper-only-smoke.mjs
           node scripts/browser-cloud.mjs
