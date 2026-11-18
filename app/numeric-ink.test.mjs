@@ -194,7 +194,7 @@ test("Lire un 8 composé de deux boucles distinctes, sans transformer les autres
     assert.equal(recognizeNumericInk([...paths,encodeStroke([[280,130],[280,215]])]).text,"81");
   }
   // Les ovales peuvent être rapprochés sans se toucher.
-  const separated=[top,oval(183,201,27,24)].map(encodeStroke);
+  const separated=[top,oval(183,198,27,24)].map(encodeStroke);
   assert.equal(recognizeNumericInk(separated).text,"8");
 
   const bar=encodeStroke([[130,139],[240,139]]);
