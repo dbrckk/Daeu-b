@@ -17,7 +17,8 @@ export function replayConsensus(rows){
   const replayed=rows.map((row,index)=>{
     if(!row||typeof row!=="object"||typeof row.file!=="string"||
       typeof row.id!=="string"||typeof row.expected!=="string"||
-      !Object.hasOwn(row,"local")||!Object.hasOwn(row,"latex")||
+      !Object.hasOwn(row,"local")||
+      (!Object.hasOwn(row,"latex")&&row.local==null)||
       !Object.hasOwn(row,"rows")||!Object.hasOwn(row,"policyOutcomes")||
       !Object.hasOwn(row,"localOutcome")){
       throw Error("Lecture incomplète à l'index "+index+" : impossible de rejouer le consensus");
