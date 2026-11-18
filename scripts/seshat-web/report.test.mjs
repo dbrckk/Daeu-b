@@ -63,3 +63,16 @@ test("Rapport : lire des sorties JSONL avec lignes vides et détecter les corrup
   assert.deepEqual(parseBenchmark("\n"+line+"\r\n"),[JSON.parse(line)]);
   assert.throws(()=>parseBenchmark("\n{wrong"),/ligne 2/);
 });
+
+test("Rapport : une erreur conservée interdit aussi la présélection",()=>{
+  const report=summarizeBenchmark([
+    sample("a","abstention","exact"),
+    sample("b","error","error","2023.json")
+  ]);
+  assert.equal(report.strictAddedExact,1);
+  assert.equal(report.strictAddedErrors,0);
+  assert.equal(report.strictLostExact,0);
+  assert.equal(report.policies.strictConsensus.error,1);
+  assert.equal(report.decision,"reject-existing-errors");
+  assert.equal(report.decisionIsProductionApproval,false);
+});

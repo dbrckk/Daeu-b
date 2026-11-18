@@ -24,6 +24,9 @@ export function replayConsensus(rows){
       throw Error("Lecture incomplète à l'index "+index+" : impossible de rejouer le consensus");
     }
     const {local,latex,rows:lineReadings,expected}=row;
+    if(inkOutcome(local,expected)!==row.localOutcome){
+      throw Error("Résultat local incohérent à l\u0027index "+index);
+    }
     const parts=Array.isArray(lineReadings)&&lineReadings.length===2
       ?[[],[]]:null;
     const consensus=decideFractionFallback({local,whole:latex,parts,rows:lineReadings});

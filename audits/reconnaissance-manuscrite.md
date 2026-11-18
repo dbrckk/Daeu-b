@@ -343,6 +343,12 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Garde-fous supplémentaires sur les benchmarks
+
+Le rapport refuse désormais de présélectionner un moteur même si ses **nouvelles** erreurs sont nulles, lorsque des **erreurs résiduelles** demeurent. Un moteur qui améliore la couverture mais conserve une mauvaise lecture ne doit pas être déclaré candidat à l'intégration. Le replay vérifie également que la transcription locale et sa classification (exacte, erronée ou abstention) sont cohérentes avant de recalculer le consensus.
+
+Ces contrôles évitent de prendre un résultat agrégé trompeur pour une validation du lecteur. Ils ne remplacent pas la relance du corpus complet avec la version actuelle.
+
 ## Rejouer le consensus strict sur des résultats déjà mesurés
 
 Le script `scripts/seshat-web/replay-consensus.mjs` recalcule la politique `strictConsensus` depuis les lectures détaillées JSONL du comparateur, sans reconstruire Seshat ni télécharger le corpus. Il réutilise les lectures Seshat de la fraction entière et de chaque ligne, les éventuels veto locaux et les résultats annotés. Les lectures locales déjà reconnues sont préservées. Les entrées tronquées sont refusées.
