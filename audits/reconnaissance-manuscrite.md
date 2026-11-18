@@ -342,3 +342,19 @@ Les cinq erreurs du `8` de la v104 à 70 unités concernaient des chiffres à de
 Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3` et les 7 470 autres symboles annotés. Toutes les transcriptions modifiées aux quatre tailles deviennent exactes sur ce corpus. Sur 95 fractions, le lecteur propose neuf lectures exactes et 86 abstentions. La lecture ajoutée correspond à un `8/7` de CROHME 2019. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Corpus CROHME 2023](https://zenodo.org/records/8428035)
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
+
+## Lecteur local v106
+
+Les boucles d’un `8` peuvent se croiser alors que le stylo finit loin de son point de départ. La v105 écartait ces tracés. La v106 accepte les extrémités éloignées si elles restent proches du sommet des boucles, si le croisement demeure central et si les deux boucles de sens opposés possèdent chacune une aire suffisante. Le contrôle renforcé de l’écart entre le croisement et les extrémités écarte un `2` ouvert observé pendant les essais.
+
+| Tracés de `8` à 70 unités | v105 exact / erreur / abstention | v106 exact / erreur / abstention |
+| --- | --- | --- |
+| 50 tracés CROHME 2012 | 38 / 0 / 12 | 43 / 0 / 7 |
+| 28 tracés CROHME 2013 | 26 / 0 / 2 | 27 / 0 / 1 |
+| 83 tracés CROHME 2014 | 68 / 0 / 15 | 74 / 0 / 9 |
+| 11 tracés du lot CROHME 2023 | 4 / 0 / 7 | 4 / 0 / 7 |
+| **172 tracés** | **136 / 0 / 36** | **148 / 0 / 24** |
+
+Les quatre tailles contrôlées restent 25, 45, 70 et 105 unités. Aucun des autres chiffres annotés des lots 2012–2014 et 2023 ne change de lecture. Un deuxième lot de contrôle comprend 7 027 chiffres des données d’entraînement CROHME 2014, dont 701 `8`. À 70 unités, 53 `8` supplémentaires deviennent exacts, sans modification des autres chiffres. Les 95 fractions utilisées jusqu’ici gardent leurs transcriptions précédentes.
+
+Le parcours Chromium à 320 px vérifie une nouvelle fraction `3/8` dont les extrémités du `8` restent éloignées. La proposition nécessite une confirmation pour attribuer le point. La copie et le score sont restaurés après fermeture et réouverture hors connexion. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html)
