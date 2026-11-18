@@ -326,3 +326,19 @@ Le gabarit d’un `8` étroit devançait celui du `3` sur certains traits ouvert
 Les `3` et `8` isolés sont segmentés par les annotations CROHME. À 70 unités, 15 `3` autrefois lus `8` sont corrigés et 41 abstentions deviennent des lectures exactes. À 25, 45, 70 et 105 unités, aucune lecture des 172 tracés de `8` ne change. Les 7 470 autres symboles annotés sont également contrôlés aux quatre tailles. Les deux variantes annotées de `43/9` dans les 95 tracés de fractions sont correctement lues. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Corpus CROHME 2023](https://zenodo.org/records/8428035)
 
 Le parcours Chromium à 320 px vérifie le nouveau tracé sur un exercice de probabilités. Il propose `3/8` après l’écriture au doigt et attribue le point après confirmation. La copie et le score sont restaurés après fermeture et réouverture hors connexion.
+
+## Lecteur local v105
+
+Les cinq erreurs du `8` de la v104 à 70 unités concernaient des chiffres à deux boucles tracés d’un seul geste. Les gabarits proposaient deux `6`, deux `9` et un `4`. Le lecteur vérifie le croisement au milieu de la hauteur, le retour près du départ et la présence d’une boucle de chaque côté du croisement. Les deux boucles doivent tourner en sens opposés et avoir une aire suffisante. Les contrôles incluent un `0` retracé et des `1` presque verticaux.
+
+| Tracés de `8` à 70 unités | v104 exact / erreur / abstention | v105 exact / erreur / abstention |
+| --- | --- | --- |
+| 50 tracés CROHME 2012 | 25 / 1 / 24 | 38 / 0 / 12 |
+| 28 tracés CROHME 2013 | 8 / 1 / 19 | 26 / 0 / 2 |
+| 83 tracés CROHME 2014 | 27 / 3 / 53 | 68 / 0 / 15 |
+| 11 tracés du lot de fractions CROHME 2023 | 0 / 0 / 11 | 4 / 0 / 7 |
+| **172 tracés** | **60 / 5 / 107** | **136 / 0 / 36** |
+
+Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3` et les 7 470 autres symboles annotés. Toutes les transcriptions modifiées aux quatre tailles deviennent exactes sur ce corpus. Sur 95 fractions, le lecteur propose neuf lectures exactes et 86 abstentions. La lecture ajoutée correspond à un `8/7` de CROHME 2019. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Corpus CROHME 2023](https://zenodo.org/records/8428035)
+
+Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.

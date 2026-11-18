@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v105 — reconnaître le 8 à deux boucles croisées (18 novembre 2026)
+
+- Le cahier reconnaît les deux boucles de sens opposés dans un `8` tracé d’un seul geste. À 70 unités, il lit correctement 136 des 172 tracés testés et corrige les cinq erreurs de la v104. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v105)
+- Le test tactile confirme la lecture de `3/8`, la confirmation avant correction et la reprise hors connexion de la copie et du score.
+
 ## v104 — reconnaître le 3 manuscrit étroit (18 novembre 2026)
 
 - Le cahier distingue les deux arcs ouverts d’un `3` étroit des boucles d’un `8`. La fraction manuscrite `43/9` est correctement transcrite. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v104)
