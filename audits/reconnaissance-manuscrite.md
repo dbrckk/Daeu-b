@@ -343,6 +343,16 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Rejouer le consensus strict sur des résultats déjà mesurés
+
+Le script `scripts/seshat-web/replay-consensus.mjs` recalcule la politique `strictConsensus` depuis les lectures détaillées JSONL du comparateur, sans reconstruire Seshat ni télécharger le corpus. Il réutilise les lectures Seshat de la fraction entière et de chaque ligne, les éventuels veto locaux et les résultats annotés. Les lectures locales déjà reconnues sont préservées. Les entrées tronquées sont refusées.
+
+```sh
+node scripts/seshat-web/replay-consensus.mjs /tmp/daeu-seshat-comparison.jsonl
+```
+
+**Attention à la provenance :** le replay ne réexécute **ni Seshat ni le lecteur local actuel**. Une sortie produite avec la v103 reste une évaluation du consensus strict *sur les lectures historiques v103*, et non une mesure de la v107. Il faut les JSONL d'origine avec les deux lignes reconnues, et non seulement les tableaux de résultats agrégés. Pour évaluer réellement le lecteur courant, relancer `compare.mjs` sur les corpus et le WASM, puis `report.mjs`. Aucun score actuel n'est revendiqué sans cette exécution.
+
 ## Décision sur le consensus Seshat : ne pas publier sans gain démontré
 
 Les 95 fractions annotées déjà mesurées avec le lecteur **v103** fournissent un contrôle indépendant du nouveau code de rapport, mais **ne mesurent pas encore la v107**. La règle historique `seshatAgreementWithLocalVeto` (accord Seshat sur les deux lignes, veto du lecteur local) a donné :
