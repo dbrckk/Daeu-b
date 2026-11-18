@@ -55,6 +55,8 @@ export function summarizeBenchmark(rows){
   let decision;
   if(strict.addedErrors>0||strict.lostExact>0){
     decision="reject-regression";
+  }else if(strict.error>0){
+    decision="reject-existing-errors";
   }else if(strict.addedExact===0){
     decision="reject-no-gain";
   }else if(rows.length<95||datasets.size<2){
