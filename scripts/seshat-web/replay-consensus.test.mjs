@@ -48,3 +48,9 @@ test("Refuser les sorties tronquées plutôt que produire un score trompeur",()=
   delete missing.latex;
   assert.throws(()=>replayConsensus([missing]),/incomplète/);
 });
+
+test("Rejouer : détecter un résultat local falsifié ou périmé",()=>{
+  const row=sample("bad-baseline","3/8",null,null,"3/8");
+  row.localOutcome="abstention";
+  assert.throws(()=>replayConsensus([row]),/Résultat local incohérent/);
+});
