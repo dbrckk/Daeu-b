@@ -343,6 +343,14 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Lecteur local v107
+
+Certains élèves écrivent le `8` comme deux ovales indépendants plutôt qu'en traçant un croisement central. Le lecteur regroupe désormais ces traits uniquement lorsque leurs largeurs et hauteurs sont comparables, leurs centres horizontaux sont alignés, les ovales sont presque joints verticalement et chacun forme une boucle fermée d'aire suffisante.
+
+Le test de régression vérifie le cas `8` isolé, l'ordre de dessin inversé, la direction inversée, deux ovales avec un petit espace et la fraction posée `3/8`. Il refuse un `0` retracé, des boucles côte à côte, des boucles trop éloignées et un `9` avec une hampe distincte. L'app conserve l'obligation de confirmer la transcription avant toute notation.
+
+**Limite de la mesure :** ces tracés de test ont été construits géométriquement et ne sont pas un nouveau corpus annoté de personnes réelles. Le résultat sur CROHME et l'essai sur Android physique doivent encore être mesurés. Les performances de la v106 sur les `8` d'un seul trait restent le point de référence.
+
 ## Lecteur local v106
 
 Les boucles d’un `8` peuvent se croiser alors que le stylo finit loin de son point de départ. La v105 écartait ces tracés. La v106 accepte les extrémités éloignées si elles restent proches du sommet des boucles, si le croisement demeure central et si les deux boucles de sens opposés possèdent chacune une aire suffisante. Le contrôle renforcé de l’écart entre le croisement et les extrémités écarte un `2` ouvert observé pendant les essais.
