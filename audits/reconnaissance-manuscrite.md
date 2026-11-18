@@ -343,6 +343,29 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Décision sur le consensus Seshat : ne pas publier sans gain démontré
+
+Les 95 fractions annotées déjà mesurées avec le lecteur **v103** fournissent un contrôle indépendant du nouveau code de rapport, mais **ne mesurent pas encore la v107**. La règle historique `seshatAgreementWithLocalVeto` (accord Seshat sur les deux lignes, veto du lecteur local) a donné :
+
+| Corpus | Exact / erreur / abstention | Lecteur v103 seul |
+| --- | --- | --- |
+| CROHME 2012–2019, 48 fractions | 28 / 3 / 17 | 6 / 0 / 42 |
+| CROHME 2023, 47 fractions | 15 / 2 / 30 | 0 / 1 / 46 |
+| **Total, 95 fractions** | **43 / 5 / 47** | **6 / 1 / 88** |
+
+Cette politique ajoute des lectures exactes **mais également des erreurs**. Le consensus strict introduit après la v107 exige aussi des lectures numériques valides ; il n'a pas encore été rejoué sur ces 95 tracés. Il serait incorrect de lui attribuer les scores de la politique historique. Les données disponibles ne justifient pas la publication du moteur externe.
+
+Le script `scripts/seshat-web/report.mjs` résume les sorties JSONL du comparateur, pour chaque corpus et chaque politique : exactitudes, erreurs, abstentions, nouvelles lectures exactes, nouvelles erreurs et pertes de lectures exactes par rapport au lecteur local. Il signale les échantillons dupliqués et les résultats manquants. Une politique n'est **jamais** approuvée pour la production par ce rapport, même si ses critères de présélection passent.
+
+```sh
+node scripts/seshat-web/compare.mjs /tmp/daeu-seshat-wasm \
+  /tmp/daeu-crohme-2019.json /tmp/daeu-crohme-2023.json \
+  > /tmp/daeu-seshat-comparison.jsonl
+node scripts/seshat-web/report.mjs /tmp/daeu-seshat-comparison.jsonl
+```
+
+Cette commande suppose que les deux corpus et le moteur WASM ont été préparés selon les instructions précédentes. Le nouveau rapport ne remplace pas la mesure de latence sur un appareil Android physique, ni l'analyse des licences et du volume du modèle.
+
 ## Filtre de consensus pour le moteur Seshat (essai non publié)
 
 Le comparateur WebAssembly possède maintenant une politique indépendante, testée dans `scripts/seshat-web/fraction-consensus.test.mjs`. Lorsque le lecteur local s'abstient, elle exige : une fraction numérique admissible, une séparation géométrique en deux lignes, et l'accord exact entre la lecture Seshat de la fraction entière et celles du numérateur et du dénominateur séparés. Toute contradiction avec une lecture locale partielle bloque la proposition. La lecture locale complète garde la priorité.
