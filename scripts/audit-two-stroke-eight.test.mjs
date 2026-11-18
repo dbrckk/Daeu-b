@@ -15,7 +15,7 @@ test("Audit : normaliser les tracés annotés sans changer les coordonnées d'or
   const raw=JSON.stringify(sample8.paths);
   const page=normalizeSample(sample8.paths);
   assert.equal(page.length,2);
-  assert.match(page[0],/^\\d+,\\d+;/);
+  assert.match(page[0],/^\d+,\d+;/);
   assert.equal(JSON.stringify(sample8.paths),raw);
   assert.throws(()=>normalizeSample([[[1,2]]]),/Deux traits/);
   assert.throws(()=>normalizeSample([[[1,2],[2,3]],[[3,4],[Infinity,4]]]),/Deux traits/);
