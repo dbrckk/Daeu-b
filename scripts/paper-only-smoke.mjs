@@ -126,6 +126,25 @@ try{
   for(const _ of openFourFraction)await undoFraction.click();
   console.log("OK 4 ouvert lu comme 4/5 au doigt, sans notation préalable");
 
+  const ovalStroke=(cx,cy,rx,ry)=>Array.from({length:13},(_,i)=>[
+    Math.round(cx+rx*Math.cos(2*Math.PI*i/12)),
+    Math.round(cy+ry*Math.sin(2*Math.PI*i/12))
+  ]);
+  const twinLoopFraction=[
+    [[143,160],[162,155],[181,160],[186,171],[175,183],[161,185],
+      [177,187],[188,197],[181,211],[162,216],[142,210]],
+    [[130,235],[240,235]],
+    ovalStroke(180,282,26,21),
+    ovalStroke(183,330,27,24)
+  ];
+  await traceFraction(touch,page.locator("#quizNotebook canvas"),twinLoopFraction);
+  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+  await fractionCandidate.waitFor({state:"visible"});
+  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 3/8");
+  assert.equal((await snapshot()).round.completed,0);
+  for(const _ of twinLoopFraction)await undoFraction.click();
+  console.log("OK 8 à deux boucles distinctes dans 3/8 au doigt, sans notation préalable");
+
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);
