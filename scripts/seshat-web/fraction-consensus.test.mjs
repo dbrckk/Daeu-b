@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {decideFractionFallback} from "./fraction-consensus.mjs";
 
 const valid={
-  whole:String.raw`\\frac{12}{7}`,
+  whole:String.raw`\frac{12}{7}`,
   parts:[["numerator"],["denominator"]],
   rows:[{local:null,seshat:"12"},{local:null,seshat:"7"}]
 };
