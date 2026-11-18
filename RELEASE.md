@@ -1,5 +1,12 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v107 — reconnaître les 8 écrits en deux boucles distinctes (18 novembre 2026)
+
+- Le cahier regroupe deux ovales superposés proches même lorsqu'ils ne se touchent pas, puis propose `8` après contrôle géométrique des deux boucles.
+- Les garde-fous refusent un `0` retracé au même endroit, deux `0` décalés, un `9` à hampe détachée et les écritures verticales séparées. Une fraction posée `3/8` avec ce tracé est couverte par les tests.
+- Aucune mesure de gain sur des écritures réelles CROHME n'est annoncée pour cette forme à deux traits : les contrôles dédiés actuels sont synthétiques. [Détails](audits/reconnaissance-manuscrite.md#lecteur-local-v107).
+
+
 ## v106 — reconnaître le 8 dont le trait reste ouvert (18 novembre 2026)
 
 - Le cahier accepte un écart plus important entre les extrémités du `8` lorsque les deux boucles de sens opposés se croisent et que leur aire est suffisante. Le garde-fou évite de confondre un `2` ouvert avec un `8`.
