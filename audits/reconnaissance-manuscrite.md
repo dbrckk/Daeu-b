@@ -132,10 +132,10 @@ La nouvelle lecture exacte du lot 2019 est `777/400`. Elle était bloquée par l
 
 ### Rejouer la mesure sans modèle externe
 
-Extraire `Task1_onlineRec.zip` de l’archive de test CROHME 2019 et récupérer le fichier `CROHME2019st.json`. Les références sont associées aux tracés par nom de fichier. Le filtre retient les fractions entières posées et les égalités compatibles avec son alphabet, jusqu’à 45 caractères de notation normalisée pour ce lot. Le comparateur ramène chaque expression à 70 unités de haut au maximum, en préservant les proportions. Les tracés et labels restent hors du dépôt. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Références CROHME 2019](https://zenodo.org/records/17122781)
+Extraire `Test.zip` du dossier `Task1_onlineRec/MainTask_formula` dans l’archive CROHME 2019 et récupérer le fichier `CROHME2019st.json`. Les références sont associées aux tracés par nom de fichier. Le filtre retient les fractions entières posées et les égalités compatibles avec son alphabet, jusqu’à 45 caractères de notation normalisée pour ce lot. Le comparateur ramène chaque expression à 70 unités de haut au maximum, en préservant les proportions. Les tracés et labels restent hors du dépôt. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Références CROHME 2019](https://zenodo.org/records/17122781)
 
 ```sh
-python3 scripts/export-crohme-ink.py /tmp/Task1_onlineRec.zip --split TestSet2019 \
+python3 scripts/export-crohme-ink.py /tmp/Test.zip --split Test2019_GT \
   --labels /tmp/CROHME2019st.json > /tmp/daeu-crohme-2019.json
 node scripts/compare-ink-on.mjs --local /tmp/daeu-crohme-2019.json
 ```
@@ -248,7 +248,7 @@ Trois lectures `4` → `9` et une abstention sont corrigées à 70 unités. À 2
 
 ### Essai hors connexion du moteur Seshat
 
-Seshat, sous GPLv3, est compilé avec Emscripten 3.1.74 et Boost 1.74. Le correctif adapte l’ancien C++ au compilateur et omet le lecteur de fichiers InkML. Le moteur reçoit les coordonnées du cahier au format SCG_INK et produit du LaTeX. Le worker tourne dans Chromium en mode mobile, puis est arrêté après chaque lecture. Le test ferme la page, coupe le réseau et rouvre la page depuis le cache avant de lancer la reconnaissance. [Code amont au commit utilisé](https://github.com/falvaro/seshat/tree/84c677cf3b916646ea122003236b5ca96039ff2a)
+Seshat, sous GPLv3, est compilé avec Emscripten 3.1.74 et Boost 1.74. Le correctif adapte l’ancien C++ au compilateur et omet le lecteur de fichiers InkML. Le moteur reçoit les coordonnées du cahier au format SCG_INK et produit du LaTeX. L’essai initial utilisait un nouveau worker Chromium à chaque lecture. Le test ferme la page, coupe le réseau et rouvre la page depuis le cache avant de lancer la reconnaissance. [Code amont au commit utilisé](https://github.com/falvaro/seshat/tree/84c677cf3b916646ea122003236b5ca96039ff2a)
 
 | Fractions manuscrites isolées | v103 exact / erreur / abstention | v103 puis Seshat exact / erreur / abstention |
 | --- | --- | --- |
@@ -277,3 +277,36 @@ node scripts/seshat-web/compare.mjs /tmp/daeu-seshat-wasm \
 ```
 
 La sortie JSONL contient une ligne par fraction avec la mesure locale, la seconde lecture et la durée du worker. Les données du corpus et le binaire compilé restent hors du dépôt.
+
+### Vérification séparée du numérateur et du dénominateur
+
+Après une abstention de la v103, le comparateur sépare la fraction proposée par Seshat autour d’une barre unique. Les traits au-dessus et au-dessous doivent former deux lignes rapprochées et centrées. La géométrie sépare 41 des 48 fractions du premier lot et classe correctement les 34 égalités du corpus comme des expressions distinctes d’une fraction isolée.
+
+Le lecteur de chiffres de l’application relit chaque ligne à 70 unités de hauteur. Lorsqu’il propose une valeur différente de Seshat, le comparateur mesure l’effet d’écarter la transcription. Il mesure aussi l’effet d’exiger l’accord sur une ligne ou sur les deux. Une autre lecture fait tourner Seshat sur chaque ligne séparément. Les trois lectures de Seshat utilisent le même modèle. Les corrections du corpus servent uniquement à l’évaluation.
+
+Le worker mis en cache réutilise le modèle après réouverture hors connexion. Le correctif remet à zéro le lecteur d’arguments à chaque commande. L’essai a rejoué une même fraction après avoir fait lire une autre fraction et ses deux lignes au même moteur. La première et la dernière transcription sont identiques. Le délai de 60 secondes du comparateur s’applique au banc d’essai.
+
+Le JSONL contient les deux lectures de ligne et le résultat de chaque règle dans `policyOutcomes`. Le comparateur affiche sur la sortie d’erreur le nombre d’égalités confondues avec une fraction isolée. Pour rejouer l’essai dans un Chromium installé localement, utiliser la variable `SESHAT_CHROMIUM_PATH` avec le chemin de son exécutable.
+
+Le second lot contient les 47 fractions numériques isolées dont le LaTeX est annoté dans `CROHME2023Test.json`. Une comparaison des suites de coordonnées normalisées a vérifié que ces tracés diffèrent de ceux du premier lot. [Archive de test CROHME 2023](https://zenodo.org/records/8428035) · [Références LaTeX](https://zenodo.org/records/17122781)
+
+```sh
+python3 scripts/export-crohme-ink.py /tmp/CROHME23.zip --split CROHME2023_test \
+  --labels /tmp/CROHME2023Test.json > /tmp/daeu-crohme-2023.json
+node scripts/seshat-web/compare.mjs /tmp/daeu-seshat-wasm /tmp/daeu-crohme-2023.json
+```
+
+| Règle de seconde lecture | Premier lot, 48 tracés | CROHME 2023, 47 tracés |
+| --- | --- | --- |
+| Lecteur v103 seul | 6 / 0 / 42 | 0 / 1 / 46 |
+| Seshat après abstention et filtre de forme LaTeX | 37 / 3 / 8 | 29 / 3 / 15 |
+| Séparation géométrique des lignes exigée | 30 / 3 / 15 | 21 / 2 / 24 |
+| Propositions qui contredisent le lecteur local écartées | 28 / 3 / 17 | 16 / 2 / 29 |
+| Accord avec le lecteur local sur au moins une ligne, sans contradiction | 15 / 3 / 30 | 3 / 1 / 43 |
+| Accord avec le lecteur local sur les deux lignes | 6 / 0 / 42 | 0 / 1 / 46 |
+| Accord après relecture des deux lignes par Seshat | 30 / 3 / 15 | 20 / 2 / 25 |
+| Relecture Seshat et veto du lecteur local | 28 / 3 / 17 | 15 / 2 / 30 |
+
+Chaque cellule indique le nombre de transcriptions exactes, d’erreurs et d’abstentions. Toutes les règles conservent une première lecture v103 déjà obtenue. Le test a terminé les 95 tracés dans Chromium en mode mobile, après réouverture hors connexion, sans erreur d’exécution du worker. L’abstention sur le tracé annoté `0/0` de CROHME 2023 est attendue.
+
+Seshat conserve ses trois erreurs du premier lot après séparation des lignes. Il lit `1/7` comme `1/1`, `7/4` comme `1/4` et `9/5` comme `4/5`. L’accord exigé sur les deux lignes avec le lecteur local écarte chaque nouvelle erreur sur les deux lots et n’ajoute aucune lecture exacte. L’erreur `43/9` lu `48/9` de CROHME 2023 vient de la v103, avant la seconde lecture. Le cahier public utilise la v103.
