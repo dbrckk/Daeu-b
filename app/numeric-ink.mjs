@@ -346,6 +346,36 @@ function signedDoubleArea(path){
   },0);
 }
 
+// Un 8 peut aussi être écrit avec deux ovales superposés, sans croisement.
+// Exiger deux vraies boucles fermées évite de convertir un 3, un 9 à hampe
+// détachée ou un 0 retracé en 8.
+function hasTwinLoopEight(paths){
+  if(paths.length!==2)return false;
+  const loops=paths.map(path=>({path,box:bounds([path])}))
+    .sort((a,b)=>a.box.minY-b.box.minY);
+  const [upper,lower]=loops;
+  const width=loop=>loop.box.maxX-loop.box.minX;
+  const height=loop=>loop.box.maxY-loop.box.minY;
+  const w1=width(upper),w2=width(lower),h1=height(upper),h2=height(lower);
+  const minW=Math.min(w1,w2),minH=Math.min(h1,h2);
+  if(minH<14||minW<12||Math.max(h1,h2)>minH*1.65
+    ||Math.max(w1,w2)>minW*1.65)return false;
+  const gap=lower.box.minY-upper.box.maxY;
+  const centerDiff=(lower.box.minY+lower.box.maxY-upper.box.minY-upper.box.maxY)/2;
+  if(gap< -minH*.25||gap>minH*.22
+    ||centerDiff<minH*.72||centerDiff>Math.max(h1,h2)*1.35)return false;
+  const overlap=Math.min(upper.box.maxX,lower.box.maxX)
+    -Math.max(upper.box.minX,lower.box.minX);
+  const centerX=loop=>(loop.box.minX+loop.box.maxX)/2;
+  if(overlap<minW*.70||Math.abs(centerX(upper)-centerX(lower))>minW*.24)return false;
+  return loops.every(({path,box})=>{
+    const w=box.maxX-box.minX,h=box.maxY-box.minY;
+    return path.length>=7&&w>=h*.54&&w<=h*1.8
+      &&far(path[0],path.at(-1))<=Math.min(w,h)*.28
+      &&Math.abs(signedDoubleArea(path))>=w*h*.85;
+  });
+}
+
 // Un 8 en un trait revient près de son départ après deux boucles de sens opposés.
 function hasCrossedEight(paths,box){
   if(paths.length!==1)return false;
@@ -385,7 +415,7 @@ function classify(paths){
   const b=bounds(paths),w=b.maxX-b.minX,h=b.maxY-b.minY;
   if(Math.max(w,h)<15)return {digit:".",score:0,margin:1};
   if(w>20&&h<Math.max(8,w*.22))return {digit:"-",score:0,margin:1};
-  if(hasCrossedEight(paths,b))return {digit:"8",score:0,margin:1};
+  if(hasCrossedEight(paths,b)||hasTwinLoopEight(paths))return {digit:"8",score:0,margin:1};
   const barred=hasSevenBar(paths,b);
   if(barred&&hasUprightSeven(paths,b))return {digit:"7",score:0,margin:1};
   if(hasOpenFour(paths,b))return {digit:"4",score:0,margin:1};
@@ -418,7 +448,8 @@ function splitGlyphs(strokes){
     if(last&&((item.box.minX<=last.box.maxX+Math.min(5,(last.box.maxX-last.box.minX)*.1)
       &&item.box.maxY>=last.box.minY&&item.box.minY<=last.box.maxY)
       ||(last.paths.length===1&&isFootedOne([last.paths[0],item.paths[0]]))
-      ||isDetachedFour(last,item))){
+      ||isDetachedFour(last,item)
+      ||(last.paths.length===1&&hasTwinLoopEight([last.paths[0],item.paths[0]])))){
       last.paths.push(...item.paths);last.box=bounds(last.paths);
     }else groups.push(item);
   }
