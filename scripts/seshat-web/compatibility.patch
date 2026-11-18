@@ -312,3 +312,20 @@ index 562926c..e6c58fc 100644
  }
  
  
+diff --git a/seshat.cc b/seshat.cc
+index 48e9e71..7c71e38 100644
+--- a/seshat.cc
++++ b/seshat.cc
+@@ -45,4 +45,5 @@ int main(int argc, char *argv[]) {
+   input[0] = output[0] = config[0] = 0;
+
++  optind = 0; // Reset argument parsing for the next invocation in a Web Worker.
+   int option;
+   while ((option = getopt (argc, argv, "c:i:o:r:d:")) != -1)
+@@ -67,5 +68,5 @@ int main(int argc, char *argv[]) {
+   //Load sample and system configuration
+   Sample m( input );
+-  meParser seshat(config);
++  static meParser seshat(config);
+
+   //Render image to file
