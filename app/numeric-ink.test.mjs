@@ -181,6 +181,43 @@ test("Lire les fractions dont le 8 manuscrit a des boucles serrées ou commence 
   }
 });
 
+test("Lire un 8 composé de deux boucles distinctes, sans transformer les autres chiffres",()=>{
+  const oval=(cx,cy,rx,ry)=>Array.from({length:13},(_,i)=>{
+    const angle=2*Math.PI*i/12;
+    return [Math.round(cx+rx*Math.cos(angle)),Math.round(cy+ry*Math.sin(angle))];
+  });
+  const top=oval(180,146,26,21),bottom=oval(183,194,27,24);
+  const twin=[top,bottom].map(encodeStroke);
+  for(const paths of [twin,[twin[1],twin[0]],
+    [encodeStroke([...bottom].reverse()),encodeStroke([...top].reverse())]]){
+    assert.equal(recognizeNumericInk(paths).text,"8");
+    assert.equal(recognizeNumericInk([...paths,encodeStroke([[280,130],[280,215]])]).text,"81");
+  }
+  // Les ovales peuvent être rapprochés sans se toucher.
+  const separated=[top,oval(183,201,27,24)].map(encodeStroke);
+  assert.equal(recognizeNumericInk(separated).text,"8");
+
+  const bar=encodeStroke([[130,139],[240,139]]);
+  const numerator=encodeStroke(GLYPHS["3"][0].map(([x,y])=>[
+    Math.round(150+x*.68),Math.round(50+y*.68)
+  ]));
+  const fractionDenominator=[oval(180,190,26,21),oval(183,238,27,24)].map(encodeStroke);
+  assert.equal(recognizeStackedFractionInk([bar,...fractionDenominator,numerator])?.text,"3/8");
+  assert.equal(recognizeStackedFractionInk([numerator,bar,...fractionDenominator])?.text,"3/8");
+
+  // Un 0 retracé est une seule boucle répétée, pas deux boucles superposées.
+  const retracedZero=[top,[...top].reverse()].map(encodeStroke);
+  assert.notEqual(recognizeNumericInk(retracedZero).text,"8");
+  const sideBySide=[top,oval(270,146,26,21)].map(encodeStroke);
+  assert.notEqual(recognizeNumericInk(sideBySide).text,"8");
+  const distant=[top,oval(183,265,27,24)].map(encodeStroke);
+  assert.notEqual(recognizeNumericInk(distant).text,"8");
+  const nine=[top,[[203,160],[205,183],[199,210],[190,229]]].map(encodeStroke);
+  assert.notEqual(recognizeNumericInk(nine).text,"8");
+  assert.equal(recognizeNumericInk(ink("3")).text,"3");
+  assert.equal(recognizeNumericInk(ink("0")).text,"0");
+});
+
 test("Distinguer un 4 ouvert d’un 9 à deux traits, seul et dans une fraction",()=>{
   const four=[[[183,173],[170,192],[156,210],[200,210]],[[205,183],[203,264]]];
   const nine=[
