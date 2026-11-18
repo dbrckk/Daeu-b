@@ -6,6 +6,7 @@ import {parseStroke} from "../../app/workbook.mjs";
 import {recognizeNumericInk,recognizeStackedFractionInk} from "../../app/numeric-ink.mjs";
 import {eligibleInkFallback,inkOutcome,normalizeInk} from "../benchmark-policy.mjs";
 import {normalizePaths,splitIsolatedFraction} from "./fraction-rows.mjs";
+import {decideFractionFallback} from "./fraction-consensus.mjs";
 
 const [, , build, ...files]=process.argv;
 if(!build||!files.length){
@@ -112,7 +113,9 @@ try{
       localRowConflict=rows.some((row,index)=>row.local!==null&&row.local!==candidateParts[index]);
       seshatRowAgreement=rows.every((row,index)=>row.seshat===candidateParts[index]);
     }
+    const consensus=decideFractionFallback({local,whole:result.latex,parts,rows});
     const policyOutcomes={
+      strictConsensus:inkOutcome(consensus.candidate,expected),
       geometry:inkOutcome(local??(parts?candidate:null),expected),
       localVeto:inkOutcome(local??(parts&&!localRowConflict?candidate:null),expected),
       localAgreement:inkOutcome(local??(localAgreementCount>0&&!localRowConflict?candidate:null),expected),
@@ -121,7 +124,7 @@ try{
       seshatAgreementWithLocalVeto:inkOutcome(local??(seshatRowAgreement&&!localRowConflict?candidate:null),expected)
     };
     console.log(JSON.stringify({file,id,expected,local,localOutcome:inkOutcome(local,expected),
-      fallback,fallbackOutcome:inkOutcome(fallback,expected),rows,policyOutcomes,...result}));
+      fallback,fallbackOutcome:inkOutcome(fallback,expected),rows,consensus,policyOutcomes,...result}));
   }
 }finally{
   await browser?.close();

@@ -343,6 +343,12 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Filtre de consensus pour le moteur Seshat (essai non publié)
+
+Le comparateur WebAssembly possède maintenant une politique indépendante, testée dans `scripts/seshat-web/fraction-consensus.test.mjs`. Lorsque le lecteur local s'abstient, elle exige : une fraction numérique admissible, une séparation géométrique en deux lignes, et l'accord exact entre la lecture Seshat de la fraction entière et celles du numérateur et du dénominateur séparés. Toute contradiction avec une lecture locale partielle bloque la proposition. La lecture locale complète garde la priorité.
+
+La politique produit explicitement un motif de refus et ajoute `strictConsensus` aux résultats du comparateur. Cela permet de mesurer exactitudes, erreurs et abstentions sans confondre l'acceptation syntaxique et une transcription correcte. **Ce n'est pas encore une intégration dans la PWA** : le WebAssembly GPLv3 n'est pas livré dans le site, et la validation sur téléphone Android réel, la taille des ressources, la licence de redistribution et un lot indépendant doivent encore être vérifiés. Aucun chiffre de précision supplémentaire n'est annoncé sans nouvelle exécution du corpus.
+
 ## Audit des chiffres à deux traits — chantier suivant
 
 Le benchmark `scripts/audit-two-stroke-eight.mjs` prend les chiffres isolés et annotés des exports CROHME (`--symbols`). Il mesure séparément les `8` à deux traits et les autres chiffres à deux traits, avec trois issues exclusives : exact, erreur, abstention. Il signale les **faux `8` parmi les autres chiffres** par identifiant. Il permet aussi de comparer un lecteur antérieur sur **les mêmes coordonnées normalisées** et d'identifier chaque transcription modifiée.
