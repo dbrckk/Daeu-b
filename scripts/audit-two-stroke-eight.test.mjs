@@ -24,7 +24,7 @@ test("Audit : normaliser les tracés annotés sans changer les coordonnées d'or
 test("Audit : chiffres 8 et contrôles, erreurs et abstentions séparées",()=>{
   const fake=page=>{
     const top=page[0];
-    if(top===normalizeSample(sample8.paths)[0])return {status:"recognized",text:"8"};
+    if(top===normalizeSample(sample8.paths)[0]&&page[1]===normalizeSample(sample8.paths)[1])return {status:"recognized",text:"8"};
     return {status:"uncertain"};
   };
   const baseline=()=>({status:"recognized",text:"9"});
