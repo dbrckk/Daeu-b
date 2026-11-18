@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v106 — reconnaître le 8 dont le trait reste ouvert (18 novembre 2026)
+
+- Le cahier accepte un écart plus important entre les extrémités du `8` lorsque les deux boucles de sens opposés se croisent et que leur aire est suffisante. Le garde-fou évite de confondre un `2` ouvert avec un `8`.
+- À 70 unités, 12 autres `8` sont lus correctement dans les lots CROHME 2012–2014, sans nouvelle erreur. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v106)
+
 ## v105 — reconnaître le 8 à deux boucles croisées (18 novembre 2026)
 
 - Le cahier reconnaît les deux boucles de sens opposés dans un `8` tracé d’un seul geste. À 70 unités, il lit correctement 136 des 172 tracés testés et corrige les cinq erreurs de la v104. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v105)

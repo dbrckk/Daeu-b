@@ -351,10 +351,12 @@ function hasCrossedEight(paths,box){
   if(paths.length!==1)return false;
   const path=paths[0], first=path[0],last=path.at(-1);
   const height=box.maxY-box.minY,width=box.maxX-box.minX;
-  if(path.length<7||height<18||width<height*.20||far(first,last)>height*.26)return false;
+  if(path.length<7||height<18||width<height*.20)return false;
   const fromTop=first[1]+last[1]<=box.minY+box.maxY;
   const depth=y=>fromTop?y-box.minY:box.maxY-y;
-  if(Math.max(depth(first[1]),depth(last[1]))>height*.28)return false;
+  const open=far(first,last)>height*.26;
+  const endDepth=Math.max(depth(first[1]),depth(last[1]));
+  if(endDepth>height*(open?.40:.28))return false;
   const depths=path.map(([,y])=>depth(y)),turn=depths.indexOf(height);
   for(let i=0;i<turn;i++){
     if(depths[i+1]<height*.25||depths[i]>height*.75||depths[i]>depths[i+1])continue;
@@ -363,14 +365,14 @@ function hasCrossedEight(paths,box){
       const crossing=crossingPoint(path[i],path[i+1],path[j],path[j+1]);
       if(crossing===null)continue;
       const center=depth(crossing[1]);
-      if(center<height*.25||center>height*.75)continue;
+      if(center<height*.25||center>height*.75||(open&&center-endDepth<height*.16))continue;
       const slack=height*.12;
       if(!depths.slice(i+1,j+1).every(d=>d>=center-slack)
         ||!depths.slice(0,i+1).every(d=>d<=center+slack)
         ||!depths.slice(j+1).every(d=>d<=center+slack))continue;
       const inner=signedDoubleArea([crossing,...path.slice(i+1,j+1)]);
       const outer=signedDoubleArea([crossing,...path.slice(j+1),...path.slice(0,i+1)]);
-      const minArea=width*height*.04;
+      const minArea=width*height*(open?.12:.04);
       if(inner*outer<0&&Math.min(Math.abs(inner),Math.abs(outer))>=minArea)return true;
     }
   }
