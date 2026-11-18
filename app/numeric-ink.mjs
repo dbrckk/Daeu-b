@@ -306,6 +306,30 @@ export function isFootedOne(paths){
   });
 }
 
+// Un 3 étroit descend en deux arcs ouverts sur la gauche. Un 8 remonte
+// vers le centre ou le sommet pour fermer ses boucles.
+function hasOpenThree(paths,box){
+  if(paths.length!==1)return false;
+  const stroke=paths[0];
+  const path=stroke[0][1]<=stroke.at(-1)[1]?stroke:[...stroke].reverse();
+  const {minX,minY,maxX,maxY}=box;
+  const width=maxX-minX,height=maxY-minY;
+  const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+  if(width===0||width>height*.65||startX>minX+width*.32||endX>minX+width*.32
+    ||startY>minY+height*.24||endY<maxY-height*.20)return false;
+  let lowest=minY,indent=Infinity,upper=-Infinity,lower=-Infinity;
+  for(const [x,y] of path){
+    lowest=Math.max(lowest,y);
+    if(lowest-y>height*.14)return false;
+    // La barre supérieure d’un 5 peut partir à droite, mais elle reste au sommet.
+    if(y<minY+height*.12)continue;
+    if(y<minY+height*.32)upper=Math.max(upper,x);
+    else if(y>minY+height*.62)lower=Math.max(lower,x);
+    else indent=Math.min(indent,x);
+  }
+  return indent<=minX+width*.52&&Math.min(upper,lower)-indent>=width*.28;
+}
+
 function classify(paths){
   if(!paths.length||paths.length>3)return null;
   if(isFootedOne(paths))return {digit:"1",score:0,margin:1};
@@ -321,6 +345,8 @@ function classify(paths){
     digit,score:Math.min(...(digit==="7"&&barred?[...variants,...BARRED_SEVEN_TEMPLATES]:variants).map(t=>distance(p,t)))
   })).sort((a,b)=>a.score-b.score);
   const [best,second]=scores,margin=second.score-best.score;
+  if(best.digit==="8"&&hasOpenThree(paths,b)&&scores.find(({digit})=>digit==="3").score<=MAX_GLYPH_DISTANCE)
+    return {digit:"3",score:0,margin:1};
   if((best.digit==="9"||best.score>MAX_GLYPH_DISTANCE||margin<MIN_GLYPH_MARGIN)&&hasSlantedFour(paths,b))
     return {digit:"4",score:0,margin:1};
   return {...best,margin};

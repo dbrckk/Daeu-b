@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v104 — reconnaître le 3 manuscrit étroit (18 novembre 2026)
+
+- Le cahier distingue les deux arcs ouverts d’un `3` étroit des boucles d’un `8`. La fraction manuscrite `43/9` est correctement transcrite. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v104)
+- Le test tactile confirme la lecture de `3/8` à 320 px et la restauration de la copie et du score hors connexion.
+
 ## v103 — reconnaître le 4 à descente courte et la barre retracée (17 novembre 2026)
 
 - Le lecteur reconnaît les `4` ouverts dont le premier trait commence bas, descend presque à la verticale, puis forme une longue barre. Il accepte aussi un bref retour en arrière à droite de la hampe.

@@ -310,3 +310,19 @@ node scripts/seshat-web/compare.mjs /tmp/daeu-seshat-wasm /tmp/daeu-crohme-2023.
 Chaque cellule indique le nombre de transcriptions exactes, d’erreurs et d’abstentions. Toutes les règles conservent une première lecture v103 déjà obtenue. Le test a terminé les 95 tracés dans Chromium en mode mobile, après réouverture hors connexion, sans erreur d’exécution du worker. L’abstention sur le tracé annoté `0/0` de CROHME 2023 est attendue.
 
 Seshat conserve ses trois erreurs du premier lot après séparation des lignes. Il lit `1/7` comme `1/1`, `7/4` comme `1/4` et `9/5` comme `4/5`. L’accord exigé sur les deux lignes avec le lecteur local écarte chaque nouvelle erreur sur les deux lots et n’ajoute aucune lecture exacte. L’erreur `43/9` lu `48/9` de CROHME 2023 vient de la v103, avant la seconde lecture. Le cahier public utilise la v103.
+
+## Lecteur local v104
+
+Le gabarit d’un `8` étroit devançait celui du `3` sur certains traits ouverts. Le lecteur vérifie désormais les candidats `8` tracés d’un seul geste. Il cherche des extrémités à gauche, un creux central entre deux arcs et une descente sans remontée marquée. L’arc supérieur doit se prolonger vers la droite sous le sommet. Cette condition écarte les `5` dont la barre supérieure est retracée.
+
+| Tracés de `3` à 70 unités | v103 exact / erreur / abstention | v104 exact / erreur / abstention |
+| --- | --- | --- |
+| 150 tracés CROHME 2012 | 23 / 17 / 110 | 43 / 9 / 98 |
+| 117 tracés CROHME 2013 | 24 / 8 / 85 | 37 / 4 / 76 |
+| 289 tracés CROHME 2014 | 47 / 21 / 221 | 65 / 18 / 206 |
+| 20 tracés dans le lot de fractions CROHME 2023 | 2 / 2 / 16 | 7 / 2 / 11 |
+| **576 tracés** | **96 / 48 / 432** | **152 / 33 / 391** |
+
+Les `3` et `8` isolés sont segmentés par les annotations CROHME. À 70 unités, 15 `3` autrefois lus `8` sont corrigés et 41 abstentions deviennent des lectures exactes. À 25, 45, 70 et 105 unités, aucune lecture des 172 tracés de `8` ne change. Les 7 470 autres symboles annotés sont également contrôlés aux quatre tailles. Les deux variantes annotées de `43/9` dans les 95 tracés de fractions sont correctement lues. [Archives CROHME du RIT](https://www.cs.rit.edu/~dprl/software.html) · [Corpus CROHME 2023](https://zenodo.org/records/8428035)
+
+Le parcours Chromium à 320 px vérifie le nouveau tracé sur un exercice de probabilités. Il propose `3/8` après l’écriture au doigt et attribue le point après confirmation. La copie et le score sont restaurés après fermeture et réouverture hors connexion.
