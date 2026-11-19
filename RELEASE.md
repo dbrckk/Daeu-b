@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v112 — distinguer les 7 à empattement long des 9 (19 novembre 2026)
+
+- Le lecteur accepte un petit trait gauche plus long ou incliné pour le `7` dont la tête et la hampe se prolongent nettement à droite.
+- Sur 1 250 chiffres CROHME, les confusions `7` → `9` passent de 12 à 2 à la taille de référence. Les quatre vrais `9` déjà correctement lus conservent leur lecture. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v112)
+
 ## v111 — distinguer les 7 étroits des 1 (19 novembre 2026)
 
 - Le lecteur réévalue les propositions de `1` à deux traits quand il trouve une barre traversante à mi-hauteur ou une tête arrondie à droite d’un petit trait descendant.
