@@ -145,6 +145,26 @@ try{
   for(const _ of twinLoopFraction)await undoFraction.click();
   console.log("OK 8 à deux boucles distinctes dans 3/8 au doigt, sans notation préalable");
 
+  const roundedSevenStrokes=[
+    [[170,188],[175,183],[183,181],[187,180],[191,183],[193,190],[193,200],[193,215],[192,228],[188,250]],
+    [[162,219],[199,214]]
+  ];
+  const serifSevenStrokes=[
+    [[171,200],[170,194],[169,186],[170,180]],
+    [[170,184],[178,182],[191,181],[197,182],[200,185],[199,199],[196,214],[193,234],[190,253]]
+  ];
+  for(const [style,seven] of [["arrondi et barré",roundedSevenStrokes],["avec empattement à gauche",serifSevenStrokes]]){
+    const fraction=[...seven,[[120,270],[235,270]],
+      [[185,295],[153,295],[151,320],[171,318],[187,325],[191,339],[182,354],[166,359],[150,354]]];
+    await traceFraction(touch,page.locator("#quizNotebook canvas"),fraction);
+    await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+    await fractionCandidate.waitFor({state:"visible"});
+    assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 7/5");
+    assert.equal((await snapshot()).round.completed,0);
+    for(const _ of fraction)await undoFraction.click();
+    console.log(`OK 7 ${style} lu comme 7/5 au doigt, sans notation préalable`);
+  }
+
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);

@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v108 — distinguer les 7 à deux traits des 9 (19 novembre 2026)
+
+- Le lecteur reconnaît deux écritures du `7` que le gabarit du `9` pouvait attirer : une tête arrondie avec une barre qui traverse la hampe et une tête avec un petit trait descendant à gauche.
+- À 70 unités, l’audit des 1 250 chiffres de CROHME 2019 et 2023 ramène les confusions `7` → `9` de 31 à 12. Les 4 `9` déjà exacts conservent leur lecture. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v108)
+
 ## v107 — reconnaître les 8 écrits en deux boucles distinctes (18 novembre 2026)
 
 - Le cahier regroupe deux ovales superposés proches même lorsqu'ils ne se touchent pas, puis propose `8` après contrôle géométrique des deux boucles.

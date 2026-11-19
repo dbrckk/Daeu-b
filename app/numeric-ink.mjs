@@ -113,6 +113,57 @@ function hasUprightSeven(paths,box){
     return x>=bar.minX+inset&&x<=bar.maxX-inset;
   });
 }
+// Certains 7 barrés arrondissent leur tête et ressemblent au gabarit du 9.
+function hasCrossedSevenBar(paths,box){
+  if(paths.length!==2)return false;
+  const height=box.maxY-box.minY;
+  return paths.some((stroke,index)=>{
+    const body=stroke[0][1]<=stroke.at(-1)[1]?stroke:[...stroke].reverse();
+    const bar=leftToRight(paths[1-index]);
+    const [startX,startY]=body[0], [,endY]=body.at(-1);
+    const [leftX,leftY]=bar[0], [rightX,rightY]=bar.at(-1);
+    const barWidth=rightX-leftX,midY=(leftY+rightY)/2;
+    if(startY>box.minY+height*.32||endY<box.maxY-height*.12
+      ||barWidth<height*.20||Math.abs(rightY-leftY)>barWidth*.45
+      ||midY<box.minY+height*.40||midY>box.maxY-height*.24)return false;
+    if(bar.some(([x,y])=>Math.abs(y-leftY-(rightY-leftY)*(x-leftX)/barWidth)>height*.065))return false;
+
+    const head=body.findIndex(([x,y])=>x>=startX+height*.24&&y<=box.minY+height*.30);
+    if(head<1)return false;
+    for(let i=head+1;i<body.length;i++){
+      const crossing=crossingPoint(body[i-1],body[i],bar[0],bar.at(-1));
+      if(!crossing)continue;
+      const [x,y]=crossing;
+      if(y<box.minY+height*.38||y>box.maxY-height*.22
+        ||x<leftX+height*.14||x>rightX-height*.02)return false;
+      return body.slice(i).every(([px,py])=>px<=x+height*.09&&py>=y-height*.06);
+    }
+    return false;
+  });
+}
+
+// Un petit trait descendant au début de la tête peut aussi fermer visuellement le 7.
+function hasSerifSeven(paths,box){
+  if(paths.length!==2)return false;
+  const height=box.maxY-box.minY;
+  return paths.some((stroke,index)=>{
+    const body=stroke[0][1]<=stroke.at(-1)[1]?stroke:[...stroke].reverse();
+    const [startX,startY]=body[0], [,endY]=body.at(-1);
+    const serif=paths[1-index];
+    const small=bounds([serif]);
+    const serifHeight=small.maxY-small.minY;
+    if(startY>box.minY+height*.17||endY<box.maxY-height*.12
+      ||serifHeight<height*.18||serifHeight>height*.55
+      ||small.maxX-small.minX>height*.25
+      ||!serif.some(point=>far(point,body[0])<=height*.14))return false;
+
+    const head=body.findIndex(([x,y])=>x>=small.maxX+height*.27&&y<=box.minY+height*.19);
+    if(head<1||small.maxX>startX+height*.18)return false;
+    return body.slice(head).every(([x,y])=>y>=box.minY+height*.54
+      ||x>=small.maxX+height*.12);
+  });
+}
+
 // Une hampe rectiligne croise la barre du 4 au-dessous du sommet.
 function hasOpenFour(paths,box){
   if(paths.length!==2)return false;
@@ -429,6 +480,9 @@ function classify(paths){
     return {digit:"3",score:0,margin:1};
   if((best.digit==="9"||best.score>MAX_GLYPH_DISTANCE||margin<MIN_GLYPH_MARGIN)&&hasSlantedFour(paths,b))
     return {digit:"4",score:0,margin:1};
+  if(best.digit==="9"&&best.score<=MAX_GLYPH_DISTANCE&&margin>=MIN_GLYPH_MARGIN
+    &&(hasCrossedSevenBar(paths,b)||hasSerifSeven(paths,b)))
+    return {digit:"7",score:0,margin:1};
   return {...best,margin};
 }
 // Un espace entre le bras et la hampe peut les placer dans deux boîtes.
