@@ -21,6 +21,9 @@ test("Le 9 à deux traits reste reconnu par la production mais s'abstient dans l
 test("Le comparateur refuse l'approbation si un 9 exact est perdu",()=>{
   const report=compareNinePolicy([{id:"nine",group:"crohme-symbol",expected:"9",paths:nine}]);
   assert.equal(report.comparison.lostExact,1);
+  assert.equal(report.evidence.trueNines,1);
+  assert.equal(report.evidence.otherDigits,0);
+  assert.equal(report.evidence.sufficientSample,false);
   assert.equal(report.comparison.approved,false);
   assert.equal(report.baseline.controls.exact,1);
   assert.equal(report.candidate.controls.abstention,1);
