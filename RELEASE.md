@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v111 — distinguer les 7 étroits des 1 (19 novembre 2026)
+
+- Le lecteur réévalue les propositions de `1` à deux traits quand il trouve une barre traversante à mi-hauteur ou une tête arrondie à droite d’un petit trait descendant.
+- Sur 1 250 chiffres CROHME, les confusions `7` → `1` passent de 13 à 4 à la taille de référence. Les onze `1` correctement lus par la v110 conservent leur lecture. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v111)
+
 ## v110 — reconnaître les 5 manuscrits à barre séparée (19 novembre 2026)
 
 - Le lecteur distingue le `5` dont la barre supérieure et le corps sont tracés séparément. Il vérifie leur position et le retour vers la gauche dans la partie basse.

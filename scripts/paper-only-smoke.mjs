@@ -190,6 +190,21 @@ try{
     console.log(`OK 7 ${style} lu comme 7/5 au doigt, sans notation préalable`);
   }
 
+  const narrowSevenFraction=[
+    [[153,176],[152,190],[150,205]],
+    [[148,178],[157,184],[158,192],[157,205],[156,225],[158,248]],
+    [[123,265],[221,265]],
+    [[147,310],[157,298],[157,366]],
+    [[137,367],[157,366],[179,367]]
+  ];
+  await traceFraction(touch,page.locator("#quizNotebook canvas"),narrowSevenFraction);
+  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+  await fractionCandidate.waitFor({state:"visible"});
+  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 7/1");
+  assert.equal((await snapshot()).round.completed,0);
+  for(const _ of narrowSevenFraction)await undoFraction.click();
+  console.log("OK 7 étroit et 1 à pied lus comme 7/1 au doigt, sans notation préalable");
+
   await drawOnSheet("#quizNotebook .math-notebook-sheet-viewport");
   const first=await snapshot(),questionId=first.round.ids[0];
   assert.equal(first.workbook.entries["quiz:"+questionId].pages[0].length,1);

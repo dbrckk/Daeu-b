@@ -164,6 +164,30 @@ function hasSerifSeven(paths,box){
   });
 }
 
+// Ce 7 étroit commence par un arrondi à droite d'un petit trait descendant.
+function hasNarrowSevenCrown(paths,box){
+  if(paths.length!==2)return false;
+  const height=box.maxY-box.minY;
+  return paths.some((stroke,index)=>{
+    const path=stroke[0][1]<=stroke.at(-1)[1]?stroke:[...stroke].reverse();
+    const serif=paths[1-index];
+    const [top,bottom]=serif[0][1]<=serif.at(-1)[1]?[serif[0],serif.at(-1)]:[serif.at(-1),serif[0]];
+    const small=bounds([serif]);
+    const descent=bottom[1]-top[1];
+    const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+    if(startY>box.minY+height*.22||endY<box.maxY-height*.08
+      ||descent<height*.28||bottom[1]>box.minY+height*.50
+      ||small.maxX-small.minX>Math.min(height*.20,descent*.55)||far(path[0],top)>height*.22
+      ||endX<bottom[0]+height*.11)return false;
+
+    const shoulder=Math.max(startX,top[0])+height*.025;
+    const head=path.findIndex(([x,y])=>x>=shoulder&&y<=box.minY+height*.25);
+    if(head<1)return false;
+    return path.slice(head).every(([x,y])=>y<box.minY+height*.22
+      ||y>box.minY+height*.57||x>=bottom[0]+height*.095);
+  });
+}
+
 // Une hampe rectiligne croise la barre du 4 au-dessous du sommet.
 function hasOpenFour(paths,box){
   if(paths.length!==2)return false;
@@ -539,6 +563,9 @@ function classify(paths){
     return {digit:"3",score:0,margin:1};
   if((best.digit==="9"||best.score>MAX_GLYPH_DISTANCE||margin<MIN_GLYPH_MARGIN)&&hasSlantedFour(paths,b))
     return {digit:"4",score:0,margin:1};
+  if(best.digit==="1"&&best.score<=MAX_GLYPH_DISTANCE&&margin>=MIN_GLYPH_MARGIN
+    &&(hasCrossedSevenBar(paths,b)||hasNarrowSevenCrown(paths,b)))
+    return {digit:"7",score:0,margin:1};
   if(best.digit==="9"&&best.score<=MAX_GLYPH_DISTANCE&&margin>=MIN_GLYPH_MARGIN){
     if(hasCrossedSevenBar(paths,b)||hasSerifSeven(paths,b))return {digit:"7",score:0,margin:1};
     if(hasFourWithCurvedStem(paths,h))return {digit:"4",score:0,margin:1};
