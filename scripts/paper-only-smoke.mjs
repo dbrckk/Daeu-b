@@ -136,6 +136,21 @@ try{
     console.log(`OK 4 ${style} lu comme 4/5 au doigt, sans notation préalable`);
   }
 
+  const splitFiveFraction=[
+    [[146,174],[167,177],[187,181]],
+    [[147,177],[144,190],[144,204],[148,208],[158,207],[168,217],[167,229],[156,236],[150,238],[144,233]],
+    [[120,268],[233,268]],
+    [[197,303],[193,296],[184,293],[170,297],[161,308],[159,322],[163,328],[173,328],[188,323],[191,322]],
+    [[198,306],[197,325],[193,346],[188,359],[186,370]]
+  ];
+  await traceFraction(touch,page.locator("#quizNotebook canvas"),splitFiveFraction);
+  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+  await fractionCandidate.waitFor({state:"visible"});
+  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 5/9");
+  assert.equal((await snapshot()).round.completed,0);
+  for(const _ of splitFiveFraction)await undoFraction.click();
+  console.log("OK 5 à barre séparée et 9 à deux traits lus comme 5/9 au doigt, sans notation préalable");
+
   const ovalStroke=(cx,cy,rx,ry)=>Array.from({length:13},(_,i)=>[
     Math.round(cx+rx*Math.cos(2*Math.PI*i/12)),
     Math.round(cy+ry*Math.sin(2*Math.PI*i/12))

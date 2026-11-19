@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v110 — reconnaître les 5 manuscrits à barre séparée (19 novembre 2026)
+
+- Le lecteur distingue le `5` dont la barre supérieure et le corps sont tracés séparément. Il vérifie leur position et le retour vers la gauche dans la partie basse.
+- Sur 1 250 chiffres CROHME, les confusions `5` → `9` passent de 16 à 2 à la taille de référence. Les quatre `9` reconnus correctement en v109 conservent leur lecture. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v110)
+
 ## v109 — mieux reconnaître les 4 manuscrits à hampe incurvée (19 novembre 2026)
 
 - Le lecteur suit la hampe au niveau de la barre, même si elle débute bas, s’incline ou se recourbe. Il vérifie que le bras forme un coude à gauche et dépasse la hampe.

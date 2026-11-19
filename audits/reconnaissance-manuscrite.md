@@ -1,5 +1,27 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Lecteur local v110
+
+Sur les propositions de `9` à deux traits, le lecteur recherche une barre proche du sommet et du début du corps. Il vérifie que le corps descend à gauche, s’arrondit vers la droite puis revient vers la gauche dans la moitié inférieure. La barre peut rejoindre le corps légèrement sous son point de départ.
+
+| Hauteur du tracé | Confusions `5` → `9` v109 → v110 sur les 1 250 chiffres CROHME 2019 et 2023 | Confusions v109 → v110 sur les 590 chiffres des lots 2016 et validation 2023 |
+| --- | --- | --- |
+| 25 | 17 → 1 | 11 → 0 |
+| 45 | 16 → 2 | 9 → 1 |
+| 70 | 16 → 2 | 12 → 2 |
+| 105 | 17 → 3 | 10 → 1 |
+
+Le lot de 1 250 chiffres a servi au diagnostic. Les 590 chiffres des deux autres lots ont servi au contrôle. Aux quatre tailles, chaque transcription modifiée sur ces deux ensembles devient exacte. Les quatre vrais `9` déjà exacts du lot principal conservent leur lecture. [Archive CROHME](https://zenodo.org/records/8428035)
+
+La comparaison à 70 unités se reproduit avec les deux exports numériques du workflow CROHME et le lecteur v109.
+
+```sh
+git show 19c0123:app/numeric-ink.mjs > app/numeric-ink-v109.mjs
+node scripts/audit-two-stroke-eight.mjs --baseline app/numeric-ink-v109.mjs \
+  /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json
+rm app/numeric-ink-v109.mjs
+```
+
 ## Lecteur local v109
 
 Le nouveau contrôle géométrique intervient sur les propositions de `9` à deux traits après les tests de la v108. Il repère la hampe à la hauteur de l’extrémité de la barre par interpolation entre deux points du tracé. Le bras descend vers un coude à gauche puis se prolonge à droite de la hampe. Ce contrôle couvre notamment les hampes qui débutent bas ou se recourbent en fin de geste.
