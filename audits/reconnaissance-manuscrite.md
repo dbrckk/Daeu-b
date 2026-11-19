@@ -1,5 +1,27 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Lecteur local v108
+
+La comparaison avec la v107 réutilise les tracés annotés et la préparation CROHME. La règle intervient lorsque le lecteur propose un `9` et que la forme à deux traits correspond à l’un des deux types de `7` identifiés. Une barre traverse la hampe à mi-hauteur sous une tête arrondie, ou un petit trait descend du bord gauche d’une tête dont la hampe reste à droite dans la moitié supérieure.
+
+| Hauteur du tracé | Confusions `7` → `9` v107 → v108 sur les 1 250 chiffres CROHME 2019 et 2023 | Confusions v107 → v108 sur les 590 chiffres des lots 2016 et validation 2023 |
+| --- | --- | --- |
+| 25 | 30 → 8 | 4 → 0 |
+| 45 | 26 → 9 | 4 → 0 |
+| 70 | 31 → 12 | 2 → 0 |
+| 105 | 29 → 10 | 3 → 0 |
+
+Les 1 250 chiffres des jeux de test CROHME 2019 et 2023 ont servi au diagnostic. Les 590 chiffres de CROHME 2016 et de la validation CROHME 2023 ont servi au contrôle après réglage. Aux quatre tailles, chaque transcription modifiée devient exacte sur ces deux ensembles. Parmi les 24 vrais `9` de l’audit principal, 4 sont lus correctement aux quatre tailles et conservent leur lecture. Les 8 vrais `9` du contrôle séparé étaient déjà sans lecture exacte. Les 166 fractions et égalités CROHME 2012–2014 et `Train_2014` conservent toutes leur résultat aux quatre tailles. [Archive CROHME](https://zenodo.org/records/8428035)
+
+À 70 unités, le comparateur historique permet de reproduire le résultat à partir des deux exports numériques produits par le workflow d’audit. Les tracés et les références restent hors du dépôt.
+
+```sh
+git show 012662e:app/numeric-ink.mjs > app/numeric-ink-v107.mjs
+node scripts/audit-two-stroke-eight.mjs --baseline app/numeric-ink-v107.mjs \
+  /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json
+rm app/numeric-ink-v107.mjs
+```
+
 ## Expérience A/B : prudence sur les 9 à deux traits
 
 La matrice CROHME du workflow [44513937767](https://github.com/dbrckk/Daeu-b/actions/runs/44513937767) révèle notamment **31 chiffres 7 lus 9**, **20 chiffres 4 lus 9** et **16 chiffres 5 lus 9**. Une politique expérimentale, isolée de l'application, transforme seulement la lecture isolée d'un `9` à deux traits en abstention. Elle est comparée au moteur actuel **sur exactement les mêmes tracés** par `scripts/compare-conservative-nine.mjs`. Le rapport distingue les erreurs corrigées, les nouvelles erreurs et surtout les vrais chiffres précédemment corrects devenus des abstentions. L'expérience ne peut être envisagée pour la production que si aucun exact n'est perdu et aucune erreur ajoutée, et elle ne déclenche jamais de déploiement automatiquement.
