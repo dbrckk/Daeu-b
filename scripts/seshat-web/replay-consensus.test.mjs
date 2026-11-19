@@ -5,7 +5,7 @@ import {replayConsensus} from "./replay-consensus.mjs";
 const names=["geometry","localVeto","localAgreement","localFullAgreement",
   "seshatAgreement","seshatAgreementWithLocalVeto"];
 const sample=(id,expected,latex,rows,local=null)=>({
-  id,file:"2019.json",expected,local,latex,rows,
+  id,file:"2019.json",expected,local,latex,rows,geometryValid:true,
   localOutcome:local?"exact":"abstention",
   policyOutcomes:Object.fromEntries([...names,"strictConsensus"].map(key=>[key,"abstention"]))
 });
@@ -53,4 +53,18 @@ test("Rejouer : détecter un résultat local falsifié ou périmé",()=>{
   const row=sample("bad-baseline","3/8",null,null,"3/8");
   row.localOutcome="abstention";
   assert.throws(()=>replayConsensus([row]),/Résultat local incohérent/);
+});
+
+test("Rejouer : ne jamais inventer une preuve géométrique à partir des lectures",()=>{
+  const row=sample("no-geometry","12/7",String.raw`\frac{12}{7}`,[
+    {local:null,seshat:"12"},{local:null,seshat:"7"}]);
+  delete row.geometryValid;
+  const absent=replayConsensus([row]);
+  assert.equal(absent.replayed[0].consensus.reason,"invalid-geometry");
+  assert.equal(absent.replayed[0].policyOutcomes.strictConsensus,"abstention");
+  row.geometryValid=false;
+  const invalid=replayConsensus([row]);
+  assert.equal(invalid.replayed[0].consensus.reason,"invalid-geometry");
+  row.geometryValid="true";
+  assert.throws(()=>replayConsensus([row]),/Preuve géométrique invalide/);
 });
