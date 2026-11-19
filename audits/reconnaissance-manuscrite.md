@@ -1,5 +1,27 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Lecteur local v112
+
+La règle du `7` à empattement gauche couvre un trait descendant plus long ou plus incliné et un léger décalage au départ de la hampe. Le passage marqué de la tête vers la droite et le maintien de la hampe à droite dans la moitié supérieure restent nécessaires pour distinguer cette forme d’un `9`.
+
+| Hauteur du tracé | Confusions `7` → `9` v111 → v112 sur les 1 250 chiffres CROHME 2019 et 2023 |
+| --- | --- |
+| 25 | 8 → 1 |
+| 45 | 9 → 1 |
+| 70 | 12 → 2 |
+| 105 | 10 → 1 |
+
+Le lot de 1 250 chiffres a servi au diagnostic. À la taille de référence, les dix corrections concernent les chiffres CROHME 2023. Les deux confusions restantes sont des `7` barrés. Aux quatre tailles, chaque transcription modifiée devient exacte et les quatre vrais `9` déjà reconnus conservent leur lecture. Les 590 chiffres des lots 2016 et validation 2023 donnent les mêmes transcriptions. [Archive CROHME](https://zenodo.org/records/8428035)
+
+La comparaison à 70 unités se reproduit avec les deux exports numériques du workflow CROHME et le lecteur v111.
+
+```sh
+git show 6707752:app/numeric-ink.mjs > app/numeric-ink-v111.mjs
+node scripts/audit-two-stroke-eight.mjs --baseline app/numeric-ink-v111.mjs \
+  /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json
+rm app/numeric-ink-v111.mjs
+```
+
 ## Lecteur local v111
 
 Sur les propositions de `1` à deux traits, le lecteur réutilise la détection de barre traversante du `7`. Il recherche aussi une tête étroite arrondie vers la droite, près d’un petit trait qui descend à gauche. La hampe doit rester séparée du petit trait dans la partie médiane et finir à droite de celui-ci. La détection du `1` à pied intervient avant ces contrôles.

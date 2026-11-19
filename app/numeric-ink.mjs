@@ -152,10 +152,10 @@ function hasSerifSeven(paths,box){
     const serif=paths[1-index];
     const small=bounds([serif]);
     const serifHeight=small.maxY-small.minY;
-    if(startY>box.minY+height*.17||endY<box.maxY-height*.12
-      ||serifHeight<height*.18||serifHeight>height*.55
-      ||small.maxX-small.minX>height*.25
-      ||!serif.some(point=>far(point,body[0])<=height*.14))return false;
+    if(startY>box.minY+height*.23||endY<box.maxY-height*.15
+      ||serifHeight<height*.18||serifHeight>height*.64
+      ||small.maxX-small.minX>height*.34
+      ||!serif.some(point=>far(point,body[0])<=height*.17))return false;
 
     const head=body.findIndex(([x,y])=>x>=small.maxX+height*.27&&y<=box.minY+height*.19);
     if(head<1||small.maxX>startX+height*.18)return false;

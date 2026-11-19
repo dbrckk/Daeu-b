@@ -136,12 +136,15 @@ try{
     console.log(`OK 4 ${style} lu comme 4/5 au doigt, sans notation préalable`);
   }
 
+  const splitNine=[
+    [[197,303],[193,296],[184,293],[170,297],[161,308],[159,322],[163,328],[173,328],[188,323],[191,322]],
+    [[198,306],[197,325],[193,346],[188,359],[186,370]]
+  ];
   const splitFiveFraction=[
     [[146,174],[167,177],[187,181]],
     [[147,177],[144,190],[144,204],[148,208],[158,207],[168,217],[167,229],[156,236],[150,238],[144,233]],
     [[120,268],[233,268]],
-    [[197,303],[193,296],[184,293],[170,297],[161,308],[159,322],[163,328],[173,328],[188,323],[191,322]],
-    [[198,306],[197,325],[193,346],[188,359],[186,370]]
+    ...splitNine
   ];
   await traceFraction(touch,page.locator("#quizNotebook canvas"),splitFiveFraction);
   await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
@@ -189,6 +192,20 @@ try{
     for(const _ of fraction)await undoFraction.click();
     console.log(`OK 7 ${style} lu comme 7/5 au doigt, sans notation préalable`);
   }
+
+  const longSerifSevenFraction=[
+    [[148,178],[146,185],[146,204],[145,221]],
+    [[147,180],[159,177],[172,176],[176,177],[177,184],[176,200],[174,221],[170,251]],
+    [[123,267],[231,267]],
+    ...splitNine
+  ];
+  await traceFraction(touch,page.locator("#quizNotebook canvas"),longSerifSevenFraction);
+  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+  await fractionCandidate.waitFor({state:"visible"});
+  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 7/9");
+  assert.equal((await snapshot()).round.completed,0);
+  for(const _ of longSerifSevenFraction)await undoFraction.click();
+  console.log("OK 7 à empattement long et 9 lus comme 7/9 au doigt, sans notation préalable");
 
   const narrowSevenFraction=[
     [[153,176],[152,190],[150,205]],
