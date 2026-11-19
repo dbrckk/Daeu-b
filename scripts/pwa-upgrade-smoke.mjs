@@ -125,9 +125,9 @@ export async function verifyPwaUpgrade(browser){
         assert.match(nextCache,new RegExp("-v"+displayed+"$"));
         await page.locator("#examUseKeyboard").click();
         const switched=await snapshot();
-        assert.equal(switched.exams.active.startedAt,before.exams.active.startedAt);
-        assert.equal(switched.exams.active.seed,before.exams.active.seed);
-        assert.equal(switched.exams.active.sectionIndex,before.exams.active.sectionIndex);
+        const {paperOnly,...expectedDraft}=before.exams.active;
+        assert.equal(paperOnly,true);
+        assert.deepEqual(switched.exams.active,expectedDraft,"Le sujet, le délai et les réponses sont conservés");
         assert.deepEqual(switched.workbook,before.workbook,"Les tracés v62 restent sauvegardés après passage au clavier");
         assert.ok(await page.locator("#examQuestions").isVisible());
         assert.equal(await page.locator("#examNotebook canvas").count(),0);
@@ -150,7 +150,7 @@ export async function verifyPwaUpgrade(browser){
         await update.click();
         await coursePage.waitForFunction(()=>document.getElementById("appVersion")?.textContent==="Suivante");
         await page.reload({waitUntil:"domcontentloaded"});
-        await page.locator("#examActive.paper-exam-active").waitFor({state:"visible"});
+        await page.locator("#examNotes").waitFor({state:"visible"});
         assert.equal(await version.textContent(),"Suivante");
         assert.deepEqual(await snapshot(),switched,"La recharge demandée préserve la copie");
         console.log("OK Version affichée et mise à jour à la demande, copie conservée");
