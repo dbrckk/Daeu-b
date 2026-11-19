@@ -49,6 +49,7 @@ jobs:
           print('Témoins:',report['controls'])
           print('Faux 8:',report['falseEight'])
           print('Détail par chiffre:',report['byDigit'])
+          print('Confusions par chiffre réel et chiffre proposé:',report['confusions'])
           print('Taille du sous-échantillon de 8:',report['eights']['total'])
           print('Conclusions de précision interdites si moins de 30 exemples de 8')
           if not report['eights']['total'] or not report['controls']['total']:
