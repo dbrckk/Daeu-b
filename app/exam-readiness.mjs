@@ -3,13 +3,21 @@
  * Ce module inspecte les saisies (présence et non pas exactitude), sans corriger
  * les démonstrations ni révéler les solutions pendant l'épreuve.
  */
+import {parseNumber} from "./engine.mjs";
+
 const nonEmpty=value=>typeof value==="string"&&value.trim().length>0;
 export function inspectExamDraft(exam,session){
   if(!exam||!Array.isArray(exam.sections)||exam.sections.length!==4||!session||typeof session!=="object")throw Error("Copie ou sujet invalide");
   if(session.examId!==exam.id||(exam.seed!==undefined&&session.seed!==exam.seed))throw Error("Sujet de la copie incompatible");
   const sections=exam.sections.map((section,index)=>{
     if(!Array.isArray(section.questions)||!section.questions.length)throw Error("Section d'examen vide");
-    const incomplete=section.questions.filter(q=>!nonEmpty(session.answers?.[q.id]));
+    const incomplete=[],invalidIds=[];
+    for(const question of section.questions){
+      const answer=session.answers?.[question.id];
+      if(!nonEmpty(answer))incomplete.push(question);
+      else if(question.type==="number"?parseNumber(answer)===null:!question.options.includes(answer))
+        invalidIds.push(question.id);
+    }
     const answered=section.questions.length-incomplete.length;
     const notePresent=nonEmpty(session.notes?.[section.id]);
     return {
@@ -19,7 +27,8 @@ export function inspectExamDraft(exam,session){
       remaining:incomplete.length,
       pointsUnanswered:incomplete.reduce((n,q)=>n+q.points,0),
       notePresent,
-      missingIds:incomplete.map(q=>q.id)
+      missingIds:incomplete.map(q=>q.id),
+      invalidIds
     };
   });
   const totalQuestions=sections.reduce((n,s)=>n+s.total,0);
@@ -27,9 +36,10 @@ export function inspectExamDraft(exam,session){
   return {
     sections,totalQuestions,answeredQuestions,remainingQuestions:totalQuestions-answeredQuestions,
     pointsUnanswered:sections.reduce((n,s)=>n+s.pointsUnanswered,0),
+    invalidAnswers:sections.reduce((n,s)=>n+s.invalidIds.length,0),
     sectionsWithNotes:sections.filter(s=>s.notePresent).length,
     sectionsWithoutNotes:sections.filter(s=>!s.notePresent).map(s=>s.id),
-    allFieldsFilled:sections.every(s=>s.remaining===0&&s.notePresent),
-    firstIncompleteSection:sections.find(s=>s.remaining>0||!s.notePresent)?.index??null
+    allFieldsFilled:sections.every(s=>s.remaining===0&&s.invalidIds.length===0&&s.notePresent),
+    firstIncompleteSection:sections.find(s=>s.remaining>0||s.invalidIds.length>0||!s.notePresent)?.index??null
   };
 }

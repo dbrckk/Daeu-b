@@ -14,7 +14,14 @@ page.setDefaultNavigationTimeout(15000);
 const watchdog=setTimeout(()=>{console.error("ÉCHEC : délai global du test navigateur dépassé");process.exit(2);},180000);
 page.on("pageerror",e=>errors.push("JS : "+e.message));
 page.on("response",r=>{if(r.url().startsWith(BASE)&&r.status()>=400)errors.push(r.status()+" "+r.url());});
-page.on("dialog",dialog=>dialog.accept());
+let examFormatConfirmation=null;
+page.on("dialog",dialog=>{
+  if(dialog.message().includes("Une réponse au format invalide vaut 0 point.")){
+    examFormatConfirmation=dialog.message();
+    return dialog.dismiss();
+  }
+  return dialog.accept();
+});
 const check=async (fn,label)=>{
   assert.ok(await fn(),label);
   console.log("OK "+label);
@@ -1359,7 +1366,21 @@ try {
   const contextText=await page.locator("#examContext").textContent();
   assert.ok(contextText.includes("B(x)="),"Énoncé complet");
   await check(async()=>await page.locator("#examQuestions fieldset").count()===4,"4 questions au premier exercice");
-  await page.locator("#examQuestions .exam-input").first().fill("8");
+  const numericAnswer=page.locator("#examQuestions .exam-input").first();
+  await numericAnswer.fill("1/0");
+  await check(async()=>await numericAnswer.getAttribute("aria-invalid")==="true"
+    &&await page.locator("#examQuestions .exam-format-warning").first().isVisible()
+    &&await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1 réponse au format invalide")),
+    "Examen C : une fraction illisible est signalée avant la remise");
+  await page.locator("#examNext").click();
+  await page.locator("#examSubmit").click();
+  assert.match(examFormatConfirmation,/1 réponse au format invalide.*0 point/);
+  assert.ok(await page.locator("#examActive").isVisible());
+  await page.locator("#examPrev").click();
+  await numericAnswer.fill("−3/4");
+  await check(async()=>await numericAnswer.getAttribute("aria-invalid")==="false"
+    &&await page.locator("#examQuestions .exam-format-warning").first().isHidden(),
+    "Examen C : une fraction négative remplace la saisie invalide");
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/16 réponses")),
     "Examen C : complétude recalculée après saisie");
   await page.locator("#examNext").click();
@@ -1367,11 +1388,11 @@ try {
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/4 justifications")),
     "Justifications présentes séparées des réponses automatiques");
   await page.locator("#examPrev").click();
-  await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="8"),"Réponse conservée à la navigation");
+  await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="−3/4"),"Réponse conservée à la navigation");
   await page.reload({waitUntil:"networkidle"});
   await check(async()=>await page.locator("#examActive").isVisible(),"Copie récupérée au rechargement");
   await check(async()=>await page.locator("#examContext").textContent().then(x=>x===contextText),"Sujet inchangé au rechargement");
-  await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="8"),"Réponse conservée au rechargement");
+  await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="−3/4"),"Réponse conservée au rechargement");
   await page.locator("#examNext").click();
   await check(async()=>await page.locator("#examNotes").inputValue().then(x=>x.includes("géométrique")),"Rédaction récupérée");
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/16 réponses")&&s.includes("1/4 justifications")),
@@ -1386,10 +1407,19 @@ try {
   await check(async()=>await page.locator("#examReview .exam-reasoning-step").count()===16,"16 critères de rédaction présents");
   await page.locator("#examReview .exam-reasoning-step input[type=checkbox]").first().check();
   await check(async()=>await page.locator("#examReasoningStatus").textContent().then(x=>x.includes("1/16")),"Auto-évaluation indépendante de la note");
+  const secondStep=page.locator("#examReview .exam-reasoning-step").nth(1);
+  await secondStep.getByRole("checkbox",{name:"À retravailler",exact:true}).check();
+  await page.locator("#examRevision").getByRole("listitem").waitFor();
   await page.reload({waitUntil:"networkidle"});
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Historique rechargé");
-  await page.locator("#examHistory button").first().click();
-  await check(async()=>await page.locator("#examReasoningStatus").textContent().then(x=>x.includes("1/16")),"Grille sauvegardée");
+  await page.locator("#examRevisionHomeSummary").click();
+  const revision=page.locator("#examRevisionHome").getByRole("listitem");
+  assert.match(await revision.getByRole("link",{name:"Revoir le cours"}).getAttribute("href"),/course\.html\?course=/);
+  await revision.getByRole("button",{name:/Exercice 1/}).click();
+  await check(async()=>await page.locator("#examReasoningStatus").textContent().then(x=>x.includes("1/16"))
+    &&await secondStep.getByRole("checkbox",{name:"À retravailler",exact:true}).isChecked()
+    &&await secondStep.locator("h4").evaluate(heading=>heading===document.activeElement),
+    "Retour depuis l’accueil à l’étape d’un examen clavier après rechargement");
 
   await page.locator(".optional-backup > summary").click();
   const promise=page.waitForEvent("download");

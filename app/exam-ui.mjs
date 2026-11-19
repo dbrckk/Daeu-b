@@ -221,7 +221,11 @@ function renderHistory(){
   renderAnalytics();
   renderExamRecommendation();
 }
-/** Indique les saisies manquantes sans juger leur justesse ni afficher de solution. */
+const formatWarning=count=>count
+  ?count+(count===1?" réponse au format invalide":" réponses au format invalide")
+  :"";
+
+/** Signale les champs manquants et les formats refusés par le correcteur. */
 function renderDraftProgress(){
   if(!store.active)return;
   const exam=findExam(store.active.examId,store.active.seed??null);
@@ -238,19 +242,29 @@ function renderDraftProgress(){
   }
   byId("examDraftTitle").textContent="Vérification de ma copie avant remise";
   const draft=inspectExamDraft(exam,store.active);
+  const current=draft.sections[store.active.sectionIndex];
+  const invalid=new Set(current.invalidIds);
+  for(const question of exam.sections[current.index].questions){
+    const input=byId("exam-answer-"+question.id);
+    if(!input)continue;
+    input.setAttribute("aria-invalid",String(invalid.has(question.id)));
+    byId("exam-format-"+question.id).hidden=!invalid.has(question.id);
+  }
+  const format=formatWarning(draft.invalidAnswers);
   byId("examDraftSummary").textContent=
-    "Copie : "+draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (non vérifiées) · "+
-    draft.sectionsWithNotes+"/4 justifications présentes · "+draft.pointsUnanswered+
+    "Copie : "+draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (justesse non vérifiée) · "+
+    (format?format+" · ":"")+draft.sectionsWithNotes+"/4 justifications présentes · "+draft.pointsUnanswered+
     " point(s) associés à des questions sans réponse, sur 20.";
   const list=byId("examDraftSections");list.replaceChildren();
   for(const section of draft.sections){
+    const invalid=formatWarning(section.invalidIds.length);
     const button=element("button","subtle small exam-draft-section",
       "Exercice "+(section.index+1)+" — "+section.answered+"/"+section.total+" réponses · "+
-      (section.notePresent?"rédaction présente":"rédaction absente"));
+      (invalid?invalid+" · ":"")+(section.notePresent?"rédaction présente":"rédaction absente"));
     button.type="button";
     button.setAttribute("aria-label","Aller à l'exercice "+(section.index+1)+
       " : "+section.remaining+" question(s) sans réponse, "+
-      (section.notePresent?"justification saisie":"justification absente"));
+      (invalid?invalid+", ":"")+(section.notePresent?"justification saisie":"justification absente"));
     if(section.index===store.active.sectionIndex)button.setAttribute("aria-current","step");
     button.addEventListener("click",()=>moveTo(section.index));
     list.append(button);
@@ -286,13 +300,18 @@ function renderExamSection(){
       const input=element("input","exam-input");
       input.type="text";input.spellcheck=false;input.placeholder="Nombre, fraction ou décimal";input.autocomplete="off";
       input.maxLength=200;input.value=session.answers[q.id]||"";
+      input.id="exam-answer-"+q.id;
       input.setAttribute("aria-label",q.prompt);
+      const warning=element("p","exam-format-warning","Utilise un nombre, un décimal ou une fraction, par exemple −3/4.");
+      warning.id="exam-format-"+q.id;
+      warning.hidden=true;
+      input.setAttribute("aria-describedby",warning.id);
       input.addEventListener("input",()=>{
         if(hasExpired(store.active)){tick();return;}
         if(!commitExam({...store,active:updateExamAnswer(store.active,q.id,input.value)}))input.value=store.active.answers[q.id]||"";
-        else renderDraftProgress();
+        renderDraftProgress();
       });
-      field.append(input);
+      field.append(input,warning);
     }else{
       const options=element("div","exam-options");
       for(const [index,option] of q.options.entries()){
@@ -395,7 +414,7 @@ function renderRevisionHome(){
   copies.replaceChildren();
   let total=0,copyCount=0;
   for(const result of [...store.history].reverse()){
-    if(!result.paperOnly||!result.reviewTargets)continue;
+    if(!result.reviewTargets)continue;
     const exam=findExam(result.examId,result.seed??null);
     const list=element("ul");
     for(const [index,section] of exam.sections.entries()){
@@ -482,7 +501,7 @@ function showResult(result,revisionKey=null){
   selfStatus.textContent=selfCheckText(checks);
   const review=byId("examReview");review.replaceChildren();
   const revisionSteps=[];
-  setVisible("examRevision",result.paperOnly===true);
+  setVisible("examRevision",true);
   const written=result.paperOnly?writtenPaperSections(result,{onError:null}):null;
   const firstReview=result.sections.find(section=>written?.has(section.id))??result.sections[0];
   for(const [index,section] of result.sections.entries()){
@@ -544,16 +563,13 @@ function showResult(result,revisionKey=null){
         const input=element("input");input.type="checkbox";input.checked=!!result.selfChecks?.[key];
         label.append(input,element("span","","J'ai réellement justifié cette étape dans ma copie"));
         wrap.append(label);
-        let target=null;
-        if(result.paperOnly){
-          heading.tabIndex=-1;
-          revisionSteps.push({key,step,index,group:details,guide,heading});
-          const targetLabel=element("label","exam-check-label");
-          target=element("input");target.type="checkbox";
-          target.checked=result.reviewTargets?.[key]===true;
-          targetLabel.append(target,element("span","","À retravailler"));
-          wrap.append(targetLabel);
-        }
+        heading.tabIndex=-1;
+        revisionSteps.push({key,step,index,group:details,guide,heading});
+        const targetLabel=element("label","exam-check-label");
+        const target=element("input");target.type="checkbox";
+        target.checked=result.reviewTargets?.[key]===true;
+        targetLabel.append(target,element("span","","À retravailler"));
+        wrap.append(targetLabel);
         function saveReviewChoice(control,update){
           try{
             if(!commitExam(update(store,result.examId,result.startedAt,key,control.checked)))throw new Error("Persistance impossible");
@@ -561,11 +577,9 @@ function showResult(result,revisionKey=null){
             result.selfChecks=updated.selfChecks;
             result.reviewTargets=updated.reviewTargets;
             input.checked=result.selfChecks?.[key]===true;
-            if(target){
-              target.checked=result.reviewTargets?.[key]===true;
-              renderRevisionTargets(result,revisionSteps);
-              renderRevisionHome();
-            }
+            target.checked=result.reviewTargets?.[key]===true;
+            renderRevisionTargets(result,revisionSteps);
+            renderRevisionHome();
             selfStatus.textContent=selfCheckText(countChecks(updated,exam));
             saveStatus.hidden=true;
           }catch{
@@ -575,7 +589,7 @@ function showResult(result,revisionKey=null){
           }
         }
         input.addEventListener("change",()=>saveReviewChoice(input,updateReviewCheck));
-        target?.addEventListener("change",()=>saveReviewChoice(target,updateReviewTarget));
+        target.addEventListener("change",()=>saveReviewChoice(target,updateReviewTarget));
         const link=element("a","","Approfondir ce chapitre ↗");
         link.href=courseUrl(step.lesson);
         link.target="_blank";link.rel="noopener noreferrer";wrap.append(link);
@@ -602,7 +616,7 @@ function showResult(result,revisionKey=null){
     }
     review.append(details);
   }
-  if(result.paperOnly)renderRevisionTargets(result,revisionSteps);
+  renderRevisionTargets(result,revisionSteps);
   renderHistory();
   const selected=revisionKey&&revisionSteps.find(item=>item.key===revisionKey);
   if(selected){openRevisionStep(selected);return;}
@@ -717,9 +731,11 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
       return;
     }
     const draft=inspectExamDraft(exam,session);
+    const format=formatWarning(draft.invalidAnswers);
     const text="Rendre définitivement la copie ?\n"+
       draft.answeredQuestions+"/"+draft.totalQuestions+" réponses saisies (justesse non vérifiée), "+
       draft.remainingQuestions+" sans réponse ("+draft.pointsUnanswered+" point(s) concernés).\n"+
+      (format?format+". Une réponse au format invalide vaut 0 point.\n":"")+
       draft.sectionsWithNotes+"/4 exercices avec rédaction.\n"+
       "La note automatique est indicative et n'évalue pas les démonstrations. Afficher le corrigé ?";
     if(confirm(text))finalize(hasExpired(session)?"timeout":"submitted");

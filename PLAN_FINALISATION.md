@@ -6,7 +6,7 @@
 
 ## Objectif de sortie
 
-Pouvoir suivre le parcours complet depuis un navigateur vierge. Démarrer un diagnostic, suivre le cours conseillé, faire ses calculs et répondre sur la feuille, réaliser un transfert, passer un examen blanc, puis reprendre les notions à retravailler. Le travail se fait dans l’application. La copie et la progression sont sauvegardées automatiquement pendant l’usage courant, sans export manuel.
+Pouvoir suivre le parcours complet depuis un navigateur vierge. Démarrer un diagnostic, suivre le cours conseillé, faire ses calculs et répondre au clavier, réaliser un transfert, passer un examen blanc, puis reprendre les notions à retravailler. Le travail se fait dans l’application. La copie et la progression sont sauvegardées automatiquement pendant l’usage courant, sans export manuel.
 
 La v62 est déjà utilisable pour étudier. Ce plan remplace les anciennes priorités de développement. La version stable conserve l’URL Render, les identifiants des questions et le format des sauvegardes tant qu’une migration n’est pas nécessaire. Elle s’appuie sur le site statique, la PWA et le stockage existants.
 
@@ -25,6 +25,8 @@ La v62 est déjà utilisable pour étudier. Ce plan remplace les anciennes prior
 - v63 · six examens dont cinq copies d’essai volumineuses, restauration IndexedDB hors ligne après fermeture et absence de perte lors d’un quota simulé. Contrôle de concurrence sur le miroir. La synchronisation avec un compte Supabase réel reste à vérifier.
 - v64 · formulaire d’entraînement hors ligne dans la copie, retour à la feuille et conservation du délai vérifiés dans Chromium.
 - v65 · [échantillon pédagogique des 20 jalons](audits/REVUE_FINALE_MATHS.md) et correction de l’attribution de `l12`.
+- v113 · saisie au clavier par défaut et reprise d’une copie manuscrite en cours au clavier.
+- v114 · contrôle du format des réponses avant remise et reprise d’une étape à retravailler depuis l’accueil après un examen au clavier.
 
 ## Lot 1 · Continuité et sécurité des sauvegardes
 
@@ -37,11 +39,11 @@ La v62 est déjà utilisable pour étudier. Ce plan remplace les anciennes prior
 ## Lot 2 · Parcours entièrement dans l’application
 
 - [ ] Sur `app/index.html`, depuis un profil neuf, suivre le diagnostic, le prochain jalon conseillé, le cours, l’entraînement et un transfert. Vérifier qu’un apprenant trouve l’action suivante en fin de séance et retrouve ses rappels après rechargement. Corriger seulement les impasses, intitulés trompeurs et liens cassés observés.
-- [ ] Sur `app/math-notebook.mjs`, écrire un résultat numérique sous un calcul, écrire le numéro d’un choix et poser une équation longue sur une feuille avec zoom. Vérifier que la lecture reconnue exige confirmation et que le corrigé reste fermé si le résultat n’est pas reconnu. Tester la retouche, puis la comparaison volontaire au corrigé, sans attribuer de maîtrise automatique à une réponse autoévaluée.
+- [x] Saisir des fractions et des équations dans le brouillon du quiz en Chromium mobile. Vérifier le rendu MathML, la correction des étapes prises en charge et la reprise du brouillon après rechargement.
 - [ ] Sur `app/exam-ui.mjs`, réaliser un blanc à quatre exercices, vérifier une remise annulée puis confirmée et rejouer une fin de chronomètre. Ajouter dans la copie un accès repliable à une version locale du [formulaire d’entraînement](fiches/formulaire.md). Vérifier que l’ouverture ne modifie ni le temps restant ni la copie et fonctionne hors connexion. Le formulaire d’entraînement doit être identifiable comme tel. Tester les calculs nécessaires dans l’application et n’ajouter un outil de calcul que si un besoin de l’épreuve reste bloquant.
-- [ ] Après la remise, comparer la copie au corrigé et marquer une étape à retravailler. Vérifier que l’accueil rouvre l’étape exacte après rechargement et que les liens de cours et d’entraînement s’ouvrent sur les bons chapitres.
+- [x] Après la remise, comparer la copie au corrigé et marquer une étape à retravailler. Vérifier que l’accueil rouvre l’étape exacte après rechargement et que les liens de cours et d’entraînement s’ouvrent sur les bons chapitres.
 
-**Sortie** · le parcours est mené de bout en bout sans papier, export ni clavier obligatoire pour répondre aux exercices du mode feuille. Les démonstrations complexes restent comparables à un corrigé et à une grille, avec des limites de reconnaissance expliquées au moment utile.
+**Sortie** · le parcours est mené de bout en bout au clavier, sans papier ni export obligatoire. Les démonstrations se comparent au corrigé et à la grille de rédaction.
 
 ## Lot 3 · Dernière revue pédagogique et accessibilité
 

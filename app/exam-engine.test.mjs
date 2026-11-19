@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {EXAMS} from "./exams.mjs";
 import {gradeAnswer} from "./engine.mjs";
-import {EXAM_DURATION_MS,findExam,validateExamBank,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory} from "./exam-engine.mjs";
+import {EXAM_DURATION_MS,findExam,validateExamBank,startExam,hasExpired,updateExamAnswer,updateExamNotes,finishExam,emptyExamStore,sanitizeExamStore,addHistory,updateReviewCheck,updateReviewTarget} from "./exam-engine.mjs";
 
 const questions=exam=>exam.sections.flatMap(s=>s.questions);
 const time=Date.UTC(2026,10,7,12,0,0);
@@ -79,6 +79,14 @@ test("historique nettoyé et résultats recalculés lors de l'import",()=>{
   assert.equal(clean.history.length,1);
   assert.equal(clean.history[0].score,1);
   assert.equal(clean.active,null);
+  const key="a-analyse:domain";
+  store=updateReviewTarget(clean,result.examId,time,key,true);
+  const reopened=sanitizeExamStore(JSON.parse(JSON.stringify(store)));
+  assert.deepEqual(reopened.history[0].reviewTargets,{[key]:true});
+  assert.equal(reopened.history[0].score,result.score);
+  const justified=updateReviewCheck(reopened,result.examId,time,key,true);
+  assert.deepEqual(justified.history[0].selfChecks,{[key]:true});
+  assert.equal(justified.history[0].reviewTargets,undefined);
 });
 test("les sauvegardes malformées et les réponses hors banque sont rejetées",()=>{
   assert.throws(()=>startExam("examen-inconnu",time));
