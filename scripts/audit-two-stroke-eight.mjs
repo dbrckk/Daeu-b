@@ -60,6 +60,15 @@ export function evaluateSamples(samples,recognizer=recognizeNumericInk,baseline=
     const subset=rows.filter(row=>row.expected===digit);
     if(subset.length)byDigit[digit]=summarize(subset);
   }
+  // Matrice agrégée des confusions, sans conserver de trajectoires ni d'IDs.
+  // Seules les propositions erronées y figurent : une abstention n'est
+  // pas une confusion avec un autre chiffre.
+  const confusions={};
+  for(const row of rows){
+    if(row.verdict!=="erreur")continue;
+    const byProposal=confusions[row.expected]??(confusions[row.expected]={});
+    byProposal[row.proposal]=(byProposal[row.proposal]??0)+1;
+  }
   const eights=rows.filter(row=>row.expected==="8");
   const controls=rows.filter(row=>row.expected!=="8");
   const falseEight=controls.filter(row=>row.proposal==="8");
@@ -74,7 +83,7 @@ export function evaluateSamples(samples,recognizer=recognizeNumericInk,baseline=
   }:null;
   return {sampleCount:rows.length,eights:summarize(eights),
     controls:summarize(controls),falseEight:falseEight.length,
-    falseEightIds:falseEight.map(row=>row.id),byDigit,baseline:baselineSummary};
+    falseEightIds:falseEight.map(row=>row.id),byDigit,confusions,baseline:baselineSummary};
 }
 
 async function main(argv){
