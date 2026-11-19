@@ -27,7 +27,12 @@ export function replayConsensus(rows){
     if(inkOutcome(local,expected)!==row.localOutcome){
       throw Error("Résultat local incohérent à l\u0027index "+index);
     }
-    const parts=Array.isArray(lineReadings)&&lineReadings.length===2
+    // Une paire de lectures ne prouve pas à elle seule une séparation
+    // géométrique. Les anciens JSONL sans preuve doivent s’abstenir.
+    if(Object.hasOwn(row,"geometryValid")&&typeof row.geometryValid!=="boolean"){
+      throw Error("Preuve géométrique invalide à l\u0027index "+index);
+    }
+    const parts=row.geometryValid===true&&Array.isArray(lineReadings)&&lineReadings.length===2
       ?[[],[]]:null;
     const consensus=decideFractionFallback({local,whole:latex,parts,rows:lineReadings});
     const strictOutcome=inkOutcome(consensus.candidate,expected);

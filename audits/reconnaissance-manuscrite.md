@@ -343,6 +343,12 @@ Les essais à 25, 45, 70 et 105 unités contrôlent aussi les 576 tracés de `3`
 
 Le scénario Chromium à 320 px vérifie une fraction dont le dénominateur déclenchait la proposition `3/6` en v104. En v105, le cahier propose `3/8`, demande confirmation et restaure la copie et le score après réouverture hors connexion.
 
+## Correctif de sûreté : preuve géométrique obligatoire au replay
+
+Un défaut du replay a été corrigé : la présence de deux lectures Seshat était utilisée comme **substitut** à la preuve que la fraction pouvait être séparée géométriquement. Cela pouvait attribuer à tort un accord strict à des archives historiques qui ne contenaient aucune preuve de géométrie. Le comparateur écrit désormais `geometryValid` dans chaque ligne JSONL ; le replay n'accepte la proposition externe que lorsque ce champ vaut explicitement `true` et que deux lignes ont été lues. Une archive historique dépourvue de ce champ reste utilisable pour l'analyse mais **s'abstient** sur les propositions externes. La lecture locale complète conserve sa priorité.
+
+Les chiffres de replay antérieurs sans preuve explicite ne doivent pas être utilisés pour décider d'une intégration. Les corpus doivent être rejoués avec le comparateur mis à jour pour obtenir des mesures exploitables.
+
 ## Garde-fous supplémentaires sur les benchmarks
 
 Le rapport refuse désormais de présélectionner un moteur même si ses **nouvelles** erreurs sont nulles, lorsque des **erreurs résiduelles** demeurent. Un moteur qui améliore la couverture mais conserve une mauvaise lecture ne doit pas être déclaré candidat à l'intégration. Le replay vérifie également que la transcription locale et sa classification (exacte, erronée ou abstention) sont cohérentes avant de recalculer le consensus.

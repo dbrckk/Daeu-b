@@ -124,7 +124,8 @@ try{
       seshatAgreementWithLocalVeto:inkOutcome(local??(seshatRowAgreement&&!localRowConflict?candidate:null),expected)
     };
     console.log(JSON.stringify({file,id,expected,local,localOutcome:inkOutcome(local,expected),
-      fallback,fallbackOutcome:inkOutcome(fallback,expected),rows,consensus,policyOutcomes,...result}));
+      fallback,fallbackOutcome:inkOutcome(fallback,expected),
+      geometryValid:Boolean(parts),rows,consensus,policyOutcomes,...result}));
   }
 }finally{
   await browser?.close();
