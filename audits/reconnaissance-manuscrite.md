@@ -1,5 +1,27 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Lecteur local v111
+
+Sur les propositions de `1` à deux traits, le lecteur réutilise la détection de barre traversante du `7`. Il recherche aussi une tête étroite arrondie vers la droite, près d’un petit trait qui descend à gauche. La hampe doit rester séparée du petit trait dans la partie médiane et finir à droite de celui-ci. La détection du `1` à pied intervient avant ces contrôles.
+
+| Hauteur du tracé | Confusions `7` → `1` v110 → v111 sur les 1 250 chiffres CROHME 2019 et 2023 | Confusions v110 → v111 sur les 590 chiffres des lots 2016 et validation 2023 |
+| --- | --- | --- |
+| 25 | 12 → 5 | 2 → 1 |
+| 45 | 12 → 4 | 2 → 1 |
+| 70 | 13 → 4 | 2 → 1 |
+| 105 | 14 → 5 | 2 → 1 |
+
+Le lot de 1 250 chiffres a servi au diagnostic. Les 590 chiffres des deux autres lots ont servi au contrôle. Aux quatre tailles, chaque transcription modifiée sur ces deux ensembles devient exacte. À 70 unités, les onze vrais `1` correctement lus dans le lot principal et les quatre du lot de contrôle conservent leur lecture. [Archive CROHME](https://zenodo.org/records/8428035)
+
+La comparaison à 70 unités se reproduit avec les deux exports numériques du workflow CROHME et le lecteur v110.
+
+```sh
+git show 728e518:app/numeric-ink.mjs > app/numeric-ink-v110.mjs
+node scripts/audit-two-stroke-eight.mjs --baseline app/numeric-ink-v110.mjs \
+  /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json
+rm app/numeric-ink-v110.mjs
+```
+
 ## Lecteur local v110
 
 Sur les propositions de `9` à deux traits, le lecteur recherche une barre proche du sommet et du début du corps. Il vérifie que le corps descend à gauche, s’arrondit vers la droite puis revient vers la gauche dans la moitié inférieure. La barre peut rejoindre le corps légèrement sous son point de départ.
