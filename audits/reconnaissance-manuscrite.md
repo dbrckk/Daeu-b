@@ -394,6 +394,12 @@ Le comparateur WebAssembly possède maintenant une politique indépendante, test
 
 La politique produit explicitement un motif de refus et ajoute `strictConsensus` aux résultats du comparateur. Cela permet de mesurer exactitudes, erreurs et abstentions sans confondre l'acceptation syntaxique et une transcription correcte. **Ce n'est pas encore une intégration dans la PWA** : le WebAssembly GPLv3 n'est pas livré dans le site, et la validation sur téléphone Android réel, la taille des ressources, la licence de redistribution et un lot indépendant doivent encore être vérifiés. Aucun chiffre de précision supplémentaire n'est annoncé sans nouvelle exécution du corpus.
 
+## Couverture complète des chiffres témoins à deux traits
+
+L'exporteur CROHME omettait les chiffres **0, 3 et 6** lorsqu'ils étaient dessinés en deux traits. Cette omission faussait l'analyse des faux positifs du chiffre 8 : un 8 reconnu sur un vrai 0, 3 ou 6 n'était pas comptabilisé dans les contrôles. L'exporteur inclut désormais les dix chiffres ainsi que `+` et `x` ; l'audit numérique filtre les témoins non numériques à l'étape suivante. Un mini-corpus InkML généré pendant la CI vérifie l'extraction des douze symboles et le filtrage des répertoires.
+
+**Limite :** ce test garantit l'exhaustivité des catégories exportées, pas leur fréquence dans les archives CROHME. Aucune nouvelle précision réelle n'est annoncée avant exécution sur les données originales.
+
 ## Audit des chiffres à deux traits — chantier suivant
 
 Le benchmark `scripts/audit-two-stroke-eight.mjs` prend les chiffres isolés et annotés des exports CROHME (`--symbols`). Il mesure séparément les `8` à deux traits et les autres chiffres à deux traits, avec trois issues exclusives : exact, erreur, abstention. Il signale les **faux `8` parmi les autres chiffres** par identifiant. Il permet aussi de comparer un lecteur antérieur sur **les mêmes coordonnées normalisées** et d'identifier chaque transcription modifiée.
