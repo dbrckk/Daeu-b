@@ -371,6 +371,31 @@ function hasFourWithCurvedStem(paths,height){
   });
 }
 
+// Le 5 en deux traits a une barre haute indépendante et une boucle ouverte en bas.
+function hasFiveWithSeparateTopBar(paths,box){
+  if(paths.length!==2)return false;
+  const height=box.maxY-box.minY;
+  return paths.some((stroke,index)=>{
+    const bar=leftToRight(stroke);
+    const body=paths[1-index];
+    const path=body[0][1]<=body.at(-1)[1]?body:[...body].reverse();
+    const [leftX,leftY]=bar[0], [rightX,rightY]=bar.at(-1);
+    const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+    const width=rightX-leftX, rise=rightY-leftY;
+    if(width<height*.32||Math.abs(rise)>width*.46||Math.max(leftY,rightY)>box.minY+height*.32
+      ||startY>box.minY+height*.25||endY<box.maxY-height*.35||rightX-startX<height*.27)return false;
+    if(!path.some(point=>point[1]<=box.minY+height*.30&&far(bar[0],point)<=height*.24))return false;
+    if(bar.some(([x,y])=>Math.abs(y-leftY-rise*(x-leftX)/width)>height*.08))return false;
+
+    const waist=path.findIndex(([x,y])=>y>=box.minY+height*.32
+      &&y<=box.minY+height*.62&&x<=startX+height*.12);
+    if(waist<1)return false;
+    const waistX=path[waist][0];
+    return path.slice(waist+1,-1).some(([x,y])=>y>=box.minY+height*.48
+      &&y<=endY-height*.07&&x>=waistX+height*.22&&x>=endX+height*.11);
+  });
+}
+
 // Un pied peut être légèrement détaché, mais reste centré sous une hampe.
 export function isFootedOne(paths){
   if(paths.length!==2)return false;
@@ -517,6 +542,7 @@ function classify(paths){
   if(best.digit==="9"&&best.score<=MAX_GLYPH_DISTANCE&&margin>=MIN_GLYPH_MARGIN){
     if(hasCrossedSevenBar(paths,b)||hasSerifSeven(paths,b))return {digit:"7",score:0,margin:1};
     if(hasFourWithCurvedStem(paths,h))return {digit:"4",score:0,margin:1};
+    if(hasFiveWithSeparateTopBar(paths,b))return {digit:"5",score:0,margin:1};
   }
   return {...best,margin};
 }
