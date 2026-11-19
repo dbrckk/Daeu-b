@@ -9,6 +9,7 @@ import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from ".
 import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
+import {JALONS} from "./jalons.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
 import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus,recommendedTransferSeries,pendingTransferReviews} from "./transfer-progress.mjs";
@@ -120,14 +121,17 @@ function renderTransferQueue(){
     ?(pending.length-5)+" autre(s) rappel(s) : retrouve-les en ouvrant les jalons détaillés."
     :"Les critères sont déclarés par toi, sans correction automatique.";
 }
-function jalonActions(jalon){
+function jalonActions(jalon,{showTransfer=true}={}){
   const actions=document.createElement("div");actions.className="path-buttons";
   const practice=document.createElement("button");practice.className="primary";practice.type="button";
   practice.textContent="Travailler ce jalon";
   practice.addEventListener("click",()=>startJalonSession(jalon.id,jalon.mode));
-  const course=document.createElement("a");course.href=courseUrl(jalon.lesson);course.textContent="Lire le cours";
-  const transfer=document.createElement("a");transfer.href=transferUrl(jalon.id);transfer.textContent="Problème de transfert";
-  actions.append(practice,course,transfer);
+  const course=document.createElement("a");course.href=courseUrl(jalon.lesson,{jalon:jalon.id});course.textContent="Lire le cours";
+  actions.append(practice,course);
+  if(showTransfer){
+    const transfer=document.createElement("a");transfer.href=transferUrl(jalon.id);transfer.textContent="Problème de transfert";
+    actions.append(transfer);
+  }
   return actions;
 }
 function renderJalonPath(){
@@ -169,7 +173,7 @@ function renderJalonPath(){
     const play=document.createElement("button");play.className="subtle small";play.type="button";play.textContent="S’entraîner";
     play.setAttribute("aria-label","S’entraîner sur le jalon "+row.id+" : "+row.title);
     play.addEventListener("click",()=>startJalonSession(row.id,row.mode));
-    const course=document.createElement("a");course.href=courseUrl(row.lesson);course.textContent="Cours";
+    const course=document.createElement("a");course.href=courseUrl(row.lesson,{jalon:row.id});course.textContent="Cours";
     const transfer=document.createElement("a");transfer.href=transferUrl(row.id);transfer.textContent="Transfert rédigé";
     const transferState=transferStatus(transfers,row.id);
     const tinfo=document.createElement("p");tinfo.className="jalon-pre";
@@ -232,16 +236,19 @@ function buildTopicSelector() {
 }
 
 function startSession() {
-  const selected=selectRound(state,questions,{topic:el("topic").value,mode:el("mode").value,limit:10});
+  const mode=el("mode").value;
+  const selected=requestedJalon
+    ?selectJalonQuestions(state,questions,jalonIndex,requestedJalon.id,mode)
+    :selectRound(state,questions,{topic:el("topic").value,mode,limit:10});
   if(!selected.length){
     notification(el("mode").value==="due"?"Aucune question à réviser actuellement dans ce chapitre. Passe en mode découverte ou reviens à la date d'échéance.":"Aucune question correspondante. Essaie un autre domaine ou mode.");
     return;
   }
-  startSelectedSession(selected);
+  startSelectedSession(selected,{jalon:requestedJalon?.id});
 }
-function startSelectedSession(selected){
+function startSelectedSession(selected,{jalon}={}){
   try{
-    const planned=buildRound(selected,state);
+    const planned=buildRound(selected,state,{jalon});
     const saved=dataStore.updateRound(planned.round);
     round=saved.round;session=planned.questions;
   }catch(err){
@@ -260,7 +267,7 @@ function startJalonSession(jalon,mode="all"){
   let selection=selectJalonQuestions(state,questions,jalonIndex,jalon,mode);
   if(!selection.length&&mode!=="all")selection=selectJalonQuestions(state,questions,jalonIndex,jalon,"all");
   if(!selection.length){notification("Aucune question disponible pour ce jalon.");return;}
-  startSelectedSession(selection);
+  startSelectedSession(selection,{jalon});
   el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function startDiagnosticSession(){
@@ -418,9 +425,17 @@ function finish({focus=true}={}){
   el("results").hidden=false;
   el("resultsText").textContent="Tu as réussi "+score+" réponse"+(score>1?"s":"")+" sur "+session.length+". Les rappels à valeurs variables et sans indice consolident les acquis. Une aide n’augmente pas la maîtrise.";
   const next=recommendJalon(jalonProgress(state,questions,jalonIndex));
+  const completed=JALONS.find(item=>item.id===round?.jalon);
+  const sameJalon=el("resultsTransfer");
+  sameJalon.hidden=true;
+  if(completed&&session.every(question=>jalonIndex.get(completed.id).has(question.id))){
+    sameJalon.href=transferUrl(completed.id);
+    sameJalon.textContent="Faire le problème de transfert du jalon "+completed.id;
+    sameJalon.hidden=false;
+  }
   const heading=el("resultsNextTitle"),actions=el("resultsNextActions");
   heading.textContent=next?"Jalon conseillé · "+next.id+" — "+next.title:"Passer à un examen blanc";
-  if(next)actions.replaceChildren(jalonActions(next));
+  if(next)actions.replaceChildren(jalonActions(next,{showTransfer:sameJalon.hidden||next.id!==completed.id}));
   else{
     const exam=document.createElement("a");exam.href="#exam-title";exam.textContent="Voir les examens blancs";
     actions.replaceChildren(exam);
@@ -484,10 +499,19 @@ buildTopicSelector();
 // Aucune nouvelle séance n'est créée sans action explicite.
 const practiceParams=new URLSearchParams(location.search);
 const requestedTopic=practiceParams.get("topic");
-if(fullTopics.some(topic=>topic.slug===requestedTopic)){
-  el("topic").value=requestedTopic;
+const requestedJalon=JALONS.find(item=>String(item.id)===practiceParams.get("jalon"));
+const hasTopic=fullTopics.some(topic=>topic.slug===requestedTopic);
+if(hasTopic)el("topic").value=requestedTopic;
+if(hasTopic||requestedJalon){
   const requestedMode=practiceParams.get("mode");
   if(["due","wrong"].includes(requestedMode))el("mode").value=requestedMode;
+}
+if(requestedJalon){
+  el("practice-title").textContent="Jalon "+requestedJalon.id+" — "+requestedJalon.title;
+  el("topic").closest(".field").hidden=true;
+  el("practiceAll").hidden=false;
+  el("start").textContent="Démarrer ce jalon";
+  el("restart").textContent="Nouvelle séance sur ce jalon";
 }
 renderCourseLibrary();
 refreshOverview();

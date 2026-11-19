@@ -38,7 +38,7 @@ La v62 est déjà utilisable pour étudier. Ce plan remplace les anciennes prior
 
 ## Lot 2 · Parcours entièrement dans l’application
 
-- [ ] Sur `app/index.html`, depuis un profil neuf, suivre le diagnostic, le prochain jalon conseillé, le cours, l’entraînement et un transfert. Vérifier qu’un apprenant trouve l’action suivante en fin de séance et retrouve ses rappels après rechargement. Corriger seulement les impasses, intitulés trompeurs et liens cassés observés.
+- [x] À 320 px, suivre le diagnostic, le cours conseillé et l’entraînement du même jalon. Après rechargement hors connexion, ouvrir le transfert, rédiger la copie, retrouver le brouillon sur le corrigé et enregistrer le rappel J+7.
 - [x] Saisir des fractions et des équations dans le brouillon du quiz en Chromium mobile. Vérifier le rendu MathML, la correction des étapes prises en charge et la reprise du brouillon après rechargement.
 - [ ] Sur `app/exam-ui.mjs`, réaliser un blanc à quatre exercices, vérifier une remise annulée puis confirmée et rejouer une fin de chronomètre. Ajouter dans la copie un accès repliable à une version locale du [formulaire d’entraînement](fiches/formulaire.md). Vérifier que l’ouverture ne modifie ni le temps restant ni la copie et fonctionne hors connexion. Le formulaire d’entraînement doit être identifiable comme tel. Tester les calculs nécessaires dans l’application et n’ajouter un outil de calcul que si un besoin de l’épreuve reste bloquant.
 - [x] Après la remise, comparer la copie au corrigé et marquer une étape à retravailler. Vérifier que l’accueil rouvre l’étape exacte après rechargement et que les liens de cours et d’entraînement s’ouvrent sur les bons chapitres.

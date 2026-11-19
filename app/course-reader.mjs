@@ -1,5 +1,6 @@
 import {renderMathMarkdown} from "./math-markdown.mjs";
 import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
+import {JALONS} from "./jalons.mjs";
 import {initReadingTools} from "./reading-tools.mjs";
 import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {createPersistence} from "./persistence.mjs";
@@ -9,7 +10,8 @@ import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";
 import {validSearchQuery,searchCourseDocs} from "./course-search.mjs";
 const byId=id=>document.getElementById(id);
-let slug=new URL(location.href).searchParams.get("course")||"00-positionnement";
+const params=new URLSearchParams(location.search);
+let slug=params.get("course")||"00-positionnement";
 if(!courseInfo(slug))slug="00-positionnement";
 const selector=byId("courseSelector");
 for(const [key,title] of COURSES){
@@ -26,13 +28,13 @@ try{
 }catch{byId("courseNotebook").textContent="Le cahier ne peut pas être ouvert : vérifie le stockage du navigateur.";}
 
 const practice=byId("coursePractice");
-const exerciseUrl=practiceUrlForCourse(slug);
+const jalon=JALONS.find(item=>String(item.id)===params.get("jalon")&&item.lesson===slug+".md");
+const exerciseUrl=practiceUrlForCourse(slug,{jalon:jalon?.id});
 practice.href=exerciseUrl;
 byId("courseNotebookPractice").href=exerciseUrl;
-practice.textContent=practiceTopicForCourse(slug)
-  ?"M'entraîner sur ce chapitre"
-  :"M'entraîner sur le tronc commun";
-practice.setAttribute("aria-label",practice.textContent+" : "+courseInfo(slug));
+practice.textContent=jalon?"M’entraîner sur le jalon "+jalon.id
+  :practiceTopicForCourse(slug)?"M'entraîner sur ce chapitre":"M'entraîner sur le tronc commun";
+practice.setAttribute("aria-label",practice.textContent+" : "+(jalon?.title??courseInfo(slug)));
 selector.addEventListener("change",()=>{location.href=courseUrl(selector.value);});
 const index=COURSES.findIndex(([key])=>key===slug);
 for(const [id,diff] of [["coursePrevious",-1],["courseNext",1]]){

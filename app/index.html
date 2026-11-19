@@ -93,6 +93,7 @@
           <div class="field"><label for="topic">Chapitre</label><select id="topic"><option value="all">Tous les chapitres</option></select></div>
           <div class="field"><label for="mode">Mode</label><select id="mode"><option value="all">Découverte et consolidation</option><option value="due">Révisions à effectuer</option><option value="wrong">Mes erreurs</option></select></div>
           <button type="button" id="start" class="primary">Démarrer · 10 questions</button>
+          <a id="practiceAll" href="./#practice-title" hidden>Choisir un autre chapitre</a>
         </div>
         <p class="helper">Les variantes changent les données des exercices. Une réussite après indice aide à apprendre, mais ne valide pas la maîtrise. La confirmation exige une réussite sans indice sur une autre date.</p>
         <div id="notification" class="notice" role="status" aria-live="polite" hidden></div>
@@ -117,6 +118,7 @@
         </section>
         <section id="results" class="results" aria-live="polite" hidden><h3 id="resultsTitle" tabindex="-1">Séance terminée</h3>
           <p id="resultsText"></p>
+          <a id="resultsTransfer" class="primary problems-link" hidden></a>
           <h4 id="resultsNextTitle"></h4>
           <div id="resultsNextActions"></div>
           <button type="button" id="restart" class="subtle">Nouvelle séance générale</button></section>
@@ -252,7 +254,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">114</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">115</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

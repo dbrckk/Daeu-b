@@ -193,16 +193,30 @@ async function load(){
     }
     updateOutline();
     if(transfers&&jalonSuffix){
-      const prefix="T"+String(selectedJalon).padStart(2,"0")+" ";
-      const heading=[...target.querySelectorAll("h2")].find(h=>h.textContent.trim().startsWith(prefix));
-      if(heading){
-        heading.scrollIntoView({block:"start"});
-        heading.setAttribute("tabindex","-1");heading.focus({preventScroll:true});
-        const link=document.createElement("a");
-        link.href="#transferTracking";
-        link.className="reader-section-save";
-        link.textContent="Après correction : noter mon raisonnement";
-        heading.insertAdjacentElement("afterend",link);
+      const label="T"+String(selectedJalon).padStart(2,"0");
+      const headings=[...target.children].filter(node=>node.tagName==="H2");
+      const index=headings.findIndex(heading=>heading.textContent.trim().startsWith(label+" "));
+      if(index>=0){
+        const heading=headings[index],next=headings[index+1]??null;
+        target.insertBefore(el("problemNotebookPanel"),next);
+        const actions=document.createElement("nav");
+        actions.className="path-buttons";
+        actions.setAttribute("aria-label","Suite du transfert "+label);
+        const switchView=document.createElement("a");
+        switchView.href=el("problemSwitch").href;
+        switchView.textContent=(mode==="sujets"?"Voir le corrigé du ":"Revenir au sujet du ")+label;
+        actions.append(switchView);
+        if(mode==="corriges"){
+          const review=document.createElement("a");
+          review.href="#transferTracking";
+          review.textContent="Faire mon auto-évaluation";
+          actions.append(review);
+        }
+        target.insertBefore(actions,next);
+        const destination=location.hash==="#transferTracking"&&mode==="corriges"?el("transferTracking"):heading;
+        destination.setAttribute("tabindex","-1");
+        destination.focus({preventScroll:true});
+        destination.scrollIntoView({block:"start"});
       }
     }
     const details=transfers?(mode==="sujets"?"20 problèmes de transfert · 20 jalons":"20 corrigés et grilles de raisonnement"):(mode==="sujets"?"37 questions · 8 problèmes · 3 niveaux":"37 corrections détaillées · 8 problèmes");

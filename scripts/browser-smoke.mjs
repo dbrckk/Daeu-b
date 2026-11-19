@@ -936,7 +936,7 @@ try {
     "Bibliothèque complète de 18 cours locaux");
   await check(async()=>await page.locator("#topicCards .topic-card a").first().getAttribute("href").then(h=>h.startsWith("./course.html?course=")),
     "Cours du catalogue reliés au lecteur local");
-  const diagnosisContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  const diagnosisContext=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
     const diagnosisPage=await diagnosisContext.newPage();
     await diagnosisPage.goto(BASE+"/",{waitUntil:"networkidle"});
@@ -1031,14 +1031,57 @@ try {
     await followUp.getByRole("link",{name:"Lire le cours"}).click();
     await diagnosisPage.waitForURL(courseUrl.href);
     await diagnosisPage.locator("#courseBody h2").first().waitFor({state:"visible"});
-    const nextPractice=diagnosisPage.getByRole("link",{name:/M'entraîner sur ce chapitre/});
+    const jalon=courseUrl.searchParams.get("jalon");
+    assert.ok(jalon);
+    const nextPractice=diagnosisPage.locator("#coursePractice");
+    assert.match(await nextPractice.textContent(),new RegExp("jalon "+jalon+"$"));
     await nextPractice.click();
-    await diagnosisPage.waitForURL(/topic=/);
-    await diagnosisPage.waitForFunction(()=>{
-      const expected=new URL(location.href).searchParams.get("topic");
-      return expected&&document.querySelector("#topic")?.value===expected;
+    await diagnosisPage.waitForURL(url=>url.searchParams.get("jalon")===jalon&&url.hash==="#practice-title");
+    await diagnosisPage.getByRole("button",{name:"Démarrer ce jalon"}).click();
+    const scoped=await diagnosisPage.evaluate(async()=>{
+      const [{TOPICS},{injectVariants},{flatten},{buildJalonIndex}]=await Promise.all([
+        import("./questions.mjs"),import("./variants.mjs"),import("./engine.mjs"),import("./jalon-progress.mjs")
+      ]);
+      const {round}=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const ids=buildJalonIndex(flatten(injectVariants(TOPICS))).get(round.jalon);
+      return {id:round.jalon,count:round.ids.length,valid:round.ids.every(id=>ids.has(id))};
     });
-    console.log("OK Fin de diagnostic : prochaine notion, cours et retour à l’entraînement ciblé");
+    assert.equal(String(scoped.id),jalon);
+    assert.ok(scoped.valid);
+    assert.ok(await diagnosisPage.locator("#answerForm").isVisible());
+    assert.ok(await diagnosisPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    for(let index=0;index<scoped.count;index++){
+      await diagnosisPage.locator("#unknownButton").click();
+      await diagnosisPage.locator("#next").click();
+    }
+    await diagnosisPage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+    await diagnosisContext.setOffline(true);
+    await diagnosisPage.reload({waitUntil:"domcontentloaded"});
+    const sameTransfer=diagnosisPage.locator("#resultsTransfer");
+    await sameTransfer.waitFor();
+    assert.equal(new URL(await sameTransfer.getAttribute("href"),BASE).searchParams.get("jalon"),jalon);
+    await sameTransfer.click();
+    await diagnosisPage.waitForURL(url=>url.searchParams.get("set")==="transferts"&&url.searchParams.get("jalon")===jalon);
+    const label="T"+jalon.padStart(2,"0");
+    const focusedTransfer=diagnosisPage.getByRole("navigation",{name:"Suite du transfert "+label});
+    const notebook=diagnosisPage.locator("#problemBody #problemNotebookPanel");
+    await notebook.locator("summary").first().click();
+    const draft="126 / 9 = 14\n(126 − 18) / 9 = 12";
+    await notebook.locator("textarea").fill(draft);
+    assert.ok(await diagnosisPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await focusedTransfer.getByRole("link",{name:"Voir le corrigé du "+label}).click();
+    await diagnosisPage.waitForURL(url=>url.searchParams.get("mode")==="corriges"&&url.searchParams.get("jalon")===jalon);
+    await notebook.locator("summary").first().click();
+    assert.equal(await notebook.locator("textarea").inputValue(),draft);
+    await focusedTransfer.getByRole("link",{name:"Faire mon auto-évaluation"}).click();
+    await diagnosisPage.locator(".transfer-criterion").first().check();
+    await diagnosisPage.locator("#transferAttest").check();
+    await diagnosisPage.locator("#transferRecord").click();
+    assert.match(await diagnosisPage.locator("#transferStage").textContent(),/J\+7/);
+    await diagnosisPage.getByRole("link",{name:"Retour au tableau de bord"}).click();
+    await diagnosisPage.waitForFunction(()=>document.querySelector("#transferSummary")?.textContent.includes("2/20"));
+    assert.equal(new URL(await sameTransfer.getAttribute("href"),BASE).searchParams.get("jalon"),jalon);
+    console.log("OK Parcours à 320 px : diagnostic, cours, entraînement du même jalon et transfert rédigé hors ligne");
 
   }finally{await diagnosisContext.close();}
   // Deux rappels rédigés arrivés à échéance : tri, recommandations B/C
