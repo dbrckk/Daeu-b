@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v109 — mieux reconnaître les 4 manuscrits à hampe incurvée (19 novembre 2026)
+
+- Le lecteur suit la hampe au niveau de la barre, même si elle débute bas, s’incline ou se recourbe. Il vérifie que le bras forme un coude à gauche et dépasse la hampe.
+- Sur 1 250 chiffres CROHME, les confusions `4` → `9` passent de 20 à 6 à la taille de référence. Les quatre `9` déjà exacts conservent leur lecture. [Mesures détaillées](audits/reconnaissance-manuscrite.md#lecteur-local-v109)
+
 ## v108 — distinguer les 7 à deux traits des 9 (19 novembre 2026)
 
 - Le lecteur reconnaît deux écritures du `7` que le gabarit du `9` pouvait attirer : une tête arrondie avec une barre qui traverse la hampe et une tête avec un petit trait descendant à gauche.

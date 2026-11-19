@@ -1,5 +1,27 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Lecteur local v109
+
+Le nouveau contrôle géométrique intervient sur les propositions de `9` à deux traits après les tests de la v108. Il repère la hampe à la hauteur de l’extrémité de la barre par interpolation entre deux points du tracé. Le bras descend vers un coude à gauche puis se prolonge à droite de la hampe. Ce contrôle couvre notamment les hampes qui débutent bas ou se recourbent en fin de geste.
+
+| Hauteur du tracé | Confusions `4` → `9` v108 → v109 sur les 1 250 chiffres CROHME 2019 et 2023 | Confusions v108 → v109 sur les 590 chiffres des lots 2016 et validation 2023 |
+| --- | --- | --- |
+| 25 | 16 → 8 | 4 → 3 |
+| 45 | 17 → 6 | 5 → 3 |
+| 70 | 20 → 6 | 6 → 4 |
+| 105 | 18 → 7 | 5 → 3 |
+
+Le lot de 1 250 chiffres a servi au diagnostic. Les 590 chiffres des deux autres lots ont servi au contrôle. Aux quatre tailles, chaque transcription modifiée sur ces deux ensembles devient exacte. Les quatre vrais `9` déjà reconnus du lot principal conservent leur lecture. À 70 unités, la v109 corrige les trois confusions du jeu de test 2019 et onze des dix-sept du jeu de test 2023. [Archive CROHME](https://zenodo.org/records/8428035)
+
+La comparaison à 70 unités se reproduit avec les deux exports numériques du workflow CROHME et le lecteur v108.
+
+```sh
+git show f58eb72:app/numeric-ink.mjs > app/numeric-ink-v108.mjs
+node scripts/audit-two-stroke-eight.mjs --baseline app/numeric-ink-v108.mjs \
+  /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json
+rm app/numeric-ink-v108.mjs
+```
+
 ## Lecteur local v108
 
 La comparaison avec la v107 réutilise les tracés annotés et la préparation CROHME. La règle intervient lorsque le lecteur propose un `9` et que la forme à deux traits correspond à l’un des deux types de `7` identifiés. Une barre traverse la hampe à mi-hauteur sous une tête arrondie, ou un petit trait descend du bord gauche d’une tête dont la hampe reste à droite dans la moitié supérieure.

@@ -337,6 +337,40 @@ function hasSlantedFour(paths,box){
   });
 }
 
+// Le bras ouvert d'un 4 peut croiser une hampe incurvée ou courte à son sommet.
+function hasFourWithCurvedStem(paths,height){
+  if(paths.length!==2)return false;
+  return paths.some((arm,index)=>{
+    const stroke=paths[1-index];
+    const stem=stroke[0][1]<=stroke.at(-1)[1]?stroke:[...stroke].reverse();
+    const [topX,topY]=stem[0], [bottomX,bottomY]=stem.at(-1);
+    if(bottomY-topY<height*.54||Math.abs(bottomX-topX)>height*.60
+      ||stem.some(([,y],i)=>i>0&&y<stem[i-1][1]-height*.07))return false;
+    const path=leftToRight(arm);
+    const [startX,startY]=path[0], [endX,endY]=path.at(-1);
+    if(endY-startY<height*.25||endY<topY+height*.05||endY>bottomY-height*.22)return false;
+
+    // La position de la hampe à la hauteur de la barre se lit sur le trait,
+    // même quand sa pointe se relève et décale la droite entre ses extrémités.
+    const j=stem.findIndex(([,y])=>y>=endY);
+    if(j<1)return false;
+    const [x1,y1]=stem[j-1], [x2,y2]=stem[j];
+    const stemX=x1+(x2-x1)*(endY-y1)/(y2-y1);
+    const overhang=endX-stemX;
+    const startsLeft=startX<=stemX-height*.10;
+    const joinsTop=far(path[0],stem[0])<=height*.12;
+    if(overhang<height*.015||overhang>height*.47)return false;
+    if(!startsLeft&&(!joinsTop||overhang<height*.12))return false;
+
+    return path.some(([x,y],i)=>{
+      const run=endX-x,drop=y-startY;
+      return i>0&&i<path.length-1&&run>=height*.28&&drop>=height*.27
+        &&stemX-x>=height*.20&&Math.abs(endY-y)<=run*.38
+        &&followsFourCorner(path,i,height);
+    });
+  });
+}
+
 // Un pied peut être légèrement détaché, mais reste centré sous une hampe.
 export function isFootedOne(paths){
   if(paths.length!==2)return false;
@@ -480,9 +514,10 @@ function classify(paths){
     return {digit:"3",score:0,margin:1};
   if((best.digit==="9"||best.score>MAX_GLYPH_DISTANCE||margin<MIN_GLYPH_MARGIN)&&hasSlantedFour(paths,b))
     return {digit:"4",score:0,margin:1};
-  if(best.digit==="9"&&best.score<=MAX_GLYPH_DISTANCE&&margin>=MIN_GLYPH_MARGIN
-    &&(hasCrossedSevenBar(paths,b)||hasSerifSeven(paths,b)))
-    return {digit:"7",score:0,margin:1};
+  if(best.digit==="9"&&best.score<=MAX_GLYPH_DISTANCE&&margin>=MIN_GLYPH_MARGIN){
+    if(hasCrossedSevenBar(paths,b)||hasSerifSeven(paths,b))return {digit:"7",score:0,margin:1};
+    if(hasFourWithCurvedStem(paths,h))return {digit:"4",score:0,margin:1};
+  }
   return {...best,margin};
 }
 // Un espace entre le bras et la hampe peut les placer dans deux boîtes.
