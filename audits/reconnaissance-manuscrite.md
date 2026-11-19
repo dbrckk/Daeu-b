@@ -1,5 +1,11 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Audit CROHME réel du 19 novembre 2026
+
+GitHub Actions [exécution 44505885210](https://github.com/dbrckk/Daeu-b/actions/runs/44505885210), depuis l'archive Zenodo CROHME23.zip (splits 2019 et 2023), a analysé **1 250 symboles à deux traits** : **6 vrais 8**, dont **0 exact, 0 erroné et 6 abstentions** ; **1 244 autres chiffres**, dont **401 exacts, 140 erronés et 703 abstentions** ; **15 faux 8** parmi ces témoins. Il s'agit des résultats de `scripts/audit-two-stroke-eight.mjs` avec la version du lecteur utilisée par ce workflow, et non d'une mesure générale de toutes les écritures.
+
+**Décision : ne pas activer une reconnaissance plus permissive du 8.** Six vrais 8 sont insuffisants pour estimer sa sensibilité. Le workflow suivant indique explicitement un seuil de diagnostic de 30 exemples et publie le détail par chiffre ; ce seuil est un garde-fou pratique, pas une garantie statistique de sécurité. Les 15 faux 8 montrent un risque concret sur les témoins.
+
 Le cahier DAEU B conserve les coordonnées des traits. La reconnaissance fournit une proposition que l’élève confirme avant correction. Cette séparation permet de comparer plusieurs lecteurs avec les mêmes copies et le même correcteur.
 
 | Ressource | Usage pour le DAEU B |
