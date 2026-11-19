@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v115 — garder le même jalon du cours au transfert
+
+- Le cours conseillé renvoie vers les questions du jalon choisi. Une séance ciblée propose dans son bilan le transfert de ce jalon, y compris après rechargement.
+- Le transfert ciblé présente le cahier au clavier sous son énoncé, puis donne accès au corrigé et à l’auto-évaluation. Le même brouillon se retrouve dans le corrigé de la même série.
+
 ## v114 — vérification et reprise des examens au clavier (19 novembre 2026)
 
 - Les champs d’examen signalent les décimaux et fractions dont le format empêche la correction. Les saisies concernées sont rappelées avant la remise définitive.

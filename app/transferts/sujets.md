@@ -1,6 +1,6 @@
 # Transferts — 20 jalons obligatoires du DAEU B
 
-Ces problèmes originaux vérifient l'application d'une méthode à une situation différente des questions autocorrigées. **Rédige chaque démarche sur papier avant d'ouvrir les corrigés.** La grille de 4 critères est qualitative, pas une note officielle.
+Ces problèmes originaux vérifient l'application d'une méthode à une situation différente des questions autocorrigées. **Rédige chaque démarche avant d'ouvrir les corrigés.** La grille de 4 critères est qualitative, pas une note officielle.
 
 Chaque jalon est une première activité de transfert, pas une couverture exhaustive des difficultés possibles.
 

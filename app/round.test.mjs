@@ -51,7 +51,7 @@ test("rejet des séances falsifiées, des questions inconnues et des graines mal
 });
 test("une réponse et son avancement sont écrits atomiquement avec les examens",()=>{
   const storage=createVolatileStorage(),p=createPersistence(storage,known);
-  const round=buildRound([byId.get("n01"),byId.get("v01")],emptyState(),{random:()=>.1,now}).round;
+  const round=buildRound([byId.get("n01"),byId.get("v01")],emptyState(),{random:()=>.1,now,jalon:1}).round;
   p.updateRound(round);
   const practice=recordAnswer(emptyState(),"n01",true,now);
   const result=p.commitPractice(practice,advanceRound(round,true));
@@ -63,6 +63,8 @@ test("une réponse et son avancement sont écrits atomiquement avec les examens"
   assert.equal(p.snapshot().round.completed,1,"examen n'écrase pas la séance");
   const reopened=createPersistence(storage,known);
   assert.equal(reopened.snapshot().round.ids[1],"v01");
+  assert.equal(reopened.snapshot().round.jalon,1);
+  assert.equal(sanitizeRound({...round,jalon:21},known).jalon,undefined);
   assert.equal(reopened.snapshot().exams.active.seed,123);
   assert.equal(JSON.parse(storage.getItem(DATA_KEY)).round.score,1);
 });

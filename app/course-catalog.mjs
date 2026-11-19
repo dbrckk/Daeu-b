@@ -20,9 +20,9 @@ export const COURSES=[
 ["17-raisonnement-modelisation","17 · Rédaction et modélisation"]
 ];
 const catalog=new Map(COURSES);
-export function courseUrl(filename){
+export function courseUrl(filename,{jalon}={}){
   const slug=String(filename??"").split("/").at(-1).replace(/\.md$/,"");
-  return catalog.has(slug)?"./course.html?course="+encodeURIComponent(slug):null;
+  return catalog.has(slug)?"./course.html?course="+encodeURIComponent(slug)+(Number.isInteger(jalon)?"&jalon="+jalon:""):null;
 }
 export function courseInfo(slug){return catalog.get(slug)||null;}
 
@@ -52,7 +52,7 @@ export function practiceTopicForCourse(filename){
   const slug=slugOf(filename);
   return catalog.has(slug)?PRACTICE_TOPICS.get(slug)??null:null;
 }
-export function practiceUrlForCourse(filename){
+export function practiceUrlForCourse(filename,{jalon}={}){
   const topic=practiceTopicForCourse(filename);
-  return topic?"./?topic="+encodeURIComponent(topic)+"#practice-title":"./#practice-title";
+  return topic?"./?topic="+encodeURIComponent(topic)+(Number.isInteger(jalon)?"&jalon="+jalon:"")+"#practice-title":"./#practice-title";
 }

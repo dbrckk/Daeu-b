@@ -4,8 +4,10 @@
  * Les variantes ne gardent que leur graine uint32, jamais une réponse
  * importée arbitrairement. Aucun code utilisateur n'est évalué.
  */
+import {JALONS} from "./jalons.mjs";
 import {VARIANTS,materializeVariant} from "./variants.mjs";
 const variantIds=new Set(VARIANTS.map(q=>q.id));
+const jalonIds=new Set(JALONS.map(({id})=>id));
 const isUInt32=n=>Number.isInteger(n)&&n>=0&&n<=0xFFFFFFFF;
 export const ROUND_VERSION=1;
 
@@ -33,9 +35,11 @@ export function sanitizeRound(raw,knownIds){
     if(!expected.has(id)||!isUInt32(seed))throw new Error("Graine de révision invalide");
     Object.defineProperty(seeds,id,{value:seed,enumerable:true,configurable:true,writable:true});
   }
-  return {version:ROUND_VERSION,ids:[...raw.ids],seeds,startedAt:raw.startedAt,completed:raw.completed,score:raw.score,assistedIds:[...assistedIds]};
+  const round={version:ROUND_VERSION,ids:[...raw.ids],seeds,startedAt:raw.startedAt,completed:raw.completed,score:raw.score,assistedIds:[...assistedIds]};
+  if(jalonIds.has(raw.jalon))round.jalon=raw.jalon;
+  return round;
 }
-export function buildRound(selection,practice,{random=Math.random,now=Date.now()}={}){
+export function buildRound(selection,practice,{random=Math.random,now=Date.now(),jalon}={}){
   if(!Array.isArray(selection)||!selection.length||selection.length>10)
     throw new Error("Sélection de révision invalide");
   const questions=selection.map(q=>q.type==="variant"
@@ -44,7 +48,7 @@ export function buildRound(selection,practice,{random=Math.random,now=Date.now()
   const seeds={};
   for(const q of questions)if(q.isVariant)seeds[q.id]=q.seed;
   const ids=questions.map(q=>q.id);
-  const round=sanitizeRound({version:ROUND_VERSION,ids,seeds,startedAt:now,completed:0,score:0},new Set(ids));
+  const round=sanitizeRound({version:ROUND_VERSION,ids,seeds,startedAt:now,completed:0,score:0,jalon},new Set(ids));
   return {round,questions};
 }
 export function restoreRound(raw,bank){

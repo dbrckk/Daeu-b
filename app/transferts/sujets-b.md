@@ -1,6 +1,6 @@
 # Transferts — situations B (20 jalons)
 
-Deuxième situation originale par jalon du programme obligatoire. Les situations B modifient le contexte et souvent la méthode par rapport aux premiers transferts. Résoudre sur papier, expliquer chaque étape, vérifier domaines et unités, puis comparer séparément au corrigé. Aucun barème officiel n'est prétendu.
+Deuxième situation originale par jalon du programme obligatoire. Les situations B modifient le contexte et souvent la méthode par rapport aux premiers transferts. Résoudre le problème, expliquer chaque étape, vérifier domaines et unités, puis comparer séparément au corrigé. Aucun barème officiel n'est prétendu.
 
 ## T01 — Jalon 1 : Arithmétique et lots
 
