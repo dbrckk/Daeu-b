@@ -112,19 +112,29 @@ try{
   for(const _ of uprightFraction)await undoFraction.click();
   console.log("OK 7 barré presque vertical lu comme 7/5 au doigt, sans notation préalable");
 
-  const openFourFraction=[
-    [[183,173],[170,192],[156,210],[200,210]],
-    [[205,183],[203,264]],
-    [[120,280],[236,281]],
-    [[185,305],[153,305],[151,330],[171,328],[187,335],[191,349],[182,364],[166,369],[150,364]]
+  const fourNumerators=[
+    ["ouvert",[
+      [[183,173],[170,192],[156,210],[200,210]],
+      [[205,183],[203,264]],
+      [[120,280],[236,281]]
+    ]],
+    ["à hampe incurvée",[
+      [[154,178],[148,190],[142,206],[144,214],[153,219],[187,216]],
+      [[182,205],[183,216],[181,237],[178,251],[174,258]],
+      [[120,275],[236,275]]
+    ]]
   ];
-  await traceFraction(touch,page.locator("#quizNotebook canvas"),openFourFraction);
-  await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
-  await fractionCandidate.waitFor({state:"visible"});
-  assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 4/5");
-  assert.equal((await snapshot()).round.completed,0);
-  for(const _ of openFourFraction)await undoFraction.click();
-  console.log("OK 4 ouvert lu comme 4/5 au doigt, sans notation préalable");
+  const five=[[185,305],[153,305],[151,330],[171,328],[187,335],[191,349],[182,364],[166,369],[150,364]];
+  for(const [style,numerator] of fourNumerators){
+    const fraction=[...numerator,five];
+    await traceFraction(touch,page.locator("#quizNotebook canvas"),fraction);
+    await page.locator("#quizNotebook .math-notebook-quick-validate").tap();
+    await fractionCandidate.waitFor({state:"visible"});
+    assert.equal(await fractionCandidate.locator("strong").textContent(),"Lecture proposée : 4/5");
+    assert.equal((await snapshot()).round.completed,0);
+    for(const _ of fraction)await undoFraction.click();
+    console.log(`OK 4 ${style} lu comme 4/5 au doigt, sans notation préalable`);
+  }
 
   const ovalStroke=(cx,cy,rx,ry)=>Array.from({length:13},(_,i)=>[
     Math.round(cx+rx*Math.cos(2*Math.PI*i/12)),
