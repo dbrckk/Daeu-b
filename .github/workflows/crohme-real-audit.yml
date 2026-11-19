@@ -1,0 +1,61 @@
+name: Audit CROHME réel (chiffres à deux traits)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/crohme-real-audit.yml'
+      - 'scripts/export-crohme-ink.py'
+      - 'scripts/audit-two-stroke-eight.mjs'
+      - 'app/numeric-ink.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: crohme-real-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Télécharger l'archive publique CROHME 2023 (sans la redistribuer)
+        run: |
+          curl --fail --location --retry 2 --connect-timeout 25 --max-time 900 \
+            'https://zenodo.org/records/8428035/files/CROHME23.zip?download=1' \
+            --output /tmp/crohme23.zip
+          python3 - <<'PY'
+          from zipfile import ZipFile
+          with ZipFile('/tmp/crohme23.zip') as archive:
+              for split in ('CROHME2019_test','CROHME2023_test'):
+                  count=sum(name.endswith('.inkml') and name.split('/')[-2]==split
+                            for name in archive.namelist())
+                  print(split, count)
+                  if not count:
+                      raise SystemExit('Archive sans split InkML attendu: '+split)
+          PY
+      - name: Mesurer les faux 8 sur les deux jeux de test réels
+        run: |
+          python3 scripts/export-crohme-ink.py /tmp/crohme23.zip --split CROHME2019_test --symbols > /tmp/crohme-2019-symbols.json
+          python3 scripts/export-crohme-ink.py /tmp/crohme23.zip --split CROHME2023_test --symbols > /tmp/crohme-2023-symbols.json
+          node scripts/audit-two-stroke-eight.mjs /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json > /tmp/crohme-two-stroke-report.json
+          python3 - <<'PY'
+          import json
+          report=json.load(open('/tmp/crohme-two-stroke-report.json'))
+          print('Échantillons:',report['sampleCount'])
+          print('8:',report['eights'])
+          print('Témoins:',report['controls'])
+          print('Faux 8:',report['falseEight'])
+          if not report['eights']['total'] or not report['controls']['total']:
+              raise SystemExit('Corpus non représentatif : aucun 8 ou témoin')
+          PY
+      - name: Conserver seulement les métriques agrégées (pas de manuscrits)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crohme-two-stroke-metrics
+          path: /tmp/crohme-two-stroke-report.json
+          if-no-files-found: ignore
+          retention-days: 7
