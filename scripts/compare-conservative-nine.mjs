@@ -11,7 +11,7 @@ export function compareNinePolicy(samples){
   const fixedErrors=changes.filter(row=>row.fromVerdict==="erreur"&&row.toVerdict!=="erreur");
   const addedErrors=changes.filter(row=>row.fromVerdict!=="erreur"&&row.toVerdict==="erreur");
   // Le corpus doit contenir assez de vrais 9 et de chiffres témoins.
-  const trueNines=report.candidate.byDigit["9"]?.total??0;
+  const trueNines=report.byDigit["9"]?.total??0;
   const otherDigits=report.sampleCount-trueNines;
   const sufficientSample=trueNines>=30&&otherDigits>=30;
   return {sampleCount:report.sampleCount,evidence:{trueNines,otherDigits,minimumPerGroup:30,sufficientSample},baseline:{eights:report.baseline.eights,controls:report.baseline.controls,falseEight:report.baseline.falseEight},
