@@ -5,6 +5,8 @@ on:
       - '.github/workflows/crohme-real-audit.yml'
       - 'scripts/export-crohme-ink.py'
       - 'scripts/audit-two-stroke-eight.mjs'
+      - 'scripts/conservative-nine-experiment.mjs'
+      - 'scripts/compare-conservative-nine.mjs'
       - 'app/numeric-ink.mjs'
   workflow_dispatch:
 permissions:
@@ -41,6 +43,7 @@ jobs:
           python3 scripts/export-crohme-ink.py /tmp/crohme23.zip --split CROHME2019_test --symbols > /tmp/crohme-2019-symbols.json
           python3 scripts/export-crohme-ink.py /tmp/crohme23.zip --split CROHME2023_test --symbols > /tmp/crohme-2023-symbols.json
           node scripts/audit-two-stroke-eight.mjs /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json > /tmp/crohme-two-stroke-report.json
+          node scripts/compare-conservative-nine.mjs /tmp/crohme-2019-symbols.json /tmp/crohme-2023-symbols.json > /tmp/crohme-nine-experiment.json
           python3 - <<'PY'
           import json
           report=json.load(open('/tmp/crohme-two-stroke-report.json'))
@@ -60,12 +63,18 @@ jobs:
           with open('/tmp/crohme-two-stroke-report.json','w') as output:
               json.dump(report,output,indent=2,ensure_ascii=False)
           print(report['interpretation'])
+          trial=json.load(open('/tmp/crohme-nine-experiment.json'))
+          print('Expérience 9 à deux traits :',trial['comparison'])
+          print('Avant :',trial['baseline']['controls'])
+          print('Après :',trial['candidate']['controls'])
           PY
       - name: Conserver seulement les métriques agrégées (pas de manuscrits)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: crohme-two-stroke-metrics
-          path: /tmp/crohme-two-stroke-report.json
+          path: |
+            /tmp/crohme-two-stroke-report.json
+            /tmp/crohme-nine-experiment.json
           if-no-files-found: ignore
           retention-days: 7
