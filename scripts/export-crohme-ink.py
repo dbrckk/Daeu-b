@@ -10,7 +10,7 @@ NS = {"i": "http://www.w3.org/2003/InkML"}
 FRACTION = r"\\frac\{[0-9]+\}\{[0-9]+\}"
 EXPRESSION = re.compile(rf"(?:{FRACTION}|\^2|[0-9x+*/().=\-])+")
 SINGLE_FRACTION = re.compile(FRACTION)
-TWO_STROKE_SYMBOLS = set("1245789+x")
+TWO_STROKE_SYMBOLS = set("0123456789+x")
 
 
 def normalize_label(label, contextual):
