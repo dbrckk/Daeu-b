@@ -8,6 +8,9 @@ on:
       - 'scripts/paper-only-smoke.mjs'
       - 'scripts/audit-two-stroke-eight.mjs'
       - 'scripts/audit-two-stroke-eight.test.mjs'
+      - 'scripts/conservative-nine-experiment.mjs'
+      - 'scripts/compare-conservative-nine.mjs'
+      - 'scripts/compare-conservative-nine.test.mjs'
       - 'scripts/export-crohme-ink.py'
       - 'scripts/export-crohme-ink.test.py'
       - 'scripts/seshat-web/fraction-consensus.mjs'
@@ -27,6 +30,9 @@ on:
       - 'scripts/paper-only-smoke.mjs'
       - 'scripts/audit-two-stroke-eight.mjs'
       - 'scripts/audit-two-stroke-eight.test.mjs'
+      - 'scripts/conservative-nine-experiment.mjs'
+      - 'scripts/compare-conservative-nine.mjs'
+      - 'scripts/compare-conservative-nine.test.mjs'
       - 'scripts/export-crohme-ink.py'
       - 'scripts/export-crohme-ink.test.py'
       - 'scripts/seshat-web/fraction-consensus.mjs'
@@ -66,7 +72,7 @@ jobs:
         run: |
           python3 -m http.server 8000 --bind 127.0.0.1 --directory app > /tmp/daeu-http.log 2>&1 &
           python3 scripts/export-crohme-ink.test.py
-          node --test app/irrational-roots.test.mjs app/constraint-solver.test.mjs app/quadratic-checker.test.mjs app/math-step-checker.test.mjs app/numeric-ink.test.mjs app/equation-ink.test.mjs app/ink-eraser.test.mjs app/ink-transcript.test.mjs app/ink-drafts.test.mjs scripts/audit-two-stroke-eight.test.mjs scripts/seshat-web/fraction-consensus.test.mjs scripts/seshat-web/report.test.mjs scripts/seshat-web/replay-consensus.test.mjs
+          node --test app/irrational-roots.test.mjs app/constraint-solver.test.mjs app/quadratic-checker.test.mjs app/math-step-checker.test.mjs app/numeric-ink.test.mjs app/equation-ink.test.mjs app/ink-eraser.test.mjs app/ink-transcript.test.mjs app/ink-drafts.test.mjs scripts/audit-two-stroke-eight.test.mjs scripts/compare-conservative-nine.test.mjs scripts/seshat-web/fraction-consensus.test.mjs scripts/seshat-web/report.test.mjs scripts/seshat-web/replay-consensus.test.mjs
           node scripts/browser-smoke.mjs
           node scripts/paper-only-smoke.mjs
           node scripts/browser-cloud.mjs

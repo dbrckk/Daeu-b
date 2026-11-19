@@ -1,5 +1,9 @@
 # Reconnaissance manuscrite des mathématiques
 
+## Expérience A/B : prudence sur les 9 à deux traits
+
+La matrice CROHME du workflow [44513937767](https://github.com/dbrckk/Daeu-b/actions/runs/44513937767) révèle notamment **31 chiffres 7 lus 9**, **20 chiffres 4 lus 9** et **16 chiffres 5 lus 9**. Une politique expérimentale, isolée de l'application, transforme seulement la lecture isolée d'un `9` à deux traits en abstention. Elle est comparée au moteur actuel **sur exactement les mêmes tracés** par `scripts/compare-conservative-nine.mjs`. Le rapport distingue les erreurs corrigées, les nouvelles erreurs et surtout les vrais chiffres précédemment corrects devenus des abstentions. L'expérience ne peut être envisagée pour la production que si aucun exact n'est perdu et aucune erreur ajoutée, et elle ne déclenche jamais de déploiement automatiquement.
+
 ## Audit CROHME réel du 19 novembre 2026
 
 GitHub Actions [exécution 44505885210](https://github.com/dbrckk/Daeu-b/actions/runs/44505885210), depuis l'archive Zenodo CROHME23.zip (splits 2019 et 2023), a analysé **1 250 symboles à deux traits** : **6 vrais 8**, dont **0 exact, 0 erroné et 6 abstentions** ; **1 244 autres chiffres**, dont **401 exacts, 140 erronés et 703 abstentions** ; **15 faux 8** parmi ces témoins. Il s'agit des résultats de `scripts/audit-two-stroke-eight.mjs` avec la version du lecteur utilisée par ce workflow, et non d'une mesure générale de toutes les écritures.
