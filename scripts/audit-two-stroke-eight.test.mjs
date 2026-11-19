@@ -47,4 +47,18 @@ test("Audit : signaler explicitement les faux 8 parmi les chiffres de contrôle"
   assert.equal(report.falseEight,2);
   assert.deepEqual(report.falseEightIds,["0a","9a"]);
   assert.equal(report.controls.erreur,2);
+  assert.deepEqual(report.confusions,{"0":{"8":1},"9":{"8":1}});
+});
+
+test("Audit : compter chaque mauvaise lecture sans confondre abstention et erreur",()=>{
+  const report=evaluateSamples([sample0,sample9,sample8],page=>{
+    if(page[0]===normalizeSample(sample8.paths)[0]&&page[1]===normalizeSample(sample8.paths)[1])
+      return {status:"uncertain"};
+    if(page[0]===normalizeSample(sample0.paths)[0]&&page[1]===normalizeSample(sample0.paths)[1])
+      return {status:"recognized",text:"7"};
+    return {status:"recognized",text:"8"};
+  });
+  assert.deepEqual(report.confusions,{"0":{"7":1},"9":{"8":1}});
+  assert.equal(report.eights.abstention,1);
+  assert.equal(report.falseEight,1);
 });
