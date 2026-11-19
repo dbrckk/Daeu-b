@@ -1,5 +1,11 @@
 # Atelier de maths — application web
 
+## v113 — saisie au clavier
+
+- Dans les quiz, saisis une réponse numérique ou choisis une proposition. Le volet « Brouillon de calcul (facultatif) » contient les symboles, les modèles et la vérification des étapes.
+- Dans les examens blancs, chaque exercice a des champs pour les réponses et un champ pour les justifications. Pour continuer une copie manuscrite déjà ouverte, utilise « Passer cette copie au clavier ». Le sujet, le chronomètre et les tracés sauvegardés sont conservés.
+- Les cahiers des cours et des problèmes permettent de saisir des notes ou une résolution complète. Leur texte est sauvegardé avec la progression.
+
 ## v67 — feuille en paysage
 
 - Le bouton « Aller à la zone d’écriture » défile jusqu’au quadrillage. Le même bouton ramène à l’énoncé.

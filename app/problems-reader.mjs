@@ -1,5 +1,5 @@
 import {initReadingTools} from "./reading-tools.mjs";
-import {mountNotebook} from "./math-notebook.mjs";
+import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {backedStorage} from "./auto-backup.mjs";
 import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
@@ -12,13 +12,15 @@ let sharedData=null;
 try{sharedData=createPersistence(backedStorage(localStorage),knownIds);}catch{/* Afficher une erreur sans modifier le stockage. */}
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
+const inputMode=notebookMode();
+el("problemNotebookPanel").open=inputMode!=="clavier";
 try{
   mountNotebook(el("problemNotebook"),{
     context:"problems:"+(transfers?"transferts":"generaux")+":"+
       (params.get("jalon")&&/^([1-9]|1[0-9]|20)$/.test(params.get("jalon"))?params.get("jalon"):"global")+":"+
       (["b","c"].includes(params.get("variante"))?params.get("variante"):"a"),
     adapter:sharedData,title:"Ma résolution complète — sans papier",
-    paperOnly:new URL(location.href).searchParams.get("saisie")!=="clavier",
+    textOnly:inputMode==="clavier",paperOnly:inputMode==="manuscrit",
     paperPrompt:"Résous le problème choisi entièrement sur cette feuille, comme sur une copie papier. Utilise une page par exercice, puis compare tes étapes au corrigé."
   });
 }catch{el("problemNotebook").textContent="Cahier indisponible : vérifie le stockage du navigateur et recharge cette page.";} 

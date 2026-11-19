@@ -1,7 +1,7 @@
 import {renderMathMarkdown} from "./math-markdown.mjs";
 import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
 import {initReadingTools} from "./reading-tools.mjs";
-import {mountNotebook} from "./math-notebook.mjs";
+import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {createPersistence} from "./persistence.mjs";
 import {backedStorage} from "./auto-backup.mjs";
 import {TOPICS} from "./questions.mjs";
@@ -19,9 +19,10 @@ selector.value=slug;
 try{
   const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
   const notebookStore=createPersistence(backedStorage(localStorage),ids);
+  const inputMode=notebookMode();
   mountNotebook(byId("courseNotebook"),{context:"cours:"+slug,adapter:notebookStore,
     title:"Ma prise de notes et mes calculs — "+courseInfo(slug),
-    paperOnly:true,showEditor:true,paperPrompt:"Note tes idées et pose les calculs du chapitre sur cette feuille."});
+    textOnly:inputMode==="clavier",paperOnly:inputMode==="manuscrit",showEditor:true,paperPrompt:"Note tes idées et pose les calculs du chapitre sur cette feuille."});
 }catch{byId("courseNotebook").textContent="Le cahier ne peut pas être ouvert : vérifie le stockage du navigateur.";}
 
 const practice=byId("coursePractice");

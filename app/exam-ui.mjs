@@ -1,5 +1,5 @@
 import {EXAMS} from "./exams.mjs";
-import {mountNotebook} from "./math-notebook.mjs";
+import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {courseUrl,practiceUrlForCourse} from "./course-catalog.mjs";
 import {GENERATED_EXAM_ID} from "./exam-generator.mjs";
 import {ALTERNATIVE_EXAM_ID} from "./exam-alternative.mjs";
@@ -38,9 +38,7 @@ const EXAM_LESSONS={
 const byId=id=>document.getElementById(id);
 let store=emptyExamStore(),timer=null,lastResult=null;
 let initialized=false,adapter=null,onStale=()=>{};
-// Nouvelle copie : uniquement la feuille. Les anciennes sessions à saisie
-// clavier restent reprises sans migration ni perte de leurs champs.
-const sheetFirst=new URL(location.href).searchParams.get("saisie")!=="clavier";
+const inputMode=notebookMode();
 const sheetKey=(session,id)=>"exam:"+session.examId+":"+session.startedAt+":"+id;
 function writtenPaperSections(session,{onError=new Set()}={}){
   let entries={};
@@ -267,10 +265,14 @@ function renderExamSection(){
   byId("examSectionTitle").textContent=section.title;
   byId("examContext").textContent=section.context;
   byId("examActive").classList.toggle("paper-exam-active",session.paperOnly===true);
-  mountNotebook(byId("examNotebook"),{
-    context:sheetKey(session,section.id),adapter,title:"Examen — exercice "+(session.sectionIndex+1)+" : "+section.title,
-    checkingEnabled:false,paperOnly:session.paperOnly===true,paperPrompt:session.paperOnly?examPaperPrompt(section):""
-  });
+  const notebook=byId("examNotebook");
+  byId("examUseKeyboard").hidden=!session.paperOnly;
+  if(session.paperOnly||inputMode==="mixte"){
+    mountNotebook(notebook,{
+      context:sheetKey(session,section.id),adapter,title:"Examen — exercice "+(session.sectionIndex+1)+" : "+section.title,
+      checkingEnabled:false,paperOnly:session.paperOnly===true,paperPrompt:session.paperOnly?examPaperPrompt(section):""
+    });
+  }else notebook.replaceChildren();
   const form=byId("examQuestions");form.replaceChildren();
   form.hidden=session.paperOnly===true;
   byId("examNotes").closest(".exam-notes").hidden=session.paperOnly===true;
@@ -282,7 +284,7 @@ function renderExamSection(){
     field.append(label);
     if(q.type==="number"){
       const input=element("input","exam-input");
-      input.type="text";input.inputMode="decimal";input.placeholder="Nombre, fraction ou décimal";input.autocomplete="off";
+      input.type="text";input.spellcheck=false;input.placeholder="Nombre, fraction ou décimal";input.autocomplete="off";
       input.maxLength=200;input.value=session.answers[q.id]||"";
       input.setAttribute("aria-label",q.prompt);
       input.addEventListener("input",()=>{
@@ -635,7 +637,7 @@ function start(){
   const examId=byId("examSelect").value;
   const seed=isGeneratedExamId(examId)?createNewSeed(examId):null;
   const prior=store;
-  store={...store,active:startExam(examId,Date.now(),seed,sheetFirst)};
+  store={...store,active:startExam(examId,Date.now(),seed,inputMode==="manuscrit")};
   if(!persist()){store=prior;return;}
   lastResult=null;
   alertExam("");renderActive();
@@ -669,6 +671,15 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
   select.addEventListener("change",renderExamBlueprint);
   renderExamBlueprint();
   byId("examStart").addEventListener("click",start);
+  byId("examUseKeyboard").addEventListener("click",()=>{
+    if(!store.active?.paperOnly)return;
+    if(hasExpired(store.active)){tick();return;}
+    const {paperOnly,...active}=store.active;
+    if(commitExam({...store,active})){
+      renderExamSection();
+      byId("examSectionTitle").focus();
+    }
+  });
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
   byId("examNext").addEventListener("click",()=>moveTo(Math.min(3,store.active.sectionIndex+1)));
   const formula=byId("examFormula");

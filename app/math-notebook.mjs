@@ -133,7 +133,12 @@ function paintInk(ctx,page,lineWidth){
     try{path(ctx,parseStroke(stroke),lineWidth);}catch{/* Les données ont déjà été validées à la lecture. */}
   }
 }
-export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null,paperOnly=false,paperPrompt="",readOnly=false,showEditor=!paperOnly}){
+export function notebookMode(url=globalThis.location.href){
+  const mode=new URL(url).searchParams.get("saisie");
+  return mode==="manuscrit"||mode==="mixte"?mode:"clavier";
+}
+
+export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null,paperOnly=false,paperPrompt="",readOnly=false,showEditor=!paperOnly,textOnly=false,collapsed=false}){
   if(!host)throw new Error("Emplacement de cahier absent");
   const legacyKey=notebookKey(context);
   if(!adapter||typeof adapter.snapshot!=="function"||typeof adapter.updateWorkbook!=="function")
@@ -273,9 +278,29 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     feedback.append(caveat);feedback.hidden=false;
     if(review.checked>0)onGuidance();
   });
-  correction.append(correctionTitle,explanation,verify,feedback);
+  if(textOnly){
+    const scope=document.createElement("details");
+    const label=document.createElement("summary");label.textContent="Calculs pris en charge";
+    scope.append(label,explanation);
+    correction.append(verify,feedback,scope);
+  }else correction.append(correctionTitle,explanation,verify,feedback);
   if(!checkingEnabled)correction.hidden=true;
   field.addEventListener("input",()=>{feedback.hidden=true;});
+  if(textOnly){
+    const tools=document.createElement("details");tools.className="math-notebook-editor-disclosure";
+    const toolsLabel=document.createElement("summary");toolsLabel.textContent="Symboles et modèles";
+    tools.append(toolsLabel,keypad,templates);
+    preview.open=false;
+    section.append(heading,field,tools,preview,correction,status);
+    if(collapsed){
+      const panel=document.createElement("details");panel.className="math-notebook-disclosure";
+      const label=document.createElement("summary");label.textContent=title;
+      heading.hidden=true;
+      panel.append(label,section);
+      host.replaceChildren(panel);
+    }else host.replaceChildren(section);
+    return;
+  }
   const drawLabel=document.createElement("strong");drawLabel.textContent="Feuille quadrillée — écrire au doigt ou au stylet";
   const controls=document.createElement("div");controls.className="math-notebook-pages";
   const prev=document.createElement("button");prev.type="button";prev.className="subtle small";prev.textContent="Page précédente";
