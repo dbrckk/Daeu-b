@@ -48,8 +48,17 @@ jobs:
           print('8:',report['eights'])
           print('Témoins:',report['controls'])
           print('Faux 8:',report['falseEight'])
+          print('Détail par chiffre:',report['byDigit'])
+          print('Taille du sous-échantillon de 8:',report['eights']['total'])
+          print('Conclusions de précision interdites si moins de 30 exemples de 8')
           if not report['eights']['total'] or not report['controls']['total']:
               raise SystemExit('Corpus non représentatif : aucun 8 ou témoin')
+          report['sufficientEightSample'] = report['eights']['total'] >= 30
+          report['eightSampleMinimum'] = 30
+          report['interpretation'] = ('échantillon de 8 suffisant pour un premier diagnostic' if report['sufficientEightSample'] else 'échantillon de 8 insuffisant : ne pas extrapoler')
+          with open('/tmp/crohme-two-stroke-report.json','w') as output:
+              json.dump(report,output,indent=2,ensure_ascii=False)
+          print(report['interpretation'])
           PY
       - name: Conserver seulement les métriques agrégées (pas de manuscrits)
         if: always()
