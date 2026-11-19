@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v114 — vérification et reprise des examens au clavier (19 novembre 2026)
+
+- Les champs d’examen signalent les décimaux et fractions dont le format empêche la correction. Les saisies concernées sont rappelées avant la remise définitive.
+- Après un examen au clavier, les étapes cochées « À retravailler » dans le corrigé sont accessibles depuis l’accueil. Le raccourci rouvre l’étape précise et propose le cours et les exercices associés lorsqu’ils sont disponibles.
+
 ## v113 — exercices et examens au clavier (19 novembre 2026)
 
 - L’atelier ouvre les quiz sur les champs de réponse et les QCM. Le brouillon de calcul se déplie à la demande. Les cahiers des cours et des problèmes utilisent la saisie texte.

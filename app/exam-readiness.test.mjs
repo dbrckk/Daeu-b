@@ -36,6 +36,13 @@ test("compter une réponse présente, mais pas les espaces ou une rédaction bla
   assert.equal(draft.sections[0].missingIds.includes(first.id),false);
   assert.equal(draft.sections[0].remaining,exam.sections[0].questions.length-1);
   assert.equal(draft.sections[0].notePresent,true);
+  const invalid=inspectExamDraft(exam,updateExamAnswer(session,first.id,"7/0"));
+  assert.equal(invalid.invalidAnswers,1);
+  assert.deepEqual(invalid.sections[0].invalidIds,[first.id]);
+  assert.equal(invalid.answeredQuestions,draft.answeredQuestions);
+  assert.equal(invalid.pointsUnanswered,draft.pointsUnanswered);
+  const fraction=inspectExamDraft(exam,updateExamAnswer(session,first.id,"−3/4"));
+  assert.equal(fraction.invalidAnswers,0);
   // Une saisie non vide peut être totalement fausse : ne jamais annoncer "acquis".
   assert.equal(Object.hasOwn(draft,"score"),false);
   assert.equal(Object.hasOwn(draft,"correct"),false);

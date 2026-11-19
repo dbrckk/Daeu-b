@@ -108,11 +108,9 @@ export function sanitizeExamStore(raw){
     if(!session)continue;
     const restored=finishExam(session,h.finishedAt,h.reason);
     restored.selfChecks=sanitizeSelfChecks(h.selfChecks,exam);
-    if(restored.paperOnly){
-      const targets=sanitizeSelfChecks(h.reviewTargets,exam);
-      for(const key of Object.keys(restored.selfChecks))delete targets[key];
-      if(Object.keys(targets).length)restored.reviewTargets=targets;
-    }
+    const targets=sanitizeSelfChecks(h.reviewTargets,exam);
+    for(const key of Object.keys(restored.selfChecks))delete targets[key];
+    if(Object.keys(targets).length)restored.reviewTargets=targets;
     history.push(restored);
   }
   return {version:EXAM_STORE_VERSION,active,history};
@@ -136,8 +134,7 @@ function updateReviewChoice(store,examId,startedAt,key,checked,field){
   if(matching.length!==1)throw new Error("Copie introuvable ou ambiguë");
   const [result]=matching;
   const exam=examFor(result);
-  if(!exam||!Number.isSafeInteger(startedAt)||!validReviewKeys(exam).has(key)||typeof checked!=="boolean"
-     ||(field==="reviewTargets"&&!result.paperOnly))
+  if(!exam||!Number.isSafeInteger(startedAt)||!validReviewKeys(exam).has(key)||typeof checked!=="boolean")
     throw new Error("Étape de raisonnement inconnue");
 
   const values={...result[field]};
