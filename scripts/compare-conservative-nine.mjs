@@ -10,7 +10,7 @@ export function compareNinePolicy(samples){
   const lostExact=changes.filter(row=>row.fromVerdict==="exact"&&row.toVerdict!=="exact");
   const fixedErrors=changes.filter(row=>row.fromVerdict==="erreur"&&row.toVerdict!=="erreur");
   const addedErrors=changes.filter(row=>row.fromVerdict!=="erreur"&&row.toVerdict==="erreur");
-  return {sampleCount:report.sampleCount,baseline:report.baseline,
+  return {sampleCount:report.sampleCount,baseline:{eights:report.baseline.eights,controls:report.baseline.controls,falseEight:report.baseline.falseEight},
     candidate:{eights:report.eights,controls:report.controls,falseEight:report.falseEight,byDigit:report.byDigit,confusions:report.confusions},
     comparison:{lostExact:lostExact.length,fixedErrors:fixedErrors.length,addedErrors:addedErrors.length,
       approved:lostExact.length===0&&addedErrors.length===0&&fixedErrors.length>0,
