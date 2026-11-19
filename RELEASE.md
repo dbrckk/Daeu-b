@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v113 — exercices et examens au clavier (19 novembre 2026)
+
+- L’atelier ouvre les quiz sur les champs de réponse et les QCM. Le brouillon de calcul se déplie à la demande. Les cahiers des cours et des problèmes utilisent la saisie texte.
+- Les nouveaux examens utilisent les champs de réponse et de justification. Un examen manuscrit en cours peut passer au clavier en conservant le sujet, le chronomètre et les tracés enregistrés.
+
 ## v112 — distinguer les 7 à empattement long des 9 (19 novembre 2026)
 
 - Le lecteur accepte un petit trait gauche plus long ou incliné pour le `7` dont la tête et la hampe se prolongent nettement à droite.

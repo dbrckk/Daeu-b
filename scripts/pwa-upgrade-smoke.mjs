@@ -123,6 +123,19 @@ export async function verifyPwaUpgrade(browser){
         const version=page.locator("#appVersion");
         const displayed=await version.textContent();
         assert.match(nextCache,new RegExp("-v"+displayed+"$"));
+        await page.locator("#examUseKeyboard").click();
+        const switched=await snapshot();
+        assert.equal(switched.exams.active.startedAt,before.exams.active.startedAt);
+        assert.equal(switched.exams.active.seed,before.exams.active.seed);
+        assert.equal(switched.exams.active.sectionIndex,before.exams.active.sectionIndex);
+        assert.deepEqual(switched.workbook,before.workbook,"Les tracés v62 restent sauvegardés après passage au clavier");
+        assert.ok(await page.locator("#examQuestions").isVisible());
+        assert.equal(await page.locator("#examNotebook canvas").count(),0);
+        await page.reload({waitUntil:"domcontentloaded"});
+        await page.locator("#examNotes").waitFor({state:"visible"});
+        assert.ok(!(await snapshot()).exams.active.paperOnly);
+        console.log("OK Ancienne copie reprise au clavier hors ligne avec le même sujet et les tracés conservés");
+
         await context.setOffline(false);
         const coursePage=await context.newPage();
         await coursePage.goto(origin+"/course.html",{waitUntil:"domcontentloaded"});
@@ -133,13 +146,13 @@ export async function verifyPwaUpgrade(browser){
         await update.click();
         await coursePage.getByRole("button",{name:"Ouvrir la nouvelle version"}).waitFor();
         assert.equal(await version.textContent(),displayed,"Aucun rechargement forcé pendant une copie");
-        assert.deepEqual(await snapshot(),before);
+        assert.deepEqual(await snapshot(),switched);
         await update.click();
         await coursePage.waitForFunction(()=>document.getElementById("appVersion")?.textContent==="Suivante");
         await page.reload({waitUntil:"domcontentloaded"});
         await page.locator("#examActive.paper-exam-active").waitFor({state:"visible"});
         assert.equal(await version.textContent(),"Suivante");
-        assert.deepEqual(await snapshot(),before,"La recharge demandée préserve la copie");
+        assert.deepEqual(await snapshot(),switched,"La recharge demandée préserve la copie");
         console.log("OK Version affichée et mise à jour à la demande, copie conservée");
         console.log("OK Mise à niveau du cache v62, reprise hors ligne et retour clavier à la copie");
       }finally{await context.close();}

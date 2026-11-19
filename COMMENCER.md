@@ -1,6 +1,12 @@
 # Commencer les mathématiques du DAEU B — première séance
 
-### Fractions décimales et équations manuscrites longues (v51)
+### Commencer au clavier
+
+[Ouvre l’atelier](https://daeu-b-maths-dbrckk.onrender.com/#commencer) et sélectionne **Démarrer mon diagnostic**. Saisis ta réponse ou sélectionne un choix, puis touche **Valider ma réponse**. Ouvre **Brouillon de calcul (facultatif)** pour poser tes calculs et vérifier certaines étapes.
+
+Dans un examen blanc, les réponses et les justifications se saisissent dans des champs distincts. Pour reprendre une ancienne copie en cours, touche **Passer cette copie au clavier**. Les cahiers des cours et des problèmes sont aussi accessibles au clavier.
+
+## Fractions décimales et équations manuscrites longues (v51)
 
 Le lecteur de la feuille manuscrite peut maintenant lire certaines **fractions empilées avec décimales**, telles que `1,5 / 2,5` écrites l'une au-dessus de l'autre avec une barre horizontale, puis les transcrire en `1.5/2.5`. Le point ou la virgule doit être correctement placé entre deux chiffres de chaque terme ; les dénominateurs identiquement nuls sont refusés. Des numérateurs et dénominateurs courts en `x` sont également possibles. La lecture n'autorise pas toutes les fractions imbriquées ni tous les symboles mathématiques.
 
@@ -148,9 +154,9 @@ Ce rythme est indicatif : des séances de 10 à 20 minutes avec pauses peuvent �
 
 ## Rédiger sans papier
 
-**Répondre uniquement sur la feuille :** dans un quiz, trace la réponse au doigt ou au stylet sur la grande feuille quadrillée (900 × 1200 unités, 1 260 px de largeur d'affichage). Le bouton **« Valider ma réponse sur la feuille »**, placé juste au-dessus de la feuille, affiche le corrigé sans exiger de recopier la réponse dans le champ. Compare ensuite les calculs et sélectionne « Oui, ma réponse correspond » ou « Non, je dois retravailler ». Il s'agit d'une **auto-évaluation** : les expressions complexes tracées au doigt ne sont pas lues automatiquement et ce résultat ne certifie pas la maîtrise. Sur les questions numériques, le lecteur expérimental peut proposer un nombre isolé, à vérifier visuellement avant que le correcteur automatique ne le note. Pour les longues équations, fais défiler la feuille horizontalement et verticalement, utilise « Déplacer au doigt » ou ajoute une page. Les anciennes feuilles restent lisibles.
+Ouvre le brouillon d’un quiz ou le cahier d’un cours ou d’un problème pour saisir tes calculs sur plusieurs lignes. Le volet **Symboles et modèles** propose notamment √, π, ×, ÷, ≤, ≥ et ². L’aperçu MathML affiche les fractions superposées, les puissances et les racines. Le texte se sauvegarde avec la progression sur cet appareil et se synchronise si tu as activé la sauvegarde cloud.
 
-Dans les quiz et examens blancs, le **cahier de calcul** propose une zone de rédaction multilignes et des touches pour les symboles (√, π, ×, ÷, ≤, ≥, ², etc.). Dans les problèmes, un cahier distinct permet de rédiger les étapes. Les brouillons, tracés au doigt et notes sont enregistrés automatiquement avec la progression. Lorsque la synchronisation cloud est activée avec un compte, ils sont inclus dans les sauvegardes du compte ; sans connexion cloud, ils restent sur cet appareil. L’**aperçu MathML** affiche les fractions superposées, puissances et racines comme sur une copie, mais la zone texte reste la source éditable. Le vérificateur corrige les calculs numériques, compare exactement les solutions réelles des équations du premier et du second degré et contrôle les **dérivées de polynômes de degré 0 à 6** : écris `f(x) = ...`, puis `f'(x) = ...` sur des lignes consécutives. Les coefficients rationnels sont comparés exactement. Il vérifie aussi certaines dérivées usuelles de sin, cos, exp et ln d'un argument affine, avec coefficients rationnels exacts. Il ne certifie pas les démonstrations, les compositions non affines, les puissances polynomiales supérieures à 6, les fonctions rationnelles générales ni la qualité des tracés.
+Le bouton **Vérifier mes étapes** contrôle les calculs numériques, les solutions d’équations prises en charge et certaines dérivées. Écris `f(x) = ...` puis `f'(x) = ...` sur des lignes consécutives. Pour un examen, explique ton raisonnement dans **Mon raisonnement et mes justifications**, puis compare tes étapes au corrigé après avoir rendu la copie.
 
 ### Dérivées avancées, sans papier
 

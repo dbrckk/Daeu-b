@@ -1,6 +1,6 @@
 # DAEU B — Parcours de maîtrise (mathématiques)
 
-**Mode feuille (v55) :** exercices et examens directement sur une copie manuscrite numérique, sans champs à remplir ; les examens manuscrits se corrigent par comparaison au corrigé, sans note automatique inventée. Mode clavier d'accessibilité : `app/?saisie=clavier`.
+L’atelier s’ouvre sur la **saisie au clavier**. Les quiz corrigent les réponses saisies et les QCM. Les examens blancs disposent de champs pour les réponses et d’un espace pour les justifications.
 
 **Plan actuel · [finalisation de la version stable](PLAN_FINALISATION.md)** · [Audit de couverture des jalons](AUDIT_COUVERTURE.md) · [Feuille de route historique](ROADMAP_V23.md).
 
@@ -19,7 +19,7 @@ Formation personnelle **gratuite, ouverte et consultable sur smartphone**. Docum
 - Site statique gratuit et léger (**sans dépendances à l'exécution**), hébergé sur **Render avec URL permanente**, déploiement automatique depuis `main` et vérification Node.js bloquante avant publication ; le code reste dans [app/](app/).
 - **[Cinq examens blancs interactifs](https://daeu-b-maths-dbrckk.onrender.com/#exam-title)** : A et B fixes, **C, D et E générés avec de nouvelles valeurs** à chaque tentative. Chaque sujet contient 4 problèmes indépendants, 3 h, barème indicatif /20 et sauvegarde de la copie. **grilles guidées de 16 étapes par sujet**, auto-évaluation et diagnostic des points perdus.
 - [Guide des examens chronométrés, sujets variables et limites de la correction automatique](examens/guide-interactif.md).
-- **Réponse manuscrite sans ressaisie (v36) :** grande feuille quadrillée défilante sur Android ; écris au doigt puis touche « Valider ma feuille manuscrite ». Après consultation du corrigé, auto-évalue le résultat sans entrer de deuxième réponse. Cette auto-évaluation n'est pas une reconnaissance de l'écriture ni une maîtrise confirmée. Les réponses numériques saisies dans le formulaire restent corrigées automatiquement.
+- **Brouillon de calcul facultatif** dans les quiz, avec symboles, modèles de rédaction, aperçu mathématique et vérification des étapes prises en charge. Les cours et problèmes disposent aussi d’un cahier au clavier.
 - **Problèmes rédigés sur téléphone :** [8 problèmes guidés](https://daeu-b-maths-dbrckk.onrender.com/problems.html) et [60 situations de transfert A/B/C](https://daeu-b-maths-dbrckk.onrender.com/problems.html?set=transferts), accessibles depuis l'accueil et avec cahier numérique.
 - [Notice de fonctionnement et limites](app/README.md).
 - [Rapport de stabilisation, tests Chromium mobile et procédure d'installation](RELEASE.md).

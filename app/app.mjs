@@ -1,5 +1,5 @@
 import {TOPICS} from "./questions.mjs";
-import {mountNotebook} from "./math-notebook.mjs";
+import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
 import {COURSES,courseUrl} from "./course-catalog.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
@@ -302,10 +302,12 @@ function markGuidedQuestion(){
 }
 function renderQuestion() {
   const q=session[index]; if(!q) return finish();
-  const paperOnly=new URL(location.href).searchParams.get("saisie")!=="clavier";
+  const mode=notebookMode(),paperOnly=mode==="manuscrit";
+  const notebook=el("quizNotebook");
+  if(mode==="clavier")el("answerForm").after(notebook);
   const quiz=el("quiz");
   quiz.classList.toggle("paper-mode",paperOnly);
-  el("pauseQuiz").hidden=!paperOnly;
+  el("pauseQuiz").hidden=false;
   el("paperUnknown").hidden=!paperOnly;
   done=false;hintUsed=!!round?.assistedIds?.includes(q.id);
   el("quizCount").textContent="Question "+(index+1)+" / "+session.length;
@@ -313,8 +315,9 @@ function renderQuestion() {
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
-  mountNotebook(el("quizNotebook"),{
-    context:"quiz:"+q.id,adapter:dataStore,title:"Ma feuille de réponse — "+q.topicTitle,
+  mountNotebook(notebook,{
+    context:"quiz:"+q.id,adapter:dataStore,title:mode==="clavier"?"Brouillon de calcul (facultatif)":"Ma feuille de réponse — "+q.topicTitle,
+    textOnly:mode==="clavier",collapsed:true,
     paperOnly,paperPrompt:q.prompt+(q.type==="choice"?"\n\n"+q.options.map((option,i)=>(i+1)+". "+option).join("\n")+"\n\nÉcris le numéro du choix retenu sur la feuille.":"\n\nÉcris tes étapes, puis laisse une ligne vide avant le résultat."),
     onGuidance:markGuidedQuestion,
     handwrittenReview:{
@@ -360,7 +363,8 @@ function renderQuestion() {
     el("choiceList").querySelector("input")?.focus();
   } else {
     quiz.scrollTop=0;
-    el("quizNotebook").querySelector("canvas")?.focus({preventScroll:true});
+    const target=mode==="clavier"?el("questionText"):notebook.querySelector("canvas");
+    target?.focus({preventScroll:true});
   }
 }
 

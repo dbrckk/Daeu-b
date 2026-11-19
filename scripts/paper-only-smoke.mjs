@@ -43,7 +43,7 @@ async function traceFraction(touch,canvas,paths){
   }
 }
 try{
-  await page.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+  await page.goto(BASE+"/?saisie=manuscrit#commencer",{waitUntil:"networkidle"});
   await page.locator("#firstStart").click();
   assert.ok(await page.locator("#quiz.paper-mode").isVisible());
   assert.ok(await page.locator("#quizNotebook .math-notebook-paper-prompt").isVisible());
@@ -628,10 +628,10 @@ try{
   await page.locator("#coursePractice").tap();
   await page.waitForURL(/topic=/);
   await page.locator("#start").tap();
-  await page.locator("#quiz.paper-mode").waitFor({state:"visible"});
-  assert.ok(await page.locator("#answerForm").isHidden());
+  await page.locator("#answerForm").waitFor({state:"visible"});
+  assert.equal(await page.locator("#quizNotebook canvas").count(),0);
   assert.deepEqual((await snapshot()).workbook,beforeSkip.workbook);
-  console.log("OK Diagnostic sur feuille à 320 px : réponse inconnue, reprise et accès au cours puis à l’entraînement");
+  console.log("OK Diagnostic historique à 320 px : réponse inconnue, reprise, cours et passage à l’entraînement au clavier");
 
   const denominatorFive=[[185,311],[153,311],[151,336],[171,334],[187,341],[191,355],[182,370],[166,375],[150,370]];
   const fractions=[
@@ -717,7 +717,7 @@ try{
       let probabilityPage=await probabilityContext.newPage();
       probabilityPage.on("pageerror",error=>errors.push(error.message));
       const stored=()=>probabilityPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
-      await probabilityPage.goto(BASE+"/?topic=probas",{waitUntil:"networkidle"});
+      await probabilityPage.goto(BASE+"/?topic=probas&saisie=manuscrit",{waitUntil:"networkidle"});
       await probabilityPage.locator("#start").tap();
       await probabilityPage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
       const fractionTouch=await probabilityContext.newCDPSession(probabilityPage);
@@ -777,7 +777,7 @@ try{
   let examPage=await newExamPage();
   const examSnapshot=()=>examPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
   try{
-    await examPage.goto(BASE,{waitUntil:"networkidle"});
+    await examPage.goto(BASE+"/?saisie=manuscrit",{waitUntil:"networkidle"});
     await examPage.locator("#examStart").click();
     assert.ok(await examPage.locator("#examActive.paper-exam-active").isVisible());
     assert.ok(await examPage.locator("#examNotebook .math-notebook-paper-prompt")
@@ -854,7 +854,7 @@ try{
     await examContext.setOffline(true);
     await examPage.close();
     examPage=await newExamPage();
-    await examPage.goto(BASE,{waitUntil:"domcontentloaded"});
+    await examPage.goto(BASE+"/?saisie=manuscrit",{waitUntil:"domcontentloaded"});
     const reopenedNavigation=examPage.getByRole("group",{name:"Navigation entre les quatre exercices"});
     await reopenedNavigation.getByRole("button",{name:"Exercice 3 en cours"}).waitFor();
     assert.deepEqual(await examSnapshot(),beforeClose);
@@ -1021,7 +1021,7 @@ try{
     try{
       let densePage=await denseContext.newPage();
       densePage.on("pageerror",error=>errors.push(error.message));
-      await densePage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
+      await densePage.goto(BASE+"/?saisie=manuscrit#commencer",{waitUntil:"networkidle"});
       await densePage.locator("#firstStart").click();
       const savedCopy=await densePage.evaluate(async ({ambiguous,scenario})=>{
         const {encodeStroke}=await import("/workbook.mjs");

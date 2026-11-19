@@ -21,7 +21,7 @@ const check=async (fn,label)=>{
 };
 
 try {
-  await page.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle",timeout:30000});
+  await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});
   // Version prête à commencer : première séance autonome sur un téléphone vierge.
   const firstContext=await browser.newContext({
     viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
@@ -29,7 +29,7 @@ try {
   try{
     const firstPage=await firstContext.newPage();
     firstPage.on("pageerror",e=>errors.push("Première séance : "+e.message));
-    await firstPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await firstPage.goto(BASE+"/#commencer",{waitUntil:"networkidle"});
     await check(async()=>await firstPage.locator("#firstStart").isVisible()
       &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Démarrer mon diagnostic"))
       &&await firstPage.locator("#firstStatus").textContent().then(t=>t.includes("aucun exercice")),
@@ -42,6 +42,13 @@ try {
     await check(async()=>await firstPage.locator("#quiz").isVisible()
       &&await firstPage.locator("#quizCount").textContent().then(t=>t.includes("Question 1")),
       "Bouton d'accueil : diagnostic réellement démarré");
+    await check(async()=>await firstPage.locator("#answerForm").isVisible()
+      &&await firstPage.locator("#quizNotebook textarea").isHidden()
+      &&await firstPage.locator("#quizNotebook canvas").count()===0,
+      "Diagnostic au clavier par défaut, avec brouillon facultatif et sans canvas");
+    await firstPage.locator("#quizNotebook > details > summary").click();
+    await firstPage.getByText("Symboles et modèles",{exact:true}).click();
+    await firstPage.locator("#quizNotebook .math-notebook-preview > summary").click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").isVisible()
       &&await firstPage.locator("#quizNotebook .math-notebook-keypad button").count()>=16,
       "Cahier de calcul accessible dans le diagnostic, avec symboles tactiles");
@@ -57,24 +64,11 @@ try {
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");
-    const pen=firstPage.locator("#quizNotebook canvas");
-    const viewport=firstPage.locator("#quizNotebook .math-notebook-sheet-viewport");
-    await viewport.scrollIntoViewIfNeeded();
-    const bounds=await viewport.boundingBox();
-    assert.ok(bounds?.width>150&&bounds?.height>200,"Feuille de calcul invisible sur mobile");
-    // Pointer dans la partie visible du viewport : le canvas agrandi dépasse
-    // volontairement la fenêtre et son centre n'est pas forcément cliquable.
-    await firstPage.mouse.move(bounds.x+35,bounds.y+45);
-    await firstPage.mouse.down();
-    await firstPage.mouse.move(bounds.x+145,bounds.y+105,{steps:8});
-    await firstPage.mouse.up();
     await check(async()=>await firstPage.evaluate(()=>{
       const stored=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
-      const pages=Object.entries(stored.workbook.entries).find(([k])=>k.startsWith("quiz:"))?.[1]?.pages;
-      return pages?.[0]?.length===1;
-    }),"Écriture manuscrite au doigt conservée dans le stockage cloud unifié");
-    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===14,
-      "Quatorze modèles de rédaction, dont les dérivées usuelles, sur Android");
+      const draft=stored.workbook.entries["quiz:"+stored.round.ids[0]];
+      return draft.text.includes("(numérateur)/(dénominateur)");
+    }),"Brouillon saisi conservé dans la sauvegarde unifiée");
     await firstPage.locator("#quizNotebook textarea").fill("x² = 4\nx = 2\n(x - 2)(x + 2) = 0");
     await firstPage.locator("#quizNotebook .math-notebook-checker button").click();
     await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-review-list li[data-result=error]").count()===1
@@ -133,11 +127,11 @@ try {
     await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===firstQuestion)
       &&await firstPage.locator("#firstStart").textContent().then(t=>t.includes("Reprendre ma séance")),
       "Première séance : reprise du même énoncé après rechargement");
+    await firstPage.locator("#quizNotebook > details > summary").click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(x=>x===savedMath),
       "Calculs et équations du cahier retrouvés après rechargement");
-    await check(async()=>await firstPage.evaluate(()=>Object.values(
-      JSON.parse(localStorage.getItem("daeu-b-data-v1")).workbook.entries
-    ).some(entry=>entry.pages[0]?.length===1)),"Tracé manuscrit restauré après rechargement");
+    await firstPage.locator("#pauseQuiz").click();
+    await check(async()=>await firstPage.locator("#quiz").isHidden(),"Diagnostic au clavier mis en pause");
     await firstPage.locator("#firstStart").click();
     await check(async()=>await firstPage.evaluate(expected=>
       JSON.stringify(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round)===JSON.stringify(expected),storedRound),
@@ -207,7 +201,7 @@ try {
   try{
     const manualPage=await manualContext.newPage();
     manualPage.on("pageerror",error=>errors.push("Feuille manuscrite : "+error.message));
-    await manualPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await manualPage.goto(BASE+"/?saisie=mixte#commencer",{waitUntil:"networkidle"});
     await manualPage.locator("#firstStart").click();
     await check(async()=>await manualPage.locator("#quizNotebook .math-notebook-quick-validate").isVisible()
       &&await manualPage.locator("#answer").inputValue().then(value=>value==="")
@@ -311,7 +305,7 @@ try {
   try{
     const inkPage=await inkContext.newPage();
     inkPage.on("pageerror",error=>errors.push("Reconnaissance numérique : "+error.message));
-    await inkPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await inkPage.goto(BASE+"/?saisie=mixte#commencer",{waitUntil:"networkidle"});
     // Utiliser la question numérique fixe du démarrage : une séance
     // aléatoire du thème nombres peut commencer par un QCM, incompatible
     // avec le lecteur des valeurs numériques.
@@ -361,7 +355,7 @@ try {
   try{
     const equationPage=await equationContext.newPage();
     equationPage.on("pageerror",error=>errors.push("Équations manuscrites : "+error.message));
-    await equationPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await equationPage.goto(BASE+"/?saisie=mixte#commencer",{waitUntil:"networkidle"});
     await equationPage.locator("#firstStart").click();
     await check(async()=>await equationPage.locator("#quizNotebook .math-notebook-equations>button").isVisible()
       &&await equationPage.locator("#quizNotebook .math-notebook-equations-candidate").isHidden(),
@@ -478,7 +472,7 @@ try {
   try{
     const editedPage=await assistedInkContext.newPage();
     editedPage.on("pageerror",error=>errors.push("Résultat manuscrit retouché : "+error.message));
-    await editedPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await editedPage.goto(BASE+"/?saisie=mixte#commencer",{waitUntil:"networkidle"});
     await editedPage.locator("#firstStart").click();
     const sheet=editedPage.locator("#quizNotebook .math-notebook-sheet-viewport");
     await sheet.scrollIntoViewIfNeeded();
@@ -519,7 +513,7 @@ try {
   try{
     const fracPage=await fracContext.newPage();
     fracPage.on("pageerror",error=>errors.push("Fraction manuscrite : "+error.message));
-    await fracPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await fracPage.goto(BASE+"/?saisie=mixte#commencer",{waitUntil:"networkidle"});
     await fracPage.locator("#firstStart").click();
     await fracPage.evaluate(()=>{
       const data=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
@@ -572,7 +566,7 @@ try {
   try{
     const advancedInkPage=await advancedInkContext.newPage();
     advancedInkPage.on("pageerror",error=>errors.push("Radicaux manuscrits : "+error.message));
-    await advancedInkPage.goto(BASE+"/?saisie=clavier#commencer",{waitUntil:"networkidle"});
+    await advancedInkPage.goto(BASE+"/?saisie=mixte#commencer",{waitUntil:"networkidle"});
     await advancedInkPage.locator("#firstStart").click();
     const replaceInk=async(mode)=>{
       await advancedInkPage.evaluate(kind=>{
@@ -938,7 +932,7 @@ try {
   const diagnosisContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
     const diagnosisPage=await diagnosisContext.newPage();
-    await diagnosisPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+    await diagnosisPage.goto(BASE+"/",{waitUntil:"networkidle"});
     await check(async()=>await diagnosisPage.locator("#jalonList li").count()===20,"v25 : 20 jalons consultables");
     await check(async()=>await diagnosisPage.locator("#pathNext h3").textContent().then(s=>s.includes("Nombres entiers")),"v25 : recommandation initiale");
     await check(async()=>await diagnosisPage.locator("#jalonList li").nth(17).locator('a[href*="set=transferts"]').getAttribute("href").then(s=>s.includes("jalon=18")),"v25 : transfert ciblé sur le jalon 18");
@@ -1045,7 +1039,7 @@ try {
   const dueContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
     const duePage=await dueContext.newPage();
-    await duePage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+    await duePage.goto(BASE+"/",{waitUntil:"networkidle"});
     const persisted=await duePage.evaluate(async()=>{
       const [{createPersistence},{recordTransferReview,TRANSFER_DAY_MS},{TOPICS},{injectVariants},{flatten}]=await Promise.all([
         import("./persistence.mjs"),import("./transfer-progress.mjs"),
@@ -1129,10 +1123,10 @@ try {
     "Lecture agrandie sans défilement horizontal à 320 px");
   await courseOnline.setViewportSize({width:390,height:844});
   await courseOnline.locator("#courseNotebookPanel > summary").click();
-  await check(async()=>await courseOnline.locator("#courseNotebook .is-paper-only").isVisible()
-    &&await courseOnline.locator("#courseNotebook .math-notebook-paper-jump").isVisible()
+  await check(async()=>await courseOnline.locator("#courseNotebook textarea").isVisible()
+    &&await courseOnline.locator("#courseNotebook canvas").count()===0
     &&await courseOnline.locator("#courseNotebookPractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
-  "Le cahier de cours reprend la feuille des exercices et mène à la validation");
+  "Le cahier du cours permet de saisir ses calculs et mène aux exercices");
   await courseOnline.locator("#courseNotebookPanel > summary").click();
   await check(async()=>await courseOnline.locator("#coursePractice").getAttribute("href").then(h=>h==="./?topic=limites#practice-title"),
     "Cours de limites relié directement au bon chapitre d'entraînement");
@@ -1156,6 +1150,11 @@ try {
   const problemsPage=await context.newPage();
   problemsPage.on("pageerror",e=>errors.push("Problèmes : "+e.message));
   await problemsPage.goto(BASE+"/problems.html",{waitUntil:"networkidle"});
+  await problemsPage.locator("#problemNotebookPanel > summary").click();
+  await check(async()=>await problemsPage.locator("#problemNotebook textarea").isVisible()
+    &&await problemsPage.locator("#problemNotebook canvas").count()===0,
+    "Cahier de résolution des problèmes au clavier");
+  await problemsPage.locator("#problemNotebookPanel > summary").click();
   await check(async()=>await problemsPage.locator("#problemBookmarkResume").isHidden(),
     "Signet des problèmes distinct de celui du cours");
   await check(async()=>await problemsPage.locator("#problemTextSize").inputValue().then(v=>v==="extra")
@@ -1207,7 +1206,7 @@ try {
   });
   const dPage=await dContext.newPage();
   dPage.on("dialog",dialog=>dialog.accept());
-  await dPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+  await dPage.goto(BASE+"/",{waitUntil:"networkidle"});
   await dPage.locator("#examSelect").selectOption("blanc-d");
   await dPage.locator("#examStart").click();
   await check(async()=>await dPage.locator("#examActive").isVisible(),"Nouvel examen D démarré");
@@ -1266,7 +1265,7 @@ try {
   try{
     const ePage=await eContext.newPage();
     ePage.on("dialog",dialog=>dialog.accept());
-    await ePage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+    await ePage.goto(BASE+"/",{waitUntil:"networkidle"});
     await ePage.locator("#examSelect").selectOption("blanc-e");
     await ePage.locator("#examStart").click();
     await check(async()=>await ePage.locator("#examActive").isVisible()
@@ -1322,7 +1321,7 @@ try {
     viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
   });
   const roundPage=await roundContext.newPage();
-  await roundPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+  await roundPage.goto(BASE+"/",{waitUntil:"networkidle"});
   await roundPage.locator("#topic").selectOption("nombres");
   await roundPage.locator("#start").click();
   const firstPrompt=await roundPage.locator("#questionText").textContent();
@@ -1351,7 +1350,10 @@ try {
 
   await page.locator("#examSelect").selectOption("blanc-c");
   await page.locator("#examStart").click();
-  await check(async()=>await page.locator("#examActive").isVisible(),"Examen C lancé");
+  await check(async()=>await page.locator("#examActive").isVisible()
+    &&await page.locator("#examNotes").isVisible()
+    &&await page.locator("#examNotebook canvas").count()===0,
+    "Examen C au clavier par défaut, réponses et justifications accessibles");
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("0/16 réponses")&&s.includes("0/4 justifications")),
     "Examen C : contrôle pré-remise visible sans solutions");
   const contextText=await page.locator("#examContext").textContent();
@@ -1425,7 +1427,7 @@ try {
   // Une modification dans un autre onglet doit neutraliser les saisies de
   // l'onglet obsolète, au lieu d'écraser silencieusement la nouvelle copie.
   const other=await context.newPage();
-  await other.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+  await other.goto(BASE+"/",{waitUntil:"networkidle"});
   await other.locator("#start").click();
   await other.locator("#unknownButton").click();
   await check(async()=>await page.locator("#syncWarning").isVisible(),"Conflit multi-onglets signalé");
@@ -1447,7 +1449,7 @@ try {
     viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
   });
   const quotaPage=await quotaContext.newPage();
-  await quotaPage.goto(BASE+"/?saisie=clavier",{waitUntil:"networkidle"});
+  await quotaPage.goto(BASE+"/",{waitUntil:"networkidle"});
   await quotaPage.locator("#examSelect").selectOption("blanc-c");
   await quotaPage.locator("#examStart").click();
   const beforeQuota=await quotaPage.locator("#examQuestions .exam-input").first().inputValue();
@@ -1572,7 +1574,7 @@ try {
   const preservedRound=await page.evaluate(()=>
     JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round??null);
   const offlinePractice=await context.newPage();
-  await offlinePractice.goto(BASE+"/?saisie=clavier&topic=probas&mode=due#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlinePractice.goto(BASE+"/?topic=probas&mode=due#practice-title",{waitUntil:"domcontentloaded",timeout:12000});
   await offlinePractice.waitForFunction(()=>document.querySelector("#topic")?.value==="probas"
     &&document.querySelectorAll("#topic option").length===14,null,{timeout:10000});
   await check(async()=>await offlinePractice.locator("#topic").inputValue().then(v=>v==="probas")
