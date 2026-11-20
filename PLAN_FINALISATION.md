@@ -32,11 +32,13 @@ Le parcours de référence se fait au clavier, du diagnostic à la relecture du 
 
 ## 4. Publier et clôturer la version stable · P0
 
-- Exécuter les contrôles de contenu, les tests Node et les suites Chromium sur le commit candidat. Consigner le commit, les scénarios rejoués et les limites dans les [notes de version](RELEASE.md).
-- Publier depuis `main`. Depuis le checkout du commit livré, exécuter `python3 scripts/healthcheck.py --wait-seconds 480` et vérifier que le contrôle retrouve la version et l’intégrité de toutes les ressources PWA. Rejouer un démarrage et une reprise sur l’URL publique.
+La **v127** constitue la version stable du parcours de mathématiques sur un même appareil, en ligne et hors connexion après installation du cache. Le [bilan de publication](RELEASE.md#v127--version-stable-du-parcours-de-mathématiques) consigne les vérifications et leurs limites.
+
+- Les contrôles pédagogiques, les 319 tests Node et le parcours Chromium à 320 px et sur ordinateur ont réussi sur les fichiers de la v127 livrée depuis `main`.
+- Le [contrôle de disponibilité](.github/workflows/live-health.yml) compare le service worker et les 85 ressources publiques à celles du dépôt. Lors d’une publication, le scénario [Chromium sur l’URL publique](scripts/browser-live-smoke.mjs) démarre un diagnostic, puis ferme et rouvre un blanc B hors connexion. Il compare les réponses, la justification, l’exercice actif et l’échéance.
 - Si une régression bloque la progression, publier le correctif ou rétablir les ressources de la dernière version fonctionnelle. Vérifier qu’une sauvegarde produite par la version candidate reste lisible après le retour.
 
-**Critère de clôture.** Les quatre lots ont une preuve de validation. Aucun défaut ouvert n’empêche d’étudier, de rendre une copie, de retrouver sa progression ou de consulter les corrigés. Les essais dépendant d’un appareil ou d’un compte sont signalés avec leur état réel. L’ajout de contenu facultatif reprend après la clôture.
+**Clôture du parcours local.** Les quatre lots ont une preuve de validation. Les essais sur Android physique avec TalkBack et la restauration entre appareils avec un compte réel restent à consigner.
 
 ## Contrôles reproductibles
 

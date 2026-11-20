@@ -332,21 +332,24 @@ try {
       "Première séance : lien direct vers les bases disponible");
     await check(async()=>await firstPage.locator("#autoBackupStatus").textContent().then(t=>t.includes("deux copies locales")),
       "Copie automatique annoncée après initialisation d'IndexedDB");
-    await firstPage.waitForFunction(async()=>{
-      try{
+    const mirrored=await firstPage.evaluate(async()=>{
+      const {flushAutoBackup}=await import("./auto-backup.mjs");
+      await flushAutoBackup();
+      return new Promise((resolve,reject)=>{
         const request=indexedDB.open("daeu-b-auto-backup-v1",1);
-        const record=await new Promise((resolve,reject)=>{
-          request.onerror=()=>reject(request.error);
-          request.onsuccess=()=>{
-            const tx=request.result.transaction("snapshots","readonly");
-            const get=tx.objectStore("snapshots").get("latest");
-            get.onsuccess=()=>resolve(get.result);
-            get.onerror=()=>reject(get.error);
-          };
-        });
-        return record&&JSON.parse(record).round?.completed===1;
-      }catch{return false;}
-    },null,{timeout:10000});
+        request.onerror=()=>reject(request.error);
+        request.onsuccess=()=>{
+          const db=request.result;
+          const tx=db.transaction("snapshots","readonly");
+          const get=tx.objectStore("snapshots").get("latest");
+          tx.oncomplete=()=>db.close();
+          tx.onabort=()=>db.close();
+          get.onsuccess=()=>resolve(get.result);
+          get.onerror=()=>reject(get.error);
+        };
+      });
+    });
+    assert.equal(JSON.parse(mirrored)?.round?.completed,1,"La progression est présente dans IndexedDB avant de retirer la copie locale de test");
     await firstPage.evaluate(()=>localStorage.removeItem("daeu-b-data-v1"));
     await firstPage.reload({waitUntil:"networkidle"});
     await check(async()=>await firstPage.locator("#questionText").textContent().then(t=>t===nextQuestion)

@@ -1,5 +1,7 @@
 # DAEU B — plan de stabilisation 1.0 : commencer sans attendre
 
+Le [bilan de la v127](RELEASE.md#v127--version-stable-du-parcours-de-mathématiques) donne le statut actuel du parcours local et les vérifications qui restent à faire. Ce document conserve le plan établi pour la v34.
+
 **Date de décision :** 13 novembre 2026 · **Périmètre :** mathématiques DAEU B · **Dépôt :** `dbrckk/Daeu-b` · **Site :** https://daeu-b-maths-dbrckk.onrender.com/#commencer
 
 ## Décision de livraison

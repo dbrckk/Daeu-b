@@ -1,6 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
-## v127 — suivre l’examen au clavier jusqu’à la révision
+## v127 — version stable du parcours de mathématiques
+
+Le 20 novembre 2026, la v127 publiée depuis [le commit c5f4a59](https://github.com/dbrckk/Daeu-b/commit/c5f4a5963f91fe6adf4cd66a8009b6be49aae700) a été retenue comme version stable pour l’étude sur un même appareil. Le contrôle public a retrouvé le cache v127 et 85 ressources conformes. Sur l’URL publique, Chromium à 320 px a démarré le diagnostic, puis retrouvé le blanc B dans un nouvel onglet hors connexion, avec le même exercice, deux réponses, une justification et l’échéance d’origine. [Vérification publique](https://github.com/dbrckk/Daeu-b/actions/runs/44730152698)
+
+Les 319 tests Node, les [contrôles pédagogiques](https://github.com/dbrckk/Daeu-b/actions/runs/44728275316) et la [suite Chromium complète](https://github.com/dbrckk/Daeu-b/actions/runs/44728275641) ont validé cette version. Les essais TalkBack sur Android physique et de restauration entre appareils avec un compte réel restent à faire.
 
 - En ouvrant un examen ou en changeant d’exercice, le focus revient au titre de l’exercice. La touche Tab atteint ensuite la première réponse. Les QCM associent l’énoncé au groupe de choix.
 - Le scénario Chromium du blanc A saisit les 16 réponses et les quatre justifications à 320 px. Il vérifie la reprise hors connexion, le formulaire, la remise annulée puis confirmée et le retour vers un point du corrigé marqué à retravailler.
