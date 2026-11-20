@@ -16,8 +16,12 @@ try{
   await page.goto(startUrl,{waitUntil:"domcontentloaded"});
   const version=await page.locator("#appVersion").textContent();
   assert.match(version,/^\d+$/);
-  await page.waitForFunction(async version=>Boolean(navigator.serviceWorker.controller)
-    &&(await caches.keys()).includes("daeu-b-maths-v"+version),version,{timeout:80_000});
+  await page.waitForFunction(()=>navigator.serviceWorker.controller?.state==="activated",null,{timeout:90_000});
+  const cached=await page.evaluate(async version=>{
+    const html=await caches.match(new URL("./index.html",location.href),{cacheName:"daeu-b-maths-v"+version});
+    return html?.status;
+  },version);
+  assert.equal(cached,200,"La page d’accueil est présente dans le cache actif");
   await page.locator('#examSelect option[value="blanc-2"]').waitFor({state:"attached"});
   await page.getByRole("button",{name:"Démarrer mon diagnostic"}).press("Enter");
   await page.locator("#answerForm").waitFor();
@@ -36,21 +40,11 @@ try{
   assert.deepEqual(before.notes,{"b-fonction":justification});
   assert.equal(before.deadlineAt-before.startedAt,10_800_000);
 
-  console.log("Diagnostic du cache",await page.evaluate(async version=>{
-    const cache=await caches.open("daeu-b-maths-v"+version);
-    const hit=await cache.match(new URL("./index.html",location.href));
-    const bypass=await cache.match(new URL("./index.html",location.href),{ignoreVary:true});
-    return {controller:navigator.serviceWorker.controller?.scriptURL,
-      shell:hit?.url,ignoreVary:bypass?.url,redirected:bypass?.redirected,vary:bypass?.headers.get("vary")};
-  },version));
-  const probe=await context.newPage();
-  const response=await probe.goto(examUrl,{waitUntil:"domcontentloaded"});
-  console.log("Navigation en ligne servie par le service worker",response?.fromServiceWorker());
-  await probe.close();
+  await context.setOffline(true);
   await page.close();
   const reopened=await context.newPage();
-  await context.setOffline(true);
-  await reopened.goto(examUrl,{waitUntil:"domcontentloaded"});
+  const response=await reopened.goto(examUrl,{waitUntil:"domcontentloaded"});
+  assert.ok(response?.fromServiceWorker(),"La réouverture est servie par le service worker");
   await reopened.locator("#exam-answer-b05").waitFor();
   assert.equal(await reopened.locator("#appVersion").textContent(),version);
   assert.equal(await reopened.locator("#exam-answer-b05").inputValue(),"12");
