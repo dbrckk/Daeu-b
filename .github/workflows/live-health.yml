@@ -5,6 +5,7 @@ on:
       - '.github/workflows/live-health.yml'
       - 'scripts/healthcheck.py'
       - 'scripts/test_healthcheck.py'
+      - 'scripts/browser-live-smoke.mjs'
   workflow_dispatch:
   schedule:
     - cron: '37 6 * * *'
@@ -14,6 +15,7 @@ on:
       - '.github/workflows/live-health.yml'
       - 'scripts/healthcheck.py'
       - 'scripts/test_healthcheck.py'
+      - 'scripts/browser-live-smoke.mjs'
       - 'app/**'
 permissions:
   contents: read
@@ -31,3 +33,18 @@ jobs:
       - name: Vérifier le domaine, les ressources PWA et la sécurité
         if: github.event_name != 'pull_request'
         run: python3 scripts/healthcheck.py --wait-seconds 480
+      - uses: actions/setup-node@v4
+        if: github.event_name != 'schedule'
+        with:
+          node-version: 22
+      - uses: actions/cache@v4
+        if: github.event_name != 'schedule'
+        with:
+          path: ~/.cache/ms-playwright
+          key: daeu-playwright-${{ runner.os }}-chromium-shell-1.65.0
+      - name: Vérifier la reprise d’une copie depuis l’URL publique
+        if: github.event_name != 'schedule'
+        run: |
+          npm install --no-save --ignore-scripts --no-audit --no-fund playwright@1.65.0
+          npx playwright install --only-shell chromium
+          node scripts/browser-live-smoke.mjs
