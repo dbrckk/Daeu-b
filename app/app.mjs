@@ -313,11 +313,15 @@ function startSession() {
   }
   startSelectedSession(selected,{jalon:requestedJalon?.id});
 }
-function startSelectedSession(selected,{jalon,pauseCurrent=false}={}){
-  if(pauseCurrent&&!saveAnswerDraft())return false;
+function startSelectedSession(selected,{jalon}={}){
+  const replaceActive=Boolean(pausedRound&&round&&round.completed<round.ids.length);
+  if(replaceActive&&!confirm("Deux séances sont déjà sauvegardées. Démarrer cette séance remplacera le quiz en cours et conservera celui mis en pause. Continuer ?"))return false;
+  if(!replaceActive&&!saveAnswerDraft())return false;
   try{
     const planned=buildRound(selected,state,{jalon});
-    const saved=dataStore.startRound(planned.round,{pauseCurrent});
+    const saved=dataStore.startRound(planned.round,{replaceActive});
+    clearTimeout(answerDraftTimer);
+    answerDraftTimer=null;
     round=saved.round;session=planned.questions;
     roundHistory=saved.roundHistory??[];pausedRound=saved.pausedRound??null;
   }catch(err){
@@ -339,14 +343,12 @@ function startJalonSession(jalon,mode="all"){
   let selection=selectJalonQuestions(state,questions,jalonIndex,jalon,mode);
   if(!selection.length&&mode!=="all")selection=selectJalonQuestions(state,questions,jalonIndex,jalon,"all");
   if(!selection.length){notification("Aucune question disponible pour ce jalon.");return;}
-  startSelectedSession(selection,{jalon});
-  el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
+  if(startSelectedSession(selection,{jalon}))el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function startDiagnosticSession(){
   const selection=selectDiagnosticQuestions(state,questions,jalonIndex);
   if(!selection.length){notification("Tous les jalons ont déjà été abordés. Utilise les révisions ciblées.");return;}
-  startSelectedSession(selection);
-  el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
+  if(startSelectedSession(selection))el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function resumePausedSession(){
   if(!pausedRound||!saveAnswerDraft())return;
@@ -607,7 +609,7 @@ function renderRecurringReviews(){
   const label=active&&pausedRound?"Remplacer le quiz en cours et réviser"
     :active?"Mettre le quiz en pause et réviser":"Réviser mes erreurs récurrentes";
   const run=group=>{
-    if(startSelectedSession(group.slice(0,10),{pauseCurrent:true}))focusCurrentQuiz();
+    if(startSelectedSession(group.slice(0,10)))focusCurrentQuiz();
   };
   start.textContent=label;
   start.onclick=()=>run(selected);
