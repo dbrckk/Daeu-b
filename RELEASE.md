@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v125 — préserver les saisies pendant une mise à jour
+
+- Le bouton « Ouvrir la nouvelle version » enregistre d’abord la saisie du quiz. Si le stockage refuse l’écriture, il laisse la page ouverte avec le brouillon dans le champ.
+- L’export tente d’enregistrer la saisie en cours avant de générer le fichier. En cas de refus, il inclut les dernières données enregistrées et indique que la saisie visible manque dans le fichier.
+- Le parcours Chromium vérifie ensemble les deux quiz, le transfert et l’examen au clavier après mise à jour, fermeture du navigateur et reprise hors connexion. Il rejoue aussi le refus d’écriture, le conflit entre onglets et la récupération par fichier.
+
 ## v124 — conserver la séance en cours depuis tout l’atelier
 
 - Le démarrage d’un quiz, d’un diagnostic ou d’une révision met automatiquement en pause la séance inachevée et conserve le brouillon du quiz au clavier.
