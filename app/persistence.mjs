@@ -12,7 +12,7 @@
  */
 import {emptyState,sanitizeState} from "./engine.mjs";
 import {emptyExamStore,sanitizeExamStore} from "./exam-engine.mjs";
-import {sanitizeRound} from "./round.mjs";
+import {sanitizeRound,sanitizeRoundHistory,MAX_ROUND_HISTORY} from "./round.mjs";
 import {emptyTransferStore,sanitizeTransferStore} from "./transfer-progress.mjs";
 import {emptyWorkbook,sanitizeWorkbook} from "./workbook.mjs";
 
@@ -32,12 +32,14 @@ const validRevision=n=>Number.isSafeInteger(n)&&n>=0&&n<=1e12;
 function normalizeBundle(raw,knownIds){
   if(!raw||raw.version!==DATA_VERSION||!validRevision(raw.revision))
     throw new InvalidStorageError("Version de stockage incompatible");
+  const roundHistory=sanitizeRoundHistory(raw.roundHistory,knownIds);
   return {
     version:DATA_VERSION,
     revision:raw.revision,
     practice:sanitizeState(raw.practice,knownIds),
     exams:sanitizeExamStore(raw.exams),
     round:sanitizeRound(raw.round,knownIds),
+    ...(roundHistory.length?{roundHistory}:{}),
     transfers:sanitizeTransferStore(raw.transfers),
     workbook:sanitizeWorkbook(raw.workbook)
   };
@@ -79,6 +81,7 @@ export function createPersistence(storage,knownIds){
       practice:updated.practice,
       exams:updated.exams,
       round:updated.round??null,
+      ...(updated.roundHistory?.length?{roundHistory:updated.roundHistory}:{}),
       transfers:sanitizeTransferStore(updated.transfers??current.transfers),
       workbook:sanitizeWorkbook(updated.workbook??current.workbook)
     };
@@ -121,6 +124,16 @@ export function createPersistence(storage,knownIds){
     updateWorkbook(workbook){
       return save({...current,workbook:sanitizeWorkbook(workbook)});
     },
+    startRound(round){
+      const next=sanitizeRound(round,knownIds);
+      if(!next||next.completed!==0)throw new InvalidStorageError("Nouvelle séance incompatible");
+      const previous=current.round;
+      const roundHistory=current.roundHistory??[];
+      const history=previous&&previous.completed===previous.ids.length
+        ?[...roundHistory,previous].slice(-MAX_ROUND_HISTORY)
+        :roundHistory;
+      return save({...current,round:next,roundHistory:history});
+    },
     updateRound(round){
       return save({...current,round:sanitizeRound(round,knownIds)});
     },
@@ -130,14 +143,15 @@ export function createPersistence(storage,knownIds){
       const cleanRound=sanitizeRound(round,knownIds);
       return save({...current,practice:cleanPractice,round:cleanRound});
     },
-    replaceAll(practice,exams,round=null,transfers=emptyTransferStore(),workbook=emptyWorkbook()){
+    replaceAll(practice,exams,round=null,transfers=emptyTransferStore(),workbook=emptyWorkbook(),roundHistory=[]){
       // Import et remise à zéro remplacent toutes les données ensemble.
       const cleanPractice=sanitizeState(practice,knownIds);
       const cleanExams=sanitizeExamStore(exams);
       const cleanRound=sanitizeRound(round,knownIds);
       const cleanTransfers=sanitizeTransferStore(transfers);
       const cleanWorkbook=sanitizeWorkbook(workbook);
-      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,transfers:cleanTransfers,workbook:cleanWorkbook});
+      const cleanHistory=sanitizeRoundHistory(roundHistory,knownIds);
+      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,roundHistory:cleanHistory,transfers:cleanTransfers,workbook:cleanWorkbook});
     },
     storageKey:DATA_KEY
   };
