@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {TOPICS} from "./questions.mjs";
 import {VARIANTS,injectVariants,materializeVariant,validateVariants} from "./variants.mjs";
-import {flatten,validateTopics,parseNumber,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound,DAY_MS} from "./engine.mjs";
+import {flatten,validateTopics,parseNumber,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound,recurringErrors,DAY_MS} from "./engine.mjs";
 
 const questions=flatten(TOPICS);
 const ids=new Set(questions.map(q=>q.id));
@@ -59,6 +59,13 @@ test("sélection des rappels uniquement à échéance et filtres",()=>{
   s=recordAnswer(s,"n03",false,now-1000);
   const ordered=selectRound(s,questions,{mode:"due",now,limit:2});
   assert.deepEqual(ordered.map(q=>q.id),["n03","n01"]);
+  assert.deepEqual(recurringErrors(s,questions),[]);
+  s=recordAnswer(s,"n01",false,now);
+  s=recordAnswer(s,"n03",false,now+1000);
+  assert.deepEqual(recurringErrors(s,questions).map(q=>q.id),["n03","n01"]);
+  s=recordAnswer(s,"n01",true,now+DAY_MS);
+  s=recordAnswer(s,"n01",true,now+2*DAY_MS);
+  assert.deepEqual(recurringErrors(s,questions).map(q=>q.id),["n03"]);
 });
 test("métriques et validation des sauvegardes",()=>{
   const now=Date.UTC(2026,10,11);

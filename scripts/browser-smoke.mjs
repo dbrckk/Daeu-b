@@ -1474,8 +1474,9 @@ try {
     const bank=flatten(injectVariants(TOPICS));
     const data=createPersistence(localStorage,new Set(bank.map(q=>q.id)));
     const question=bank.find(q=>q.type==="choice");
-    const retry=bank.find(q=>q.type==="number");
-    data.updateRound(buildRound([question,retry],data.snapshot().practice).round);
+    const practice=data.snapshot().practice;
+    const retry=bank.find(q=>q.type==="number"&&!practice.items[q.id]);
+    data.updateRound(buildRound([question,retry],practice).round);
     return {value:question.answer,id:question.id,retryId:retry.id,retryPrompt:retry.prompt};
   });
   await roundPage.reload({waitUntil:"domcontentloaded"});
@@ -1523,6 +1524,24 @@ try {
   assert.equal(await roundPage.locator("#questionText").textContent(),choice.retryPrompt);
   assert.deepEqual(await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round),retried);
   console.log("OK Historique des quiz : l’ancienne correction reste disponible hors ligne pendant la nouvelle séance");
+  const recurringLink=roundPage.locator("#recurringReviewsLink");
+  assert.ok(await recurringLink.isHidden());
+  await roundPage.locator("#unknownButton").click();
+  await roundPage.locator("#next").click();
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await recurringLink.click();
+  const chapter=roundPage.locator("#recurringReviewChapters > details");
+  await chapter.locator(":scope > summary").click();
+  const recurring=chapter.locator("details");
+  assert.match(await recurring.locator("summary").textContent(),/2 fois$/);
+  await recurring.locator("summary").click();
+  await recurring.locator(".correction-question").waitFor();
+  assert.equal(await recurring.locator(".correction-question").textContent(),choice.retryPrompt);
+  await roundPage.locator("#startRecurringReviews").click();
+  const targeted=await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
+  assert.deepEqual(targeted.ids,[choice.retryId]);
+  assert.equal(targeted.completed,0);
+  console.log("OK Deux erreurs : revoir le corrigé et lancer une révision ciblée depuis l’accueil hors connexion");
   await roundContext.close();
 
   await page.locator("#start").click();

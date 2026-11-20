@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v122 — retrouver et retravailler les erreurs récurrentes
+
+- L’accueil regroupe par chapitre les questions manquées ou passées au moins deux fois dont la maîtrise reste à confirmer. Le dernier corrigé d’une tentative manquée est consultable lorsqu’il figure dans l’historique.
+- La séance ciblée reprend jusqu’à dix de ces questions, en commençant par celles qui ont le plus souvent posé problème.
+
 ## v121 — retrouver les corrections des anciens quiz
 
 - Le lancement d’une nouvelle séance archive le quiz terminé précédent. Le raccourci « Historique des quiz » donne accès aux dix dernières séances archivées, avec leur score et les corrections qui avaient été enregistrées.
