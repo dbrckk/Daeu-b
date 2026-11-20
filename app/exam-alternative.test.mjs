@@ -46,8 +46,8 @@ test("1000 sujets D complets avec corrigés et barème /20",()=>{
   }
 });
 
-test("300 jeux vérifiés par formules indépendantes pour les quatre familles",()=>{
-  for(let seed=0;seed<300;seed++){
+test("1003 jeux vérifiés par formules indépendantes pour les quatre familles",()=>{
+  for(const seed of [...Array.from({length:1000},(_,index)=>index),0x10000,0x80000000,0xffffffff]){
     const e=createAlternativeExam(seed),[r,p,stats,expo]=e.sections;
     const rational=r.context.match(/f\(x\)=x\+(\d+)\+(\d+)\/\(x−(\d+)\)/);
     assert.ok(rational,"rationnelle manquante");
@@ -85,6 +85,9 @@ test("300 jeux vérifiés par formules indépendantes pour les quatre familles",
     near(expo.questions[0].answer,1-n,"g0");
     near(expo.questions[1].answer,factor,"dérivée g0");
     near(expo.questions[2].answer,Math.log(n)/factor,"zéro exact");
+    const rounded=(Math.log(n)/factor).toFixed(3);
+    assert.equal(gradeAnswer(expo.questions[2],rounded.replace(".",",")).correct,true,"millième correct");
+    assert.equal(gradeAnswer(expo.questions[2],(Number(rounded)+.001).toFixed(3)).correct,false,"millième voisin");
     assert.ok(expo.questions[2].answer>0&&expo.questions[2].answer<2,"zéro dans [0,2]");
     assert.ok(Math.exp(2*factor)-n>0,"TVI doit changer de signe");
     assert.equal(expo.questions[3].answer,"Un seul");

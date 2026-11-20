@@ -16,9 +16,9 @@ Le parcours de référence se fait au clavier, du diagnostic à la relecture du 
 
 ## 2. Valider les corrigés et les barèmes · P1
 
-- Poursuivre la [revue des 20 jalons](audits/REVUE_FINALE_MATHS.md) à partir des cas qui peuvent changer le verdict du correcteur. Vérifier les domaines et bornes d’intervalles, les fractions équivalentes, les arrondis demandés et les alternatives de réponse dans les QCM. Relier chaque anomalie à un exercice et à son cours.
-- Recalculer les quatre exercices de chacun des blancs A à E. Pour C, D et E, conserver les graines testées et inclure des paramètres limites. Comparer les énoncés, les résultats, les points et la grille de rédaction.
-- Corriger les écarts reproductibles et ajouter un contrôle ciblé pour les erreurs que les suites existantes laissent passer.
+- La [revue des 20 jalons](audits/REVUE_FINALE_MATHS.md#vérification-de-la-correction-en-v126) vérifie un piège de correction par jalon et recalcule des énoncés issus des 41 modèles de quiz.
+- Les quatre exercices de chacun des blancs A à E ont été recalculés. Le rapport donne les réponses de référence pour A et B, les graines vérifiées pour C, D et E et les contrôles de barème.
+- La v126 précise les arrondis des examens B et D, rend les fractions exactes visibles dans le corrigé C et vérifie la distinction entre un espace de milliers et des chiffres séparés.
 
 **Critère de sortie.** Chaque jalon obligatoire et chaque sujet a un résultat de revue traçable. Aucune erreur connue d’énoncé, de correction ou de barème ne fausse le travail de l’élève.
 

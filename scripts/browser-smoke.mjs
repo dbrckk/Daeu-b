@@ -1347,13 +1347,23 @@ try {
     "D : même énoncé après rechargement");
   await check(async()=>await dPage.locator("#examQuestions .exam-input").first().inputValue().then(x=>x===excluded),
     "D : réponse numérique conservée après rechargement");
+  await dPage.locator("#examNav button").nth(3).click();
+  const exponential=await dPage.locator("#examContext").textContent();
+  const parameters=exponential.match(/exp\((\d+)x\)−(\d+)/);
+  assert.ok(parameters,"D : paramètres exponentiels absents");
+  const roundedRoot=(Math.log(Number(parameters[2]))/Number(parameters[1])).toFixed(3);
+  await dPage.locator("#examQuestions .exam-input").nth(2).fill(roundedRoot.replace(".",","));
   await dPage.locator("#examSubmit").click();
-  await check(async()=>await dPage.locator("#examScore").textContent().then(x=>x.trim()==="1 / 20"),
-    "D : barème calculé selon sa propre graine");
+  await check(async()=>await dPage.locator("#examScore").textContent().then(x=>x.trim()==="3 / 20"),
+    "D : arrondi au millième accepté et barème calculé selon la graine");
   await check(async()=>await dPage.locator("#examReview details.exam-review-group").count()===4,
     "D : quatre corrections accessibles");
   await check(async()=>await dPage.locator("#examReview .exam-reasoning-step").count()===16,
     "D : seize étapes de raisonnement disponibles");
+  const exponentialReview=dPage.locator("#examReview details.exam-review-group").last();
+  assert.match(await exponentialReview.locator(".exam-review-item").nth(2).textContent(),/2\/2 pt/);
+  assert.ok((await exponentialReview.locator(".exam-review-item").nth(2).textContent())
+    .includes("Réponse correcte : "+String(Number(roundedRoot)).replace(".",",")));
   await check(async()=>await dPage.evaluate(()=>{
     const exams=JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.exams;
     return exams?.history?.length===1&&exams.history[0].examId==="blanc-d"

@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v126 — corriger les arrondis et afficher les fractions exactes
+
+- Les questions de logarithmes des examens B et D indiquent l’arrondi au millième. La réponse arrondie correcte et les saisies proches de la valeur exacte donnent les points.
+- Le corrigé C affiche les fractions de référence en probabilités et en intégration. Les quiz précisent les bornes et utilisent les valeurs exactes dans les exercices concernés.
+- Le correcteur accepte les groupes de milliers français et signale les chiffres mal séparés. La [revue pédagogique](audits/REVUE_FINALE_MATHS.md#vérification-de-la-correction-en-v126) consigne les cas testés sur les cinq blancs et les 20 jalons.
+
 ## v125 — préserver les saisies pendant une mise à jour
 
 - Le bouton « Ouvrir la nouvelle version » enregistre d’abord la saisie du quiz. Si le stockage refuse l’écriture, il laisse la page ouverte avec le brouillon dans le champ.

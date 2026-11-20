@@ -49,7 +49,7 @@ export const EXAMS=[
     ],"Présenter les effectifs, la moyenne et les cinq écarts au carré avant de diviser par l'effectif."),
     E("b-expo","Une équation avec exponentielle","Soit g(x)=eˣ−3, définie sur tous les réels. On étudie son zéro.",[
       N("b12","Calculer g(0).",-2,1,"e⁰=1 donc g(0)=1−3=−2.","exponentielle"),
-      N("b13","Résoudre g(x)=0. Donner une approximation décimale de x.",Math.log(3),2,"eˣ=3 donc x=ln(3)≈1,09861229. Le logarithme est la fonction réciproque de l'exponentielle.","logarithmes"),
+      {...N("b13","Résoudre g(x)=0. Donner x arrondi au millième.",Math.log(3),2,"eˣ=3 donc x=ln(3), soit 1,099 au millième. Le logarithme est la fonction réciproque de l’exponentielle.","logarithmes"),roundedAnswer:1.099},
       C("b14","Quelle est la dérivée de g(x)=eˣ−3 ?",["eˣ","eˣ−3","1"],"eˣ",1,"La dérivée de eˣ est eˣ et celle d'une constante est zéro.","dérivation"),
       C("b15","Quelle justification établit que g(x)=0 a une unique solution ?",["g est continue et strictement croissante, avec un changement de signe","g est définie sur tous les réels, sans autre hypothèse","le graphique semble couper l'axe"],"g est continue et strictement croissante, avec un changement de signe",1,"g est continue ; g(0)<0 et g(2)>0 assurent un zéro par TVI. Sa dérivée eˣ>0 assure l'unicité.","TVI")
     ],"Rédiger les hypothèses du TVI (continuité, valeurs aux bornes), puis la preuve d'unicité par monotonie.")

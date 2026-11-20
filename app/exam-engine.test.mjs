@@ -15,12 +15,22 @@ test("deux examens originaux de quatre exercices, avec 20 points chacun",()=>{
     for(const section of exam.sections)assert.equal(section.questions.reduce((a,q)=>a+q.points,0),5);
   }
 });
-test("toutes les réponses attendues sont reconnues et barème total 20/20",()=>{
-  for(const exam of EXAMS){
+test("les résultats recalculés des huit exercices A et B donnent 20/20",()=>{
+  const answers=[
+    [[4,6,16,"2 < x < 10"],["6/5",216,4,546],["3/5","54/125","117/125","9/5"],["2x²−2x",4,"x > 1",5]],
+    [[5,1,"1/2","y=x+1"],[12,5,41],[7,6,"28/5",7],
+      [-2,"1,099","eˣ","g est continue et strictement croissante, avec un changement de signe"]]
+  ];
+  for(const [index,exam] of EXAMS.entries()){
     let session=startExam(exam.id,time);
-    for(const q of questions(exam)){
-      assert.equal(gradeAnswer(q,String(q.answer)).correct,true,q.id);
-      session=updateExamAnswer(session,q.id,String(q.answer));
+    for(const [sectionIndex,section] of exam.sections.entries()){
+      const expected=answers[index][sectionIndex];
+      assert.equal(expected.length,section.questions.length);
+      for(const [questionIndex,q] of section.questions.entries()){
+        const answer=String(expected[questionIndex]);
+        assert.equal(gradeAnswer(q,answer).correct,true,q.id);
+        session=updateExamAnswer(session,q.id,answer);
+      }
     }
     const result=finishExam(session,time+60000);
     assert.equal(result.score,20);
@@ -44,6 +54,12 @@ test("les réponses absentes ou erronées donnent zéro, jamais de points négat
   assert.equal(result.sections[1].earned,1);
   assert.equal(result.sections[3].earned,1);
   assert.equal(result.sections[2].earned,0);
+  const b=startExam("blanc-2",time);
+  for(const [answer,points] of [["1,099",2],["1,09861229",2],["1,098",0],["1,09 9",0]]){
+    const result=finishExam(updateExamAnswer(b,"b13",answer),time+50000);
+    assert.equal(result.score,points,answer);
+    assert.equal(result.sections[3].questions[1].expected,1.099);
+  }
 });
 test("reprendre une copie et conserver les réponses et la rédaction",()=>{
   let store=emptyExamStore();
@@ -87,6 +103,14 @@ test("historique nettoyé et résultats recalculés lors de l'import",()=>{
   const justified=updateReviewCheck(reopened,result.examId,time,key,true);
   assert.deepEqual(justified.history[0].selfChecks,{[key]:true});
   assert.equal(justified.history[0].reviewTargets,undefined);
+  let b=startExam("blanc-2",time+1);
+  b=updateExamAnswer(b,"b13","1,099");
+  b=updateExamNotes(b,"b-expo","Je prends le logarithme de 3.");
+  const archive=addHistory(emptyExamStore(),{...finishExam(b,time+120000),score:0});
+  const regraded=sanitizeExamStore(JSON.parse(JSON.stringify(archive))).history[0];
+  assert.equal(regraded.score,2);
+  assert.equal(regraded.answers.b13,"1,099");
+  assert.equal(regraded.notes["b-expo"],"Je prends le logarithme de 3.");
 });
 test("les sauvegardes malformées et les réponses hors banque sont rejetées",()=>{
   assert.throws(()=>startExam("examen-inconnu",time));

@@ -42,6 +42,8 @@ export function validateExamBank(bank=EXAMS){
         if(q.type==="number"&&!Number.isFinite(q.answer))errors.push("Nombre invalide "+q.id);
         else if(q.type==="choice"&&(!q.options?.includes(q.answer)||new Set(q.options).size!==q.options.length))errors.push("Choix invalides "+q.id);
         else if(!["number","choice"].includes(q.type))errors.push("Type inconnu "+q.id);
+        if(q.roundedAnswer!==undefined&&(q.type!=="number"||!Number.isFinite(q.roundedAnswer)))errors.push("Arrondi invalide "+q.id);
+        if(q.exactAnswer!==undefined&&(q.type!=="number"||typeof q.exactAnswer!=="string"||!gradeAnswer(q,q.exactAnswer).correct))errors.push("Écriture exacte invalide "+q.id);
       }
     }
     if(score!==20)errors.push("Total différent de 20 "+exam.id);
@@ -76,7 +78,7 @@ export function finishExam(session,now=Date.now(),reason="submitted"){
     const questions=s.questions.map(q=>{
       const answer=session.answers[q.id]||"";
       const grade=gradeAnswer(q,answer);
-      return {id:q.id,skill:q.skill,points:q.points,earned:grade.valid&&grade.correct?q.points:0,answer,solution:q.solution,expected:q.answer,correct:grade.valid&&grade.correct};
+      return {id:q.id,skill:q.skill,points:q.points,earned:grade.valid&&grade.correct?q.points:0,answer,solution:q.solution,expected:q.exactAnswer??q.roundedAnswer??q.answer,correct:grade.valid&&grade.correct};
     });
     return {id:s.id,title:s.title,earned:questions.reduce((a,q)=>a+q.earned,0),points:5,questions};
   });
