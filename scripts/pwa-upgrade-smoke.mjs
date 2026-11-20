@@ -238,10 +238,7 @@ export async function verifyPwaUpgrade(browser){
           await registration.update();
           await changed;
         });
-        await page.waitForFunction(async cache=>{
-          const names=await caches.keys();
-          return names.includes(cache)&&!names.includes("daeu-b-maths-v62");
-        },nextCache);
+        assert.deepEqual(await page.evaluate(()=>caches.keys()),[nextCache],"Le nouveau cache remplace le cache v62");
         assert.deepEqual(await snapshot(),before,"La mise à jour ne modifie pas la copie ouverte");
         await context.setOffline(true);
         await page.reload({waitUntil:"domcontentloaded"});
