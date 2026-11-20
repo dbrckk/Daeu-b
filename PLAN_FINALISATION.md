@@ -24,9 +24,9 @@ Le parcours de référence se fait au clavier, du diagnostic à la relecture du 
 
 ## 3. Rejouer une préparation complète au clavier · P1
 
-- Dans un profil vierge à 320 px, suivre le diagnostic, le cours conseillé, le quiz du même jalon, puis un transfert. Vérifier que les rappels J+7 et J+30 rouvrent le bon jalon et une série adaptée.
-- Passer un blanc entier avec les quatre exercices. Consulter le formulaire, fermer puis reprendre la copie hors connexion, annuler une remise, remettre définitivement et vérifier le bilan. Rejouer l’expiration du chronomètre dans un essai séparé. Depuis l’accueil, retrouver l’étape du corrigé marquée à retravailler.
-- Vérifier la navigation au clavier, le focus et la lecture des messages sur ordinateur et sur écran étroit. Consigner un essai Android avec TalkBack si un appareil est disponible. Les résultats Chromium en émulation et ceux sur appareil physique sont consignés séparément.
+- Le [parcours Chromium](scripts/browser-smoke.mjs) suit le diagnostic, le cours, le quiz et le transfert du même jalon à 320 px. Il avance l’horloge à J+7 et J+30 pour vérifier que les rappels ouvrent le même jalon en série B puis C et que les trois rédactions sont enregistrées.
+- Le même parcours saisit les quatre exercices du blanc A, consulte le formulaire hors connexion après réouverture de la copie, annule une remise puis confirme la suivante. Il retrouve l’étape du corrigé depuis l’accueil et ouvre les exercices associés. Le blanc B vérifie séparément la remise automatique à l’échéance.
+- Chromium vérifie le focus lors des changements d’exercice sur écran étroit et sur ordinateur. Un essai Android physique avec TalkBack reste à consigner quand un appareil de test est disponible.
 
 **Critère de sortie.** Le parcours complet se termine dans l’application. Les réponses et justifications sont récupérables, et les actions indispensables sont accessibles au clavier.
 
