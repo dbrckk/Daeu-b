@@ -26,7 +26,7 @@ const el=id=>document.getElementById(id);
 const transferUrl=(id,series=recommendedTransferSeries(transferStatus(transfers,id)))=>
   "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
-let dataStore=null,answerDraftTimer=null,roundHistory=[];
+let dataStore=null,answerDraftTimer=null,roundHistory=[],pausedRound=null;
 let storageWorks=true;
 function conflictWarning(){
   const notice=el("syncWarning");
@@ -42,7 +42,7 @@ function notification(message) {
 try {
   dataStore=createPersistence(backedStorage(localStorage),knownIds);
   const initial=dataStore.snapshot();state=initial.practice;round=initial.round;transfers=initial.transfers;
-  roundHistory=initial.roundHistory??[];
+  roundHistory=initial.roundHistory??[];pausedRound=initial.pausedRound??null;
 } catch(err) {
   storageWorks=false;
   // Aucun original corrompu n'est effacé. Le mode dégradé reste utilisable,
@@ -68,6 +68,7 @@ function persist(practice,progressRound) {
 const fmt=n=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:8}).format(n);
 function firstAction(metrics){
   if(round&&round.completed<round.ids.length)return {kind:"resume"};
+  if(pausedRound)return {kind:"paused"};
   if(metrics.due)return {kind:"due"};
   const rows=jalonProgress(state,questions,jalonIndex);
   if(rows.some(row=>!row.attempted))return {kind:"diagnostic"};
@@ -79,6 +80,7 @@ function renderFirstStart(metrics=getMetrics(state,questions)){
   const {kind,next}=firstAction(metrics);
   const cards={
     resume:["Reprendre ma séance","Retrouve ta progression jusqu’à la dernière réponse validée.","Reprendre ma séance en cours"],
+    paused:["Reprendre ma séance mise en pause","Retrouve tes réponses et ton brouillon au dernier exercice.","Reprendre la séance mise en pause"],
     due:["Mes rappels à faire","Travaille jusqu’à dix questions, en commençant par les échéances les plus anciennes.","Réviser mes questions à échéance"],
     diagnostic:["Repérer mon niveau","Jusqu’à dix questions, sans regarder les corrections. Aucune note officielle.",metrics.attempted?"Faire un nouveau repérage":"Démarrer mon diagnostic"],
     exam:["Passer un examen blanc","Teste-toi sur un sujet complet avec chronomètre et corrigé.","Voir les examens blancs"]
@@ -90,6 +92,8 @@ function renderFirstStart(metrics=getMetrics(state,questions)){
   el("firstStepTitle").textContent="1 · "+title;
   el("firstStepDetails").textContent=description;
   el("firstStart").textContent=button;
+  el("resumePausedRound").hidden=!pausedRound||kind==="paused";
+  el("resumeFromResults").hidden=!pausedRound;
   const status=metrics.due===1?"1 question à réviser":metrics.due+" questions à réviser";
   el("firstStatus").textContent=metrics.attempted
     ?metrics.attempted+" question(s) déjà travaillée(s) · "+status+"."
@@ -112,6 +116,9 @@ function firstStart(){
     case "resume":
       if(el("quiz").hidden)resumeSession();
       focusCurrentQuiz();
+      break;
+    case "paused":
+      resumePausedSession();
       break;
     case "due":
       if(startSelectedSession(selectRound(state,questions,{mode:"due",now})))focusCurrentQuiz();
@@ -306,11 +313,13 @@ function startSession() {
   }
   startSelectedSession(selected,{jalon:requestedJalon?.id});
 }
-function startSelectedSession(selected,{jalon}={}){
+function startSelectedSession(selected,{jalon,pauseCurrent=false}={}){
+  if(pauseCurrent&&!saveAnswerDraft())return false;
   try{
     const planned=buildRound(selected,state,{jalon});
-    const saved=dataStore.startRound(planned.round);
-    round=saved.round;session=planned.questions;roundHistory=saved.roundHistory??[];
+    const saved=dataStore.startRound(planned.round,{pauseCurrent});
+    round=saved.round;session=planned.questions;
+    roundHistory=saved.roundHistory??[];pausedRound=saved.pausedRound??null;
   }catch(err){
     if(err instanceof StaleDataError)conflictWarning();
     else notification("Impossible de sauvegarder la nouvelle séance. Vérifie le stockage du navigateur.");
@@ -339,6 +348,23 @@ function startDiagnosticSession(){
   startSelectedSession(selection);
   el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
 }
+function resumePausedSession(){
+  if(!pausedRound||!saveAnswerDraft())return;
+  try{
+    const saved=dataStore.resumePausedRound();
+    round=saved.round;pausedRound=saved.pausedRound??null;roundHistory=saved.roundHistory??[];
+  }catch(err){
+    if(err instanceof StaleDataError)conflictWarning();
+    else notification("Impossible de reprendre la séance mise en pause. Réessaie après avoir vérifié le stockage.");
+    return;
+  }
+  resumeSession();
+  renderFirstStart();
+  renderRoundHistory();
+  renderRecurringReviews();
+  focusCurrentQuiz();
+}
+
 function resumeSession(){
   if(!round)return;
   try{
@@ -346,6 +372,7 @@ function resumeSession(){
     score=round.score;index=round.completed;done=false;
     if(index>=session.length)finish({focus:false});
     else{
+      el("results").hidden=true;
       el("quiz").hidden=false;
       renderQuestion();
       notification("Séance restaurée après rechargement : questions et variantes conservées.");
@@ -577,11 +604,13 @@ function renderRecurringReviews(){
 
   const start=el("startRecurringReviews");
   const active=round&&round.completed<round.ids.length;
-  start.textContent=active?"Remplacer le quiz en cours et réviser":"Réviser mes erreurs récurrentes";
-  const selection=selected.slice(0,10);
-  start.onclick=()=>{
-    if(startSelectedSession(selection))focusCurrentQuiz();
+  const label=active&&pausedRound?"Remplacer le quiz en cours et réviser"
+    :active?"Mettre le quiz en pause et réviser":"Réviser mes erreurs récurrentes";
+  const run=group=>{
+    if(startSelectedSession(group.slice(0,10),{pauseCurrent:true}))focusCurrentQuiz();
   };
+  start.textContent=label;
+  start.onclick=()=>run(selected);
   el("recurringReviewsCount").textContent=selected.length+(selected.length===1
     ?" question manquée ou passée au moins deux fois, à confirmer."
     :" questions manquées ou passées au moins deux fois, à confirmer.");
@@ -607,7 +636,16 @@ function renderRecurringReviews(){
     const course=document.createElement("a");
     course.href=courseUrl(first.lesson);
     course.textContent="Revoir le cours";
-    chapter.append(summary,course);
+    const practice=document.createElement("button");
+    practice.type="button";
+    practice.className="subtle";
+    practice.textContent=active?(pausedRound?"Remplacer le quiz et réviser ce chapitre":"Mettre le quiz en pause et réviser ce chapitre")
+      :"Réviser les erreurs de ce chapitre";
+    practice.addEventListener("click",()=>run(group));
+    const actions=document.createElement("div");
+    actions.className="path-buttons";
+    actions.append(course,practice);
+    chapter.append(summary,actions);
     for(const question of group){
       const misses=state.items[question.id].wrong;
       const label=(question.prompt??"Exercice à valeurs variables")+" · "+misses+" fois";
@@ -708,7 +746,7 @@ function exportProgress(){
   let snapshot;
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
-  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,roundHistory:snapshot.roundHistory,transfers:snapshot.transfers,workbook:snapshot.workbook};
+  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,roundHistory:snapshot.roundHistory,pausedRound:snapshot.pausedRound,transfers:snapshot.transfers,workbook:snapshot.workbook};
   const blob=new Blob([JSON.stringify(backup)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
@@ -733,8 +771,9 @@ async function importProgress(file) {
     // Une seule écriture atomique contient les révisions ET les examens.
     const prior=dataStore.snapshot();
     const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null,
-      importedTransfers,importedWorkbook,bundled?raw.roundHistory:prior.roundHistory);
+      importedTransfers,importedWorkbook,bundled?raw.roundHistory:prior.roundHistory,bundled?raw.pausedRound:null);
     state=updated.practice;round=updated.round;transfers=updated.transfers;roundHistory=updated.roundHistory??[];
+    pausedRound=updated.pausedRound??null;
     renderRoundHistory();
     restoreExamBackup(updated.exams);
     el("quiz").hidden=true;el("results").hidden=true;session=[];
@@ -782,6 +821,7 @@ initExams(dataStore,conflictWarning);
 resumeSession();
 renderFirstStart();
 el("firstStart").addEventListener("click",firstStart);
+for(const id of ["resumePausedRound","resumeFromResults"])el(id).addEventListener("click",resumePausedSession);
 el("quizHistoryLink").addEventListener("click",()=>{el("quizHistory").open=true;});
 el("pauseQuiz").addEventListener("click",()=>{
   if(done&&index+1===session.length){finish();return;}
@@ -831,7 +871,7 @@ el("reset").addEventListener("click",()=>{
   if(!confirm("Effacer toute ta progression ? Si ton compte cloud est connecté, la suppression sera également synchronisée sur tes autres appareils. Cette action est irréversible."))return;
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
-    state=fresh.practice;round=null;transfers=fresh.transfers;roundHistory=[];
+    state=fresh.practice;round=null;transfers=fresh.transfers;roundHistory=[];pausedRound=null;
     clearExamProgress();renderRoundHistory();refreshOverview();
     session=[];el("quiz").hidden=true;el("results").hidden=true;
     notification("Progression et copies remises à zéro.");

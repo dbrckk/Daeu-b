@@ -1542,6 +1542,43 @@ try {
   assert.deepEqual(targeted.ids,[choice.retryId]);
   assert.equal(targeted.completed,0);
   console.log("OK Deux erreurs : revoir le corrigé et lancer une révision ciblée depuis l’accueil hors connexion");
+  const originalId=await roundPage.evaluate(async()=>{
+    const [{createPersistence},{TOPICS},{flatten,recordAnswer},{injectVariants}]=await Promise.all([
+      import("./persistence.mjs"),import("./questions.mjs"),import("./engine.mjs"),import("./variants.mjs")
+    ]);
+    const corpus=flatten(injectVariants(TOPICS));
+    const data=createPersistence(localStorage,new Set(corpus.map(q=>q.id)));
+    const exercise=corpus.find(q=>q.topic==="equations"&&q.type==="number");
+    const now=Date.now();
+    const failed=recordAnswer(data.snapshot().practice,exercise.id,false,now-120000);
+    data.updatePractice(recordAnswer(failed,exercise.id,false,now-60000));
+    return exercise.id;
+  });
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await roundPage.locator("#topic").selectOption("equations");
+  await roundPage.locator("#mode").selectOption("due");
+  await roundPage.locator("#start").click();
+  const originalPrompt=await roundPage.locator("#questionText").textContent();
+  await roundPage.locator("#answer").fill("3/");
+  await recurringLink.click();
+  const numericChapter=roundPage.locator("#recurringReviewChapters > details").filter({hasText:"Calcul numérique"});
+  await numericChapter.locator(":scope > summary").click();
+  await numericChapter.getByRole("button",{name:"Mettre le quiz en pause et réviser ce chapitre"}).click();
+  const parked=await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+  assert.deepEqual(parked.round.ids,[choice.retryId]);
+  assert.deepEqual(parked.pausedRound.ids,[originalId]);
+  assert.equal(parked.pausedRound.draftAnswer.value,"3/");
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await roundPage.locator("#unknownButton").click();
+  await roundPage.locator("#next").click();
+  await roundPage.locator("#resumeFromResults").click();
+  assert.equal(await roundPage.locator("#questionText").textContent(),originalPrompt);
+  assert.equal(await roundPage.locator("#answer").inputValue(),"3/");
+  const resumed=await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+  assert.deepEqual(resumed.round,parked.pausedRound);
+  assert.equal(resumed.pausedRound,undefined);
+  assert.deepEqual(resumed.roundHistory.at(-1).ids,[choice.retryId]);
+  console.log("OK Révision du seul chapitre choisi, puis reprise du quiz en pause et de son brouillon hors connexion");
   await roundContext.close();
 
   await page.locator("#start").click();

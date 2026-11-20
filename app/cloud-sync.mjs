@@ -103,7 +103,7 @@ function localSnapshot(){
 function localEmpty(local){
   return !local||local.revision===0
     &&!Object.keys(local.practice.items).length&&!Object.keys(local.transfers.items).length
-    &&!local.exams.active&&!local.exams.history.length&&!local.round&&!local.roundHistory?.length;
+    &&!local.exams.active&&!local.exams.history.length&&!local.round&&!local.pausedRound&&!local.roundHistory?.length;
 }
 async function adoptRemote(row){
   const remote=parseValidatedBundle(JSON.stringify(row.payload),knownIds);

@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v123 — réviser un chapitre et reprendre la séance mise en pause
+
+- Chaque chapitre dans « Erreurs récurrentes » propose une révision de ses seules questions. L’atelier met le quiz précédent en pause avec son énoncé, son rang et son brouillon.
+- Le bilan de la révision permet de reprendre le quiz mis en pause. Pendant la révision, l’accueil permet de basculer entre les deux séances. Les deux sont conservées dans la sauvegarde habituelle.
+
 ## v122 — retrouver et retravailler les erreurs récurrentes
 
 - L’accueil regroupe par chapitre les questions manquées ou passées au moins deux fois dont la maîtrise reste à confirmer. Le dernier corrigé d’une tentative manquée est consultable lorsqu’il figure dans l’historique.

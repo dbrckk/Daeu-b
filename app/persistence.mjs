@@ -28,17 +28,24 @@ export class InvalidStorageError extends Error {
 }
 const copy=obj=>JSON.parse(JSON.stringify(obj));
 const validRevision=n=>Number.isSafeInteger(n)&&n>=0&&n<=1e12;
+const unfinished=round=>round&&round.completed<round.ids.length?round:null;
+
+function archiveCompletedRound({round,roundHistory=[]}){
+  return round&&!unfinished(round)?[...roundHistory,round].slice(-MAX_ROUND_HISTORY):roundHistory;
+}
 
 function normalizeBundle(raw,knownIds){
   if(!raw||raw.version!==DATA_VERSION||!validRevision(raw.revision))
     throw new InvalidStorageError("Version de stockage incompatible");
   const roundHistory=sanitizeRoundHistory(raw.roundHistory,knownIds);
+  const pausedRound=unfinished(sanitizeRound(raw.pausedRound,knownIds));
   return {
     version:DATA_VERSION,
     revision:raw.revision,
     practice:sanitizeState(raw.practice,knownIds),
     exams:sanitizeExamStore(raw.exams),
     round:sanitizeRound(raw.round,knownIds),
+    ...(pausedRound?{pausedRound}:{}),
     ...(roundHistory.length?{roundHistory}:{}),
     transfers:sanitizeTransferStore(raw.transfers),
     workbook:sanitizeWorkbook(raw.workbook)
@@ -81,6 +88,7 @@ export function createPersistence(storage,knownIds){
       practice:updated.practice,
       exams:updated.exams,
       round:updated.round??null,
+      ...(updated.pausedRound?{pausedRound:updated.pausedRound}:{}),
       ...(updated.roundHistory?.length?{roundHistory:updated.roundHistory}:{}),
       transfers:sanitizeTransferStore(updated.transfers??current.transfers),
       workbook:sanitizeWorkbook(updated.workbook??current.workbook)
@@ -124,15 +132,16 @@ export function createPersistence(storage,knownIds){
     updateWorkbook(workbook){
       return save({...current,workbook:sanitizeWorkbook(workbook)});
     },
-    startRound(round){
+    startRound(round,{pauseCurrent=false}={}){
       const next=sanitizeRound(round,knownIds);
       if(!next||next.completed!==0)throw new InvalidStorageError("Nouvelle séance incompatible");
-      const previous=current.round;
-      const roundHistory=current.roundHistory??[];
-      const history=previous&&previous.completed===previous.ids.length
-        ?[...roundHistory,previous].slice(-MAX_ROUND_HISTORY)
-        :roundHistory;
-      return save({...current,round:next,roundHistory:history});
+      const pausedRound=current.pausedRound??(pauseCurrent?unfinished(current.round):null);
+      return save({...current,round:next,pausedRound,roundHistory:archiveCompletedRound(current)});
+    },
+    resumePausedRound(){
+      if(!current.pausedRound)throw new InvalidStorageError("Aucune séance mise en pause");
+      return save({...current,round:current.pausedRound,pausedRound:unfinished(current.round),
+        roundHistory:archiveCompletedRound(current)});
     },
     updateRound(round){
       return save({...current,round:sanitizeRound(round,knownIds)});
@@ -143,7 +152,7 @@ export function createPersistence(storage,knownIds){
       const cleanRound=sanitizeRound(round,knownIds);
       return save({...current,practice:cleanPractice,round:cleanRound});
     },
-    replaceAll(practice,exams,round=null,transfers=emptyTransferStore(),workbook=emptyWorkbook(),roundHistory=[]){
+    replaceAll(practice,exams,round=null,transfers=emptyTransferStore(),workbook=emptyWorkbook(),roundHistory=[],pausedRound=null){
       // Import et remise à zéro remplacent toutes les données ensemble.
       const cleanPractice=sanitizeState(practice,knownIds);
       const cleanExams=sanitizeExamStore(exams);
@@ -151,7 +160,8 @@ export function createPersistence(storage,knownIds){
       const cleanTransfers=sanitizeTransferStore(transfers);
       const cleanWorkbook=sanitizeWorkbook(workbook);
       const cleanHistory=sanitizeRoundHistory(roundHistory,knownIds);
-      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,roundHistory:cleanHistory,transfers:cleanTransfers,workbook:cleanWorkbook});
+      return save({practice:cleanPractice,exams:cleanExams,round:cleanRound,roundHistory:cleanHistory,
+        pausedRound:unfinished(sanitizeRound(pausedRound,knownIds)),transfers:cleanTransfers,workbook:cleanWorkbook});
     },
     storageKey:DATA_KEY
   };
