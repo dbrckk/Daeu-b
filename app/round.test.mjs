@@ -87,12 +87,19 @@ test("une réponse et son avancement sont écrits atomiquement avec les examens"
   assert.deepEqual(createPersistence(storage,known).snapshot().roundHistory,restarted.roundHistory);
   const original=p.updateRound({...nextRound,draftAnswer:{questionId:"n01",value:"3/"}}).round;
   const review=buildRound([byId.get("v01")],practice,{now:now+120000,random:()=>0.5}).round;
-  const reviewing=p.startRound(review,{pauseCurrent:true});
+  const reviewing=p.startRound(review);
   assert.deepEqual(reviewing.pausedRound,original);
+  const thirdRound=buildRound([byId.get("n01")],practice,{now:now+180000}).round;
+  assert.throws(()=>p.startRound(thirdRound),/Deux séances/);
+  assert.deepEqual(p.snapshot(),reviewing);
   const switched=createPersistence(storage,known).resumePausedRound();
   assert.deepEqual(switched.round,original);
   assert.deepEqual(switched.pausedRound,review);
   p.refresh();
+  const replacement=p.startRound(thirdRound,{replaceActive:true});
+  assert.deepEqual(replacement.round,thirdRound);
+  assert.deepEqual(replacement.pausedRound,review);
+  assert.deepEqual(replacement.roundHistory,reviewing.roundHistory);
   const imported=p.replaceAll(restarted.practice,restarted.exams,restarted.round,
     restarted.transfers,restarted.workbook,Array(11).fill(restarted.roundHistory[0]));
   assert.equal(imported.roundHistory.length,10);

@@ -132,10 +132,13 @@ export function createPersistence(storage,knownIds){
     updateWorkbook(workbook){
       return save({...current,workbook:sanitizeWorkbook(workbook)});
     },
-    startRound(round,{pauseCurrent=false}={}){
+    startRound(round,{replaceActive=false}={}){
       const next=sanitizeRound(round,knownIds);
       if(!next||next.completed!==0)throw new InvalidStorageError("Nouvelle séance incompatible");
-      const pausedRound=current.pausedRound??(pauseCurrent?unfinished(current.round):null);
+      const active=unfinished(current.round);
+      if(active&&current.pausedRound&&!replaceActive)
+        throw new InvalidStorageError("Deux séances sont déjà sauvegardées.");
+      const pausedRound=current.pausedRound??active;
       return save({...current,round:next,pausedRound,roundHistory:archiveCompletedRound(current)});
     },
     resumePausedRound(){

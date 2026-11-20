@@ -1542,6 +1542,8 @@ try {
   assert.deepEqual(targeted.ids,[choice.retryId]);
   assert.equal(targeted.completed,0);
   console.log("OK Deux erreurs : revoir le corrigé et lancer une révision ciblée depuis l’accueil hors connexion");
+  await roundPage.locator("#unknownButton").click();
+  await roundPage.locator("#next").click();
   const originalId=await roundPage.evaluate(async()=>{
     const [{createPersistence},{TOPICS},{flatten,recordAnswer},{injectVariants}]=await Promise.all([
       import("./persistence.mjs"),import("./questions.mjs"),import("./engine.mjs"),import("./variants.mjs")
@@ -1568,6 +1570,16 @@ try {
   assert.deepEqual(parked.round.ids,[choice.retryId]);
   assert.deepEqual(parked.pausedRound.ids,[originalId]);
   assert.equal(parked.pausedRound.draftAnswer.value,"3/");
+  await roundPage.locator("#topic").selectOption("litteral");
+  await roundPage.locator("#mode").selectOption("all");
+  let replacementConfirmation="";
+  roundPage.once("dialog",dialog=>{
+    replacementConfirmation=dialog.message();
+    return dialog.dismiss();
+  });
+  await roundPage.locator("#start").click();
+  assert.match(replacementConfirmation,/remplacera le quiz en cours et conservera celui mis en pause/);
+  assert.deepEqual(await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1"))),parked);
   await roundPage.reload({waitUntil:"domcontentloaded"});
   await roundPage.locator("#unknownButton").click();
   await roundPage.locator("#next").click();
@@ -1579,6 +1591,20 @@ try {
   assert.equal(resumed.pausedRound,undefined);
   assert.deepEqual(resumed.roundHistory.at(-1).ids,[choice.retryId]);
   console.log("OK Révision du seul chapitre choisi, puis reprise du quiz en pause et de son brouillon hors connexion");
+  await roundPage.locator("#topic").selectOption("nombres");
+  await roundPage.locator("#mode").selectOption("all");
+  await roundPage.locator("#start").click();
+  const fromWorkshop=await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+  assert.notDeepEqual(fromWorkshop.round.ids,resumed.round.ids);
+  assert.deepEqual(fromWorkshop.pausedRound,resumed.round);
+  await roundPage.locator("#topic").selectOption("litteral");
+  roundPage.once("dialog",dialog=>dialog.accept());
+  await roundPage.locator("#start").click();
+  const replaced=await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+  assert.notDeepEqual(replaced.round.ids,fromWorkshop.round.ids);
+  assert.deepEqual(replaced.pausedRound,resumed.round);
+  assert.deepEqual(replaced.roundHistory,fromWorkshop.roundHistory);
+  console.log("OK Atelier hors connexion : brouillon mis en pause et remplacement du quiz en cours seulement après confirmation");
   await roundContext.close();
 
   await page.locator("#start").click();

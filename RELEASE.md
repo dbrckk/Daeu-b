@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v124 — conserver la séance en cours depuis tout l’atelier
+
+- Le démarrage d’un quiz, d’un diagnostic ou d’une révision met automatiquement en pause la séance inachevée et conserve le brouillon du quiz au clavier.
+- Si deux séances sont déjà ouvertes, un troisième démarrage demande de confirmer le remplacement du quiz affiché. Annuler conserve les deux séances. Confirmer garde celle qui était en pause.
+- Le [plan de finalisation](PLAN_FINALISATION.md) donne l’ordre de travail et les critères de clôture de la version stable.
+
 ## v123 — réviser un chapitre et reprendre la séance mise en pause
 
 - Chaque chapitre dans « Erreurs récurrentes » propose une révision de ses seules questions. L’atelier met le quiz précédent en pause avec son énoncé, son rang et son brouillon.
