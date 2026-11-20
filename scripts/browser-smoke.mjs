@@ -1510,6 +1510,19 @@ try {
   assert.equal(retried.completed,0);
   assert.ok(await roundPage.locator("#answerForm").isVisible());
   console.log("OK Bilan hors connexion : les deux corrections restent lisibles et seule la question manquée est relancée");
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  const historyLink=roundPage.locator("#quizHistoryLink");
+  await historyLink.click();
+  const historyRound=roundPage.locator("#quizHistoryList > details").first();
+  await historyRound.locator(":scope > summary").click();
+  const previousRows=historyRound.locator("details");
+  await previousRows.first().locator("summary").waitFor();
+  assert.equal(await previousRows.count(),2);
+  await previousRows.nth(1).locator("summary").click();
+  assert.equal(await previousRows.nth(1).locator(".correction-answer").textContent(),"Ta réponse · "+choice.value);
+  assert.equal(await roundPage.locator("#questionText").textContent(),choice.retryPrompt);
+  assert.deepEqual(await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round),retried);
+  console.log("OK Historique des quiz : l’ancienne correction reste disponible hors ligne pendant la nouvelle séance");
   await roundContext.close();
 
   await page.locator("#start").click();

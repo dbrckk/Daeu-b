@@ -26,7 +26,7 @@ const el=id=>document.getElementById(id);
 const transferUrl=(id,series=recommendedTransferSeries(transferStatus(transfers,id)))=>
   "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
-let dataStore=null,answerDraftTimer=null;
+let dataStore=null,answerDraftTimer=null,roundHistory=[];
 let storageWorks=true;
 function conflictWarning(){
   const notice=el("syncWarning");
@@ -42,6 +42,7 @@ function notification(message) {
 try {
   dataStore=createPersistence(backedStorage(localStorage),knownIds);
   const initial=dataStore.snapshot();state=initial.practice;round=initial.round;transfers=initial.transfers;
+  roundHistory=initial.roundHistory??[];
 } catch(err) {
   storageWorks=false;
   // Aucun original corrompu n'est effacé. Le mode dégradé reste utilisable,
@@ -307,8 +308,8 @@ function startSession() {
 function startSelectedSession(selected,{jalon}={}){
   try{
     const planned=buildRound(selected,state,{jalon});
-    const saved=dataStore.updateRound(planned.round);
-    round=saved.round;session=planned.questions;
+    const saved=dataStore.startRound(planned.round);
+    round=saved.round;session=planned.questions;roundHistory=saved.roundHistory??[];
   }catch(err){
     if(err instanceof StaleDataError)conflictWarning();
     else notification("Impossible de sauvegarder la nouvelle séance. Vérifie le stockage du navigateur.");
@@ -319,6 +320,7 @@ function startSelectedSession(selected,{jalon}={}){
   el("quiz").hidden=false;
   notification("");
   renderFirstStart();
+  renderRoundHistory();
   renderQuestion();
   return true;
 }
@@ -501,11 +503,15 @@ function renderLastCorrection(visible){
   if(!panel.hidden)panel.querySelector(".correction-body").replaceChildren(correctionBody(question,record));
 }
 
+function correctionRows(savedRound,selection){
+  return (savedRound?.corrections??[]).map(record=>{
+    const ordinal=savedRound.ids.indexOf(record.questionId);
+    return {record,ordinal,question:selection[ordinal],retry:!record.correct||record.hinted};
+  }).sort((a,b)=>Number(b.retry)-Number(a.retry));
+}
+
 function renderResultsCorrections(){
-  const rows=(round?.corrections??[]).map(record=>{
-    const ordinal=round.ids.indexOf(record.questionId);
-    return {record,ordinal,question:session[ordinal],retry:!record.correct||record.hinted};
-  });
+  const rows=correctionRows(round,session);
   el("resultsCorrections").hidden=!rows.length;
   const count=el("resultsCorrectionsCount");
   count.hidden=!rows.length||rows.length===round.completed;
@@ -518,9 +524,11 @@ function renderResultsCorrections(){
     const selection=questions.filter(question=>retryIds.has(question.id));
     if(startSelectedSession(selection,{jalon:round.jalon}))focusCurrentQuiz();
   };
-  const list=el("resultsCorrectionList");
+  renderCorrectionRows(el("resultsCorrectionList"),rows);
+}
+
+function renderCorrectionRows(list,rows){
   list.replaceChildren();
-  rows.sort((a,b)=>Number(b.retry)-Number(a.retry));
   for(const {record,ordinal,question,retry} of rows){
     const item=document.createElement("details");
     item.className="math-notebook-disclosure";
@@ -528,6 +536,31 @@ function renderResultsCorrections(){
     const status=!record.correct?"À retravailler":retry?"Réussie avec aide":"Réussie";
     summary.textContent="Question "+(ordinal+1)+" · "+question.topicTitle+" · "+status;
     item.append(summary,correctionBody(question,record));
+    list.append(item);
+  }
+}
+
+function renderRoundHistory(){
+  const history=el("quizHistory"),list=el("quizHistoryList");
+  history.hidden=!roundHistory.length;
+  el("quizHistoryLink").hidden=history.hidden;
+  list.replaceChildren();
+  for(const saved of [...roundHistory].reverse()){
+    const item=document.createElement("details");
+    item.className="math-notebook-disclosure";
+    const summary=document.createElement("summary");
+    const date=new Date(saved.startedAt).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"});
+    summary.textContent=date+" · "+saved.score+"/"+saved.ids.length;
+    const body=document.createElement("div");
+    item.append(summary,body);
+    item.addEventListener("toggle",()=>{
+      if(!item.open||body.childNodes.length)return;
+      try{
+        const rows=correctionRows(saved,restoreRound(saved,questions));
+        if(rows.length)renderCorrectionRows(body,rows);
+        else body.textContent="Les corrections de cette séance n’étaient pas encore enregistrées.";
+      }catch{body.textContent="Les énoncés de cette séance ne sont plus disponibles.";}
+    });
     list.append(item);
   }
 }
@@ -604,7 +637,7 @@ function exportProgress(){
   let snapshot;
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
-  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,transfers:snapshot.transfers,workbook:snapshot.workbook};
+  const backup={backupVersion:1,practice:snapshot.practice,exams:snapshot.exams,round:snapshot.round,roundHistory:snapshot.roundHistory,transfers:snapshot.transfers,workbook:snapshot.workbook};
   const blob=new Blob([JSON.stringify(backup)],{type:"application/json"});
   const url=URL.createObjectURL(blob);
   const link=document.createElement("a");
@@ -628,8 +661,10 @@ async function importProgress(file) {
     if(!confirm("Importer "+importedCount+" résultat(s) ? Cela remplace la progression de cet appareil.")) return;
     // Une seule écriture atomique contient les révisions ET les examens.
     const prior=dataStore.snapshot();
-    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null,importedTransfers,importedWorkbook);
-    state=updated.practice;round=updated.round;transfers=updated.transfers;
+    const updated=dataStore.replaceAll(imported,importedExams??prior.exams,bundled?raw.round??null:null,
+      importedTransfers,importedWorkbook,bundled?raw.roundHistory:prior.roundHistory);
+    state=updated.practice;round=updated.round;transfers=updated.transfers;roundHistory=updated.roundHistory??[];
+    renderRoundHistory();
     restoreExamBackup(updated.exams);
     el("quiz").hidden=true;el("results").hidden=true;session=[];
     refreshOverview();resumeSession();
@@ -670,11 +705,13 @@ if(requestedJalon){
   el("restart").textContent="Nouvelle séance sur ce jalon";
 }
 renderCourseLibrary();
+renderRoundHistory();
 refreshOverview();
 initExams(dataStore,conflictWarning);
 resumeSession();
 renderFirstStart();
 el("firstStart").addEventListener("click",firstStart);
+el("quizHistoryLink").addEventListener("click",()=>{el("quizHistory").open=true;});
 el("pauseQuiz").addEventListener("click",()=>{
   if(done&&index+1===session.length){finish();return;}
   if(!saveAnswerDraft())return;
@@ -723,7 +760,8 @@ el("reset").addEventListener("click",()=>{
   if(!confirm("Effacer toute ta progression ? Si ton compte cloud est connecté, la suppression sera également synchronisée sur tes autres appareils. Cette action est irréversible."))return;
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
-    state=fresh.practice;round=null;transfers=fresh.transfers;clearExamProgress();refreshOverview();
+    state=fresh.practice;round=null;transfers=fresh.transfers;roundHistory=[];
+    clearExamProgress();renderRoundHistory();refreshOverview();
     session=[];el("quiz").hidden=true;el("results").hidden=true;
     notification("Progression et copies remises à zéro.");
   }catch(err){

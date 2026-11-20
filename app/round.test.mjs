@@ -79,6 +79,16 @@ test("une réponse et son avancement sont écrits atomiquement avec les examens"
   assert.equal(sanitizeRound({...round,jalon:21},known).jalon,undefined);
   assert.equal(reopened.snapshot().exams.active.seed,123);
   assert.equal(JSON.parse(storage.getItem(DATA_KEY)).round.score,1);
+  p.updateRound(finished);
+  const nextRound=buildRound([byId.get("n01")],practice,{now:now+60000}).round;
+  const restarted=p.startRound(nextRound);
+  assert.deepEqual(restarted.round,nextRound);
+  assert.deepEqual(restarted.roundHistory[0].corrections,sanitizeRound(finished,known).corrections);
+  assert.deepEqual(createPersistence(storage,known).snapshot().roundHistory,restarted.roundHistory);
+  const imported=p.replaceAll(restarted.practice,restarted.exams,restarted.round,
+    restarted.transfers,restarted.workbook,Array(11).fill(restarted.roundHistory[0]));
+  assert.equal(imported.roundHistory.length,10);
+  assert.equal(p.replaceAll(emptyState(),emptyExamStore()).roundHistory,undefined);
 });
 test("quota saturé : ni réponse ni avancement perdus silencieusement",()=>{
   const values=new Map();let fail=false;

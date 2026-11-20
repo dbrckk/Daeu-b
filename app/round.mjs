@@ -12,6 +12,7 @@ const jalonIds=new Set(JALONS.map(({id})=>id));
 const isUInt32=n=>Number.isInteger(n)&&n>=0&&n<=0xFFFFFFFF;
 export const ROUND_VERSION=1;
 export const MAX_ANSWER_DRAFT_LENGTH=200;
+export const MAX_ROUND_HISTORY=10;
 
 export function sanitizeRound(raw,knownIds){
   if(raw===null||raw===undefined)return null;
@@ -59,6 +60,18 @@ export function sanitizeRound(raw,knownIds){
   if(corrections.length)round.corrections=corrections;
   return round;
 }
+export function sanitizeRoundHistory(raw,knownIds){
+  if(!Array.isArray(raw))return [];
+  const history=[];
+  for(const entry of raw.slice(-MAX_ROUND_HISTORY)){
+    try{
+      const round=sanitizeRound(entry,knownIds);
+      if(round&&round.completed===round.ids.length)history.push(round);
+    }catch{/* Une séance archivée illisible ne doit pas bloquer la progression. */}
+  }
+  return history;
+}
+
 export function buildRound(selection,practice,{random=Math.random,now=Date.now(),jalon}={}){
   if(!Array.isArray(selection)||!selection.length||selection.length>10)
     throw new Error("Sélection de révision invalide");

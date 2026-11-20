@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v121 — retrouver les corrections des anciens quiz
+
+- Le lancement d’une nouvelle séance archive le quiz terminé précédent. Le raccourci « Historique des quiz » donne accès aux dix dernières séances archivées, avec leur score et les corrections qui avaient été enregistrées.
+- Consulter une ancienne correction laisse la séance en cours intacte. L’historique fait partie de la sauvegarde habituelle de la progression.
+
 ## v120 — relire et refaire les exercices du bilan
 
 - Le bilan affiche les corrections enregistrées pendant la séance. Les erreurs et les réponses avec aide figurent en premier. Chaque correction permet de relire l’énoncé, la réponse saisie lorsqu’elle existe et l’explication.
