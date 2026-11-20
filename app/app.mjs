@@ -8,7 +8,7 @@ import {sanitizeWorkbook,emptyWorkbook} from "./workbook.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from "./persistence.mjs";
 import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound,MAX_ANSWER_DRAFT_LENGTH} from "./round.mjs";
-import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
+import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound,recurringErrors} from "./engine.mjs";
 import {JALONS} from "./jalons.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
@@ -141,6 +141,7 @@ function refreshOverview() {
   const t=transferSummary(transfers);
   el("transferSummary").textContent=t.started+"/20 problèmes rédigés · "+t.due+" rappel(s) J+7/J+30 à effectuer · "+t.completed+" parcours de rappels déclarés terminés (non certifiés).";
   renderTransferQueue();
+  renderRecurringReviews();
 }
 function renderTransferQueue(){
   const pending=pendingTransferReviews(transfers);
@@ -322,6 +323,7 @@ function startSelectedSession(selected,{jalon}={}){
   renderFirstStart();
   renderRoundHistory();
   renderQuestion();
+  renderRecurringReviews();
   return true;
 }
 function startJalonSession(jalon,mode="all"){
@@ -562,6 +564,75 @@ function renderRoundHistory(){
       }catch{body.textContent="Les énoncés de cette séance ne sont plus disponibles.";}
     });
     list.append(item);
+  }
+}
+
+function renderRecurringReviews(){
+  const panel=el("recurringReviews"),link=el("recurringReviewsLink"),list=el("recurringReviewChapters");
+  const selected=recurringErrors(state,questions);
+  panel.hidden=!selected.length;
+  link.hidden=panel.hidden;
+  list.replaceChildren();
+  if(panel.hidden)return;
+
+  const start=el("startRecurringReviews");
+  const active=round&&round.completed<round.ids.length;
+  start.textContent=active?"Remplacer le quiz en cours et réviser":"Réviser mes erreurs récurrentes";
+  const selection=selected.slice(0,10);
+  start.onclick=()=>{
+    if(startSelectedSession(selection))focusCurrentQuiz();
+  };
+  el("recurringReviewsCount").textContent=selected.length+(selected.length===1
+    ?" question manquée ou passée au moins deux fois, à confirmer."
+    :" questions manquées ou passées au moins deux fois, à confirmer.");
+
+  const corrections=new Map();
+  for(const saved of [round,...[...roundHistory].reverse()]){
+    for(const record of saved?.corrections??[]){
+      if(!record.correct&&!corrections.has(record.questionId))corrections.set(record.questionId,{saved,record});
+    }
+  }
+  const recovered=new Map();
+  const chapters=new Map();
+  for(const question of selected){
+    if(!chapters.has(question.topic))chapters.set(question.topic,[]);
+    chapters.get(question.topic).push(question);
+  }
+  for(const group of chapters.values()){
+    const [first]=group;
+    const chapter=document.createElement("details");
+    chapter.className="math-notebook-disclosure";
+    const summary=document.createElement("summary");
+    summary.textContent=first.topicTitle+" · "+group.length+(group.length===1?" question":" questions");
+    const course=document.createElement("a");
+    course.href=courseUrl(first.lesson);
+    course.textContent="Revoir le cours";
+    chapter.append(summary,course);
+    for(const question of group){
+      const misses=state.items[question.id].wrong;
+      const label=(question.prompt??"Exercice à valeurs variables")+" · "+misses+" fois";
+      const previous=corrections.get(question.id);
+      if(!previous){
+        const note=document.createElement("p");
+        note.textContent=label;
+        chapter.append(note);
+        continue;
+      }
+      const detail=document.createElement("details");
+      detail.className="math-notebook-disclosure";
+      const name=document.createElement("summary");
+      name.textContent=label;
+      detail.append(name);
+      detail.addEventListener("toggle",()=>{
+        if(!detail.open||detail.childElementCount>1)return;
+        const {saved,record}=previous;
+        if(!recovered.has(saved))recovered.set(saved,restoreRound(saved,questions));
+        const exercise=recovered.get(saved)[saved.ids.indexOf(record.questionId)];
+        detail.append(correctionBody(exercise,record));
+      });
+      chapter.append(detail);
+    }
+    list.append(chapter);
   }
 }
 

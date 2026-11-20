@@ -104,6 +104,14 @@ export function getMetrics(state, questions, now=Date.now()) {
   return {total:questions.length,attempted,mastered,due,percent:questions.length?Math.round(100*mastered/questions.length):0};
 }
 
+export function recurringErrors(state,questions){
+  return questions.filter(question=>{
+    const item=state.items?.[question.id];
+    return item?.wrong>=2&&!item.confirmed;
+  }).sort((a,b)=>state.items[b.id].wrong-state.items[a.id].wrong
+    ||state.items[b.id].lastAt-state.items[a.id].lastAt);
+}
+
 export function selectRound(state,questions,{topic="all",mode="all",limit=10,now=Date.now(),random=Math.random}={}) {
   let pool=questions.filter(q=>topic==="all"||q.topic===topic);
   if(mode==="due") pool=pool.filter(q=>state.items?.[q.id]?.attempts && state.items[q.id].dueAt<=now);
