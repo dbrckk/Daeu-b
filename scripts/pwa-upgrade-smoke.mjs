@@ -132,6 +132,7 @@ async function verifyKeyboardContinuity(browser,profile,origin,publishNext){
       const fresh=await recovery.newPage();
       fresh.on("dialog",dialog=>dialog.accept());
       await fresh.goto(origin,{waitUntil:"domcontentloaded"});
+      await fresh.waitForFunction(()=>document.getElementById("importFile")?.disabled===false);
       await fresh.locator("#importFile").setInputFiles({name:"progression.json",mimeType:"application/json",buffer:bytes});
       await fresh.locator("#answer").waitFor();
       const {revision:importRevision,...imported}=await snapshot(fresh);
