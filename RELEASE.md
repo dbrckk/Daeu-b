@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v119 — relire la dernière correction du quiz
+
+- Le volet « Relire la dernière correction » restitue l’énoncé, l’explication et la réponse validée dans la séance concernée. Il est accessible au clavier pendant le quiz et dans le bilan, y compris après rechargement hors connexion.
+- La dernière correction est enregistrée avec l’avancement à partir de cette version. La relire ne compte pas comme une tentative.
+
 ## v118 — retrouver une réponse de quiz non validée
 
 - La saisie dans le champ numérique et le choix d’un QCM sont sauvegardés avec la question en cours. La pause enregistre la dernière saisie du champ.

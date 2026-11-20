@@ -1434,7 +1434,7 @@ try {
 
   // Séance rétablie après fermeture de l'onglet et reprise du contexte.
   const roundContext=await browser.newContext({
-    viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"
+    viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"
   });
   const roundPage=await roundContext.newPage();
   await roundPage.goto(BASE+"/",{waitUntil:"networkidle"});
@@ -1444,9 +1444,13 @@ try {
   await roundPage.reload({waitUntil:"networkidle"});
   await check(async()=>await roundPage.locator("#questionText").textContent().then(t=>t===firstPrompt),
     "Révision : même question et mêmes valeurs après rechargement");
+  await roundPage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+  await roundContext.setOffline(true);
   await roundPage.locator("#unknownButton").click();
   await check(async()=>await roundPage.locator("#feedback").isVisible(),"Réponse évaluée avant rechargement");
-  await roundPage.reload({waitUntil:"networkidle"});
+  const correctionText=await roundPage.locator("#feedbackText").textContent();
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await roundPage.locator("#lastCorrection > summary").waitFor();
   await check(async()=>await roundPage.locator("#quizCount").textContent().then(t=>t.includes("Question 2 /")),
     "Révision : reprise à la question suivante sans double notation");
   await check(async()=>await roundPage.evaluate(()=>{
@@ -1454,6 +1458,14 @@ try {
     return s.round?.completed===1&&s.round?.score===0
       &&Object.values(s.practice.items).reduce((sum,x)=>sum+x.attempts,0)===1;
   }),"Réponse et avancement conservés dans une seule transaction");
+  const nextPrompt=await roundPage.locator("#questionText").textContent();
+  const savedBeforeReview=await roundPage.evaluate(()=>localStorage.getItem("daeu-b-data-v1"));
+  await roundPage.locator("#lastCorrection > summary").click();
+  assert.equal(await roundPage.locator("#lastCorrectionQuestion").textContent(),firstPrompt);
+  assert.equal(await roundPage.locator("#lastCorrectionText").textContent(),correctionText);
+  assert.equal(await roundPage.locator("#questionText").textContent(),nextPrompt);
+  assert.equal(await roundPage.evaluate(()=>localStorage.getItem("daeu-b-data-v1")),savedBeforeReview);
+  console.log("OK Dernière correction identique, rouverte hors connexion sans modifier la progression");
   const choice=await roundPage.evaluate(async()=>{
     const [{createPersistence},{TOPICS},{flatten},{injectVariants},{buildRound}]=await Promise.all([
       import("./persistence.mjs"),import("./questions.mjs"),import("./engine.mjs"),
@@ -1477,6 +1489,11 @@ try {
   assert.ok(await roundPage.locator("#feedback").isVisible());
   assert.equal(await roundPage.evaluate(()=>Boolean(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.draftAnswer)),false);
   console.log("OK QCM : choix restauré et effacé du brouillon après validation");
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await roundPage.locator("#results #lastCorrection > summary").click();
+  assert.equal(await roundPage.locator("#lastCorrectionAnswer").textContent(),"Ta réponse · "+choice.value);
+  assert.ok(await roundPage.locator("#lastCorrectionLesson").getAttribute("href").then(href=>href.startsWith("./course.html")));
+  console.log("OK Bilan rouvert hors connexion : choix validé et correction du QCM retrouvés");
   await roundContext.close();
 
   await page.locator("#start").click();

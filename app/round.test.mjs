@@ -58,8 +58,10 @@ test("une réponse et son avancement sont écrits atomiquement avec les examens"
   assert.deepEqual(p.snapshot().practice,emptyState());
   assert.equal(sanitizeRound({...drafted,draftAnswer:{questionId:"v01",value:"−3/"}},known).draftAnswer,undefined);
   const practice=recordAnswer(emptyState(),"n01",true,now);
-  const result=p.commitPractice(practice,advanceRound(drafted,true));
+  const result=p.commitPractice(practice,advanceRound(drafted,true,{answer:"4"}));
   assert.equal(result.round.draftAnswer,undefined);
+  assert.deepEqual(result.round.lastCorrection,{questionId:"n01",kind:"answered",correct:true,hinted:false,answer:"4"});
+  assert.equal(sanitizeRound({...result.round,lastCorrection:{...result.round.lastCorrection,questionId:"v01"}},known).lastCorrection,undefined);
   assert.equal(result.practice.items.n01.correct,1);
   assert.equal(result.round.completed,1);
   assert.equal(result.round.score,1);
@@ -68,6 +70,7 @@ test("une réponse et son avancement sont écrits atomiquement avec les examens"
   assert.equal(p.snapshot().round.completed,1,"examen n'écrase pas la séance");
   const reopened=createPersistence(storage,known);
   assert.equal(reopened.snapshot().round.ids[1],"v01");
+  assert.deepEqual(reopened.snapshot().round.lastCorrection,result.round.lastCorrection);
   assert.equal(reopened.snapshot().round.jalon,1);
   assert.equal(sanitizeRound({...round,jalon:21},known).jalon,undefined);
   assert.equal(reopened.snapshot().exams.active.seed,123);
