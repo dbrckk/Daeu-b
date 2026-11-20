@@ -12,7 +12,7 @@ import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer
 import {JALONS} from "./jalons.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 import {validatePrerequisites,prerequisiteAdvice,nextPrerequisite} from "./prerequisites.mjs";
-import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus,recommendedTransferSeries,pendingTransferReviews} from "./transfer-progress.mjs";
+import {emptyTransferStore,sanitizeTransferStore,transferSummary,transferStatus,recommendedTransferSeries,pendingTransferReviews,transferWorkKey} from "./transfer-progress.mjs";
 
 
 const fullTopics=injectVariants(TOPICS);
@@ -23,10 +23,8 @@ const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS),...validateP
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const el=id=>document.getElementById(id);
-const transferUrl=id=>{
-  const series=recommendedTransferSeries(transferStatus(transfers,id));
-  return "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
-};
+const transferUrl=(id,series=recommendedTransferSeries(transferStatus(transfers,id)))=>
+  "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
 let dataStore=null;
 let storageWorks=true;
@@ -105,21 +103,39 @@ function renderTransferQueue(){
   const pending=pendingTransferReviews(transfers);
   const panel=el("transferDuePanel");
   panel.hidden=pending.length===0;
-  const list=el("transferDueList");list.replaceChildren();
-  for(const entry of pending.slice(0,5)){
+  const shortcut=el("firstTransferDue");
+  shortcut.hidden=!pending.length;
+  shortcut.textContent=pending.length===1?"Voir mon rappel rédigé":"Voir mes "+pending.length+" rappels rédigés";
+  const list=el("transferDueList"),extraList=el("transferDueExtraList"),extra=el("transferDueExtra");
+  list.replaceChildren();extraList.replaceChildren();
+  extra.hidden=pending.length<=5;
+  if(extra.hidden)extra.open=false;
+  else el("transferDueMore").textContent=pending.length===6
+    ?"Voir l’autre rappel":"Voir les "+(pending.length-5)+" autres rappels";
+  if(!pending.length)return;
+  let entries;
+  try{entries=dataStore.snapshot().workbook.entries;}catch{/* Les liens d’échéance restent disponibles. */}
+  for(const [index,entry] of pending.entries()){
     const item=document.createElement("li");item.className="transfer-due-entry";
     const link=document.createElement("a");
-    link.href=transferUrl(entry.id);
+    link.href=transferUrl(entry.id,entry.series);
     link.textContent="Jalon "+entry.id+" — rappel J+"+entry.stage+" (série "+entry.series.toUpperCase()+")";
     const note=document.createElement("p");
     note.textContent=entry.missing.length
       ?"À retravailler selon ta dernière auto-évaluation : "+entry.missing.join(", ")+"."
       :"Dernière auto-évaluation : aucun critère signalé. Refais pourtant le sujet sans corrigé.";
-    item.append(link,note);list.append(item);
+    item.append(link,note);
+    for(const series of entry.unusedSeries){
+      const draft=entries?.[transferWorkKey(entry.id,series)];
+      if(!draft||(!draft.text.trim()&&!draft.pages.some(page=>page.length)))continue;
+      const resume=document.createElement("a");
+      resume.className="reader-section-save";
+      resume.href=transferUrl(entry.id,series)+"#problemNotebookPanel";
+      resume.textContent="Reprendre mon brouillon · série "+series.toUpperCase();
+      item.append(resume);
+    }
+    (index<5?list:extraList).append(item);
   }
-  el("transferDueMore").textContent=pending.length>5
-    ?(pending.length-5)+" autre(s) rappel(s) : retrouve-les en ouvrant les jalons détaillés."
-    :"Les critères sont déclarés par toi, sans correction automatique.";
 }
 function jalonActions(jalon,{showTransfer=true}={}){
   const actions=document.createElement("div");actions.className="path-buttons";

@@ -5,8 +5,10 @@ export const TRANSFER_VERSION=1;
 export const TRANSFER_DAY_MS=86_400_000;
 export const TRANSFER_JALONS=20;
 const PHASE_DAYS=[0,7,30];
+const SERIES=["a","b","c"];
 const validTime=n=>Number.isSafeInteger(n)&&n>=0&&n<=1e15;
 const validId=id=>Number.isInteger(id)&&id>=1&&id<=TRANSFER_JALONS;
+export const transferWorkKey=(id,series)=>"problems:transferts:"+id+":"+series;
 const validCriteria=c=>Array.isArray(c)&&c.length===4&&c.every(v=>typeof v==="boolean");
 export const emptyTransferStore=()=>({version:TRANSFER_VERSION,items:{}});
 
@@ -22,12 +24,13 @@ export function sanitizeTransferStore(raw){
       throw Error("Transfert mal formé : "+id);
     const reviews=[];
     for(const [i,v] of value.reviews.entries()){
-      if(!v||!validTime(v.at)||!validCriteria(v.criteria))throw Error("Auto-évaluation invalide : "+id);
+      if(!v||!validTime(v.at)||!validCriteria(v.criteria)||(v.series!==undefined&&!SERIES.includes(v.series)))
+        throw Error("Auto-évaluation invalide : "+id);
       if(i>0){
         const due=Math.max(reviews[0].at+PHASE_DAYS[i]*TRANSFER_DAY_MS,reviews[i-1].at+TRANSFER_DAY_MS);
         if(v.at<due)throw Error("Auto-évaluation antérieure à l'échéance : "+id);
       }
-      reviews.push({at:v.at,criteria:[...v.criteria]});
+      reviews.push({at:v.at,criteria:[...v.criteria],...(v.series===undefined?{}:{series:v.series})});
     }
     items[id]={reviews};
   }
@@ -41,12 +44,17 @@ export function transferStatus(store,id,now=Date.now()){
   const done=count===3;
   const stage=done?null:PHASE_DAYS[count];
   const dueAt=count===0?null:done?null:Math.max(reviews[0].at+stage*TRANSFER_DAY_MS,last.at+TRANSFER_DAY_MS);
-  return {id,count,stage,dueAt,due:dueAt!==null&&now>=dueAt,done,lastAt:last?.at??null,criteria:last?.criteria??null};
+  // Les anciennes déclarations ne contenaient pas la série. Pour elles, on
+  // conserve l'ordre A/B/C qui était alors conseillé pour les trois étapes.
+  const used=reviews.map((review,index)=>review.series??SERIES[index]);
+  const unusedSeries=SERIES.filter(series=>!used.includes(series));
+  return {id,count,stage,dueAt,due:dueAt!==null&&now>=dueAt,done,lastAt:last?.at??null,criteria:last?.criteria??null,unusedSeries};
 }
-/** Indication de variation : ne fait pas partie de la sauvegarde ni d'une note. */
 export function recommendedTransferSeries(status){
   if(!status||![0,7,30,null].includes(status.stage))throw Error("Étape de transfert inconnue");
-  return status.stage===7?"b":status.stage===30?"c":"a";
+  const preferred=SERIES[PHASE_DAYS.indexOf(status.stage)]??"a";
+  if(status.done||!status.unusedSeries||status.unusedSeries.includes(preferred))return preferred;
+  return status.unusedSeries[0]??preferred;
 }
 /** Libellés des quatre critères auto-déclarés, non équivalents à une correction. */
 export const TRANSFER_CRITERIA=Object.freeze(["domaine et hypothèses","méthode","calculs","conclusion et unités"]);
@@ -59,7 +67,7 @@ export function pendingTransferReviews(store,now=Date.now()){
     const status=transferStatus(store,id,now);
     if(!status.due)continue;
     pending.push({
-      id,stage:status.stage,series:recommendedTransferSeries(status),dueAt:status.dueAt,
+      id,stage:status.stage,series:recommendedTransferSeries(status),dueAt:status.dueAt,unusedSeries:status.unusedSeries,
       missing:TRANSFER_CRITERIA.filter((_,i)=>status.criteria?.[i]===false)
     });
   }
@@ -78,13 +86,13 @@ export function transferSummary(store,now=Date.now()){
 /** Sauvegarde uniquement une déclaration explicite après résolution et auto-correction.
  * Aucun "acquis" ne peut découler de cette liste de quatre critères.
  */
-export function recordTransferReview(store,id,criteria,now=Date.now()){
-  if(!validId(id)||!validCriteria(criteria)||!validTime(now))
+export function recordTransferReview(store,id,criteria,now=Date.now(),{series}={}){
+  if(!validId(id)||!validCriteria(criteria)||!validTime(now)||(series!==undefined&&!SERIES.includes(series)))
     throw Error("Auto-évaluation ou date invalide");
   const clean=sanitizeTransferStore(store);
   const status=transferStatus(clean,id,now);
   if(status.done)throw Error("Trois étapes déjà enregistrées pour ce jalon");
   if(status.dueAt!==null&&now<status.dueAt)throw Error("Rappel non encore arrivé à échéance");
   const previous=clean.items[id]?.reviews||[];
-  return {...clean,items:{...clean.items,[id]:{reviews:[...previous,{at:now,criteria:[...criteria]}]}}};
+  return {...clean,items:{...clean.items,[id]:{reviews:[...previous,{at:now,criteria:[...criteria],...(series===undefined?{}:{series})}]}}};
 }
