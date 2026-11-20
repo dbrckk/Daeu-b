@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v127 — suivre l’examen au clavier jusqu’à la révision
+
+- En ouvrant un examen ou en changeant d’exercice, le focus revient au titre de l’exercice. La touche Tab atteint ensuite la première réponse. Les QCM associent l’énoncé au groupe de choix.
+- Le scénario Chromium du blanc A saisit les 16 réponses et les quatre justifications à 320 px. Il vérifie la reprise hors connexion, le formulaire, la remise annulée puis confirmée et le retour vers un point du corrigé marqué à retravailler.
+- Le blanc B vérifie la remise automatique hors connexion à l’échéance du chronomètre. Le parcours de transfert suit les rappels du même jalon de la série A à la série C avec une horloge de test.
+
 ## v126 — corriger les arrondis et afficher les fractions exactes
 
 - Les questions de logarithmes des examens B et D indiquent l’arrondi au millième. La réponse arrondie correcte et les saisies proches de la valeur exacte donnent les points.

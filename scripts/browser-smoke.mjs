@@ -27,6 +27,149 @@ const check=async (fn,label)=>{
   console.log("OK "+label);
 };
 
+async function verifyCompleteKeyboardExam(){
+  const session=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  const snapshot=tab=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).exams);
+  const focused=tab=>tab.evaluate(()=>document.activeElement?.id);
+  const notes=[
+    "B′(x) = −2x + 12. Le sommet se trouve en x = 6. La forme factorisée est −(x−2)(x−10).",
+    "uₙ = 150 × (6/5)ⁿ. u₃ = 259,2 et u₄ = 311,04. Le premier rang est donc 4.",
+    "Chaque tirage se fait avec remise. Je calcule la probabilité de deux rouges et je vérifie le complément.",
+    "H′(x) = 4x−2. H(2)−H(0) = 4. Pour le logarithme, la condition est x > 1."
+  ];
+  const answers=[
+    {a01:"4",a02:"6",a03:"16",a04:"2 < x < 10"},
+    {a05:"6/5",a06:"216",a07:"4",a08:"546"},
+    {a09:"3/5",a10:"27/125",a11:"117/125",a12:"1,8"},
+    {a13:"2x²−2x",a14:"4",a15:"x > 1",a16:"5"}
+  ];
+  const enterExercise=async(tab,index)=>{
+    for(const [id,value] of Object.entries(answers[index])){
+      const field=tab.locator("#exam-answer-"+id);
+      if(await field.count())await field.fill(value);
+      else await tab.locator('input[name="exam-'+id+'"]').and(tab.getByLabel(value,{exact:true})).press("Space");
+    }
+    await tab.locator("#examNotes").fill(notes[index]);
+  };
+  const originTime=Date.now();
+  try{
+    let tab=await session.newPage();
+    await tab.clock.setFixedTime(originTime);
+    await tab.goto(BASE+"/",{waitUntil:"domcontentloaded"});
+    await tab.waitForFunction(()=>!!navigator.serviceWorker.controller);
+    await tab.locator("#examSelect").selectOption("blanc-1");
+    await tab.locator("#examStart").press("Enter");
+    assert.equal(await focused(tab),"examSectionTitle");
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(tab),"exam-answer-a01");
+    const choice=tab.locator("fieldset.exam-question").last();
+    assert.match(await choice.getAttribute("aria-labelledby"),/exam-question-a04 exam-prompt-a04/);
+    assert.equal(await choice.locator("#exam-prompt-a04").textContent(),"Pour quelles valeurs de x le bénéfice est-il strictement positif ?");
+    await enterExercise(tab,0);
+    await tab.locator("#examNext").press("Enter");
+    assert.equal(await focused(tab),"examSectionTitle");
+    await enterExercise(tab,1);
+    await tab.locator("#examNav button").nth(2).press("Enter");
+    assert.equal(await focused(tab),"examSectionTitle");
+    const before=await snapshot(tab);
+    assert.equal(before.active.deadlineAt,originTime+3*60*60*1000);
+    assert.equal(before.active.sectionIndex,2);
+    await session.setOffline(true);
+    await tab.close();
+
+    tab=await session.newPage();
+    await tab.clock.setFixedTime(originTime+7*60*1000);
+    await tab.goto(BASE+"/#exam-title",{waitUntil:"domcontentloaded"});
+    await tab.locator("#examActive").waitFor();
+    assert.deepEqual(await snapshot(tab),before);
+    assert.equal(await tab.locator("#examTimer").textContent(),"02:53:00");
+    await tab.locator("#examFormulaOpen").press("Enter");
+    await tab.locator("#examFormula math").first().waitFor();
+    await tab.keyboard.press("Escape");
+    assert.equal(await focused(tab),"examFormulaOpen");
+    await enterExercise(tab,2);
+    await tab.locator("#examNext").press("Enter");
+    await enterExercise(tab,3);
+    assert.match(await tab.locator("#examDraftSummary").textContent(),/16\/16 réponses.*4\/4 justifications/);
+    assert.ok(await tab.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+
+    const complete=await snapshot(tab);
+    let confirmation="";
+    tab.once("dialog",dialog=>{
+      confirmation=dialog.message();
+      return dialog.dismiss();
+    });
+    await tab.locator("#examSubmit").press("Enter");
+    assert.match(confirmation,/16\/16 réponses.*0 sans réponse/s);
+    assert.match(confirmation,/4\/4 exercices avec rédaction/);
+    assert.deepEqual(await snapshot(tab),complete);
+    assert.ok(await tab.locator("#examResult").isHidden());
+    tab.once("dialog",dialog=>dialog.accept());
+    await tab.locator("#examSubmit").press("Enter");
+    assert.equal(await focused(tab),"examScore");
+    assert.equal(await tab.locator("#examScore").textContent(),"18 / 20");
+    const submitted=await snapshot(tab);
+    assert.equal(submitted.active,null);
+    assert.equal(submitted.history.length,1);
+    assert.equal(submitted.history[0].reason,"submitted");
+    assert.deepEqual(submitted.history[0].notes,complete.active.notes);
+    assert.deepEqual(submitted.history[0].answers,Object.assign({},...answers));
+    assert.deepEqual(submitted.history[0].sections.map(section=>section.earned),[5,5,3,5]);
+    console.log("OK Blanc A au clavier à 320 px : 16 réponses, 4 justifications, reprise et remise hors ligne, bilan 18/20");
+
+    const probabilities=tab.locator("#examReview details.exam-review-group").nth(2);
+    await probabilities.locator(":scope > summary").press("Enter");
+    assert.equal(await probabilities.locator(".exam-user-notes").textContent(),notes[2]);
+    await probabilities.locator(".exam-reasoning-guide > summary").press("Enter");
+    const target=probabilities.locator(".exam-reasoning-step").nth(1);
+    await target.getByLabel("À retravailler").press("Space");
+    assert.deepEqual((await snapshot(tab)).history[0].reviewTargets,{"a-probas:binomial":true});
+    await tab.reload({waitUntil:"domcontentloaded"});
+    await tab.locator("#examRevisionHomeSummary").press("Enter");
+    await tab.locator("#examRevisionHomeCopies button").press("Enter");
+    assert.match(await tab.evaluate(()=>document.activeElement?.textContent),/conditions de la loi binomiale/);
+    const marked=tab.locator("#examRevisionHomeCopies li");
+    assert.match(await marked.getByRole("link",{name:"Revoir le cours"}).getAttribute("href"),/course=12-probabilites/);
+    await marked.getByRole("link",{name:"Faire des exercices"}).press("Enter");
+    await tab.waitForURL(url=>url.searchParams.get("topic")==="probas");
+    await tab.waitForFunction(()=>document.getElementById("topic")?.value==="probas");
+    console.log("OK Révision après examen : retrouver l’étape marquée au clavier depuis l’accueil et accéder aux exercices de probabilités");
+
+    await tab.locator("#examSelect").selectOption("blanc-2");
+    await tab.locator("#examStart").press("Enter");
+    await tab.locator("#exam-answer-b01").fill("5");
+    await tab.locator("#examFormulaOpen").press("Enter");
+    const deadline=(await snapshot(tab)).active.deadlineAt;
+    await tab.clock.setFixedTime(deadline+1);
+    await tab.locator("#examResult").waitFor();
+    assert.match(await tab.locator("#examSummary").textContent(),/rendue automatiquement/);
+    assert.ok(await tab.locator("#examFormula").isHidden());
+    const expired=await snapshot(tab);
+    assert.equal(expired.active,null);
+    assert.equal(expired.history.length,2);
+    assert.equal(expired.history[1].reason,"timeout");
+    assert.equal(expired.history[1].score,1);
+    await tab.reload({waitUntil:"domcontentloaded"});
+    await tab.waitForFunction(()=>document.querySelectorAll("#examHistory .exam-history-row").length===2);
+    assert.deepEqual(await snapshot(tab),expired);
+    console.log("OK Blanc B au clavier : échéance pendant le formulaire, remise unique et historique persistant hors ligne");
+  }finally{await session.close();}
+
+  const desktop=await browser.newContext({viewport:{width:1280,height:900},locale:"fr-FR"});
+  try{
+    const tab=await desktop.newPage();
+    await tab.goto(BASE+"/#exam-title",{waitUntil:"domcontentloaded"});
+    await tab.locator("#examSelect").selectOption("blanc-1");
+    await tab.locator("#examStart").press("Enter");
+    await tab.locator("#examNext").press("Enter");
+    assert.equal(await focused(tab),"examSectionTitle");
+    await tab.locator("#examPrev").press("Enter");
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(tab),"exam-answer-a01");
+    console.log("OK Clavier de bureau : changement d’exercice puis tabulation directement vers la réponse");
+  }finally{await desktop.close();}
+}
+
 try {
   await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});
   // Version prête à commencer : première séance autonome sur un téléphone vierge.
@@ -1122,6 +1265,28 @@ try {
     assert.deepEqual(await readReview(),paused);
     console.log("OK Rappels autocorrigés depuis l’accueil à 320 px : ordre des échéances et reprise exacte hors connexion");
 
+    const readWrittenReviews=()=>diagnosisPage.evaluate(id=>
+      JSON.parse(localStorage.getItem("daeu-b-data-v1")).transfers.items[id].reviews,jalon);
+    const [firstReview]=await readWrittenReviews();
+    assert.equal(firstReview.series,"a");
+    for(const [day,series] of [[7,"b"],[30,"c"]]){
+      const dueAt=firstReview.at+day*86_400_000;
+      await diagnosisPage.clock.setFixedTime(dueAt);
+      await diagnosisPage.goto(BASE+"/",{waitUntil:"domcontentloaded"});
+      await diagnosisPage.getByRole("link",{name:"Jalon "+jalon+" — rappel J+"+day+" (série "+series.toUpperCase()+")",exact:true}).press("Enter");
+      await diagnosisPage.waitForURL(url=>url.searchParams.get("jalon")===jalon&&url.searchParams.get("variante")===series);
+      await notebook.locator("summary").first().press("Enter");
+      await notebook.locator("textarea").fill("Je vérifie les conditions et le résultat de la série "+series.toUpperCase()+".");
+      await focusedTransfer.getByRole("link",{name:"Voir le corrigé du "+label}).press("Enter");
+      await focusedTransfer.getByRole("link",{name:"Faire mon auto-évaluation"}).press("Enter");
+      await diagnosisPage.locator(".transfer-criterion").first().check();
+      await diagnosisPage.locator("#transferAttest").check();
+      await diagnosisPage.locator("#transferRecord").press("Enter");
+      assert.equal((await readWrittenReviews()).at(-1).at,dueAt);
+    }
+    assert.deepEqual((await readWrittenReviews()).map(review=>review.series),["a","b","c"]);
+    assert.match(await diagnosisPage.locator("#transferStage").textContent(),/Trois déclarations enregistrées/);
+    console.log("OK Même jalon hors ligne : les rappels J+7 et J+30 ouvrent B puis C et enregistrent les trois rédactions");
   }finally{await diagnosisContext.close();}
   // Rappels rédigés triés, variantes et reprise d’une rédaction en cours.
   const dueContext=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
@@ -1383,6 +1548,7 @@ try {
     "D : exercices ciblés accessibles sans effacer la copie ni démarrer un quiz");
   await dContext.close();
 
+  await verifyCompleteKeyboardExam();
   // Examen E : famille de problèmes différente de C et D, graine inchangée
   // après rechargement et fonctionnement sous cache PWA déconnecté.
   const eContext=await browser.newContext({

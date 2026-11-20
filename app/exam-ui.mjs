@@ -314,6 +314,9 @@ function renderExamSection(){
       field.append(input,warning);
     }else{
       const options=element("div","exam-options");
+      legend.id="exam-question-"+q.id;
+      label.id="exam-prompt-"+q.id;
+      field.setAttribute("aria-labelledby",legend.id+" "+label.id);
       for(const [index,option] of q.options.entries()){
         const choice=element("label","option");
         const radio=element("input");radio.type="radio";radio.name="exam-"+q.id;radio.value=option;
@@ -352,15 +355,23 @@ function renderExamSection(){
   renderDraftProgress();
   tick();
 }
+function focusExamSection(){
+  const title=byId("examSectionTitle");
+  title.focus({preventScroll:true});
+  title.scrollIntoView({block:"start",behavior:"instant"});
+}
 function moveTo(i){
-  if(!store.active||i===store.active.sectionIndex)return;
+  if(!store.active)return;
   if(hasExpired(store.active)){tick();return;}
-  if(!commitExam({...store,active:{...store.active,sectionIndex:i}}))return;
-  renderExamSection();
-  if(store.active?.paperOnly){
+  if(i!==store.active.sectionIndex){
+    if(!commitExam({...store,active:{...store.active,sectionIndex:i}}))return;
+    renderExamSection();
+  }
+  if(!store.active)return;
+  if(store.active.paperOnly){
     byId("examActive").scrollTo({top:0,behavior:"instant"});
     byId("examNav").children[i].focus({preventScroll:true});
-  }else byId("examPosition").scrollIntoView({block:"start"});
+  }else focusExamSection();
 }
 function renderActive(){
   const active=!!store.active;
@@ -647,7 +658,11 @@ function createNewSeed(examId){
   throw new Error("Impossible de produire une graine différente pour ce sujet");
 }
 function start(){
-  if(store.active){renderActive();return;}
+  if(store.active){
+    renderActive();
+    if(store.active&&!store.active.paperOnly)focusExamSection();
+    return;
+  }
   const examId=byId("examSelect").value;
   const seed=isGeneratedExamId(examId)?createNewSeed(examId):null;
   const prior=store;
@@ -655,6 +670,7 @@ function start(){
   if(!persist()){store=prior;return;}
   lastResult=null;
   alertExam("");renderActive();
+  if(store.active&&!store.active.paperOnly)focusExamSection();
 }
 export function getExamBackup(){return store;}
 export function restoreExamBackup(raw){
@@ -691,7 +707,7 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
     const {paperOnly,...active}=store.active;
     if(commitExam({...store,active})){
       renderExamSection();
-      byId("examSectionTitle").focus();
+      if(store.active)focusExamSection();
     }
   });
   byId("examPrev").addEventListener("click",()=>moveTo(Math.max(0,store.active.sectionIndex-1)));
@@ -740,7 +756,17 @@ export function initExams(storageAdapter,staleCallback=()=>{}){
       "La note automatique est indicative et n'évalue pas les démonstrations. Afficher le corrigé ?";
     if(confirm(text))finalize(hasExpired(session)?"timeout":"submitted");
   });
-  byId("examNew").addEventListener("click",()=>{lastResult=null;setVisible("examResult",false);renderActive();byId("exam-title").scrollIntoView({behavior:"smooth",block:"start"});});
+  byId("examNew").addEventListener("click",()=>{
+    lastResult=null;
+    setVisible("examResult",false);
+    renderActive();
+    if(store.active&&!store.active.paperOnly)focusExamSection();
+    else if(byId("examResult").hidden){
+      const title=byId("exam-title");
+      title.focus({preventScroll:true});
+      title.scrollIntoView({block:"start",behavior:"instant"});
+    }
+  });
   window.addEventListener("pageshow",tick);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)tick();});
   renderActive();
