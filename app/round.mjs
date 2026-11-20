@@ -43,14 +43,20 @@ export function sanitizeRound(raw,knownIds){
   if(round.completed<round.ids.length&&draft?.questionId===round.ids[round.completed]
     &&typeof draft.value==="string"&&draft.value.length>0&&draft.value.length<=MAX_ANSWER_DRAFT_LENGTH)
     round.draftAnswer={questionId:draft.questionId,value:draft.value};
-  const correction=raw.lastCorrection;
-  if(round.completed>0&&correction?.questionId===round.ids[round.completed-1]
-    &&correctionKinds.has(correction.kind)&&typeof correction.correct==="boolean"
-    &&typeof correction.hinted==="boolean"){
-    round.lastCorrection={questionId:correction.questionId,kind:correction.kind,correct:correction.correct,hinted:correction.hinted};
-    if(correction.kind==="answered"&&typeof correction.answer==="string"&&correction.answer.length<=MAX_ANSWER_DRAFT_LENGTH)
-      round.lastCorrection.answer=correction.answer;
+  const legacyCorrection=raw.lastCorrection;
+  const records=Array.isArray(raw.corrections)?raw.corrections.slice(0,round.ids.length)
+    :legacyCorrection&&legacyCorrection.questionId===round.ids[round.completed-1]?[legacyCorrection]:[];
+  const byId=new Map();
+  for(const record of records){
+    if(!record||!correctionKinds.has(record.kind)
+      ||typeof record.correct!=="boolean"||typeof record.hinted!=="boolean")continue;
+    const correction={questionId:record.questionId,kind:record.kind,correct:record.correct,hinted:record.hinted};
+    if(record.kind==="answered"&&typeof record.answer==="string"&&record.answer.length<=MAX_ANSWER_DRAFT_LENGTH)
+      correction.answer=record.answer;
+    byId.set(record.questionId,correction);
   }
+  const corrections=round.ids.slice(0,round.completed).map(id=>byId.get(id)).filter(Boolean);
+  if(corrections.length)round.corrections=corrections;
   return round;
 }
 export function buildRound(selection,practice,{random=Math.random,now=Date.now(),jalon}={}){
@@ -81,6 +87,6 @@ export function advanceRound(round,correct,{kind="answered",hinted=false,answer}
   const {draftAnswer,...answered}=round;
   return {
     ...answered,completed:round.completed+1,score:round.score+(correct?1:0),
-    lastCorrection:{questionId:round.ids[round.completed],kind,correct,hinted,answer}
+    corrections:[...(round.corrections??[]),{questionId:round.ids[round.completed],kind,correct,hinted,answer}]
   };
 }

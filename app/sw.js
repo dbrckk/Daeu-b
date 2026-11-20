@@ -3,13 +3,13 @@
  * Aucune requête extérieure n'est mise en cache. Les données d'étude restent
  * exclusivement dans localStorage et ne passent jamais dans le service worker.
  */
-const CACHE="daeu-b-maths-v119";
+const CACHE="daeu-b-maths-v120";
 const PREFIX="daeu-b-maths-";
 const ASSETS=["./","./index.html","./style.css","./start.mjs","./app-update.mjs","./auto-backup.mjs","./math-notebook.mjs","./ink-eraser.mjs","./ink-transcript.mjs","./ink-drafts.mjs","./numeric-ink.mjs","./equation-ink.mjs","./math-step-checker.mjs","./constraint-solver.mjs","./quadratic-checker.mjs","./derivative-checker.mjs","./polynomial-derivative.mjs","./elementary-derivative.mjs","./math-preview.mjs","./workbook.mjs","./reader-start.mjs","./cloud-sync.mjs","./app.mjs","./engine.mjs","./questions.mjs","./variants.mjs","./exams.mjs","./exam-engine.mjs","./exam-ui.mjs","./math-markdown.mjs","./fiches/formulaire.md","./exam-generator.mjs","./exam-alternative.mjs","./exam-applied.mjs","./exam-recommendation.mjs","./exam-remediation.mjs","./reasoning.mjs","./exam-analytics.mjs","./exam-blueprint.mjs","./exam-readiness.mjs","./persistence.mjs","./round.mjs","./jalons.mjs","./jalon-progress.mjs","./prerequisites.mjs","./transfer-progress.mjs","./transferts/sujets.md","./transferts/corriges.md","./transferts/sujets-b.md","./transferts/corriges-b.md","./transferts/sujets-c.md","./transferts/corriges-c.md","./manifest.json","./icon.svg","./course.html","./problems.html","./problems-reader.mjs","./problemes/sujets.md","./problemes/corriges.md","./course-reader.mjs","./course-catalog.mjs","./reading-tools.mjs","./reading-bookmark.mjs","./course-search.mjs","./vendor/showdown-2.1.0.min.js","./vendor/dompurify.min.js","./vendor/temml.min.js","./cours/00-positionnement.md","./cours/01-calcul-numerique.md","./cours/02-calcul-litteral.md","./cours/03-equations-inequations-systemes.md","./cours/04-second-degre.md","./cours/05-fonctions.md","./cours/06-derivation.md","./cours/07-limites-asymptotes.md","./cours/08-continuite-tvi.md","./cours/09-exponentielle-logarithme.md","./cours/10-suites.md","./cours/11-statistiques.md","./cours/12-probabilites.md","./cours/13-trigonometrie.md","./cours/14-geometrie-vectorielle.md","./cours/15-primitives-integrales.md","./cours/16-complexes-complements.md","./cours/17-raisonnement-modelisation.md"];
 // Empreintes générées par scripts/sync_pwa_integrity.py.
 const INTEGRITY={
-  "./": "sha256-vWHRFxzfUa5oX3Hj2fqHVVW4G3RBz1cmrQojbhN51nk=",
-  "./index.html": "sha256-vWHRFxzfUa5oX3Hj2fqHVVW4G3RBz1cmrQojbhN51nk=",
+  "./": "sha256-amr/00Mamo22IyDQG64DLAIB2kXd9FN6ahD5xNS5VZk=",
+  "./index.html": "sha256-amr/00Mamo22IyDQG64DLAIB2kXd9FN6ahD5xNS5VZk=",
   "./style.css": "sha256-Mocxs76Qy/XJt5vzqhe5aSHR8NQGT4oMvGuUorGB880=",
   "./start.mjs": "sha256-RId2iTu3b/TzBFFV2Tf8mHMtl2fSL9cn+hC49TIqMDY=",
   "./app-update.mjs": "sha256-jVn5a/zPpdFbfiLigraGxTlG2r2wG8csO04O0/zw6kQ=",
@@ -30,7 +30,7 @@ const INTEGRITY={
   "./workbook.mjs": "sha256-f9uj62JlZ9mSKTKaRpiLv7pwUMBdVgbyCOGYEjnRv9M=",
   "./reader-start.mjs": "sha256-+Xd1hulbi9GJQk7CPA+YhF8k7D5sMsQQ0Y+n4wEQ7sw=",
   "./cloud-sync.mjs": "sha256-ZOCuQWZkClkO0QrJZZK4qxqttL1NFbXQNJ46IXde3SY=",
-  "./app.mjs": "sha256-e8AAa9fCAMChR2xlRw3B+5cCNLKT1aQDf6mGnncJmJs=",
+  "./app.mjs": "sha256-KlKA3xq0pv46PLywvuRGXTtqkWSi16rTc/cl92zIYms=",
   "./engine.mjs": "sha256-TEci2adzEG4g0Dt3/DmuqaDYe4W2gpVwF+EMJGJ6dJ0=",
   "./questions.mjs": "sha256-uXER7lCRBT9/8IhPRH0+0A7uqkaCLyr0N9Sky98gWTY=",
   "./variants.mjs": "sha256-bwRw2EK/4sa9ZzwCZL/I+KtqFYHk520d4PJ2Ldpfj4c=",
@@ -49,7 +49,7 @@ const INTEGRITY={
   "./exam-blueprint.mjs": "sha256-7aT3ghX1WeR49b22cVYbjXDpU1aL9zPPyi0RQvaHQtg=",
   "./exam-readiness.mjs": "sha256-H1i/zNi570D8x2kfvH98Xx3uBwOdcX6+QcGEc474ZSc=",
   "./persistence.mjs": "sha256-E820l2DkqY1P+pc6KcRCj7itBX0zdoViGXyrQv3acJY=",
-  "./round.mjs": "sha256-LfAnBiGmhx3p85GRZ4KtdvTxijRQXQHRYXzydwBCyYM=",
+  "./round.mjs": "sha256-xSaXdm3ATOVeTzDo97hlT+oXrarNN7wV8Ovf7z714bY=",
   "./jalons.mjs": "sha256-6DcKsOYX7JnyS4rpr/LgpJ79d+Sg26Pu+Ve5QyExLSw=",
   "./jalon-progress.mjs": "sha256-nBskUYrxlA2iJifMSRlDxERB/MOZtQFWver0KHZFnfw=",
   "./prerequisites.mjs": "sha256-WTKvs0GFDnrZY9P/ZXO2jCgTTIDmz6/T4qB3G4XjxDs=",
@@ -62,8 +62,8 @@ const INTEGRITY={
   "./transferts/corriges-c.md": "sha256-Hn/flk0xlq5YZHLiv/gLMP1H6AnUS70otxgZHXekxbI=",
   "./manifest.json": "sha256-00Z1QEW31Y32cv7JByCGGdwpUYv5G9g5rr8VPsJP/YM=",
   "./icon.svg": "sha256-q27cXuIYoZ/KI8gqAtfGFIAKaBktDvBEXgaPm2Pth9A=",
-  "./course.html": "sha256-1VxnjSGL0fucrHswqYBzXV7e+Uyo1upD2+87OGt3u+g=",
-  "./problems.html": "sha256-yi+zYUGE1PGEXzMi0ygaaJA5MWxHEUb+QDOJIVftUKo=",
+  "./course.html": "sha256-x45a4dN4kM6dwOuNkr9cn92ewLr/lz5yxeocZKc+zVg=",
+  "./problems.html": "sha256-bDqYo5/FN3nM3iV6eWkVdnneqCu3HpD4h9C/HhKSdRs=",
   "./problems-reader.mjs": "sha256-Y3uAUelFMh7jEob9XvbbGCsj299PFiSvuwAx+laZbs8=",
   "./problemes/sujets.md": "sha256-mEg8MKGER6ckIYNf3/dBFyVUcQ2ofuK4u36zos/CoFE=",
   "./problemes/corriges.md": "sha256-y9EwWpj5YxphNDQdqybU2oKV689g6TAmm+l2tX7yMME=",
