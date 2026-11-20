@@ -92,42 +92,48 @@ export function createGeneratedExam(seed){
 
   // Problème 3 : tirages indépendants avec remise.
   const red=integer(r,2,7),blue=integer(r,2,6),n=integer(r,3,5);
-  const p=red/(red+blue),p1=n*p*((1-p)**(n-1)),atLeast=1-(1-p)**n;
+  const total=red+blue,redFraction=red+"/"+total;
+  const p=red/total,p1=n*p*((1-p)**(n-1)),atLeast=1-(1-p)**n;
   const third=section("c-probabilites","Analyser des tirages indépendants",
     "Une urne contient "+red+" boules rouges et "+blue+" boules bleues. On effectue "+n+" tirages avec remise. X est le nombre de boules rouges obtenues.",[
-      N("c09","Calculer la probabilité p de rouge en un seul tirage.",p,1,
-        "p="+red+"/("+red+"+"+blue+")="+fmt(p)+".","probabilités"),
+      {...N("c09","Calculer la probabilité p de rouge en un seul tirage.",p,1,
+        "p="+red+"/("+red+"+"+blue+")="+redFraction+".","probabilités"),exactAnswer:redFraction},
       N("c10","Calculer la probabilité d'obtenir exactement une rouge.",p1,2,
-        "X suit B("+n+";"+fmt(p)+"). P(X=1)=C("+n+",1)×p×(1−p)^("+(n-1)+")="+n+"×("+red+"/"+(red+blue)+")×("+blue+"/"+(red+blue)+")^"+(n-1)+"≈"+fmt(p1)+".","loi binomiale"),
+        "X suit B("+n+";"+redFraction+"). P(X=1)=C("+n+",1)×p×(1−p)^("+(n-1)+")="+n+"×("+redFraction+")×("+blue+"/"+total+")^"+(n-1)+"≈"+fmt(p1)+".","loi binomiale"),
       N("c11","Calculer P(X≥1), au moins une rouge.",atLeast,1,
         "P(X≥1)=1−P(X=0)=1−(1−p)^"+n+"≈"+fmt(atLeast)+".","complémentaire"),
       N("c12","Calculer E(X), le nombre moyen de rouges.",n*p,1,
-        "Pour une loi binomiale E(X)=np="+n+"×"+fmt(p)+"≈"+fmt(n*p)+".","espérance")
+        "Pour une loi binomiale E(X)=np="+n+"×("+redFraction+")≈"+fmt(n*p)+".","espérance")
     ],"Présenter le succès, l'indépendance, la loi binomiale, le complémentaire et l'espérance.",
     "Justifie que la remise rend les tirages indépendants avec une même probabilité.",[
       step("model","Ai-je identifié le succès et sa probabilité ?",
-        "Le succès est « tirer rouge ». La probabilité de succès reste p="+red+"/"+(red+blue)+"="+fmt(p)+", car l'urne ne change pas après remise.","12-probabilites.md"),
+        "Le succès est « tirer rouge ». La probabilité de succès reste p="+redFraction+", car l’urne ne change pas après remise.","12-probabilites.md"),
       step("law","Ai-je démontré pourquoi une loi binomiale est applicable ?",
-        "Les "+n+" essais avec remise sont indépendants ; chacun a la probabilité p="+fmt(p)+" de succès. Donc X suit la loi binomiale B("+n+";"+fmt(p)+").","12-probabilites.md"),
+        "Les "+n+" essais avec remise sont indépendants et chacun a la probabilité p="+redFraction+" de succès. Donc X suit la loi binomiale B("+n+";"+redFraction+").","12-probabilites.md"),
       step("probability","Ai-je correctement distingué exactement une et au moins une ?",
         "Exactement une : P(X=1)="+n+"p(1−p)^("+(n-1)+")≈"+fmt(p1)+". Au moins une : 1−P(X=0)≈"+fmt(atLeast)+".","12-probabilites.md"),
       step("expectation","Ai-je présenté la formule de l'espérance et son sens ?",
-        "La moyenne théorique sur de très nombreuses expériences de "+n+" tirages est E(X)=np="+fmt(n*p)+" boules rouges.","12-probabilites.md")
+        "La moyenne théorique, pour "+n+" tirages, est E(X)=np="+(n*red)+"/"+total+" boules rouges.","12-probabilites.md")
     ]);
 
   // Problème 4 : polynôme intégrable et moyenne sur intervalle.
   const A=integer(r,2,7),B=integer(r,1,6),limit=integer(r,2,5);
-  const integral=A*limit**3/3+B*limit**2/2,average=integral/limit;
+  const meanNumerator=2*A*limit**2+3*B*limit,integralNumerator=meanNumerator*limit;
+  const integral=integralNumerator/6,average=meanNumerator/6;
+  const exactSixths=numerator=>numerator%6===0?String(numerator/6):numerator+"/6";
+  const integralAnswer=exactSixths(integralNumerator),averageAnswer=exactSixths(meanNumerator);
+  const integralText="I=F("+limit+")−F(0)=("+A+"×"+limit+"³)/3+("+B+"×"+limit+"²)/2="+integralAnswer+".";
+  const averageText="La moyenne vaut I/("+limit+"−0)="+averageAnswer+".";
   const fourth=section("c-integrales","Calculer une accumulation",
     "Une grandeur est modélisée par f(t)="+A+"t²+"+B+"t pour 0 ≤ t ≤ "+limit+". On note I=∫₀^"+limit+" f(t)dt. Les valeurs exactes ou fractions sont acceptées.",[
       N("c13","Calculer f′(1).",2*A+B,1,
         "f′(t)="+(2*A)+"t+"+B+", donc f′(1)="+(2*A+B)+".","dérivation"),
-      N("c14","Dans une primitive F(t)=kt³+mt², quel est le coefficient k ?",A/3,1,
-        "Une primitive de "+A+"t² est ("+A+"/3)t³, donc k="+A+"/3="+fmt(A/3)+".","primitives"),
-      N("c15","Calculer exactement la valeur de I=∫₀^"+limit+" f(t)dt.",integral,2,
-        "F(t)=("+A+"/3)t³+("+B+"/2)t². I=F("+limit+")−F(0)=("+A+"×"+limit+"³)/3+("+B+"×"+limit+"²)/2="+fmt(integral)+".","intégrales"),
-      N("c16","Calculer la valeur moyenne de f sur [0;"+limit+"].",average,1,
-        "La moyenne sur [0;"+limit+"] est I/("+limit+"−0)="+fmt(integral)+"/"+limit+"="+fmt(average)+".","intégrales")
+      {...N("c14","Dans une primitive F(t)=kt³+mt², quel est le coefficient k ?",A/3,1,
+        "Une primitive de "+A+"t² est ("+A+"/3)t³, donc k="+A+"/3.","primitives"),exactAnswer:A+"/3"},
+      {...N("c15","Calculer exactement la valeur de I=∫₀^"+limit+" f(t)dt.",integral,2,
+        "F(t)=("+A+"/3)t³+("+B+"/2)t². "+integralText,"intégrales"),exactAnswer:integralAnswer},
+      {...N("c16","Calculer la valeur moyenne de f sur [0;"+limit+"].",average,1,
+        averageText+" Il faut diviser l’intégrale par la longueur de l’intervalle.","intégrales"),exactAnswer:averageAnswer}
     ],"Utiliser la dérivée, une primitive et le théorème fondamental, puis diviser par la longueur de l'intervalle.",
     "Distingue la pente instantanée, l'intégrale cumulée et la valeur moyenne.",[
       step("derivative","Ai-je calculé la dérivée au point demandé ?",
@@ -135,9 +141,9 @@ export function createGeneratedExam(seed){
       step("primitive","Ai-je construit une primitive et vérifié les coefficients ?",
         "F(t)=("+A+"/3)t³+("+B+"/2)t² est une primitive de f(t)="+A+"t²+"+B+"t sur ℝ. Sa dérivée redonne exactement f.","15-primitives-integrales.md"),
       step("integral","Ai-je utilisé les bornes de l'intégrale sans confusion ?",
-        "I=F("+limit+")−F(0)=("+A+"×"+limit+"³)/3+("+B+"×"+limit+"²)/2="+fmt(integral)+". On substitue les deux bornes.","15-primitives-integrales.md"),
+        integralText+" On substitue les deux bornes.","15-primitives-integrales.md"),
       step("mean","Ai-je distingué la valeur moyenne de l'intégrale totale ?",
-        "La valeur moyenne de f est I/("+limit+"−0)="+fmt(average)+". On divise par la longueur de l'intervalle et non par le nombre de questions.","15-primitives-integrales.md")
+        averageText+" On divise par la longueur de l’intervalle.","15-primitives-integrales.md")
     ]);
   return {id:GENERATED_EXAM_ID,seed,title:"Examen C — sujet inédit à valeurs variables",description:"Quatre problèmes générés, 3 heures, barème /20.",sections:[first,second,third,fourth]};
 }

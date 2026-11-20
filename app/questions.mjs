@@ -43,7 +43,7 @@ export const TOPICS=[
  n("s02","Plus petite racine de x²−5x+6=0 ?",2,"Factorise (x−2)(x−3).","Les solutions sont 2 et 3 ; la plus petite est 2."),
  n("s03","Sommet de x²−4x+1 : abscisse ?",2,"α = −b/(2a).","Avec a=1, b=−4 : α=4/2=2."),
  n("s04","Minimum de x²−4x+1 ?",-3,"Écris (x−2)²−3.","(x−2)²≥0, minimum −3 atteint en x=2."),
- c("s05","Signe de x²−1 ?",["négatif entre −1 et 1","toujours positif","négatif hors de [−1;1]"],"négatif entre −1 et 1","Factorise (x−1)(x+1).","Coefficient dominant positif : signe négatif entre les racines −1 et 1."),
+ c("s05","Où x²−1 est-il strictement négatif ?",["négatif entre −1 et 1","toujours positif","négatif hors de [−1;1]"],"négatif entre −1 et 1","Factorise (x−1)(x+1).","Le produit est négatif sur ]−1;1[, nul en −1 et 1, et positif à l’extérieur de [−1;1]."),
  c("s06","Nombre de racines réelles de 2x²+2x+5 ?",["0","1","2"],"0","Calcule Δ.","Δ=2²−4×2×5=−36<0, aucune racine réelle.")
 ]},
 {slug:"statistiques",title:"Statistiques descriptives",lesson:"11-statistiques.md",jalons:[9],questions:[

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {TOPICS} from "./questions.mjs";
 import {VARIANTS,injectVariants,materializeVariant,validateVariants} from "./variants.mjs";
+import {FIXED_IDS_BY_JALON} from "./jalons.mjs";
 import {flatten,validateTopics,parseNumber,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound,recurringErrors,DAY_MS} from "./engine.mjs";
 
 const questions=flatten(TOPICS);
@@ -16,8 +17,8 @@ test("couverture 20 jalons obligatoires, banque non triviale et données cohére
 });
 test("notation fraction/virgule/espaces et refus des expressions non sûres",()=>{
   const q={type:"number",answer:0.75};
-  for(const input of ["3/4","0,75"," 0.75 ","6/8"]) assert.equal(gradeAnswer(q,input).correct,true);
-  for(const input of ["1/0","Math.random()","3+4","","Infinity","2//3"]) assert.equal(gradeAnswer(q,input).valid,false);
+  for(const input of ["3/4","0,75"," 0.75 ","6/8"," 3 / 4 ","3 000 / 4\u202f000"]) assert.equal(gradeAnswer(q,input).correct,true);
+  for(const input of ["1/0","Math.random()","3+4","","Infinity","2//3","1 2","1,2 5","1\t000"]) assert.equal(gradeAnswer(q,input).valid,false);
   assert.equal(gradeAnswer(q,"1/2").correct,false);
   const choice={type:"choice",answer:"x=2",options:["x=2","x=3"]};
   assert.equal(gradeAnswer(choice,"x=2").correct,true);
@@ -79,10 +80,24 @@ test("métriques et validation des sauvegardes",()=>{
   assert.deepEqual(sanitizeState(unsafe,ids),s);
   assert.deepEqual(sanitizeState({version:2,items:{n01:{attempts:999,correct:0,wrong:1,streak:0,confirmed:false,lastAt:now,dueAt:now,lastCorrectDay:null}}},ids),emptyState());
 });
-test("échantillons de calcul issus de chapitres différents",()=>{
+test("chaque jalon accepte une réponse calculée et rejette un piège du même exercice",()=>{
   const map=new Map(questions.map(q=>[q.id,q]));
-  const examples=[["n01","1/4"],["a02","(x−4)(x+4)"],["e01","6"],["s01","1"],["st05","2/3"],["f04","2"],["d01","8"],["l02","4"],["t06","1/16"],["u02","54"],["x03","1"],["i04","-1/2"],["p09","0,36"]];
-  for(const [id,answer] of examples) assert.equal(gradeAnswer(map.get(id),answer).correct,true,id);
+  const examples=[
+    ["n06","14","−10"],["n09","22/48","11/48"],["n11","3√2","√42"],
+    ["a06","x ≠ 2","tous les réels"],["e10","3","1"],["e08","4","2"],
+    ["s05","négatif entre −1 et 1","négatif hors de [−1;1]"],
+    ["e06","x≤−1 ou x>2","x<−1 ou x≥2"],["st05","2/3","1"],
+    ["f03","x≥2","x>2"],["l11","1/4","0"],["l12","1/4","7/4"],["l04","x=−3","y=−3"],
+    ["t01","au moins un zéro","exactement un zéro"],["u06","−3","−5"],
+    ["x05","2/(2x+1)","1/(2x+1)"],["x08","strictement positif","nul si x<0"],
+    ["i04","−1/2","1/2"],["p12","3/10","9/25"],["p13","1,5","2"]
+  ];
+  assert.equal(examples.length,20);
+  for(const [index,[id,answer,trap]] of examples.entries()){
+    assert.ok(FIXED_IDS_BY_JALON[index+1].split(" ").includes(id),id);
+    assert.deepEqual(gradeAnswer(map.get(id),answer),{valid:true,correct:true},id);
+    assert.deepEqual(gradeAnswer(map.get(id),trap),{valid:true,correct:false},id);
+  }
 });
 
 test("banque paramétrique: IDs uniques, 20 jalons, 41 modèles",()=>{

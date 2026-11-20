@@ -46,8 +46,8 @@ test("1000 sujets E complets : 4 nouvelles familles, 16 réponses corrigibles, 2
  }
  assert.ok(unique.size>950,"Le sujet E ne diversifie pas suffisamment les valeurs : "+unique.size);
 });
-test("recalcul indépendant des quatre familles sur 500 jeux de données",()=>{
- for(let seed=0;seed<500;seed++){
+test("recalcul indépendant des quatre familles sur 1003 jeux de données",()=>{
+ for(const seed of [...Array.from({length:1000},(_,index)=>index),0x10000,0x80000000,0xffffffff]){
    const [sys,tri,urn,rad]=createAppliedExam(seed).sections;
    const a=sys.context.match(/Une place adulte et deux places enfant coûtent (\d+) €.+Deux places adulte et une place enfant coûtent (\d+) €/);
    assert.ok(a,"Système non analysable "+seed);

@@ -38,11 +38,13 @@ export function validateTopics(topics) {
 export function parseNumber(value) {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   if (typeof value !== "string") return null;
-  const normalized = value.replace(/\s/g,"").replace(/,/g,".").replace(/−/g,"-");
-  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:\/[+-]?(?:\d+(?:\.\d*)?|\.\d+))?$/.test(normalized)) return null;
-  const parts = normalized.split("/");
-  const n = Number(parts[0]);
-  const d = parts.length === 2 ? Number(parts[1]) : 1;
+  const parts = value.replace(/,/g,".").replace(/−/g,"-").split("/")
+    .map(part => part.trim().replace(/^([+-])[ \u00a0\u202f]+/,"$1"));
+  const decimal = /^[+-]?(?:(?:\d+|\d{1,3}(?:[ \u00a0\u202f]\d{3})+)(?:\.\d*)?|\.\d+)$/;
+  if (parts.length > 2 || !parts.every(part => decimal.test(part))) return null;
+  const [numerator,denominator="1"] = parts.map(part => part.replace(/[ \u00a0\u202f]/g,""));
+  const n = Number(numerator);
+  const d = Number(denominator);
   if (!Number.isFinite(n) || !Number.isFinite(d) || d === 0) return null;
   const result = n/d;
   return Number.isFinite(result) ? result : null;
@@ -52,7 +54,7 @@ export function gradeAnswer(question, raw) {
   if (question.type === "number") {
     const x = parseNumber(raw);
     if (x === null) return { valid:false, correct:false, message:"Saisis un nombre, une fraction ou un décimal (ex. 3/4 ou 0,75)." };
-    return {valid:true,correct:Math.abs(x-question.answer) <= 1e-6*Math.max(1,Math.abs(question.answer))};
+    return {valid:true,correct:x===question.roundedAnswer || Math.abs(x-question.answer) <= 1e-6*Math.max(1,Math.abs(question.answer))};
   }
   if (question.type === "choice") {
     if (typeof raw !== "string" || !question.options.includes(raw)) return {valid:false,correct:false,message:"Choisis une réponse."};

@@ -35,4 +35,4 @@
 3. Primitive $x^2$, donc $[x^2]_0^1=\boxed1$ **(1)**.
 
 ## Remédiation
-Exercice 1 <6/8 : revoir 05, 06, 07. Exercice 2 <4,5/6 : revoir 12. Exercice 3 <4,5/6 : revoir 09 et 10. Refaire les questions ratées à J+2 et J+7 ; consigner le résultat dans [SUIVI.md](../SUIVI.md).
+Sous 5/7 à l’exercice 1, revoir les cours 05, 06 et 07. Sous 3,5/5 à l’exercice 2, revoir le cours 12. Sous 3,5/5 à l’exercice 3, revoir les cours 09 et 10. Sous 2/3 à l’exercice 4, revoir les cours 04 et 15. Refaire les questions ratées à J+2 et J+7, puis consigner le résultat dans [SUIVI.md](../SUIVI.md).

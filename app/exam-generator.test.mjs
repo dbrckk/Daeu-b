@@ -43,8 +43,8 @@ test("1000 sujets complets : quatre exercices et total exact de 20 points",()=>{
     }
   }
 });
-test("formules mathématiques recalculées indépendamment des réponses du générateur",()=>{
-  for(let seed=0;seed<250;seed++){
+test("quatre exercices recalculés indépendamment sur 1003 jeux de données",()=>{
+  for(const seed of [...Array.from({length:1000},(_,index)=>index),0x10000,0x80000000,0xffffffff]){
     const exam=createGeneratedExam(seed);
     const [s1,s2,s3,s4]=exam.sections;
     const quad=s1.context.match(/B\(x\)=−\(x−(\d+)\)²\+(\d+), pour 0 ≤ x ≤ (\d+)/);
@@ -84,6 +84,12 @@ test("formules mathématiques recalculées indépendamment des réponses du gén
     validateApprox(s4.questions[1].answer,A/3,"primitive");
     validateApprox(s4.questions[2].answer,I,"intégrale");
     validateApprox(s4.questions[3].answer,I/L,"moyenne");
+    for(const [question,exact] of [[s3.questions[0],p],[s4.questions[1],A/3],[s4.questions[2],I],[s4.questions[3],I/L]]){
+      const [num,den=1]=question.exactAnswer.split("/").map(Number);
+      assert.ok(Number.isInteger(num)&&Number.isInteger(den)&&den>0);
+      validateApprox(num/den,exact,question.id);
+      assert.ok(question.solution.includes("="+question.exactAnswer+"."));
+    }
   }
 });
 test("copie C reproduite exactement avec seed et sujet différent sur nouvelle graine",()=>{

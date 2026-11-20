@@ -139,10 +139,10 @@ export function createAppliedExam(seed){
        ". Le dénominateur du second tirage est modifié.","12-probabilites.md"),
      step("exactly-one","Ai-je additionné les deux ordres possibles pour exactement une rouge ?",
        "R-B et B-R sont disjoints ; chacun vaut "+red+"×"+blue+"/("+total+"×"+(total-1)+
-       "). La somme est "+fmt(pOne)+".","12-probabilites.md"),
+       "). La somme vaut "+(2*red*blue)+"/"+(total*(total-1))+".","12-probabilites.md"),
      step("two-red","Ai-je tenu compte de la première boule rouge pour le second tirage ?",
        "Après une première rouge, il en reste "+(red-1)+" parmi "+(total-1)+
-       ". La probabilité de deux rouges est "+fmt(pRR)+".","12-probabilites.md")
+       ". La probabilité de deux rouges vaut "+(red*(red-1))+"/"+(total*(total-1))+".","12-probabilites.md")
    ]);
  // 4 — Fonction irrationnelle et valeur interdite, nouveaux domaines.
  const a=randInt(next,-4,5),delta=randInt(next,1,4),b=a+delta;

@@ -41,7 +41,7 @@ async function verifyKeyboardContinuity(browser,profile,origin,publishNext){
     await page.locator("#examNext").click();
     const activeSection=await page.locator("#examSectionTitle").textContent();
     await page.goto(transferUrl,{waitUntil:"domcontentloaded"});
-    const notebook=page.locator("#problemNotebookPanel");
+    const notebook=page.locator("#problemBody #problemNotebookPanel");
     await notebook.locator("summary").first().click();
     await notebook.locator("textarea").fill(transferDraft);
     await page.goto(origin,{waitUntil:"domcontentloaded"});
@@ -107,8 +107,10 @@ async function verifyKeyboardContinuity(browser,profile,origin,publishNext){
     assert.equal(await page.locator("#examNotes").inputValue(),examNotes);
     const transfer=await context.newPage();
     await transfer.goto(transferUrl,{waitUntil:"domcontentloaded"});
-    await transfer.locator("#problemNotebookPanel summary").first().click();
-    const draft=transfer.locator("#problemNotebookPanel textarea");
+    const resumedNotebook=transfer.locator("#problemBody #problemNotebookPanel");
+    await resumedNotebook.locator("summary").first().click();
+    const draft=resumedNotebook.locator("textarea");
+    await draft.waitFor();
     assert.equal(await draft.inputValue(),transferDraft);
     console.log("OK Hors ligne après arrêt de Chromium : deux quiz, transfert série B, examen C, exercice actif et échéance retrouvés");
 
@@ -132,6 +134,7 @@ async function verifyKeyboardContinuity(browser,profile,origin,publishNext){
       const fresh=await recovery.newPage();
       fresh.on("dialog",dialog=>dialog.accept());
       await fresh.goto(origin,{waitUntil:"domcontentloaded"});
+      await fresh.waitForFunction(()=>document.getElementById("importFile")?.disabled===false);
       await fresh.locator("#importFile").setInputFiles({name:"progression.json",mimeType:"application/json",buffer:bytes});
       await fresh.locator("#answer").waitFor();
       const {revision:importRevision,...imported}=await snapshot(fresh);

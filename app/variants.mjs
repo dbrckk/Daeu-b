@@ -21,11 +21,12 @@ export const VARIANTS=[
   }),
   v("v02","nombres",[2],r=>{
     const d=pick(r,3,12),a=pick(r,1,d-1),b=pick(r,1,d-1);
-    return num("Calculer "+a+"/"+d+" + "+b+"/"+d+" (nombre ou fraction).",(a+b)/d,"Les dénominateurs sont identiques.",a+"/"+d+" + "+b+"/"+d+" = "+(a+b)+"/"+d+" = "+fmt((a+b)/d)+".",{a,b,d,kind:"fractions"});
+    return num("Calculer "+a+"/"+d+" + "+b+"/"+d+" (nombre ou fraction).",(a+b)/d,"Les dénominateurs sont identiques.",a+"/"+d+" + "+b+"/"+d+" = "+(a+b)+"/"+d+".",{a,b,d,kind:"fractions"});
   }),
   v("v03","nombres",[3],r=>{
     const base=pick(r,2,5),a=pick(r,2,5),b=pick(r,1,4);
-    return num("Calculer "+base+"^"+a+" ÷ "+base+"^"+b+".",base**(a-b),"Même base : soustrais les exposants.",base+"^("+a+"−"+b+") = "+base+"^"+(a-b)+" = "+fmt(base**(a-b))+".",{base,a,b,kind:"powers"});
+    const exponent=a-b,exact=exponent<0?"1/"+base**(-exponent):String(base**exponent);
+    return num("Calculer "+base+"^"+a+" ÷ "+base+"^"+b+".",base**exponent,"Même base : soustrais les exposants.",base+"^("+a+"−"+b+") = "+base+"^("+exponent+") = "+exact+".",{base,a,b,kind:"powers"});
   }),
   v("v04","nombres",[2,3],r=>{
     const base=pick(r,2,9),mult=pick(r,2,7);
@@ -78,7 +79,7 @@ export const VARIANTS=[
   }),
   v("v16","limites",[11],r=>{
     const a=pick(r,1,12),b=pick(r,1,12);
-    return num("Limite de ("+a+"x²+1)/("+b+"x²+3) quand x tend vers +∞ ?",a/b,"Les deux polynômes ont le même degré.","On divise en haut et en bas par x² : la limite vaut "+a+"/"+b+" = "+fmt(a/b)+".",{a,b,kind:"rational_limit"});
+    return num("Limite de ("+a+"x²+1)/("+b+"x²+3) quand x tend vers +∞ ?",a/b,"Les deux polynômes ont le même degré.","On divise le numérateur et le dénominateur par x². Les termes en 1/x² tendent vers 0, donc la limite vaut "+a+"/"+b+".",{a,b,kind:"rational_limit"});
   }),
   v("v17","derivation",[12],r=>{
     const a=pick(r,1,7),b=pick(r,-8,8),x=pick(r,-4,4);
@@ -90,7 +91,7 @@ export const VARIANTS=[
   }),
   v("v19","limites",[13],r=>{
     const a=pick(r,-12,12),b=pick(r,1,9);
-    return num("Quelle est l'abscisse de l'asymptote verticale de f(x) = 1/("+b+"x − ("+a+")) ?",a/b,"Le dénominateur s'annule sur l'asymptote.","On résout "+b+"x−("+a+")=0, donc x="+fmt(a/b)+". La fonction tend vers l'infini au voisinage.",{a,b,kind:"vertical_asymptote"});
+    return num("Quelle est l'abscisse de l'asymptote verticale de f(x) = 1/("+b+"x − ("+a+")) ?",a/b,"Le dénominateur s'annule sur l'asymptote.","On résout "+b+"x−("+a+")=0, donc x="+a+"/"+b+". Le quotient tend vers −∞ à gauche et vers +∞ à droite.",{a,b,kind:"vertical_asymptote"});
   }),
   v("v20","continuite",[14],r=>{
     const a=pick(r,1,10),b=pick(r,1,10),power=pick(r,1,5);
@@ -126,7 +127,7 @@ export const VARIANTS=[
   }),
   v("v28","probas",[19],r=>{
     const red=pick(r,1,9),blue=pick(r,1,9);
-    return num("Urne avec "+red+" boules rouges et "+blue+" bleues. P(rouge) en un tirage ?",red/(red+blue),"Issues favorables / issues possibles.","P(rouge)="+red+"/(" +red+"+"+blue+")="+fmt(red/(red+blue))+".",{red,blue,kind:"urn"});
+    return num("Urne avec "+red+" boules rouges et "+blue+" bleues. P(rouge) en un tirage ?",red/(red+blue),"Issues favorables / issues possibles.","P(rouge)="+red+"/(" +red+"+"+blue+")="+red+"/"+(red+blue)+".",{red,blue,kind:"urn"});
   }),
   v("v29","probas",[20],r=>{
     const n=pick(r,2,12),p=pick(r,1,9)/10;
@@ -137,8 +138,9 @@ export const VARIANTS=[
     return num("Dans "+n+" essais indépendants de probabilité de succès "+fmt(p)+", quelle est P(au moins un succès) ?",1-(1-p)**n,"Calcule 1−P(aucun succès).","P(X≥1)=1−(1−"+fmt(p)+")^"+n+" = "+fmt(1-(1-p)**n)+".",{n,p,kind:"at_least_one"});
   }),
   v("v31","probas",[19],r=>{
-    const total=pick(r,5,20),favorable=pick(r,1,total-1),conditional=pick(r,1,9)/10;
-    return num("P(B)="+fmt(favorable/total)+" et P(A|B)="+fmt(conditional)+". Calculer P(A∩B).",(favorable/total)*conditional,"P(A∩B) = P(B)×P(A|B).","P(A∩B)=("+favorable+"/"+total+")×"+fmt(conditional)+" = "+fmt((favorable/total)*conditional)+".",{total,favorable,conditional,kind:"conditional"});
+    const total=pick(r,5,20),favorable=pick(r,1,total-1),tenths=pick(r,1,9),conditional=tenths/10;
+    const numerator=favorable*tenths,denominator=total*10;
+    return num("P(B)="+favorable+"/"+total+" et P(A|B)="+fmt(conditional)+". Calculer P(A∩B).",numerator/denominator,"P(A∩B) = P(B)×P(A|B).","P(A∩B)=("+favorable+"/"+total+")×("+tenths+"/10) = "+numerator+"/"+denominator+".",{total,favorable,conditional,kind:"conditional"});
   }),
   v("v32","nombres",[1],r=>{
     const price=pick(r,3,14)*10,percent=pick(r,1,7)*5;
@@ -150,7 +152,7 @@ export const VARIANTS=[
     const value=(a*e+b*d)/(d*e);
     return num("Calculer "+a+"/"+d+" + "+b+"/"+e+" (fraction ou décimal).",value,
       "Utilise un dénominateur commun avant d'additionner les numérateurs.",
-      a+"/"+d+" + "+b+"/"+e+" = ("+a+"×"+e+"+"+b+"×"+d+")/("+d+"×"+e+") = "+(a*e+b*d)+"/"+(d*e)+" = "+fmt(value)+".",
+      a+"/"+d+" + "+b+"/"+e+" = ("+a+"×"+e+"+"+b+"×"+d+")/("+d+"×"+e+") = "+(a*e+b*d)+"/"+(d*e)+".",
       {a,b,d,e,kind:"unlike_fractions"});
   }),
   v("v34","nombres",[3],r=>{
@@ -192,7 +194,7 @@ export const VARIANTS=[
     const a=pick(r,2,9),b=-pick(r,1,9),c=pick(r,2,8),d=pick(r,1,8);
     return num("Ordonnée de l'asymptote horizontale de f(x)=("+a+"x−"+Math.abs(b)+")/("+c+"x+"+d+") quand x→+∞ ?",a/c,
       "Les numérateur et dénominateur sont de même degré ; compare leurs coefficients dominants.",
-      "En divisant par x, f(x)=("+a+"−"+Math.abs(b)+"/x)/("+c+"+"+d+"/x)→"+a+"/"+c+" = "+fmt(a/c)+". L'asymptote est y="+fmt(a/c)+".",
+      "En divisant par x, f(x)=("+a+"−"+Math.abs(b)+"/x)/("+c+"+"+d+"/x)→"+a+"/"+c+". L’asymptote est y="+a+"/"+c+".",
       {a,b,c,d,kind:"horizontal_asymptote"});
   }),
   v("v40","explog",[16],r=>{

@@ -857,6 +857,7 @@ el("export").addEventListener("click",exportProgress);
 el("importFile").addEventListener("change",async event=>{
   const file=event.target.files?.[0];await importProgress(file);event.target.value="";
 });
+el("importFile").disabled=false;
 el("persistStorage").addEventListener("click",async()=>{
   if(!navigator.storage?.persist){
     notification("Le stockage persistant n’est pas proposé. Les deux copies locales automatiques continuent si IndexedDB est disponible. Une sauvegarde distante serait nécessaire en cas de perte du téléphone.");

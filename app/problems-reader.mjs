@@ -16,7 +16,7 @@ const inputMode=notebookMode();
 const rawSeries=["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
 const variant=transfers?rawSeries:"a";
 const selectedJalon=/^([1-9]|1[0-9]|20)$/.test(params.get("jalon")||"")?Number(params.get("jalon")):null;
-el("problemNotebookPanel").open=inputMode!=="clavier";
+if(inputMode!=="clavier")el("problemNotebookPanel").open=true;
 try{
   mountNotebook(el("problemNotebook"),{
     context:transfers?transferWorkKey(selectedJalon??"global",variant)

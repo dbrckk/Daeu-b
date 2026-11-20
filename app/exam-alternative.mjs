@@ -123,14 +123,16 @@ export function createAlternativeExam(seed){
 
   // 4. TVI, monotonie et résolution exacte d'une équation exponentielle.
   const m=int(next,2,6),factor=int(next,1,4),root=Math.log(m)/factor;
+  const roundedRoot=root.toFixed(3);
   const exponential=section("d-exponentielle","Résoudre une équation exponentielle",
     "Soit g(x)=exp("+factor+"x)−"+m+" sur [0;2]. La fonction exp désigne l'exponentielle naturelle. On souhaite justifier l'existence et l'unicité d'un zéro puis le calculer.",[
       number("d13","Calculer g(0).",1-m,1,
         "exp(0)=1. Par conséquent, g(0)=1−"+m+"="+(1-m)+", valeur négative.","exponentielle"),
       number("d14","Calculer g′(0).",factor,1,
         "La dérivée de exp("+factor+"x) est "+factor+"exp("+factor+"x). Donc g′(0)="+factor+"exp(0)="+factor+".","dérivation"),
-      number("d15","Calculer l'abscisse exacte du zéro de g (valeur décimale acceptée).",root,2,
-        "g(x)=0 ⇔ exp("+factor+"x)="+m+" ⇔ "+factor+"x=ln("+m+") ⇔ x=ln("+m+")/"+factor+"≈"+fmt(root)+".","logarithmes"),
+      {...number("d15","Calculer l’abscisse du zéro de g et l’arrondir au millième.",root,2,
+        "g(x)=0 ⇔ exp("+factor+"x)="+m+" ⇔ "+factor+"x=ln("+m+") ⇔ x=ln("+m+")/"+factor+". Au millième, x≈"+roundedRoot.replace(".",",")+".","logarithmes"),
+        roundedAnswer:Number(roundedRoot)},
       choice("d16","Combien de zéros g possède-t-elle sur l'intervalle [0;2] ?",[
         "Aucun","Un seul","Au moins deux"
       ],"Un seul",1,
@@ -144,7 +146,7 @@ export function createAlternativeExam(seed){
       step("unique","Ai-je démontré l'unicité en étudiant la dérivée et ses signes ?",
         "g′(x)="+factor+"exp("+factor+"x)>0 sur [0;2] : g est strictement croissante et ne peut donc avoir deux zéros.","06-derivation.md"),
       step("solution","Ai-je résolu avec le logarithme et vérifié l'appartenance à [0;2] ?",
-        "L'égalité exp("+factor+"x)="+m+" donne x=ln("+m+")/"+factor+"≈"+fmt(root)+". On a bien 0<"+fmt(root)+"<2.","09-exponentielle-logarithme.md")
+        "L’égalité exp("+factor+"x)="+m+" donne x=ln("+m+")/"+factor+", soit "+roundedRoot.replace(".",",")+" au millième. Le zéro appartient à ]0;2[.","09-exponentielle-logarithme.md")
     ]);
 
   return {
