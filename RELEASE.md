@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v118 — retrouver une réponse de quiz non validée
+
+- La saisie dans le champ numérique et le choix d’un QCM sont sauvegardés avec la question en cours. La pause enregistre la dernière saisie du champ.
+- À la reprise, le brouillon peut être modifié avant validation. Le corrigé et le score dépendent des réponses validées. L’enregistrement d’une réponse retire son brouillon de la séance.
+
 ## v117 — lancer les rappels autocorrigés depuis l’accueil
 
 - Le premier bouton de l’accueil reprend la séance en cours. Quand aucune séance n’attend, il propose les questions à réviser si des rappels sont échus.

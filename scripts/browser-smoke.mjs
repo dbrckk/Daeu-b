@@ -153,8 +153,21 @@ try {
       const q=restoreRound(currentRound,flatten(injectVariants(TOPICS)))[currentRound.completed];
       return {id:q.id,type:q.type,answer:q.answer};
     });
-    if(current.type==="number")await firstPage.locator("#answer").fill(String(current.answer));
-    else await firstPage.locator("#choiceList input").evaluateAll((nodes,answer)=>{
+    if(current.type==="number"){
+      const input=firstPage.locator("#answer");
+      await firstPage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+      await firstContext.setOffline(true);
+      await input.fill("−3/");
+      await firstPage.locator("#pauseQuiz").click();
+      await firstPage.reload({waitUntil:"domcontentloaded"});
+      await input.waitFor();
+      assert.equal(await input.inputValue(),"−3/");
+      assert.ok(await firstPage.locator("#feedback").isHidden());
+      assert.equal(await firstPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed),0);
+      await firstContext.setOffline(false);
+      await input.fill(String(current.answer));
+      console.log("OK Saisie numérique inachevée retrouvée après pause et rechargement hors connexion");
+    }else await firstPage.locator("#choiceList input").evaluateAll((nodes,answer)=>{
       const found=nodes.find(x=>x.value===answer);
       if(!found)throw Error("Réponse correcte absente du QCM");
       found.click();
@@ -1441,6 +1454,29 @@ try {
     return s.round?.completed===1&&s.round?.score===0
       &&Object.values(s.practice.items).reduce((sum,x)=>sum+x.attempts,0)===1;
   }),"Réponse et avancement conservés dans une seule transaction");
+  const choice=await roundPage.evaluate(async()=>{
+    const [{createPersistence},{TOPICS},{flatten},{injectVariants},{buildRound}]=await Promise.all([
+      import("./persistence.mjs"),import("./questions.mjs"),import("./engine.mjs"),
+      import("./variants.mjs"),import("./round.mjs")
+    ]);
+    const bank=flatten(injectVariants(TOPICS));
+    const data=createPersistence(localStorage,new Set(bank.map(q=>q.id)));
+    const question=bank.find(q=>q.type==="choice");
+    data.updateRound(buildRound([question],data.snapshot().practice).round);
+    return {value:question.options[1],id:question.id};
+  });
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await roundPage.getByRole("radio",{name:choice.value,exact:true}).check();
+  await roundPage.reload({waitUntil:"domcontentloaded"});
+  await roundPage.getByRole("radio",{name:choice.value,exact:true}).waitFor();
+  assert.ok(await roundPage.getByRole("radio",{name:choice.value,exact:true}).isChecked());
+  const choiceRound=await roundPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
+  assert.equal(choiceRound.completed,0);
+  assert.deepEqual(choiceRound.draftAnswer,{questionId:choice.id,value:choice.value});
+  await roundPage.locator("#submit").click();
+  assert.ok(await roundPage.locator("#feedback").isVisible());
+  assert.equal(await roundPage.evaluate(()=>Boolean(JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.draftAnswer)),false);
+  console.log("OK QCM : choix restauré et effacé du brouillon après validation");
   await roundContext.close();
 
   await page.locator("#start").click();

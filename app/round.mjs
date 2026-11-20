@@ -2,7 +2,7 @@
  * Sauvegarde d'une séance de 10 questions.
  * Les exercices fixes sont reconstruits depuis la banque officielle.
  * Les variantes ne gardent que leur graine uint32, jamais une réponse
- * importée arbitrairement. Aucun code utilisateur n'est évalué.
+ * importée arbitrairement. La saisie brouillon ne compte pas dans le score.
  */
 import {JALONS} from "./jalons.mjs";
 import {VARIANTS,materializeVariant} from "./variants.mjs";
@@ -10,6 +10,7 @@ const variantIds=new Set(VARIANTS.map(q=>q.id));
 const jalonIds=new Set(JALONS.map(({id})=>id));
 const isUInt32=n=>Number.isInteger(n)&&n>=0&&n<=0xFFFFFFFF;
 export const ROUND_VERSION=1;
+export const MAX_ANSWER_DRAFT_LENGTH=200;
 
 export function sanitizeRound(raw,knownIds){
   if(raw===null||raw===undefined)return null;
@@ -37,6 +38,10 @@ export function sanitizeRound(raw,knownIds){
   }
   const round={version:ROUND_VERSION,ids:[...raw.ids],seeds,startedAt:raw.startedAt,completed:raw.completed,score:raw.score,assistedIds:[...assistedIds]};
   if(jalonIds.has(raw.jalon))round.jalon=raw.jalon;
+  const draft=raw.draftAnswer;
+  if(round.completed<round.ids.length&&draft?.questionId===round.ids[round.completed]
+    &&typeof draft.value==="string"&&draft.value.length>0&&draft.value.length<=MAX_ANSWER_DRAFT_LENGTH)
+    round.draftAnswer={questionId:draft.questionId,value:draft.value};
   return round;
 }
 export function buildRound(selection,practice,{random=Math.random,now=Date.now(),jalon}={}){
@@ -64,5 +69,6 @@ export function restoreRound(raw,bank){
 }
 export function advanceRound(round,correct){
   if(!round||round.completed>=round.ids.length)throw new Error("Séance déjà terminée");
-  return {...round,completed:round.completed+1,score:round.score+(correct?1:0)};
+  const {draftAnswer,...answered}=round;
+  return {...answered,completed:round.completed+1,score:round.score+(correct?1:0)};
 }

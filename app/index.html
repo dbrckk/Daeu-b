@@ -116,6 +116,7 @@
             <div id="numericAnswer"><label for="answer">Ta réponse (nombre, décimal ou fraction)</label><input id="answer" name="answer" type="text" autocomplete="off" spellcheck="false" placeholder="Ex. 3/4 ou 0,75"></div>
             <fieldset id="choices" hidden><legend>Choisis une réponse</legend><div id="choiceList"></div></fieldset>
             <div class="quiz-actions"><button type="submit" id="submit" class="primary">Valider ma réponse</button><button type="button" id="hintButton" class="subtle">Un indice</button><button type="button" id="unknownButton" class="subtle">Je ne sais pas</button></div>
+            <p id="answerDraftStatus" class="notice" role="status" hidden>La saisie n’a pas pu être sauvegardée. Elle reste dans le champ tant que la page est ouverte. Réessaie avant de quitter.</p>
           </form>
           <div id="hint" class="hint" hidden></div>
           <div id="feedback" class="feedback" aria-live="polite" hidden><strong id="feedbackTitle"></strong><p id="feedbackText"></p><a id="lessonLink" target="_blank" rel="noopener noreferrer">Revoir le chapitre ↗</a><div><button type="button" id="next" class="primary">Question suivante</button></div></div>
@@ -258,7 +259,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">117</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">118</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

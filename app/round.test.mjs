@@ -52,9 +52,14 @@ test("rejet des séances falsifiées, des questions inconnues et des graines mal
 test("une réponse et son avancement sont écrits atomiquement avec les examens",()=>{
   const storage=createVolatileStorage(),p=createPersistence(storage,known);
   const round=buildRound([byId.get("n01"),byId.get("v01")],emptyState(),{random:()=>.1,now,jalon:1}).round;
-  p.updateRound(round);
+  const drafted=p.updateRound({...round,draftAnswer:{questionId:"n01",value:"−3/"}}).round;
+  assert.deepEqual(createPersistence(storage,known).snapshot().round.draftAnswer,drafted.draftAnswer);
+  assert.equal(p.snapshot().round.completed,0);
+  assert.deepEqual(p.snapshot().practice,emptyState());
+  assert.equal(sanitizeRound({...drafted,draftAnswer:{questionId:"v01",value:"−3/"}},known).draftAnswer,undefined);
   const practice=recordAnswer(emptyState(),"n01",true,now);
-  const result=p.commitPractice(practice,advanceRound(round,true));
+  const result=p.commitPractice(practice,advanceRound(drafted,true));
+  assert.equal(result.round.draftAnswer,undefined);
   assert.equal(result.practice.items.n01.correct,1);
   assert.equal(result.round.completed,1);
   assert.equal(result.round.score,1);
