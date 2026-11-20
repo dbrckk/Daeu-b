@@ -410,6 +410,7 @@ function renderQuestion() {
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
+  renderLastCorrection(el("quizProgress"),!paperOnly);
   mountNotebook(notebook,{
     context:"quiz:"+q.id,adapter:dataStore,title:mode==="clavier"?"Brouillon de calcul (facultatif)":"Ma feuille de réponse — "+q.topicTitle,
     textOnly:mode==="clavier",collapsed:true,
@@ -466,16 +467,43 @@ function renderQuestion() {
   }
 }
 
-function showFeedback(correct,wasUnknown=false,manual=false) {
+function correctionText(question,{correct,kind,hinted}){
+  const expected=question.type==="number"?fmt(question.answer):question.answer;
+  if(kind==="manual")return {
+    title:correct?"Réponse manuscrite déclarée correcte":"Réponse manuscrite à retravailler",
+    text:"Auto-évaluation enregistrée : le tracé manuscrit n'a pas été reconnu par ordinateur et cette réponse n'attribue pas de maîtrise autonome.\n\nRéponse attendue : "+expected+"\n\n"+question.explanation
+  };
+  return {
+    title:correct?(hinted?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler",
+    text:(correct?"":(kind==="unknown"?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\n\n")+question.explanation
+  };
+}
+
+function renderLastCorrection(after,visible=true){
+  const panel=el("lastCorrection");
+  const record=round?.lastCorrection;
+  const question=record&&session[round.completed-1];
+  panel.open=false;
+  panel.hidden=!visible||!question||question.id!==record.questionId;
+  after.after(panel);
+  if(panel.hidden)return;
+  const {title,text}=correctionText(question,record);
+  el("lastCorrectionQuestion").textContent=question.prompt;
+  el("lastCorrectionVerdict").textContent=title;
+  el("lastCorrectionText").textContent=text;
+  el("lastCorrectionAnswer").hidden=!record.answer;
+  el("lastCorrectionAnswer").textContent="Ta réponse · "+(record.answer??"");
+  el("lastCorrectionLesson").href=courseUrl(question.lesson);
+}
+
+function showFeedback(record) {
   const q=session[index];
+  const {title,text}=correctionText(q,record);
+  el("lastCorrection").hidden=true;
   el("paperUnknown").hidden=true;
-  el("feedback").hidden=false;el("feedback").dataset.result=correct?"correct":"wrong";
-  el("feedbackTitle").textContent=manual?(correct?"Réponse manuscrite déclarée correcte":"Réponse manuscrite à retravailler"):
-    correct?(hintUsed?"Bonne réponse avec indice (non validée pour la maîtrise)":"Bonne réponse"):"À retravailler";
-  const expected=q.type==="number"?fmt(q.answer):q.answer;
-  el("feedbackText").textContent=manual?
-    "Auto-évaluation enregistrée : le tracé manuscrit n'a pas été reconnu par ordinateur et cette réponse n'attribue pas de maîtrise autonome.\n\nRéponse attendue : "+expected+"\n\n"+q.explanation:
-    (correct?"":(wasUnknown?"Réponse à connaître : ":"Réponse attendue : ")+expected+"\n\n")+q.explanation;
+  el("feedback").hidden=false;el("feedback").dataset.result=record.correct?"correct":"wrong";
+  el("feedbackTitle").textContent=title;
+  el("feedbackText").textContent=text;
   el("lessonLink").href=courseUrl(q.lesson);
   el("answerForm").hidden=true;
   el("next").textContent=index===session.length-1?"Terminer la séance":"Question suivante";
@@ -491,10 +519,10 @@ function submitHandwritten(correct){
   const next=recordAnswer(state,q.id,Boolean(correct),Date.now(),{
     signature:q.isVariant?q.prompt:null,hinted:true
   });
-  if(!persist(next,advanceRound(round,Boolean(correct))))return false;
+  if(!persist(next,advanceRound(round,Boolean(correct),{kind:"manual",hinted:true})))return false;
   done=true;hintUsed=true;score=round.score;notification("");
   refreshOverview();
-  showFeedback(Boolean(correct),false,true);
+  showFeedback(round.lastCorrection);
   return true;
 }
 
@@ -504,16 +532,17 @@ function submit(raw,unknown=false) {
   const grade=unknown?{valid:true,correct:false}:gradeAnswer(q,raw);
   if(!grade.valid){notification(grade.message);return;}
   const next=recordAnswer(state,q.id,grade.correct,Date.now(),{signature:q.isVariant?q.prompt:null,hinted:hintUsed});
-  if(!persist(next,advanceRound(round,grade.correct)))return;
+  if(!persist(next,advanceRound(round,grade.correct,{kind:unknown?"unknown":"answered",hinted:hintUsed,answer:raw})))return;
   done=true;notification("");
   score=round.score;
   refreshOverview();
-  showFeedback(grade.correct,unknown);
+  showFeedback(round.lastCorrection);
 }
 
 function finish({focus=true}={}){
   el("quiz").hidden=true;
   el("results").hidden=false;
+  renderLastCorrection(el("resultsText"));
   el("resultsText").textContent="Tu as réussi "+score+" réponse"+(score>1?"s":"")+" sur "+session.length+". Les rappels à valeurs variables et sans indice consolident les acquis. Une aide n’augmente pas la maîtrise.";
   const next=recommendJalon(jalonProgress(state,questions,jalonIndex));
   const completed=JALONS.find(item=>item.id===round?.jalon);

@@ -109,6 +109,16 @@
             <button type="button" id="pauseQuiz" class="subtle small" hidden>Mettre en pause</button>
           </div>
           <progress id="quizProgress" max="10" value="0" aria-label="Progression dans la séance"></progress>
+          <details id="lastCorrection" class="math-notebook-disclosure" hidden>
+            <summary>Relire la dernière correction</summary>
+            <p id="lastCorrectionQuestion"></p>
+            <div class="feedback">
+              <strong id="lastCorrectionVerdict"></strong>
+              <p id="lastCorrectionAnswer" hidden></p>
+              <p id="lastCorrectionText"></p>
+              <a id="lastCorrectionLesson" target="_blank" rel="noopener noreferrer">Revoir le chapitre ↗</a>
+            </div>
+          </details>
           <h3 id="questionText" tabindex="-1"></h3>
           <div id="quizNotebook"></div>
           <p id="questionHelp" class="helper"></p>
@@ -259,7 +269,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">118</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">119</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>
