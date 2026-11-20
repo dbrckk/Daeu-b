@@ -410,7 +410,7 @@ function renderQuestion() {
   el("quizProgress").max=session.length;
   el("quizProgress").value=index;
   el("questionText").textContent=q.prompt;
-  renderLastCorrection(el("quizProgress"),!paperOnly);
+  renderLastCorrection(!paperOnly);
   mountNotebook(notebook,{
     context:"quiz:"+q.id,adapter:dataStore,title:mode==="clavier"?"Brouillon de calcul (facultatif)":"Ma feuille de réponse — "+q.topicTitle,
     textOnly:mode==="clavier",collapsed:true,
@@ -479,21 +479,57 @@ function correctionText(question,{correct,kind,hinted}){
   };
 }
 
-function renderLastCorrection(after,visible=true){
+function correctionBody(question,record){
+  const content=el("correctionBody").content.cloneNode(true);
+  const {title,text}=correctionText(question,record);
+  content.querySelector(".correction-question").textContent=question.prompt;
+  content.querySelector(".correction-verdict").textContent=title;
+  content.querySelector(".correction-text").textContent=text;
+  const answer=content.querySelector(".correction-answer");
+  answer.hidden=!record.answer;
+  answer.textContent="Ta réponse · "+(record.answer??"");
+  content.querySelector(".correction-lesson").href=courseUrl(question.lesson);
+  return content;
+}
+
+function renderLastCorrection(visible){
   const panel=el("lastCorrection");
-  const record=round?.lastCorrection;
+  const record=round?.corrections?.at(-1);
   const question=record&&session[round.completed-1];
   panel.open=false;
   panel.hidden=!visible||!question||question.id!==record.questionId;
-  after.after(panel);
-  if(panel.hidden)return;
-  const {title,text}=correctionText(question,record);
-  el("lastCorrectionQuestion").textContent=question.prompt;
-  el("lastCorrectionVerdict").textContent=title;
-  el("lastCorrectionText").textContent=text;
-  el("lastCorrectionAnswer").hidden=!record.answer;
-  el("lastCorrectionAnswer").textContent="Ta réponse · "+(record.answer??"");
-  el("lastCorrectionLesson").href=courseUrl(question.lesson);
+  if(!panel.hidden)panel.querySelector(".correction-body").replaceChildren(correctionBody(question,record));
+}
+
+function renderResultsCorrections(){
+  const rows=(round?.corrections??[]).map(record=>{
+    const ordinal=round.ids.indexOf(record.questionId);
+    return {record,ordinal,question:session[ordinal],retry:!record.correct||record.hinted};
+  });
+  el("resultsCorrections").hidden=!rows.length;
+  const count=el("resultsCorrectionsCount");
+  count.hidden=!rows.length||rows.length===round.completed;
+  if(!count.hidden)count.textContent=rows.length+" correction(s) disponible(s) sur "+round.completed+" réponses.";
+  const retryIds=new Set(rows.filter(row=>row.retry).map(row=>row.record.questionId));
+  const retry=el("retryCorrections");
+  retry.hidden=!retryIds.size;
+  retry.textContent=retryIds.size===1?"Refaire la question à retravailler":"Refaire les "+retryIds.size+" questions à retravailler";
+  retry.onclick=()=>{
+    const selection=questions.filter(question=>retryIds.has(question.id));
+    if(startSelectedSession(selection,{jalon:round.jalon}))focusCurrentQuiz();
+  };
+  const list=el("resultsCorrectionList");
+  list.replaceChildren();
+  rows.sort((a,b)=>Number(b.retry)-Number(a.retry));
+  for(const {record,ordinal,question,retry} of rows){
+    const item=document.createElement("details");
+    item.className="math-notebook-disclosure";
+    const summary=document.createElement("summary");
+    const status=!record.correct?"À retravailler":retry?"Réussie avec aide":"Réussie";
+    summary.textContent="Question "+(ordinal+1)+" · "+question.topicTitle+" · "+status;
+    item.append(summary,correctionBody(question,record));
+    list.append(item);
+  }
 }
 
 function showFeedback(record) {
@@ -522,7 +558,7 @@ function submitHandwritten(correct){
   if(!persist(next,advanceRound(round,Boolean(correct),{kind:"manual",hinted:true})))return false;
   done=true;hintUsed=true;score=round.score;notification("");
   refreshOverview();
-  showFeedback(round.lastCorrection);
+  showFeedback(round.corrections.at(-1));
   return true;
 }
 
@@ -536,13 +572,13 @@ function submit(raw,unknown=false) {
   done=true;notification("");
   score=round.score;
   refreshOverview();
-  showFeedback(round.lastCorrection);
+  showFeedback(round.corrections.at(-1));
 }
 
 function finish({focus=true}={}){
   el("quiz").hidden=true;
   el("results").hidden=false;
-  renderLastCorrection(el("resultsText"));
+  renderResultsCorrections();
   el("resultsText").textContent="Tu as réussi "+score+" réponse"+(score>1?"s":"")+" sur "+session.length+". Les rappels à valeurs variables et sans indice consolident les acquis. Une aide n’augmente pas la maîtrise.";
   const next=recommendJalon(jalonProgress(state,questions,jalonIndex));
   const completed=JALONS.find(item=>item.id===round?.jalon);

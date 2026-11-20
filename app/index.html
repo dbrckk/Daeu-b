@@ -111,13 +111,7 @@
           <progress id="quizProgress" max="10" value="0" aria-label="Progression dans la séance"></progress>
           <details id="lastCorrection" class="math-notebook-disclosure" hidden>
             <summary>Relire la dernière correction</summary>
-            <p id="lastCorrectionQuestion"></p>
-            <div class="feedback">
-              <strong id="lastCorrectionVerdict"></strong>
-              <p id="lastCorrectionAnswer" hidden></p>
-              <p id="lastCorrectionText"></p>
-              <a id="lastCorrectionLesson" target="_blank" rel="noopener noreferrer">Revoir le chapitre ↗</a>
-            </div>
+            <div class="correction-body"></div>
           </details>
           <h3 id="questionText" tabindex="-1"></h3>
           <div id="quizNotebook"></div>
@@ -133,6 +127,21 @@
         </section>
         <section id="results" class="results" aria-live="polite" hidden><h3 id="resultsTitle" tabindex="-1">Séance terminée</h3>
           <p id="resultsText"></p>
+          <section id="resultsCorrections" aria-labelledby="resultsCorrectionsTitle" hidden>
+            <h4 id="resultsCorrectionsTitle">Corrections de la séance</h4>
+            <p id="resultsCorrectionsCount" class="helper" hidden></p>
+            <button id="retryCorrections" type="button" class="subtle" hidden></button>
+            <div id="resultsCorrectionList"></div>
+          </section>
+          <template id="correctionBody">
+            <p class="correction-question"></p>
+            <div class="feedback">
+              <strong class="correction-verdict"></strong>
+              <p class="correction-answer" hidden></p>
+              <p class="correction-text"></p>
+              <a class="correction-lesson" target="_blank" rel="noopener noreferrer">Revoir le chapitre ↗</a>
+            </div>
+          </template>
           <a id="resultsTransfer" class="primary problems-link" hidden></a>
           <h4 id="resultsNextTitle"></h4>
           <div id="resultsNextActions"></div>
@@ -269,7 +278,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">119</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">120</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

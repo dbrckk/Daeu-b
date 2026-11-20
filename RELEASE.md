@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v120 — relire et refaire les exercices du bilan
+
+- Le bilan affiche les corrections enregistrées pendant la séance. Les erreurs et les réponses avec aide figurent en premier. Chaque correction permet de relire l’énoncé, la réponse saisie lorsqu’elle existe et l’explication.
+- « Refaire les questions à retravailler » lance une séance ciblée, avec de nouvelles valeurs pour les exercices variables. Le bilan est conservé après rechargement. Une ancienne séance affiche les corrections qu’elle avait conservées.
+
 ## v119 — relire la dernière correction du quiz
 
 - Le volet « Relire la dernière correction » restitue l’énoncé, l’explication et la réponse validée dans la séance concernée. Il est accessible au clavier pendant le quiz et dans le bilan, y compris après rechargement hors connexion.
