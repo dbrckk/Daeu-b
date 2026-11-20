@@ -40,10 +40,10 @@
         <p><a href="#cloudTitle">Activer la sauvegarde entre appareils</a> — une seule connexion par e-mail suffit pour associer ta progression au cloud.</p>
       </section>
       <section id="commencer" class="getting-started" aria-labelledby="firstTitle">
-        <div class="section-header"><div><p class="eyebrow">PREMIÈRE SÉANCE</p><h2 id="firstTitle">Commencer en trois étapes</h2></div></div>
+        <div class="section-header"><div><h2 id="firstTitle">Commencer en trois étapes</h2></div></div>
         <p class="helper">Aucun compte, abonnement ou téléchargement nécessaire. Tout se fait sur l'application : cahier de calcul intégré, clavier mathématique et sauvegarde automatique des brouillons. Prévois 20 à 30 minutes, avec des pauses si besoin.</p>
         <ol class="first-steps">
-          <li><strong>1 · Repérer mon niveau</strong><p>Jusqu'à dix questions, sans regarder les corrections. Aucune note officielle.</p>
+          <li><strong id="firstStepTitle">1 · Repérer mon niveau</strong><p id="firstStepDetails">Jusqu’à dix questions, sans regarder les corrections. Aucune note officielle.</p>
             <button type="button" class="primary" id="firstStart">Démarrer mon diagnostic</button></li>
           <li><strong>2 · Revoir les bases</strong><p>Commencer par les fractions, puissances et pourcentages, puis progresser selon les erreurs repérées.</p>
             <a class="first-action" href="./course.html?course=01-calcul-numerique">Ouvrir le premier cours</a></li>
@@ -129,7 +129,7 @@
       </section>
 
       <section class="exam-area" aria-labelledby="exam-title">
-        <div class="section-header"><div><p class="eyebrow">PRÉPARATION À L'ÉPREUVE</p><h2 id="exam-title">Examens blancs interactifs</h2></div><span class="exam-pill">4 exercices · 3 h · /20</span></div>
+        <div class="section-header"><div><p class="eyebrow">PRÉPARATION À L'ÉPREUVE</p><h2 id="exam-title" tabindex="-1">Examens blancs interactifs</h2></div><span class="exam-pill">4 exercices · 3 h · /20</span></div>
         <p class="helper">Deux sujets fixes A/B et trois examens générés C/D/E avec des familles distinctes et des valeurs renouvelées. Après la remise, compare ton raisonnement à une correction guidée détaillée. La preuve écrite ne peut pas être évaluée automatiquement et la note affichée n'est pas une note officielle.</p>
         <div id="examNotice" class="notice" role="status" aria-live="polite" hidden></div>
         <div id="examIntro" class="exam-intro">
@@ -258,7 +258,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">116</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">117</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

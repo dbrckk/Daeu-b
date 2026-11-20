@@ -65,24 +65,66 @@ function persist(practice,progressRound) {
 }
 
 const fmt=n=>new Intl.NumberFormat("fr-FR",{maximumFractionDigits:8}).format(n);
-function renderFirstStart(metrics=getMetrics(state,questions)){
-  const active=round&&round.completed<round.ids.length;
-  el("firstStart").textContent=active?"Reprendre ma séance en cours":
-    metrics.attempted>0?"Faire un nouveau repérage":"Démarrer mon diagnostic";
-  el("firstStatus").textContent=active?
-    "Une séance est sauvegardée sur cet appareil : reprends-la avant d'en commencer une autre.":
-    metrics.attempted>0?
-      metrics.attempted+" question(s) déjà travaillée(s), "+metrics.due+
-      " rappel(s) arrivé(s) à échéance. Poursuis selon ton parcours.":
-      "Tu n'as encore effectué aucun exercice. Le repérage initial est le meilleur point de départ.";
+function firstAction(metrics){
+  if(round&&round.completed<round.ids.length)return {kind:"resume"};
+  if(metrics.due)return {kind:"due"};
+  const rows=jalonProgress(state,questions,jalonIndex);
+  if(rows.some(row=>!row.attempted))return {kind:"diagnostic"};
+  const next=recommendJalon(rows);
+  return next?{kind:"jalon",next}:{kind:"exam"};
 }
+
+function renderFirstStart(metrics=getMetrics(state,questions)){
+  const {kind,next}=firstAction(metrics);
+  const cards={
+    resume:["Reprendre ma séance","Retrouve ta progression jusqu’à la dernière réponse validée.","Reprendre ma séance en cours"],
+    due:["Mes rappels à faire","Travaille jusqu’à dix questions, en commençant par les échéances les plus anciennes.","Réviser mes questions à échéance"],
+    diagnostic:["Repérer mon niveau","Jusqu’à dix questions, sans regarder les corrections. Aucune note officielle.",metrics.attempted?"Faire un nouveau repérage":"Démarrer mon diagnostic"],
+    exam:["Passer un examen blanc","Teste-toi sur un sujet complet avec chronomètre et corrigé.","Voir les examens blancs"]
+  };
+  const [title,description,button]=kind==="jalon"
+    ?["Poursuivre mon parcours",next.title,"Travailler le jalon "+next.id]
+    :cards[kind];
+  el("firstTitle").textContent=metrics.attempted?"Reprendre mes maths":"Commencer en trois étapes";
+  el("firstStepTitle").textContent="1 · "+title;
+  el("firstStepDetails").textContent=description;
+  el("firstStart").textContent=button;
+  const status=metrics.due===1?"1 question à réviser":metrics.due+" questions à réviser";
+  el("firstStatus").textContent=metrics.attempted
+    ?metrics.attempted+" question(s) déjà travaillée(s) · "+status+"."
+    :kind==="resume"?"Une séance est sauvegardée sur cet appareil."
+    :"Tu n’as encore effectué aucun exercice. Le repérage initial est le meilleur point de départ.";
+}
+
+function focusCurrentQuiz(){
+  const quiz=el("quiz");
+  if(quiz.hidden||quiz.classList.contains("paper-mode"))return;
+  const target=done?el("next"):el("questionText");
+  target.focus({preventScroll:true});
+  (done?el("feedback"):quiz).scrollIntoView({block:"start",behavior:"instant"});
+}
+
 function firstStart(){
-  if(round&&round.completed<round.ids.length){
-    if(el("quiz").hidden)resumeSession();
-    el("practice-title").scrollIntoView({behavior:"smooth",block:"start"});
-    return;
+  const now=Date.now();
+  const {kind,next}=firstAction(getMetrics(state,questions,now));
+  switch(kind){
+    case "resume":
+      if(el("quiz").hidden)resumeSession();
+      focusCurrentQuiz();
+      break;
+    case "due":
+      if(startSelectedSession(selectRound(state,questions,{mode:"due",now})))focusCurrentQuiz();
+      break;
+    case "diagnostic":
+      startDiagnosticSession();
+      break;
+    case "jalon":
+      startJalonSession(next.id,next.mode);
+      break;
+    case "exam":
+      el("exam-title").focus();
+      break;
   }
-  startDiagnosticSession();
 }
 function refreshOverview() {
   const metrics=getMetrics(state,questions);
@@ -270,7 +312,7 @@ function startSelectedSession(selected,{jalon}={}){
   }catch(err){
     if(err instanceof StaleDataError)conflictWarning();
     else notification("Impossible de sauvegarder la nouvelle séance. Vérifie le stockage du navigateur.");
-    return;
+    return false;
   }
   index=0;score=0;done=false;
   el("results").hidden=true;
@@ -278,6 +320,7 @@ function startSelectedSession(selected,{jalon}={}){
   notification("");
   renderFirstStart();
   renderQuestion();
+  return true;
 }
 function startJalonSession(jalon,mode="all"){
   let selection=selectJalonQuestions(state,questions,jalonIndex,jalon,mode);
@@ -588,6 +631,16 @@ el("reset").addEventListener("click",()=>{
   }
 });
 el("syncReload").addEventListener("click",()=>location.reload());
+function refreshSchedule(){
+  if(dataStore.isStale())conflictWarning();
+  else refreshOverview();
+}
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden)refreshSchedule();
+});
+window.addEventListener("pageshow",event=>{
+  if(event.persisted)refreshSchedule();
+});
 window.addEventListener("storage",event=>{
   if((event.key===DATA_KEY||event.key===null)&&dataStore.isStale())conflictWarning();
 });

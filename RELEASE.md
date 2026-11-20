@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v117 — lancer les rappels autocorrigés depuis l’accueil
+
+- Le premier bouton de l’accueil reprend la séance en cours. Quand aucune séance n’attend, il propose les questions à réviser si des rappels sont échus.
+- Une séance de rappel contient jusqu’à dix questions arrivées à échéance, de la plus ancienne à la plus récente. La pause et le rechargement conservent le rang et les questions sélectionnées.
+- Après le repérage de tous les jalons, l’accueil propose le jalon à consolider ou les examens blancs.
+
 ## v116 — retrouver ses rappels et ses brouillons de transfert
 
 - L’accueil donne accès aux rappels écrits arrivés à échéance. Toute la liste reste accessible, avec les cinq échéances les plus anciennes affichées en premier.
