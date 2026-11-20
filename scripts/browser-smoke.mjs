@@ -1083,6 +1083,32 @@ try {
     assert.equal(new URL(await sameTransfer.getAttribute("href"),BASE).searchParams.get("jalon"),jalon);
     console.log("OK Parcours à 320 px : diagnostic, cours, entraînement du même jalon et transfert rédigé hors ligne");
 
+    const reviews=diagnosisPage.getByRole("button",{name:"Réviser mes questions à échéance"});
+    await reviews.click();
+    const readReview=()=>diagnosisPage.evaluate(()=>{
+      const {round,practice}=JSON.parse(localStorage.getItem("daeu-b-data-v1"));
+      const dates=round.ids.map(id=>practice.items[id]?.dueAt);
+      return {round,dates};
+    });
+    const plan=await readReview();
+    assert.ok(plan.round.ids.length>1&&plan.round.ids.length<=10);
+    assert.ok(plan.dates.every((date,index)=>Number.isSafeInteger(date)&&date<=Date.now()
+      &&(index===0||date>=plan.dates[index-1])));
+    await diagnosisPage.locator("#unknownButton").click();
+    await diagnosisPage.locator("#next").click();
+    const secondPrompt=await diagnosisPage.locator("#questionText").textContent();
+    await diagnosisPage.locator("#pauseQuiz").click();
+    assert.ok(await diagnosisPage.locator("#quiz").isHidden());
+    const paused=await readReview();
+    assert.deepEqual(paused.round.ids,plan.round.ids);
+    assert.equal(paused.round.completed,1);
+    await diagnosisPage.reload({waitUntil:"domcontentloaded"});
+    await diagnosisPage.getByRole("button",{name:"Reprendre ma séance en cours"}).click();
+    assert.equal(await diagnosisPage.locator("#questionText").textContent(),secondPrompt);
+    assert.equal(await diagnosisPage.evaluate(()=>document.activeElement?.id),"questionText");
+    assert.deepEqual(await readReview(),paused);
+    console.log("OK Rappels autocorrigés depuis l’accueil à 320 px : ordre des échéances et reprise exacte hors connexion");
+
   }finally{await diagnosisContext.close();}
   // Rappels rédigés triés, variantes et reprise d’une rédaction en cours.
   const dueContext=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});

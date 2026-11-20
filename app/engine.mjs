@@ -109,6 +109,10 @@ export function selectRound(state,questions,{topic="all",mode="all",limit=10,now
   if(mode==="due") pool=pool.filter(q=>state.items?.[q.id]?.attempts && state.items[q.id].dueAt<=now);
   else if(mode==="wrong") pool=pool.filter(q=>state.items?.[q.id]?.wrong && !state.items[q.id].confirmed);
   else if(mode!=="all") return [];
+  if(mode==="due"){
+    pool.sort((a,b)=>state.items[a.id].dueAt-state.items[b.id].dueAt);
+    return pool.slice(0,limit);
+  }
   // Fisher-Yates, puis faire passer les rappels arrivés à échéance avant les nouveaux.
   const shuffled=[...pool];
   for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}

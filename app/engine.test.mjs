@@ -56,6 +56,9 @@ test("sélection des rappels uniquement à échéance et filtres",()=>{
   assert.equal(all[0].id,"n01","rappel arrivé à échéance en premier");
   assert.equal(selectRound(s,questions,{topic:"unknown",mode:"all"}).length,0);
   assert.equal(selectRound(s,questions,{mode:"invalid"}).length,0);
+  s=recordAnswer(s,"n03",false,now-1000);
+  const ordered=selectRound(s,questions,{mode:"due",now,limit:2});
+  assert.deepEqual(ordered.map(q=>q.id),["n03","n01"]);
 });
 test("métriques et validation des sauvegardes",()=>{
   const now=Date.UTC(2026,10,11);
