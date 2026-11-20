@@ -218,7 +218,9 @@
 .transfer-due-entry{border-left:3px solid var(--teal);padding:9px 10px;background:var(--panel);border-radius:7px}
 .transfer-due-entry a{font-weight:750;overflow-wrap:anywhere}
 .transfer-due-entry p{font-size:.85rem;color:var(--muted);margin:7px 0 0}
-.transfer-due>.helper{font-size:.83rem;margin:10px 0 0}
+.transfer-due details{margin-top:8px}
+.transfer-due summary{min-height:44px;padding:10px 0;color:var(--teal);cursor:pointer}
+.transfer-due-entry .reader-section-save{display:block;margin-top:6px}
 
 
 /* v26 — contrôle des champs de la copie, sans fuite du corrigé ni faux acquis. */

@@ -56,6 +56,14 @@ test("v25.5 : séries A puis B à J+7, C à J+30, sans changement de sauvegarde"
   assert.equal(recommendedTransferSeries(transferStatus(s,9,t+40*TRANSFER_DAY_MS)),"a");
   assert.equal(s.version,1);
   assert.throws(()=>recommendedTransferSeries({stage:99}),/inconnue/);
+
+  let changed=recordTransferReview(emptyTransferStore(),9,weak,t,{series:"b"});
+  assert.equal(recommendedTransferSeries(transferStatus(changed,9,t)),"a");
+  changed=recordTransferReview(changed,9,yes,t+7*TRANSFER_DAY_MS,{series:"c"});
+  changed=sanitizeTransferStore(JSON.parse(JSON.stringify(changed)));
+  assert.deepEqual(changed.items[9].reviews.map(item=>item.series),["b","c"]);
+  assert.equal(recommendedTransferSeries(transferStatus(changed,9,t+30*TRANSFER_DAY_MS)),"a");
+  assert.throws(()=>recordTransferReview(emptyTransferStore(),9,yes,t,{series:"d"}),/invalide/);
 });
 
 test("v25.6 : rappels rédigés triés et lacunes auto-déclarées, séries appropriées",()=>{

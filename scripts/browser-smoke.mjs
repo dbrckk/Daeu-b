@@ -1084,38 +1084,65 @@ try {
     console.log("OK Parcours à 320 px : diagnostic, cours, entraînement du même jalon et transfert rédigé hors ligne");
 
   }finally{await diagnosisContext.close();}
-  // Deux rappels rédigés arrivés à échéance : tri, recommandations B/C
-  // et critères auto-déclarés sont vérifiés dans un navigateur isolé.
-  const dueContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  // Rappels rédigés triés, variantes et reprise d’une rédaction en cours.
+  const dueContext=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
     const duePage=await dueContext.newPage();
+    duePage.on("pageerror",e=>errors.push("Rappel rédigé : "+e.message));
     await duePage.goto(BASE+"/",{waitUntil:"networkidle"});
-    const persisted=await duePage.evaluate(async()=>{
-      const [{createPersistence},{recordTransferReview,TRANSFER_DAY_MS},{TOPICS},{injectVariants},{flatten}]=await Promise.all([
+    const draft="F(x) = x²/2";
+    await duePage.evaluate(async draft=>{
+      const [{createPersistence},{recordTransferReview,TRANSFER_DAY_MS,transferWorkKey},{TOPICS},{injectVariants},{flatten},{changeWork}]=await Promise.all([
         import("./persistence.mjs"),import("./transfer-progress.mjs"),
-        import("./questions.mjs"),import("./variants.mjs"),import("./engine.mjs")
+        import("./questions.mjs"),import("./variants.mjs"),import("./engine.mjs"),import("./workbook.mjs")
       ]);
       const ids=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
       const data=createPersistence(localStorage,ids);
       const now=Date.now();
       let transfers=data.snapshot().transfers;
-      transfers=recordTransferReview(transfers,18,[true,false,true,false],now-10*TRANSFER_DAY_MS);
+      transfers=recordTransferReview(transfers,18,[true,false,true,false],now-10*TRANSFER_DAY_MS,{series:"b"});
       transfers=recordTransferReview(transfers,9,[false,true,true,true],now-32*TRANSFER_DAY_MS);
       transfers=recordTransferReview(transfers,9,[true,true,true,true],now-25*TRANSFER_DAY_MS);
+      for(const id of [1,2,3,4])
+        transfers=recordTransferReview(transfers,id,[true,true,true,true],now-8*TRANSFER_DAY_MS);
       data.updateTransfers(transfers);
-      return data.snapshot().transfers.items[9].reviews.length===2;
-    });
-    assert.ok(persisted,"Deuxième rappel sauvegardé via le moteur local");
+      data.updateWorkbook(changeWork(data.snapshot().workbook,transferWorkKey(18,"c"),{text:draft,pages:[[]]}));
+    },draft);
     await duePage.reload({waitUntil:"networkidle"});
+    await duePage.locator("#firstTransferDue").click();
+    await duePage.waitForURL(/#transferDueTitle$/);
     await check(async()=>await duePage.locator("#transferDuePanel").isVisible()
-      &&await duePage.locator("#transferDueList li").count()===2,
-      "Rappels rédigés : deux échéances affichées avec les vraies données");
-    await check(async()=>await duePage.locator("#transferDueList li").first().textContent().then(s=>s.includes("Jalon 18")&&s.includes("J+7")&&s.includes("méthode")),
+      &&await duePage.locator("#transferDueList li").count()===5,
+      "Rappels rédigés accessibles depuis le début de l’accueil");
+    const extra=duePage.locator("#transferDueExtra");
+    await extra.locator("summary").click();
+    assert.ok(await extra.locator("li").isVisible());
+    const first=duePage.locator("#transferDueList li").first();
+    await check(async()=>await first.textContent().then(s=>s.includes("Jalon 18")&&s.includes("J+7")&&s.includes("méthode")),
       "Liste de rappels : échéance plus ancienne et critère manquant priorisés");
+    assert.equal(new URL(await first.locator("a").first().getAttribute("href"),BASE).searchParams.get("variante"),null);
     await check(async()=>await duePage.locator("#transferDueList li").nth(1).locator("a").getAttribute("href").then(s=>s.includes("jalon=9")&&s.includes("variante=c")),
-      "Rappel rédigé J+30 : lien direct vers la série C");
-    await check(async()=>await duePage.locator("#transferDueList li").first().locator("a").getAttribute("href").then(s=>s.includes("variante=b")),
-      "Rappel rédigé J+7 : lien direct vers la série B");
+      "Anciennes déclarations : rappel J+30 vers la série C");
+    await duePage.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
+    await dueContext.setOffline(true);
+    await first.getByRole("link",{name:"Reprendre mon brouillon · série C"}).click();
+    await duePage.waitForURL(url=>url.searchParams.get("jalon")==="18"&&url.searchParams.get("variante")==="c"&&url.hash==="#problemNotebookPanel");
+    const field=duePage.locator("#problemBody #problemNotebookPanel textarea");
+    await field.waitFor();
+    assert.equal(await field.inputValue(),draft);
+    assert.match(await duePage.locator("#transferVarietyTip").textContent(),/J\+7 · A/);
+    await duePage.reload({waitUntil:"domcontentloaded"});
+    await field.waitFor();
+    assert.equal(await field.inputValue(),draft);
+    const actions=duePage.getByRole("navigation",{name:"Suite du transfert T18"});
+    await actions.getByRole("link",{name:"Voir le corrigé du T18"}).click();
+    await actions.getByRole("link",{name:"Faire mon auto-évaluation"}).click();
+    await duePage.locator("#transferAttest").check();
+    await duePage.locator("#transferRecord").click();
+    assert.match(await duePage.locator("#transferStage").textContent(),/J\+30/);
+    assert.match(await duePage.locator("#transferVarietyTip").textContent(),/J\+30 · A/);
+    assert.deepEqual(await duePage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).transfers.items[18].reviews.map(r=>r.series)),["b","c"]);
+    console.log("OK Rappel rédigé à 320 px : série déjà faite écartée, brouillon exact rouvert hors ligne et nouvelle série enregistrée");
   }finally{await dueContext.close();}
   const courseOnline=await context.newPage();
   courseOnline.on("pageerror",e=>errors.push("Lecteur cours : "+e.message));

@@ -5,7 +5,7 @@ import {TOPICS} from "./questions.mjs";
 import {injectVariants} from "./variants.mjs";
 import {flatten} from "./engine.mjs";
 import {createPersistence,DATA_KEY,StaleDataError} from "./persistence.mjs";
-import {recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries} from "./transfer-progress.mjs";
+import {recordTransferReview,transferStatus,transferSummary,recommendedTransferSeries,transferWorkKey} from "./transfer-progress.mjs";
 const el=id=>document.getElementById(id);
 const knownIds=new Set(flatten(injectVariants(TOPICS)).map(q=>q.id));
 let sharedData=null;
@@ -13,20 +13,20 @@ try{sharedData=createPersistence(backedStorage(localStorage),knownIds);}catch{/*
 const params=new URL(location.href).searchParams;
 const transfers=params.get("set")==="transferts";
 const inputMode=notebookMode();
+const rawSeries=["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
+const variant=transfers?rawSeries:"a";
+const selectedJalon=/^([1-9]|1[0-9]|20)$/.test(params.get("jalon")||"")?Number(params.get("jalon")):null;
 el("problemNotebookPanel").open=inputMode!=="clavier";
 try{
   mountNotebook(el("problemNotebook"),{
-    context:"problems:"+(transfers?"transferts":"generaux")+":"+
-      (params.get("jalon")&&/^([1-9]|1[0-9]|20)$/.test(params.get("jalon"))?params.get("jalon"):"global")+":"+
-      (["b","c"].includes(params.get("variante"))?params.get("variante"):"a"),
+    context:transfers?transferWorkKey(selectedJalon??"global",variant)
+      :"problems:generaux:"+(selectedJalon??"global")+":"+rawSeries,
     adapter:sharedData,title:"Ma résolution complète — sans papier",
     textOnly:inputMode==="clavier",paperOnly:inputMode==="manuscrit",
     paperPrompt:"Résous le problème choisi entièrement sur cette feuille, comme sur une copie papier. Utilise une page par exercice, puis compare tes étapes au corrigé."
   });
 }catch{el("problemNotebook").textContent="Cahier indisponible : vérifie le stockage du navigateur et recharge cette page.";} 
-const variant=transfers&&["b","c"].includes(params.get("variante"))?params.get("variante"):"a";
-const selectedJalon=Number(params.get("jalon"));
-const jalonSuffix=Number.isInteger(selectedJalon)&&selectedJalon>=1&&selectedJalon<=20?"&jalon="+selectedJalon:"";
+const jalonSuffix=selectedJalon?"&jalon="+selectedJalon:"";
 const collectionSuffix=transfers?"set=transferts&"+(variant==="a"?"":"variante="+variant+"&"):"";
 const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"),{
   documentId:(transfers?"transferts"+(variant==="a"?"":"-"+variant)+":":"problemes:")+(params.get("mode")==="corriges"?"corriges":"sujets"),
@@ -77,10 +77,13 @@ function initTransferTracker(){
     const status=transferStatus(snapshot.transfers,id);
     const summary=transferSummary(snapshot.transfers);
     el("transferGlobal").textContent=summary.started+"/20 transferts rédigés · "+summary.due+" rappel(s) à effectuer · "+summary.completed+" parcours J0/J+7/J+30 déclarés terminés.";
-    const nextSeries=variant==="a"?"b":variant==="b"?"c":"a";
+    const suggested=recommendedTransferSeries(status);
+    const nextSeries=!status.done&&suggested!==variant?suggested:variant==="a"?"b":variant==="b"?"c":"a";
     const alternate=el("transferVariantSwitch");
     alternate.href="./problems.html?set=transferts&jalon="+id+"&mode="+mode+(nextSeries==="a"?"":"&variante="+nextSeries);
-    alternate.textContent="Essayer la situation "+nextSeries.toUpperCase()+" du jalon";
+    alternate.textContent=!status.done&&nextSeries===suggested
+      ?"Ouvrir la série conseillée "+suggested.toUpperCase()
+      :"Essayer la situation "+nextSeries.toUpperCase()+" du jalon";
     const seriesNav=el("transferSeries");
     seriesNav.replaceChildren();
     for(const name of ["a","b","c"]){
@@ -91,8 +94,9 @@ function initTransferTracker(){
       if(name===variant)link.setAttribute("aria-current","page");
       seriesNav.append(link);
     }
-    const suggested=recommendedTransferSeries(status).toUpperCase();
-    el("transferVarietyTip").textContent=status.stage===7?"Pour J+7, privilégie la série B, différente de la première rédaction.":status.stage===30?"Pour J+30, privilégie la série C, un troisième contexte inédit.":"Trois situations A, B, C pour le même jalon ; série conseillée actuellement : "+suggested+".";
+    el("transferVarietyTip").textContent=status.done
+      ?"Les trois séries restent disponibles pour t’entraîner."
+      :(status.stage?"Série conseillée pour J+"+status.stage:"Série conseillée pour la première rédaction")+" · "+suggested.toUpperCase();
     const formatDate=value=>new Intl.DateTimeFormat("fr-FR",{day:"numeric",month:"long",year:"numeric"}).format(new Date(value));
     const stageName=status.count===0?"Première rédaction (J0)":status.done?"Trois déclarations enregistrées":status.stage===7?"Rappel J+7":"Rappel J+30";
     const detail=status.done?"Le parcours prévu est enregistré, sans certification de maîtrise.":status.dueAt===null?"Commence par résoudre le sujet sans regarder la correction.":status.due?"Le rappel est arrivé à échéance : résous à nouveau sans solution visible.":"Prochaine auto-évaluation possible à partir du "+formatDate(status.dueAt)+".";
@@ -114,7 +118,7 @@ function initTransferTracker(){
     if(!attest.checked){notice.textContent="Confirme d'abord avoir rédigé ta solution et lu le corrigé.";return;}
     try{
       const snapshot=data.snapshot();
-      const next=recordTransferReview(snapshot.transfers,Number(selector.value),checks.map(x=>x.checked));
+      const next=recordTransferReview(snapshot.transfers,Number(selector.value),checks.map(x=>x.checked),Date.now(),{series:variant});
       data.updateTransfers(next);
       notice.textContent="Auto-évaluation enregistrée avec sa date. Elle ne constitue pas une note automatique.";
       render();
@@ -213,8 +217,12 @@ async function load(){
           actions.append(review);
         }
         target.insertBefore(actions,next);
-        const destination=location.hash==="#transferTracking"&&mode==="corriges"?el("transferTracking"):heading;
-        destination.setAttribute("tabindex","-1");
+        const resume=location.hash==="#problemNotebookPanel";
+        const notebook=el("problemNotebookPanel");
+        if(resume)notebook.open=true;
+        const destination=resume?notebook.querySelector("summary")
+          :location.hash==="#transferTracking"&&mode==="corriges"?el("transferTracking"):heading;
+        if(destination===heading)heading.tabIndex=-1;
         destination.focus({preventScroll:true});
         destination.scrollIntoView({block:"start"});
       }

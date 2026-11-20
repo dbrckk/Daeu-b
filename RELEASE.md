@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v116 — retrouver ses rappels et ses brouillons de transfert
+
+- L’accueil donne accès aux rappels écrits arrivés à échéance. Toute la liste reste accessible, avec les cinq échéances les plus anciennes affichées en premier.
+- L’application enregistre la série déclarée et conseille un sujet encore inutilisé au prochain rappel. Pour les anciennes déclarations, elle s’appuie sur l’ordre A, B, C qui était conseillé.
+- Un rappel peut rouvrir directement le brouillon d’une série encore inutilisée, avec le bon jalon et le cahier déplié.
+
 ## v115 — garder le même jalon du cours au transfert
 
 - Le cours conseillé renvoie vers les questions du jalon choisi. Une séance ciblée propose dans son bilan le transfert de ce jalon, y compris après rechargement.
