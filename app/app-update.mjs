@@ -10,13 +10,17 @@ if(button&&status&&serviceWorker&&isSecureContext){
     if(!initialController||serviceWorker.controller===initialController)return;
     readyToReload=true;
     button.textContent="Ouvrir la nouvelle version";
-    status.textContent="Mise à jour prête. Termine ton trait avant de recharger. Tes données sauvegardées sont conservées.";
+    status.textContent="Mise à jour prête. Tu peux l’ouvrir quand tu as terminé ta saisie.";
   });
 
   const registration=serviceWorker.register("./sw.js",{updateViaCache:"none"});
   registration.then(()=>{button.hidden=false;}).catch(()=>{});
   button.addEventListener("click",async()=>{
     if(readyToReload){
+      if(!document.dispatchEvent(new Event("daeu:before-update",{cancelable:true}))){
+        status.textContent="Le brouillon du quiz n’a pas pu être enregistré. Vérifie le stockage, puis réessaie.";
+        return;
+      }
       location.reload();
       return;
     }

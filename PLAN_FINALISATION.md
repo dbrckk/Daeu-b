@@ -2,14 +2,14 @@
 
 ## Point de départ
 
-La v124 protège le quiz en cours lors du démarrage d’une autre séance. L’atelier conserve un quiz actif et un quiz en pause, avec leurs questions, leur avancement et leur brouillon. Un troisième démarrage demande de confirmer le remplacement du quiz actif.
+L’atelier conserve un quiz actif et un quiz en pause, avec leurs questions, leur avancement et leur brouillon. Un troisième démarrage demande de confirmer le remplacement du quiz actif. Depuis la v125, la mise à jour attend que le dernier brouillon du quiz puisse être enregistré. L’export tente aussi d’inclure la saisie la plus récente.
 
 Le parcours de référence se fait au clavier, du diagnostic à la relecture du corrigé d’examen. Les anciennes copies restent consultables. Le périmètre comprend 18 cours, 20 jalons obligatoires, 116 questions fixes, 41 modèles variables, 60 transferts écrits et cinq examens blancs. Les [notes de version](RELEASE.md), l’[audit des jalons](AUDIT_COUVERTURE.md) et l’[audit des examens](AUDIT_EXAMENS.md) servent de référence.
 
 ## 1. Vérifier la continuité des sauvegardes · P0
 
-- Partir d’un profil qui contient deux quiz avec des brouillons, un transfert en cours et un examen ouvert. Mettre l’application à jour, couper le réseau, fermer le navigateur, puis rouvrir le même profil. Comparer les deux quiz, les variantes, les réponses, les justifications et l’exercice actif avant et après. Vérifier le temps restant en tenant compte du temps écoulé.
-- Rejouer un conflit entre deux onglets et un refus d’écriture. Vérifier le message présenté, la reprise après rechargement et l’intégrité de la dernière sauvegarde réussie. Tester l’export et l’import comme moyen de récupération.
+- Le scénario local de [mise à jour PWA](scripts/pwa-upgrade-smoke.mjs) ouvre deux quiz, un transfert et un examen au clavier dans un même profil Chromium à 320 px. Après une mise à jour de test, il ferme le navigateur et relance le même profil hors connexion. Il compare les données sauvegardées, les réponses, les justifications, l’exercice actif et le temps restant.
+- La même suite simule un quota plein, un conflit entre deux onglets et une récupération par export et import. Elle vérifie que le quota bloque le rechargement quand le brouillon du quiz reste à enregistrer.
 - Si un compte Supabase de test est disponible, enregistrer sur un profil et restaurer sur un second profil vierge. Comparer la progression, une copie et une étape à retravailler. Consigner séparément l’essai avec le compte et le résultat de la simulation en CI.
 
 **Critère de sortie.** Aucun scénario local validé ne perd de progression, de brouillon ou de copie. Une écriture refusée laisse la dernière sauvegarde intacte. Les environnements réellement vérifiés sont consignés.

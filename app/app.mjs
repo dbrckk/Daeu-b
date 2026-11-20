@@ -745,6 +745,7 @@ function finish({focus=true}={}){
 }
 
 function exportProgress(){
+  const draftSaved=saveAnswerDraft();
   let snapshot;
   try{snapshot=dataStore.snapshot();}
   catch(err){if(err instanceof StaleDataError)conflictWarning();else notification("Impossible de lire la sauvegarde actuelle.");return;}
@@ -755,7 +756,8 @@ function exportProgress(){
   link.href=url;link.download="daeu-b-progression-"+new Date().toISOString().slice(0,10)+".json";
   document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),5000);
-  notification("Sauvegarde préparée. Garde le fichier JSON en lieu sûr pour changer d'appareil.");
+  notification(draftSaved?"Sauvegarde préparée. Garde le fichier JSON en lieu sûr pour changer d'appareil."
+    :"Sauvegarde préparée avec les dernières données enregistrées. La saisie encore visible dans le quiz n’a pas pu être incluse.");
 }
 
 async function importProgress(file) {
@@ -892,6 +894,9 @@ document.addEventListener("visibilitychange",()=>{
   else refreshSchedule();
 });
 window.addEventListener("pagehide",saveAnswerDraft);
+document.addEventListener("daeu:before-update",event=>{
+  if(!saveAnswerDraft())event.preventDefault();
+});
 window.addEventListener("pageshow",event=>{
   if(event.persisted)refreshSchedule();
 });
