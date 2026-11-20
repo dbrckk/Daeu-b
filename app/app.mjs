@@ -7,7 +7,7 @@ import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
 import {sanitizeWorkbook,emptyWorkbook} from "./workbook.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from "./persistence.mjs";
 import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
-import {buildRound,restoreRound,advanceRound} from "./round.mjs";
+import {buildRound,restoreRound,advanceRound,MAX_ANSWER_DRAFT_LENGTH} from "./round.mjs";
 import {flatten,validateTopics,gradeAnswer,emptyState,sanitizeState,recordAnswer,getMetrics,selectRound} from "./engine.mjs";
 import {JALONS} from "./jalons.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
@@ -26,7 +26,7 @@ const el=id=>document.getElementById(id);
 const transferUrl=(id,series=recommendedTransferSeries(transferStatus(transfers,id)))=>
   "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
 let state=emptyState(),session=[],index=0,score=0,done=false,hintUsed=false,round=null,transfers=emptyTransferStore();
-let dataStore=null;
+let dataStore=null,answerDraftTimer=null;
 let storageWorks=true;
 function conflictWarning(){
   const notice=el("syncWarning");
@@ -351,6 +351,33 @@ function resumeSession(){
   }
 }
 
+function readAnswer(question){
+  return question.type==="number"?el("answer").value:el("choiceList").querySelector("input:checked")?.value??"";
+}
+
+function saveAnswerDraft(){
+  clearTimeout(answerDraftTimer);
+  answerDraftTimer=null;
+  const question=session[index];
+  if(!round||!question||done||el("quiz").hidden||el("quiz").classList.contains("paper-mode")
+    ||round.ids[round.completed]!==question.id)return true;
+  const value=readAnswer(question);
+  const status=el("answerDraftStatus");
+  if(value===(round.draftAnswer?.value??"")){
+    status.hidden=true;
+    return true;
+  }
+  try{
+    round=dataStore.updateRound({...round,draftAnswer:{questionId:question.id,value}}).round;
+    status.hidden=true;
+    return true;
+  }catch(error){
+    if(error instanceof StaleDataError)conflictWarning();
+    else status.hidden=false;
+    return false;
+  }
+}
+
 function markGuidedQuestion(){
   if(done||!round||!session[index])return false;
   const id=session[index].id;
@@ -367,6 +394,8 @@ function markGuidedQuestion(){
   }
 }
 function renderQuestion() {
+  clearTimeout(answerDraftTimer);
+  answerDraftTimer=null;
   const q=session[index]; if(!q) return finish();
   const mode=notebookMode(),paperOnly=mode==="manuscrit";
   const notebook=el("quizNotebook");
@@ -418,15 +447,18 @@ function renderQuestion() {
   el("numericAnswer").hidden=q.type!=="number";
   el("choices").hidden=q.type!=="choice";
   el("choiceList").replaceChildren();
-  el("answer").value="";
+  const draft=round?.draftAnswer?.questionId===q.id?round.draftAnswer.value:"";
+  el("answerDraftStatus").hidden=true;
+  el("answer").value=q.type==="number"?draft:"";
   if(q.type==="choice"){
     q.options.forEach((option,i)=>{
       const label=document.createElement("label");label.className="option";
       const input=document.createElement("input");input.type="radio";input.name="answerChoice";input.value=option;input.id="option-"+i;
+      input.checked=option===draft;
       const text=document.createElement("span");text.textContent=option;
       label.append(input,text);el("choiceList").appendChild(label);
     });
-    el("choiceList").querySelector("input")?.focus();
+    (el("choiceList").querySelector("input:checked")??el("choiceList").querySelector("input"))?.focus();
   } else {
     quiz.scrollTop=0;
     const target=mode==="clavier"?el("questionText"):notebook.querySelector("canvas");
@@ -579,8 +611,8 @@ resumeSession();
 renderFirstStart();
 el("firstStart").addEventListener("click",firstStart);
 el("pauseQuiz").addEventListener("click",()=>{
-  // La reprise utilise les réponses déjà enregistrées et la copie sauvegardée.
   if(done&&index+1===session.length){finish();return;}
+  if(!saveAnswerDraft())return;
   el("quiz").hidden=true;
   renderFirstStart();
   el("firstStart").focus({preventScroll:true});
@@ -589,11 +621,15 @@ el("pauseQuiz").addEventListener("click",()=>{
 el("start").addEventListener("click",startSession);
 el("diagnosticStart").addEventListener("click",startDiagnosticSession);
 el("restart").addEventListener("click",startSession);
+el("answer").maxLength=MAX_ANSWER_DRAFT_LENGTH;
+el("answer").addEventListener("input",()=>{
+  clearTimeout(answerDraftTimer);
+  answerDraftTimer=setTimeout(saveAnswerDraft,250);
+});
+el("choiceList").addEventListener("change",saveAnswerDraft);
 el("answerForm").addEventListener("submit",evt=>{
   evt.preventDefault();
-  const q=session[index];
-  const raw=q.type==="number"?el("answer").value:el("choiceList").querySelector("input:checked")?.value;
-  submit(raw);
+  submit(readAnswer(session[index]));
 });
 for(const id of ["unknownButton","paperUnknown"])el(id).addEventListener("click",()=>submit(null,true));
 el("hintButton").addEventListener("click",()=>{
@@ -636,8 +672,10 @@ function refreshSchedule(){
   else refreshOverview();
 }
 document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden)refreshSchedule();
+  if(document.hidden)saveAnswerDraft();
+  else refreshSchedule();
 });
+window.addEventListener("pagehide",saveAnswerDraft);
 window.addEventListener("pageshow",event=>{
   if(event.persisted)refreshSchedule();
 });
