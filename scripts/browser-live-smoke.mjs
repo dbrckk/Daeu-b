@@ -36,9 +36,20 @@ try{
   assert.deepEqual(before.notes,{"b-fonction":justification});
   assert.equal(before.deadlineAt-before.startedAt,10_800_000);
 
-  await context.setOffline(true);
+  console.log("Diagnostic du cache",await page.evaluate(async version=>{
+    const cache=await caches.open("daeu-b-maths-v"+version);
+    const hit=await cache.match(new URL("./index.html",location.href));
+    const bypass=await cache.match(new URL("./index.html",location.href),{ignoreVary:true});
+    return {controller:navigator.serviceWorker.controller?.scriptURL,
+      shell:hit?.url,ignoreVary:bypass?.url,redirected:bypass?.redirected,vary:bypass?.headers.get("vary")};
+  },version));
+  const probe=await context.newPage();
+  const response=await probe.goto(examUrl,{waitUntil:"domcontentloaded"});
+  console.log("Navigation en ligne servie par le service worker",response?.fromServiceWorker());
+  await probe.close();
   await page.close();
   const reopened=await context.newPage();
+  await context.setOffline(true);
   await reopened.goto(examUrl,{waitUntil:"domcontentloaded"});
   await reopened.locator("#exam-answer-b05").waitFor();
   assert.equal(await reopened.locator("#appVersion").textContent(),version);
