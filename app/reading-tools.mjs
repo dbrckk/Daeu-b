@@ -5,7 +5,7 @@
 import {readBookmark,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
 const KEY="daeu-b-reading-size-v1";
 const VALID=new Set(["normal","large","extra"]);
-export function initReadingTools(article,sizeSelect,outline,{documentId,jalon,saveButton,resumeButton,clearButton,status}={}){
+export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon=()=>undefined,saveButton,resumeButton,clearButton,status}={}){
   function setSize(value){
     const size=VALID.has(value)?value:"normal";
     article.dataset.readingSize=size;
@@ -22,6 +22,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,jalon,sa
     heading.focus({preventScroll:true});
     heading.scrollIntoView({block:"start"});
   }
+  const saveAt=heading=>saveBookmark(localStorage,documentId,heading.dataset.readerBookmarkId,{jalon:getJalon(heading)});
   return function rebuildOutline(){
     const headings=[...article.querySelectorAll("h2,h3")],used=new Set();
     const list=document.createElement("ol");
@@ -63,7 +64,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,jalon,sa
         const reached=headings.filter(h=>h.getBoundingClientRect().top<=48);
         const current=reached.at(-1)??headings[0];
         if(!current){announce("Aucune section à enregistrer.");return;}
-        const ok=saveBookmark(localStorage,documentId,current.dataset.readerBookmarkId,{jalon});
+        const ok=saveAt(current);
         announce(ok?"Position enregistrée : "+current.textContent.trim()+".":"Stockage indisponible : position non enregistrée.");
         refresh();
       };
@@ -86,7 +87,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,jalon,sa
         mark.textContent="Marquer cette section";
         mark.setAttribute("aria-label","Marquer ma lecture à : "+heading.textContent.trim());
         mark.addEventListener("click",()=>{
-          const ok=saveBookmark(localStorage,documentId,heading.dataset.readerBookmarkId,{jalon});
+          const ok=saveAt(heading);
           announce(ok?"Signet enregistré : "+heading.textContent.trim()+".":"Stockage indisponible : signet non enregistré.");
           refresh();
         });

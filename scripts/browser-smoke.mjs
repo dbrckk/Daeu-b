@@ -2087,7 +2087,7 @@ try {
   await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 corrigés de transfert disponibles hors connexion");
   await offlineTransfer.close();
   const offlineB=await context.newPage();
-  await offlineB.goto(BASE+"/problems.html?set=transferts&variante=b&jalon=9",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineB.goto(BASE+"/problems.html?set=transferts&variante=b",{waitUntil:"domcontentloaded",timeout:12000});
   await offlineB.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:10000});
   await check(async()=>await offlineB.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Série B disponible sans connexion");
   const markedTransfer=offlineB.locator("#problemBody h2").nth(8);

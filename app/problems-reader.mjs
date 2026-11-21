@@ -29,9 +29,15 @@ try{
 const jalonSuffix=selectedJalon?"&jalon="+selectedJalon:"";
 const collectionSuffix=transfers?"set=transferts&"+(variant==="a"?"":"variante="+variant+"&"):"";
 const mode=params.get("mode")==="corriges"?"corriges":"sujets";
+function transferJalonForHeading(heading){
+  let section=heading;
+  while(section&&section.tagName!=="H2")section=section.previousElementSibling;
+  const label=section?.textContent.trim().match(/^T(0[1-9]|1\d|20)\b/);
+  return label?Number(label[1]):selectedJalon;
+}
 const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"),{
   documentId:(transfers?"transferts"+(variant==="a"?"":"-"+variant)+":":"problemes:")+mode,
-  jalon:transfers?selectedJalon:undefined,
+  getJalon:transfers?transferJalonForHeading:undefined,
   saveButton:el("problemBookmarkSave"),resumeButton:el("problemBookmarkResume"),
   clearButton:el("problemBookmarkClear"),status:el("problemBookmarkStatus")
 });
