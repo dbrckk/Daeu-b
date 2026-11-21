@@ -27,6 +27,76 @@ const check=async (fn,label)=>{
   console.log("OK "+label);
 };
 
+async function verifyAccessibleQuiz(){
+  const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const tab=await mobile.newPage();
+    await tab.goto(BASE+"/#practice-title");
+    await tab.evaluate(async()=>{
+      const [{TOPICS},{flatten},{buildRound},{createPersistence}]=await Promise.all([
+        import("./questions.mjs"),import("./engine.mjs"),import("./round.mjs"),import("./persistence.mjs")
+      ]);
+      const bank=flatten(TOPICS);
+      const store=createPersistence(localStorage,new Set(bank.map(q=>q.id)));
+      const {round}=buildRound(["a01","a03"].map(id=>bank.find(q=>q.id===id)),store.snapshot().practice);
+      store.startRound(round);
+    });
+    await tab.reload();
+    await tab.locator("#quiz").waitFor();
+    const cdp=await mobile.newCDPSession(tab);
+    const {root}=await cdp.send("DOM.getDocument");
+    const node=async selector=>{
+      const {nodeId}=await cdp.send("DOM.querySelector",{nodeId:root.nodeId,selector});
+      const {nodes}=await cdp.send("Accessibility.getPartialAXTree",{nodeId,fetchRelatives:false});
+      return nodes[0];
+    };
+    const focused=()=>tab.evaluate(()=>document.activeElement?.id);
+    assert.equal(await focused(),"questionText","Le QCM doit présenter l’énoncé avant les choix");
+    const choice=await node("#choices");
+    assert.equal(choice.role.value,"group");
+    assert.match(choice.name.value,/Choisis une réponse Développement de \(x\+3\)²/);
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(),"option-0");
+    await tab.keyboard.press("Space");
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(),"submit");
+    await tab.keyboard.press("Enter");
+    assert.equal(await focused(),"feedbackTitle");
+    const correction=await node("#feedbackTitle");
+    assert.equal(correction.role.value,"heading");
+    assert.equal(correction.name.value,"Bonne réponse");
+    assert.match(correction.description.value,/x²\+6x\+9/);
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(),"next");
+    await tab.keyboard.press("Enter");
+    assert.equal(await focused(),"questionText");
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(),"answer");
+    assert.match((await node("#answer")).description.value,/combien vaut A\(−2\)/);
+    const answer=tab.locator("#answer");
+    await answer.fill("3/");
+    await answer.press("Enter");
+    assert.equal(await answer.getAttribute("aria-invalid"),"true");
+    const error=tab.locator("#quizAnswerError");
+    assert.equal((await node("#quizAnswerError")).role.value,"alert");
+    assert.ok((await node("#answer")).description.value.includes(await error.textContent()));
+    await answer.fill("15");
+    assert.equal(await answer.getAttribute("aria-invalid"),null);
+    assert.equal(await error.textContent(),"");
+    await tab.locator("#hintButton").press("Enter");
+    assert.equal((await node("#hint")).role.value,"status");
+    assert.match(await tab.locator("#hint").textContent(),/Remplace x/);
+    await answer.press("Enter");
+    assert.equal(await focused(),"feedbackTitle");
+    assert.equal(await tab.locator("#hint").textContent(),"");
+    await tab.keyboard.press("Tab");
+    assert.equal(await focused(),"next");
+    await tab.keyboard.press("Enter");
+    assert.equal(await focused(),"resultsTitle");
+    console.log("OK Quiz au clavier à 320 px : énoncé, choix, correction, erreur et indice dans l’arbre d’accessibilité");
+  }finally{await mobile.close();}
+}
+
 async function verifyTargetedPractice(){
   const reader=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   const snapshot=tab=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
@@ -247,6 +317,7 @@ async function verifyCompleteKeyboardExam(){
 }
 
 try {
+  await verifyAccessibleQuiz();
   await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});
   // Version prête à commencer : première séance autonome sur un téléphone vierge.
   const firstContext=await browser.newContext({
