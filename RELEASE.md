@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v128 — savoir quand l’application est prête hors connexion
+
+- L’accueil, les cours et les problèmes indiquent quand toutes les ressources nécessaires sont disponibles hors connexion.
+- Un téléchargement interrompu ou un cache incomplet peut être réparé depuis la page. Les réponses, les brouillons et les copies restent conservés dans leur stockage habituel.
+
 ## v127 — version stable du parcours de mathématiques
 
 Le 20 novembre 2026, la v127 publiée depuis [le commit c5f4a59](https://github.com/dbrckk/Daeu-b/commit/c5f4a5963f91fe6adf4cd66a8009b6be49aae700) a été retenue comme version stable pour l’étude sur un même appareil. Le contrôle public a retrouvé le cache v127 et 85 ressources conformes. Sur l’URL publique, Chromium à 320 px a démarré le diagnostic, puis retrouvé le blanc B dans un nouvel onglet hors connexion, avec le même exercice, deux réponses, une justification et l’échéance d’origine. [Vérification publique](https://github.com/dbrckk/Daeu-b/actions/runs/44730152698)
