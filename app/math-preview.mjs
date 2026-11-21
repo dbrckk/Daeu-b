@@ -196,7 +196,6 @@ export function renderMathPreview(container,text){
     const ast=parseMathLine(line);
     if(ast){
       const math=node(doc,"math");math.setAttribute("display","block");
-      math.setAttribute("aria-label",line);
       math.append(mathNode(doc,ast));row.append(math);rendered++;
     }else{
       const fallback=doc.createElement("span");fallback.className="math-preview-plain";

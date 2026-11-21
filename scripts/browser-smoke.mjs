@@ -27,6 +27,45 @@ const check=async (fn,label)=>{
   console.log("OK "+label);
 };
 
+async function verifyMathNavigation(){
+  const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const tab=await mobile.newPage();
+    await tab.goto(BASE+"/course.html?course=01-calcul-numerique");
+    await tab.locator("#courseBody math mfrac").first().waitFor();
+    const session=await mobile.newCDPSession(tab);
+    const {root}=await session.send("DOM.getDocument");
+    for(const [selector,role] of [["#courseBody math",/math/i],["#courseBody math mfrac",/fraction/i],["#courseBody math msqrt",/root/i]]){
+      const {nodeId}=await session.send("DOM.querySelector",{nodeId:root.nodeId,selector});
+      const {nodes:[formula]}=await session.send("Accessibility.getPartialAXTree",{nodeId,fetchRelatives:false});
+      assert.equal(formula.ignored,false,selector);
+      assert.match(formula.role.value,role,selector);
+    }
+    assert.equal(await tab.locator("#courseBody math[aria-label], #courseBody :is(.course-math-inline,.course-math-block)[aria-label]:not([tabindex])").count(),0);
+    await tab.locator("#courseTextSize").selectOption("extra");
+    const scrollable=tab.locator('#courseBody .course-math-block[tabindex="0"]').first();
+    await scrollable.waitFor();
+    const index=await scrollable.evaluate(node=>{
+      const formula=node.querySelector("math");
+      if(formula.getBoundingClientRect().left<node.getBoundingClientRect().left-1)return -1;
+      return [...document.querySelectorAll("#courseBody .course-math-block")].indexOf(node);
+    });
+    assert.ok(index>=0,"Le début de la formule doit rester visible avant le défilement");
+    await scrollable.press("ArrowRight");
+    await tab.waitForFunction(i=>document.querySelectorAll("#courseBody .course-math-block")[i]?.scrollLeft>0,index);
+    assert.ok(await tab.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await tab.setViewportSize({width:1200,height:800});
+    await tab.waitForFunction(i=>!document.querySelectorAll("#courseBody .course-math-block")[i]?.hasAttribute("tabindex"),index);
+    await tab.waitForFunction(()=>!!navigator.serviceWorker.controller);
+    await mobile.setOffline(true);
+    await tab.goto(BASE+"/problems.html?set=transferts&variante=b&mode=corriges&jalon=10");
+    await tab.locator("#problemBody math msqrt").first().waitFor();
+    assert.ok(await tab.locator("#problemStatus").textContent().then(text=>text.includes("20 corrigés")));
+    assert.equal(await tab.locator("#problemBody math[aria-label], #problemBody :is(.course-math-inline,.course-math-block)[aria-label]:not([tabindex])").count(),0);
+    console.log("OK MathML natif avec fractions et racines, défilement au clavier à 320 px et corrigé hors connexion");
+  }finally{await mobile.close();}
+}
+
 async function verifyAccessibleQuiz(){
   const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
@@ -318,6 +357,7 @@ async function verifyCompleteKeyboardExam(){
 
 try {
   await verifyAccessibleQuiz();
+  await verifyMathNavigation();
   await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});
   // Version prête à commencer : première séance autonome sur un téléphone vierge.
   const firstContext=await browser.newContext({
