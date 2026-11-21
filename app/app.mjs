@@ -23,6 +23,14 @@ const jalonIndex=buildJalonIndex(questions);
 const errors=[...validateTopics(TOPICS),...validateVariants(TOPICS),...validatePrerequisites()];
 if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
+const practiceParams=new URLSearchParams(location.search);
+const requestedTopic=practiceParams.get("topic");
+const requestedJalon=JALONS.find(item=>String(item.id)===practiceParams.get("jalon"));
+const hasTopic=fullTopics.some(topic=>topic.slug===requestedTopic);
+const scopedPractice=Boolean(requestedJalon||hasTopic);
+const practiceIds=requestedJalon?jalonIndex.get(requestedJalon.id)
+  :new Set(questions.filter(question=>question.topic===requestedTopic).map(question=>question.id));
+
 const el=id=>document.getElementById(id);
 const transferUrl=(id,series=recommendedTransferSeries(transferStatus(transfers,id)))=>
   "./problems.html?set=transferts&jalon="+id+(series==="a"?"":"&variante="+series);
@@ -77,6 +85,26 @@ function firstAction(metrics){
   return next?{kind:"jalon",next}:{kind:"exam"};
 }
 
+function matchesPractice(candidate){
+  return Boolean(candidate&&(!requestedJalon||!candidate.jalon||requestedJalon.id===candidate.jalon)
+    &&candidate.ids.every(id=>practiceIds.has(id)));
+}
+
+function renderPracticeResume(){
+  const context=el("practiceSavedSession");
+  context.hidden=true;
+  if(!scopedPractice||!el("quiz").hidden||!el("results").hidden)return;
+  const matchingActive=matchesPractice(round);
+  const matchingPaused=matchesPractice(pausedRound);
+  const unrelated=round&&!matchingActive;
+  const active=round&&round.completed<round.ids.length;
+  const resume=el("practiceResumeTarget"),other=el("practiceResumeOther");
+  resume.hidden=!(matchingPaused||(matchingActive&&active));
+  other.hidden=!unrelated;
+  other.textContent=active?"Retrouver ma séance en cours":"Retrouver mon dernier bilan";
+  context.hidden=resume.hidden&&other.hidden;
+}
+
 function renderFirstStart(metrics=getMetrics(state,questions)){
   const {kind,next}=firstAction(metrics);
   const cards={
@@ -100,6 +128,7 @@ function renderFirstStart(metrics=getMetrics(state,questions)){
     ?metrics.attempted+" question(s) déjà travaillée(s) · "+status+"."
     :kind==="resume"?"Une séance est sauvegardée sur cet appareil."
     :"Tu n’as encore effectué aucun exercice. Le repérage initial est le meilleur point de départ.";
+  renderPracticeResume();
 }
 
 function focusCurrentQuiz(){
@@ -110,13 +139,18 @@ function focusCurrentQuiz(){
   (done?el("feedback"):quiz).scrollIntoView({block:"start",behavior:"instant"});
 }
 
+function resumeCurrentSession(){
+  if(el("quiz").hidden)resumeSession();
+  renderPracticeResume();
+  focusCurrentQuiz();
+}
+
 function firstStart(){
   const now=Date.now();
   const {kind,next}=firstAction(getMetrics(state,questions,now));
   switch(kind){
     case "resume":
-      if(el("quiz").hidden)resumeSession();
-      focusCurrentQuiz();
+      resumeCurrentSession();
       break;
     case "paused":
       resumePausedSession();
@@ -357,7 +391,7 @@ function startSession() {
     notification(el("mode").value==="due"?"Aucune question à réviser actuellement dans ce chapitre. Passe en mode découverte ou reviens à la date d'échéance.":"Aucune question correspondante. Essaie un autre domaine ou mode.");
     return;
   }
-  startSelectedSession(selected,{jalon:requestedJalon?.id});
+  if(startSelectedSession(selected,{jalon:requestedJalon?.id})&&scopedPractice)focusCurrentQuiz();
 }
 function startSelectedSession(selected,{jalon}={}){
   const replaceActive=Boolean(pausedRound&&round&&round.completed<round.ids.length);
@@ -428,6 +462,11 @@ function resumeSession(){
   }catch(err){
     notification("Cette ancienne séance ne peut pas être reconstruite. Démarre une nouvelle séance ; ta progression validée reste intacte.");
   }
+}
+
+function restoreWorkshop(){
+  if(!scopedPractice||matchesPractice(round))resumeSession();
+  renderPracticeResume();
 }
 
 function readAnswer(question){
@@ -827,7 +866,7 @@ async function importProgress(file) {
     renderRoundHistory();
     restoreExamBackup(updated.exams);
     el("quiz").hidden=true;el("results").hidden=true;session=[];
-    refreshOverview();resumeSession();
+    refreshOverview();restoreWorkshop();
     notification("Sauvegarde importée intégralement : "+importedCount+" résultat(s) reconnus.");
   }catch(err){
     if(err instanceof StaleDataError)conflictWarning();
@@ -848,10 +887,6 @@ onAutoBackupStatus(value=>{
 buildTopicSelector();
 // Les liens issus des cours sélectionnent uniquement le chapitre autorisé.
 // Aucune nouvelle séance n'est créée sans action explicite.
-const practiceParams=new URLSearchParams(location.search);
-const requestedTopic=practiceParams.get("topic");
-const requestedJalon=JALONS.find(item=>String(item.id)===practiceParams.get("jalon"));
-const hasTopic=fullTopics.some(topic=>topic.slug===requestedTopic);
 if(hasTopic)el("topic").value=requestedTopic;
 if(hasTopic||requestedJalon){
   const requestedMode=practiceParams.get("mode");
@@ -870,9 +905,13 @@ renderStudyBookmarks();
 renderRoundHistory();
 refreshOverview();
 initExams(dataStore,conflictWarning);
-resumeSession();
+restoreWorkshop();
 renderFirstStart();
 el("firstStart").addEventListener("click",firstStart);
+el("practiceResumeTarget").addEventListener("click",()=>{
+  if(matchesPractice(round)&&round.completed<round.ids.length)resumeCurrentSession();
+  else if(matchesPractice(pausedRound))resumePausedSession();
+});
 for(const id of ["resumePausedRound","resumeFromResults"])el(id).addEventListener("click",resumePausedSession);
 el("quizHistoryLink").addEventListener("click",()=>{el("quizHistory").open=true;});
 el("pauseQuiz").addEventListener("click",()=>{
@@ -925,8 +964,9 @@ el("reset").addEventListener("click",()=>{
   try{
     const fresh=dataStore.replaceAll(emptyState(),emptyExamStore());
     state=fresh.practice;round=null;transfers=fresh.transfers;roundHistory=[];pausedRound=null;
-    clearExamProgress();renderRoundHistory();refreshOverview();
+    clearExamProgress();renderRoundHistory();
     session=[];el("quiz").hidden=true;el("results").hidden=true;
+    refreshOverview();
     notification("Progression et copies remises à zéro.");
   }catch(err){
     if(err instanceof StaleDataError)conflictWarning();

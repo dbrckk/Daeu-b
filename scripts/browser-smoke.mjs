@@ -27,6 +27,82 @@ const check=async (fn,label)=>{
   console.log("OK "+label);
 };
 
+async function verifyTargetedPractice(){
+  const reader=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  const snapshot=tab=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")));
+  try{
+    const tab=await reader.newPage();
+    await tab.goto(BASE+"/?jalon=1#practice-title");
+    await tab.getByRole("button",{name:"Démarrer ce jalon"}).click();
+    const originalQuestion=await tab.locator("#questionText").textContent();
+    if(await tab.locator("#answer").isVisible())await tab.locator("#answer").fill("3/");
+    else await tab.locator("#choiceList input").first().check();
+    await tab.waitForFunction(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round?.draftAnswer);
+    const initial=await snapshot(tab);
+    await tab.waitForFunction(()=>!!navigator.serviceWorker.controller);
+    await reader.setOffline(true);
+
+    await tab.goto(BASE+"/course.html?course=07-limites-asymptotes");
+    await tab.locator("#coursePractice").click();
+    await tab.waitForFunction(()=>document.querySelector("#topic")?.value==="limites");
+    assert.ok(await tab.locator("#quiz").isHidden(),"Un cours ne doit pas ouvrir un quiz d’un autre chapitre");
+    await tab.getByRole("link",{name:"Retrouver ma séance en cours"}).click();
+    await tab.locator("#quiz").waitFor();
+    assert.equal(await tab.locator("#questionText").textContent(),originalQuestion);
+    assert.deepEqual(await snapshot(tab),initial);
+
+    await tab.goto(BASE+"/course.html?course=07-limites-asymptotes&jalon=13");
+    await tab.locator("#coursePractice").click();
+    const start=tab.getByRole("button",{name:"Démarrer ce jalon"});
+    await start.waitFor();
+    assert.ok(await tab.locator("#quiz").isHidden());
+    assert.deepEqual(await snapshot(tab),initial);
+    await start.press("Enter");
+    assert.equal(await tab.evaluate(()=>document.activeElement?.id),"questionText");
+    const withTarget=await snapshot(tab);
+    assert.equal(withTarget.round.jalon,13);
+    assert.deepEqual(withTarget.pausedRound,initial.round);
+    const targetQuestion=await tab.locator("#questionText").textContent();
+    await tab.reload();
+    await tab.locator("#quiz").waitFor();
+    assert.equal(await tab.locator("#questionText").textContent(),targetQuestion);
+    assert.deepEqual(await snapshot(tab),withTarget);
+    await tab.goto(BASE+"/course.html?course=07-limites-asymptotes&jalon=11");
+    await tab.locator("#coursePractice").click();
+    await tab.getByRole("link",{name:"Retrouver ma séance en cours"}).waitFor();
+    assert.ok(await tab.locator("#quiz").isHidden(),"Deux jalons d’un même cours restent distincts");
+
+    await tab.goto(BASE+"/course.html?course=01-calcul-numerique&jalon=1");
+    await tab.locator("#coursePractice").click();
+    const resume=tab.getByRole("button",{name:"Reprendre la séance de cette notion"});
+    await resume.waitFor();
+    assert.ok(await tab.locator("#quiz").isHidden());
+    assert.deepEqual(await snapshot(tab),withTarget);
+    await resume.press("Enter");
+    const restored=await snapshot(tab);
+    assert.deepEqual(restored.round,initial.round);
+    assert.deepEqual(restored.pausedRound,withTarget.round);
+    assert.equal(await tab.locator("#questionText").textContent(),originalQuestion);
+    const field=tab.locator("#answer");
+    assert.equal(await (await field.isVisible()?field.inputValue():tab.locator("#choiceList input:checked").inputValue()),initial.round.draftAnswer.value);
+    assert.ok(await tab.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    for(let index=0;index<restored.round.ids.length;index++){
+      await tab.locator("#unknownButton").click();
+      await tab.locator("#next").click();
+    }
+    await tab.goto(BASE+"/course.html?course=07-limites-asymptotes");
+    await tab.locator("#coursePractice").click();
+    const previousResults=tab.getByRole("link",{name:"Retrouver mon dernier bilan"});
+    await previousResults.waitFor();
+    assert.ok(await tab.locator("#results").isHidden());
+    await previousResults.click();
+    await tab.locator("#results").waitFor();
+    console.log("OK Cours vers chapitre ou jalon hors connexion, avec reprise des deux séances et du brouillon au clavier");
+  }finally{
+    await reader.close();
+  }
+}
+
 async function verifyCompleteKeyboardExam(){
   const session=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   const snapshot=tab=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).exams);
@@ -1551,6 +1627,7 @@ try {
     "D : exercices ciblés accessibles sans effacer la copie ni démarrer un quiz");
   await dContext.close();
 
+  await verifyTargetedPractice();
   await verifyCompleteKeyboardExam();
   // Examen E : famille de problèmes différente de C et D, graine inchangée
   // après rechargement et fonctionnement sous cache PWA déconnecté.
