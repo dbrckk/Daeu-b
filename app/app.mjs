@@ -134,7 +134,7 @@ function renderFirstStart(metrics=getMetrics(state,questions)){
 function focusCurrentQuiz(){
   const quiz=el("quiz");
   if(quiz.hidden||quiz.classList.contains("paper-mode"))return;
-  const target=done?el("next"):el("questionText");
+  const target=done?el("feedbackTitle"):el("questionText");
   target.focus({preventScroll:true});
   (done?el("feedback"):quiz).scrollIntoView({block:"start",behavior:"instant"});
 }
@@ -511,6 +511,12 @@ function markGuidedQuestion(){
     return false;
   }
 }
+function clearQuizAnswerError(){
+  el("answer").removeAttribute("aria-invalid");
+  el("choices").removeAttribute("aria-invalid");
+  el("quizAnswerError").textContent="";
+}
+
 function renderQuestion() {
   clearTimeout(answerDraftTimer);
   answerDraftTimer=null;
@@ -560,13 +566,14 @@ function renderQuestion() {
     }
   });
   el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
-  el("feedback").hidden=true;el("hint").hidden=true;
+  el("feedback").hidden=true;
   el("hint").textContent="";
   el("answerForm").hidden=false;el("submit").disabled=false;
   el("numericAnswer").hidden=q.type!=="number";
   el("choices").hidden=q.type!=="choice";
   el("choiceList").replaceChildren();
   const draft=round?.draftAnswer?.questionId===q.id?round.draftAnswer.value:"";
+  clearQuizAnswerError();
   el("answerDraftStatus").hidden=true;
   el("answer").value=q.type==="number"?draft:"";
   if(q.type==="choice"){
@@ -577,12 +584,10 @@ function renderQuestion() {
       const text=document.createElement("span");text.textContent=option;
       label.append(input,text);el("choiceList").appendChild(label);
     });
-    (el("choiceList").querySelector("input:checked")??el("choiceList").querySelector("input"))?.focus();
-  } else {
-    quiz.scrollTop=0;
-    const target=mode==="clavier"?el("questionText"):notebook.querySelector("canvas");
-    target?.focus({preventScroll:true});
   }
+  quiz.scrollTop=0;
+  const target=paperOnly?notebook.querySelector("canvas"):el("questionText");
+  target?.focus({preventScroll:true});
 }
 
 function correctionText(question,{correct,kind,hinted}){
@@ -769,10 +774,11 @@ function showFeedback(record) {
   el("feedback").hidden=false;el("feedback").dataset.result=record.correct?"correct":"wrong";
   el("feedbackTitle").textContent=title;
   el("feedbackText").textContent=text;
+  el("hint").textContent="";
   el("lessonLink").href=courseUrl(q.lesson);
   el("answerForm").hidden=true;
   el("next").textContent=index===session.length-1?"Terminer la séance":"Question suivante";
-  el("next").focus();
+  (el("quiz").classList.contains("paper-mode")?el("next"):el("feedbackTitle")).focus();
 }
 
 function submitHandwritten(correct){
@@ -795,7 +801,14 @@ function submit(raw,unknown=false) {
   if(done) return;
   const q=session[index];
   const grade=unknown?{valid:true,correct:false}:gradeAnswer(q,raw);
-  if(!grade.valid){notification(grade.message);return;}
+  if(!grade.valid){
+    if(el("quiz").classList.contains("paper-mode"))notification(grade.message);
+    else{
+      el(q.type==="number"?"answer":"choices").setAttribute("aria-invalid","true");
+      el("quizAnswerError").textContent=grade.message;
+    }
+    return;
+  }
   const next=recordAnswer(state,q.id,grade.correct,Date.now(),{signature:q.isVariant?q.prompt:null,hinted:hintUsed});
   if(!persist(next,advanceRound(round,grade.correct,{kind:unknown?"unknown":"answered",hinted:hintUsed,answer:raw})))return;
   done=true;notification("");
@@ -927,19 +940,23 @@ el("diagnosticStart").addEventListener("click",startDiagnosticSession);
 el("restart").addEventListener("click",startSession);
 el("answer").maxLength=MAX_ANSWER_DRAFT_LENGTH;
 el("answer").addEventListener("input",()=>{
+  clearQuizAnswerError();
   clearTimeout(answerDraftTimer);
   answerDraftTimer=setTimeout(saveAnswerDraft,250);
 });
-el("choiceList").addEventListener("change",saveAnswerDraft);
+el("choiceList").addEventListener("change",()=>{
+  clearQuizAnswerError();
+  saveAnswerDraft();
+});
 el("answerForm").addEventListener("submit",evt=>{
   evt.preventDefault();
   submit(readAnswer(session[index]));
 });
 for(const id of ["unknownButton","paperUnknown"])el(id).addEventListener("click",()=>submit(null,true));
 el("hintButton").addEventListener("click",()=>{
-  if(done)return;markGuidedQuestion();el("hint").hidden=false;el("hint").textContent=session[index].hint;
+  if(done)return;markGuidedQuestion();el("hint").textContent=session[index].hint;
 });
-el("next").addEventListener("click",()=>{index++;renderQuestion();});
+el("next").addEventListener("click",()=>{index++;renderQuestion();focusCurrentQuiz();});
 el("export").addEventListener("click",exportProgress);
 el("importFile").addEventListener("change",async event=>{
   const file=event.target.files?.[0];await importProgress(file);event.target.value="";

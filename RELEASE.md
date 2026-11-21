@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v132 — parcourir un quiz au clavier et au lecteur d’écran
+
+- Le quiz place le focus sur l’énoncé avant les choix ou la réponse numérique. Le formulaire associe ces contrôles à la question.
+- Après validation, le focus passe au titre du corrigé, associé à son explication. La tabulation suivante atteint le bouton pour poursuivre. Les erreurs de saisie et les indices sont annoncés dans le quiz.
+
 ## v131 — retrouver le bon entraînement en quittant un cours
 
 - Le lien d’un cours prépare le quiz du chapitre ou du jalon demandé. Une séance déjà enregistrée s’ouvre automatiquement si ses questions correspondent à la notion.
