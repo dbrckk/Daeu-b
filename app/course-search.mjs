@@ -7,25 +7,36 @@ export function validSearchQuery(raw){
 export function normalizeSearchText(value){
   return String(value??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("fr-FR");
 }
-function plainText(markdown){
-  return String(markdown??"").replace(/\x60{3}[\s\S]*?\x60{3}/g," ")
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g,"$1").replace(/\[([^\]]+)\]\([^)]*\)/g,"$1")
-    .replace(/https?:\/\/\S+/g," ").replace(/[*_#>|\x60$]/g," ")
-    .replace(/\\([a-zA-Z]+)/g,"$1").replace(/\s+/g," ").trim();
+function compactText(value){
+  return value.replace(/\\([a-zA-Z]+)/g,"$1").replace(/\s+/g," ").trim();
 }
+
 export function searchCourseDocs(docs,rawQuery,{limit=18}={}){
   const query=validSearchQuery(rawQuery);if(!query)return [];
   const normalizedQuery=normalizeSearchText(query),terms=normalizedQuery.split(" ");
   const matches=[];
   for(const doc of docs){
-    if(!doc||typeof doc.slug!=="string"||typeof doc.title!=="string"||typeof doc.content!=="string")continue;
-    const plain=plainText(doc.content),hay=normalizeSearchText(plain),title=normalizeSearchText(doc.title);
-    if(!terms.every(term=>hay.includes(term)||title.includes(term)))continue;
-    const phraseAt=hay.indexOf(normalizedQuery),firstAt=Math.max(0,phraseAt>=0?phraseAt:hay.indexOf(terms[0]));
+    if(!doc?.sections?.length)continue;
+    const title=normalizeSearchText(doc.title);
+    const sections=doc.sections.map(section=>{
+      const plain=compactText(section.text),hay=normalizeSearchText(plain);
+      const heading=normalizeSearchText(section.title);
+      const count=terms.filter(term=>heading.includes(term)||hay.includes(term)).length;
+      const headingHits=terms.filter(term=>heading.includes(term)).length;
+      const phraseScore=heading.includes(normalizedQuery)?100:(hay.includes(normalizedQuery)?35:0);
+      const score=phraseScore+10*count+8*headingHits;
+      return {...section,plain,hay,heading,score};
+    });
+    if(!terms.every(term=>title.includes(term)||sections.some(({heading,hay})=>heading.includes(term)||hay.includes(term))))continue;
+    const best=sections.reduce((a,b)=>b.score>a.score?b:a);
+    const {id:sectionId,title:sectionTitle,plain,hay}=best;
+    const phraseAt=hay.indexOf(normalizedQuery);
+    const firstTerm=terms.find(term=>hay.includes(term));
+    const firstAt=phraseAt>=0?phraseAt:hay.indexOf(firstTerm??"");
     const start=Math.max(0,firstAt-65),end=Math.min(plain.length,firstAt+145);
     const excerpt=(start?"…":"")+plain.slice(start,end).trim()+(end<plain.length?"…":"");
-    const score=(phraseAt>=0?100:0)+(title.includes(normalizedQuery)?70:0)+terms.reduce((n,t)=>n+(title.includes(t)?12:0),0);
-    matches.push({slug:doc.slug,title:doc.title,excerpt,score});
+    const score=best.score+(title.includes(normalizedQuery)?70:0)+terms.reduce((n,t)=>n+(title.includes(t)?12:0),0);
+    matches.push({slug:doc.slug,title:doc.title,sectionId,sectionTitle,excerpt,score});
   }
   return matches.sort((a,b)=>b.score-a.score||a.slug.localeCompare(b.slug)).slice(0,Math.max(0,Math.min(18,limit)));
 }

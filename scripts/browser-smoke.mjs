@@ -27,6 +27,37 @@ const check=async (fn,label)=>{
   console.log("OK "+label);
 };
 
+async function verifyCourseSearchRecovery(){
+  const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR",serviceWorkers:"block"});
+  try{
+    const tab=await mobile.newPage();
+    let available=false;
+    await tab.route("**/cours/12-probabilites.md",route=>available
+      ?route.continue():route.fulfill({status:503,body:"Cours momentanément indisponible"}));
+    await tab.goto(BASE+"/course.html?course=08-continuite-tvi");
+    await tab.locator("#courseSearchPanel summary").press("Enter");
+    const input=tab.locator("#courseSearchInput");
+    await input.fill("dichotomie");
+    await input.press("Enter");
+    const result=tab.locator('#courseSearchResults a[href*="08-continuite-tvi"]').first();
+    await result.waitFor();
+    assert.match(await tab.locator("#courseSearchStatus").textContent(),/sur 17.*1 cours indisponible/);
+    assert.ok(await result.evaluate(link=>link===document.activeElement));
+    await result.press("Enter");
+    await tab.waitForFunction(()=>document.activeElement?.matches("#courseBody h2")
+      &&document.activeElement.textContent.trim()==="4. Dichotomie");
+
+    available=true;
+    await input.fill("Bayes");
+    await input.press("Enter");
+    const restored=tab.locator('#courseSearchResults a[href*="12-probabilites"]');
+    await restored.waitFor();
+    assert.match(await restored.textContent(),/4\. Probabilités totales et Bayes/);
+    assert.match(await tab.locator("#courseSearchStatus").textContent(),/sur 18\.$/);
+    console.log("OK Recherche locale à 320 px : section du même cours, résultats partiels et reprise du chapitre indisponible");
+  }finally{await mobile.close();}
+}
+
 async function verifyMathNavigation(){
   const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
@@ -356,6 +387,7 @@ async function verifyCompleteKeyboardExam(){
 }
 
 try {
+  await verifyCourseSearchRecovery();
   await verifyAccessibleQuiz();
   await verifyMathNavigation();
   await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});
@@ -2184,9 +2216,13 @@ try {
   await offlineCourse.locator("#courseSearchPanel summary").click();
   await offlineCourse.locator("#courseSearchInput").fill("bayes");
   await offlineCourse.locator("#courseSearchSubmit").click();
-  await offlineCourse.locator('#courseSearchResults a[href*="12-probabilites"]').waitFor();
-  await check(async()=>await offlineCourse.locator('#courseSearchResults a[href*="12-probabilites"]').count()===1,
-    "Recherche Bayes hors connexion");
+  const bayesResult=offlineCourse.locator('#courseSearchResults a[href*="12-probabilites"]');
+  await bayesResult.waitFor();
+  await bayesResult.press("Enter");
+  await offlineCourse.waitForFunction(()=>document.activeElement?.matches("#courseBody h2")
+    &&document.activeElement.textContent.trim()==="4. Probabilités totales et Bayes");
+  assert.ok(new URL(offlineCourse.url()).hash);
+  console.log("OK Recherche Bayes hors connexion : accès direct à la section et focus sur son titre");
   await check(async()=>await offlineCourse.locator("#courseTextSize").inputValue().then(v=>v==="large"),
     "Préférence de lecture conservée en changeant de chapitre hors connexion");
   const allCourses=await offlineCourse.locator("#courseSelector option").evaluateAll(nodes=>nodes.map(n=>n.value));

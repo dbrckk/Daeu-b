@@ -5,6 +5,17 @@
 import {readBookmark,saveBookmark,clearBookmark,saveLastReading} from "./reading-bookmark.mjs";
 const KEY="daeu-b-reading-size-v1";
 const VALID=new Set(["normal","large","extra"]);
+export function readerSectionHeadings(article){
+  const headings=[...article.querySelectorAll("h2,h3")];
+  const used=new Set();
+  for(const [i,heading] of headings.entries()){
+    let id=heading.id&&!used.has(heading.id)?heading.id:"lecture-section-"+(i+1);
+    while(used.has(id))id+="-suite";
+    used.add(id);
+    heading.id=id;
+  }
+  return headings;
+}
 export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon=()=>undefined,saveButton,resumeButton,clearButton,status}={}){
   function setSize(value){
     const size=VALID.has(value)?value:"normal";
@@ -41,20 +52,25 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon
     window.addEventListener("pagehide",flushReading);
     document.addEventListener("visibilitychange",()=>{if(document.hidden)flushReading();});
   }
+  function openLinkedSection(){
+    let requested;
+    try{requested=decodeURIComponent(location.hash.slice(1));}catch{return;}
+    if(!requested)return;
+    const bookmarked=new URLSearchParams(location.search).get("signet")==="1";
+    const marked=bookmarked?headings.find(h=>h.dataset.readerBookmarkId===requested):null;
+    const target=marked??headings.find(h=>h.id===requested);
+    if(target)requestAnimationFrame(()=>goTo(target));
+  }
+  window.addEventListener("hashchange",openLinkedSection);
   return function rebuildOutline(){
-    headings=[...article.querySelectorAll("h2,h3")];
-    const used=new Set();
+    headings=readerSectionHeadings(article);
     const list=document.createElement("ol");
     for(const [i,heading] of headings.entries()){
-      let id=heading.id && !used.has(heading.id)?heading.id:"lecture-section-"+(i+1);
-      while(used.has(id))id+="-suite";
-      used.add(id);
-      heading.id=id;
       heading.dataset.readerBookmarkId="lecture-section-"+(i+1);
       heading.tabIndex=-1;
       const li=document.createElement("li");
       const link=document.createElement("a");
-      link.href="#"+encodeURIComponent(id);
+      link.href="#"+encodeURIComponent(heading.id);
       link.textContent=heading.textContent.trim()||"Section "+(i+1);
       link.addEventListener("click",()=>heading.focus({preventScroll:true}));
       if(heading.tagName==="H3")li.className="reader-outline-subsection";
@@ -114,18 +130,6 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon
       }
       refresh();
     }
-    // Les contenus sont chargés après le document HTML : restaurer un lien
-    // direct vers une section (y compris hors réseau).
-    if(location.hash){
-      let requested="";
-      try{requested=decodeURIComponent(location.hash.slice(1));}catch{}
-      const bookmarked=new URLSearchParams(location.search).get("signet")==="1";
-      const marked=bookmarked?headings.find(h=>h.dataset.readerBookmarkId===requested):null;
-      const target=marked??headings.find(h=>h.id===requested);
-      if(target)requestAnimationFrame(()=>{
-        if(bookmarked)goTo(target);
-        else target.scrollIntoView({block:"start"});
-      });
-    }
+    openLinkedSection();
   };
 }
