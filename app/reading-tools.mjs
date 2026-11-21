@@ -5,7 +5,7 @@
 import {readBookmark,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
 const KEY="daeu-b-reading-size-v1";
 const VALID=new Set(["normal","large","extra"]);
-export function initReadingTools(article,sizeSelect,outline,{documentId,saveButton,resumeButton,clearButton,status}={}){
+export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon=()=>undefined,saveButton,resumeButton,clearButton,status}={}){
   function setSize(value){
     const size=VALID.has(value)?value:"normal";
     article.dataset.readingSize=size;
@@ -18,6 +18,11 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
     setSize(sizeSelect.value);
     try{localStorage.setItem(KEY,sizeSelect.value);}catch{/* lecture toujours utilisable */ }
   });
+  function goTo(heading){
+    heading.focus({preventScroll:true});
+    heading.scrollIntoView({block:"start"});
+  }
+  const saveAt=heading=>saveBookmark(localStorage,documentId,heading.dataset.readerBookmarkId,{jalon:getJalon(heading)});
   return function rebuildOutline(){
     const headings=[...article.querySelectorAll("h2,h3")],used=new Set();
     const list=document.createElement("ol");
@@ -48,10 +53,6 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
         clearButton.hidden=!target;
         resumeButton.textContent=target?"Reprendre : "+target.textContent.trim():"Reprendre ma lecture";
       }
-      function goTo(heading){
-        heading.focus({preventScroll:true});
-        heading.scrollIntoView({block:"start"});
-      }
       function announce(message){
         status.textContent=message;
         clearTimeout(announce.clearTimer);
@@ -63,7 +64,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
         const reached=headings.filter(h=>h.getBoundingClientRect().top<=48);
         const current=reached.at(-1)??headings[0];
         if(!current){announce("Aucune section à enregistrer.");return;}
-        const ok=saveBookmark(localStorage,documentId,current.dataset.readerBookmarkId);
+        const ok=saveAt(current);
         announce(ok?"Position enregistrée : "+current.textContent.trim()+".":"Stockage indisponible : position non enregistrée.");
         refresh();
       };
@@ -86,7 +87,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
         mark.textContent="Marquer cette section";
         mark.setAttribute("aria-label","Marquer ma lecture à : "+heading.textContent.trim());
         mark.addEventListener("click",()=>{
-          const ok=saveBookmark(localStorage,documentId,heading.dataset.readerBookmarkId);
+          const ok=saveAt(heading);
           announce(ok?"Signet enregistré : "+heading.textContent.trim()+".":"Stockage indisponible : signet non enregistré.");
           refresh();
         });
@@ -99,8 +100,13 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,saveButt
     if(location.hash){
       let requested="";
       try{requested=decodeURIComponent(location.hash.slice(1));}catch{}
-      const target=headings.find(h=>h.id===requested);
-      if(target)requestAnimationFrame(()=>target.scrollIntoView({block:"start"}));
+      const bookmarked=new URLSearchParams(location.search).get("signet")==="1";
+      const marked=bookmarked?headings.find(h=>h.dataset.readerBookmarkId===requested):null;
+      const target=marked??headings.find(h=>h.id===requested);
+      if(target)requestAnimationFrame(()=>{
+        if(bookmarked)goTo(target);
+        else target.scrollIntoView({block:"start"});
+      });
     }
   };
 }

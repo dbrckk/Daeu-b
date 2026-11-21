@@ -2039,6 +2039,19 @@ try {
     "Section marquée reprise après recharge intégralement hors connexion");
   await check(async()=>await offlineCourse.locator("#coursePractice").getAttribute("href").then(h=>h==="./#practice-title"),
     "Navigation vers la pratique générale conservée hors ligne pour le complément");
+  await offlineCourse.goto(BASE+"/course.html?course=06-derivation&jalon=12",{waitUntil:"domcontentloaded"});
+  const markedCourse=offlineCourse.locator("#courseBody h2").first();
+  await markedCourse.locator("xpath=following-sibling::button[1]").click();
+  const markedCourseId=await markedCourse.getAttribute("data-reader-bookmark-id");
+  await offlineCourse.goto(BASE+"/#commencer",{waitUntil:"domcontentloaded"});
+  await offlineCourse.locator("#studyBookmarksTitle").click();
+  const entry=offlineCourse.locator("#studyBookmarkList");
+  assert.ok(await entry.getByRole("link",{name:/Trigonométrie/}).isVisible(),"Le tableau de bord retrouve les signets déjà enregistrés");
+  await entry.getByRole("link",{name:"06 · Dérivation",exact:true}).click();
+  await offlineCourse.waitForFunction(id=>document.activeElement?.dataset.readerBookmarkId===id,markedCourseId);
+  assert.equal(new URL(offlineCourse.url()).searchParams.get("jalon"),"12");
+  assert.match(await offlineCourse.locator("#coursePractice").getAttribute("href"),/jalon=12/);
+  console.log("OK Signets hors ligne depuis l’accueil : anciennes positions, section exacte et entraînement du même jalon");
   await offlineCourse.close();
   const preservedRound=await page.evaluate(()=>
     JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round??null);
@@ -2074,12 +2087,26 @@ try {
   await check(async()=>await offlineTransfer.locator("#problemBody h2").count()===20,"20 corrigés de transfert disponibles hors connexion");
   await offlineTransfer.close();
   const offlineB=await context.newPage();
-  await offlineB.goto(BASE+"/problems.html?set=transferts&variante=b&jalon=9",{waitUntil:"domcontentloaded",timeout:12000});
+  await offlineB.goto(BASE+"/problems.html?set=transferts&variante=b",{waitUntil:"domcontentloaded",timeout:12000});
   await offlineB.waitForFunction(()=>document.querySelectorAll("#problemBody h2").length===20,null,{timeout:10000});
   await check(async()=>await offlineB.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Série B disponible sans connexion");
+  const markedTransfer=offlineB.locator("#problemBody h2").nth(8);
+  await markedTransfer.locator("xpath=following-sibling::button[1]").click();
+  const markedTransferId=await markedTransfer.getAttribute("data-reader-bookmark-id");
+  await offlineB.goto(BASE+"/#commencer",{waitUntil:"domcontentloaded"});
+  await offlineB.locator("#studyBookmarksTitle").click();
+  await offlineB.locator("#studyBookmarkList").getByRole("link",{name:"Transferts B · sujets",exact:true}).click();
+  await offlineB.waitForFunction(id=>document.activeElement?.dataset.readerBookmarkId===id,markedTransferId);
+  const resumedTransfer=new URL(offlineB.url());
+  assert.equal(resumedTransfer.searchParams.get("jalon"),"9");
+  assert.equal(resumedTransfer.searchParams.get("variante"),"b");
+  assert.equal(resumedTransfer.searchParams.get("mode"),"sujets");
+  assert.equal(await offlineB.locator("#transferSelect").inputValue(),"9");
   await offlineB.locator("#problemSwitch").click();
   await offlineB.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 corrigés"),null,{timeout:10000});
   await check(async()=>await offlineB.locator("#problemTitle").textContent().then(s=>s.includes("série B")),"Corrigés B hors ligne isolés des sujets A");
+  assert.ok(await offlineB.locator("#problemBookmarkResume").isHidden(),"Le corrigé ne récupère pas le signet du sujet");
+  console.log("OK Reprise d’un transfert B depuis l’accueil hors ligne : bonne section, bon jalon et signet séparé du corrigé");
   await offlineB.close();
   const offlineC=await context.newPage();
   await offlineC.goto(BASE+"/problems.html?set=transferts&variante=c&jalon=19",{waitUntil:"domcontentloaded",timeout:12000});

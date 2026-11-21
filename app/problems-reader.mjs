@@ -28,8 +28,16 @@ try{
 }catch{el("problemNotebook").textContent="Cahier indisponible : vérifie le stockage du navigateur et recharge cette page.";} 
 const jalonSuffix=selectedJalon?"&jalon="+selectedJalon:"";
 const collectionSuffix=transfers?"set=transferts&"+(variant==="a"?"":"variante="+variant+"&"):"";
+const mode=params.get("mode")==="corriges"?"corriges":"sujets";
+function transferJalonForHeading(heading){
+  let section=heading;
+  while(section&&section.tagName!=="H2")section=section.previousElementSibling;
+  const label=section?.textContent.trim().match(/^T(0[1-9]|1\d|20)\b/);
+  return label?Number(label[1]):selectedJalon;
+}
 const updateOutline=initReadingTools(el("problemBody"),el("problemTextSize"),el("problemToc"),{
-  documentId:(transfers?"transferts"+(variant==="a"?"":"-"+variant)+":":"problemes:")+(params.get("mode")==="corriges"?"corriges":"sujets"),
+  documentId:(transfers?"transferts"+(variant==="a"?"":"-"+variant)+":":"problemes:")+mode,
+  getJalon:transfers?transferJalonForHeading:undefined,
   saveButton:el("problemBookmarkSave"),resumeButton:el("problemBookmarkResume"),
   clearButton:el("problemBookmarkClear"),status:el("problemBookmarkStatus")
 });
@@ -37,7 +45,6 @@ const files=transfers?{
   sujets:"./transferts/sujets"+(variant==="a"?"":"-"+variant)+".md",
   corriges:"./transferts/corriges"+(variant==="a"?"":"-"+variant)+".md"
 }:{sujets:"./problemes/sujets.md",corriges:"./problemes/corriges.md"};
-const mode=params.get("mode")==="corriges"?"corriges":"sujets";
 const other=mode==="sujets"?"corriges":"sujets";
 el("problemSwitch").href="./problems.html?"+collectionSuffix+"mode="+other+jalonSuffix;
 el("problemSwitch").textContent=mode==="sujets"?"Consulter les corrigés détaillés":"Retour aux sujets sans les réponses";
