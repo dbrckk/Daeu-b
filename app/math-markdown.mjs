@@ -1,3 +1,5 @@
+const formulaObservers=new WeakMap();
+
 function separateMath(src){
   const equations=[];
   const cleaned=src.replace(/\$\$([\s\S]*?)\$\$|\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)|(?<!\\)\$([^$\n]+?)\$/g,
@@ -14,30 +16,58 @@ function installMath(target,equations){
   const walker=document.createTreeWalker(target,NodeFilter.SHOW_TEXT),found=[];
   while(walker.nextNode())if(walker.currentNode.nodeValue.includes("DAEUMATHTOKEN"))found.push(walker.currentNode);
   const regex=/DAEUMATHTOKEN(\d+)END/g;
+  const formulas=[];
   for(const node of found){
     const fragment=document.createDocumentFragment(),source=node.nodeValue;
     let from=0;
     for(const match of source.matchAll(regex)){
       fragment.append(document.createTextNode(source.slice(from,match.index)));
+      from=match.index+match[0].length;
       const item=equations[Number(match[1])];
       if(!item){fragment.append(document.createTextNode(match[0]));continue;}
       const span=document.createElement("span");
       span.className=item.block?"course-math-block":"course-math-inline";
-      span.setAttribute("aria-label",item.tex);
       try{
         const rendered=temml.renderToString(item.tex,{displayMode:item.block,throwOnError:true,trust:false});
         const clean=DOMPurify.sanitize(rendered,{USE_PROFILES:{mathMl:true}});
         if(!clean.includes("<math"))throw Error("Rendu MathML vide");
         span.innerHTML=clean;
-      }catch(error){
+        formulas.push(span);
+      }catch{
         span.classList.add("course-math-fallback");span.textContent=item.tex;
       }
       fragment.append(span);
-      from=match.index+match[0].length;
     }
     fragment.append(document.createTextNode(source.slice(from)));
     node.replaceWith(fragment);
   }
+  return formulas;
+}
+
+function watchFormulaOverflow(target,formulas){
+  formulaObservers.get(target)?.disconnect();
+  if(!formulas.length)return;
+  function update(){
+    const overflowByFormula=formulas.map(formula=>formula.scrollWidth>formula.clientWidth+1);
+    for(const [index,formula] of formulas.entries()){
+      const overflow=overflowByFormula[index];
+      if(overflow===formula.hasAttribute("tabindex"))continue;
+      if(overflow){
+        formula.tabIndex=0;
+        formula.setAttribute("role","group");
+        formula.setAttribute("aria-label","Formule défilable horizontalement");
+      }else{
+        formula.removeAttribute("tabindex");
+        formula.removeAttribute("role");
+        formula.removeAttribute("aria-label");
+      }
+    }
+  }
+  update();
+  if(typeof ResizeObserver!=="function")return;
+  const observer=new ResizeObserver(update);
+  observer.observe(target);
+  formulaObservers.set(target,observer);
 }
 export function renderMathMarkdown(target,source,markdown=new showdown.Converter()){
   const {cleaned,equations}=separateMath(source);
@@ -45,5 +75,5 @@ export function renderMathMarkdown(target,source,markdown=new showdown.Converter
     FORBID_TAGS:["script","style","iframe","object","embed","form","img"],
     FORBID_ATTR:["style","srcdoc","onerror","onclick","onload"]
   });
-  installMath(target,equations);
+  watchFormulaOverflow(target,installMath(target,equations));
 }

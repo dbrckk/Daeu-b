@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v133 — lire et parcourir les formules mathématiques
+
+- Dans les cours, les problèmes, les corrigés et le formulaire des examens, les formules utilisent le même rendu MathML. Les fractions et les racines conservent leur structure pour le lecteur d’écran. L’aperçu du cahier expose aussi le MathML natif.
+- Sur écran étroit, une formule trop large défile dans son propre espace. La tabulation permet de l’atteindre et les flèches de la parcourir. La taille de lecture agrandit aussi les formules affichées sur une ligne à part.
+
 ## v132 — parcourir un quiz au clavier et au lecteur d’écran
 
 - Le quiz place le focus sur l’énoncé avant les choix ou la réponse numérique. Le formulaire associe ces contrôles à la question.
