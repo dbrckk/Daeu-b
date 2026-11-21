@@ -12,7 +12,7 @@ function separateMath(src){
     });
   return {cleaned,equations};
 }
-function installMath(target,equations){
+function installMath(target,equations,typeset){
   const walker=document.createTreeWalker(target,NodeFilter.SHOW_TEXT),found=[];
   while(walker.nextNode())if(walker.currentNode.nodeValue.includes("DAEUMATHTOKEN"))found.push(walker.currentNode);
   const regex=/DAEUMATHTOKEN(\d+)END/g;
@@ -25,6 +25,7 @@ function installMath(target,equations){
       from=match.index+match[0].length;
       const item=equations[Number(match[1])];
       if(!item){fragment.append(document.createTextNode(match[0]));continue;}
+      if(!typeset){fragment.append(document.createTextNode(item.tex));continue;}
       const span=document.createElement("span");
       span.className=item.block?"course-math-block":"course-math-inline";
       try{
@@ -69,11 +70,11 @@ function watchFormulaOverflow(target,formulas){
   observer.observe(target);
   formulaObservers.set(target,observer);
 }
-export function renderMathMarkdown(target,source,markdown=new showdown.Converter()){
+export function renderMathMarkdown(target,source,markdown=new showdown.Converter(),{typeset=true}={}){
   const {cleaned,equations}=separateMath(source);
   target.innerHTML=DOMPurify.sanitize(markdown.makeHtml(cleaned),{
     FORBID_TAGS:["script","style","iframe","object","embed","form","img"],
     FORBID_ATTR:["style","srcdoc","onerror","onclick","onload"]
   });
-  watchFormulaOverflow(target,installMath(target,equations));
+  watchFormulaOverflow(target,installMath(target,equations,typeset));
 }

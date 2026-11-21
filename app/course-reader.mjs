@@ -1,7 +1,7 @@
 import {renderMathMarkdown} from "./math-markdown.mjs";
 import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse} from "./course-catalog.mjs";
 import {JALONS} from "./jalons.mjs";
-import {initReadingTools} from "./reading-tools.mjs";
+import {initReadingTools,readerSectionHeadings} from "./reading-tools.mjs";
 import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {createPersistence} from "./persistence.mjs";
 import {backedStorage} from "./auto-backup.mjs";
@@ -53,6 +53,17 @@ const markdown=new showdown.Converter({
   tables:true,ghCodeBlocks:true,tasklists:true,strikethrough:true,
   simplifiedAutoLink:false,openLinksInNewWindow:false,backslashEscapesHTMLTags:true
 });
+const courseSources=new Map();
+function loadCourseText(key){
+  if(!courseSources.has(key))courseSources.set(key,(async()=>{
+    const response=await fetch("./cours/"+key+".md");
+    if(!response.ok)throw Error("HTTP "+response.status);
+    const content=await response.text();
+    if(!content.startsWith("# "))throw Error("Contenu de cours incomplet");
+    return content;
+  })().catch(error=>{courseSources.delete(key);throw error;}));
+  return courseSources.get(key);
+}
 function sanitizeLinks(target){
   for(const link of target.querySelectorAll("a[href]")){
     const raw=link.getAttribute("href");
@@ -69,10 +80,7 @@ function sanitizeLinks(target){
 async function displayCourse(){
   document.title=courseInfo(slug)+" · DAEU B";
   try{
-    const response=await fetch("./cours/"+slug+".md");
-    if(!response.ok)throw Error("HTTP "+response.status);
-    const src=await response.text();
-    if(!src.startsWith("# "))throw Error("Contenu de cours incomplet");
+    const src=await loadCourseText(slug);
     const target=byId("courseBody");
     renderMathMarkdown(target,src,markdown);
     sanitizeLinks(target);
@@ -84,36 +92,57 @@ async function displayCourse(){
   }
 }
 displayCourse();
-// Chargement des 18 cours uniquement à la première recherche ; cache PWA hors ligne.
-let corpusPromise=null;
+const indexedCourses=new Map();
+function indexSections(content){
+  const draft=document.createElement("div");
+  renderMathMarkdown(draft,content,markdown,{typeset:false});
+  const headings=readerSectionHeadings(draft);
+  const range=document.createRange();
+  return [null,...headings].map((heading,index)=>{
+    range.selectNodeContents(draft);
+    if(heading)range.setStartAfter(heading);
+    if(headings[index])range.setEndBefore(headings[index]);
+    return {id:heading?.id??null,title:heading?.textContent.trim()??"",text:range.toString()};
+  });
+}
+
 async function corpus(){
-  if(!corpusPromise)corpusPromise=Promise.all(COURSES.map(async([key,title])=>{
-    const response=await fetch("./cours/"+key+".md");
-    if(!response.ok)throw Error("Cours indisponible "+key);
-    const content=await response.text();
-    if(!content.startsWith("# "))throw Error("Cours incomplet "+key);
-    return {slug:key,title,content};
-  })).catch(error=>{corpusPromise=null;throw error;});
-  return corpusPromise;
+  const missing=COURSES.filter(([key])=>!indexedCourses.has(key));
+  await Promise.allSettled(missing.map(async([key,title])=>{
+    indexedCourses.set(key,{slug:key,title,sections:indexSections(await loadCourseText(key))});
+  }));
+  return [...indexedCourses.values()];
 }
 byId("courseSearchForm").addEventListener("submit",async event=>{
   event.preventDefault();
+  const form=event.currentTarget;
   const results=byId("courseSearchResults"),status=byId("courseSearchStatus");
-  const button=byId("courseSearchSubmit"),query=validSearchQuery(byId("courseSearchInput").value);
+  const button=byId("courseSearchSubmit"),input=byId("courseSearchInput"),query=validSearchQuery(input.value);
+  if(button.disabled)return;
   results.replaceChildren();
   if(!query){status.textContent="Saisis entre 2 et 80 caractères.";return;}
   button.disabled=true;status.textContent="Recherche dans les 18 cours…";
   try{
-    const matches=searchCourseDocs(await corpus(),query);
+    const docs=await corpus();
+    if(!docs.length)throw Error("Bibliothèque vide");
+    const matches=searchCourseDocs(docs,query);
     for(const item of matches){
       const li=document.createElement("li"),a=document.createElement("a"),p=document.createElement("p");
-      a.href=courseUrl(item.slug);a.textContent=item.title;p.textContent=item.excerpt;
+      a.href=courseUrl(item.slug)+"#"+encodeURIComponent(item.sectionId??"courseBody");
+      a.textContent=item.title+(item.sectionTitle?" · "+item.sectionTitle:"");
+      p.textContent=item.excerpt;
       li.append(a,p);results.append(li);
     }
-    status.textContent=matches.length
-      ?matches.length+" cours correspondant"+(matches.length>1?"s":"")+" sur 18."
-      :"Aucun cours correspondant. Essaie un terme plus général.";
+    const unavailable=COURSES.length-docs.length;
+    status.textContent=(matches.length
+      ?matches.length+" cours correspondant"+(matches.length>1?"s":"")+" sur "+docs.length+"."
+      :"Aucun cours correspondant. Essaie un terme plus général.")
+      +(unavailable?" "+unavailable+" cours indisponible"+(unavailable>1?"s":"")+". Relance la recherche pour réessayer.":"");
   }catch{
     status.textContent="Bibliothèque indisponible. Ouvre d'abord le site avec Internet pour mettre les cours en cache.";
-  }finally{button.disabled=false;}
+  }finally{
+    button.disabled=false;
+    if(validSearchQuery(input.value)===query&&(document.activeElement===document.body||form.contains(document.activeElement)))
+      (results.querySelector("a")??input).focus();
+  }
 });

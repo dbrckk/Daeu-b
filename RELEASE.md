@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v134 — accéder directement à une notion depuis la recherche
+
+- La recherche dans les 18 cours affiche le titre et un extrait de la section la plus pertinente. Après ouverture d’un résultat, la page place le focus sur le titre de la section. Les liens fonctionnent hors connexion lorsque les cours sont en cache.
+- Si un chapitre manque, la recherche indique combien de cours ont été consultés et affiche les résultats disponibles. La recherche suivante réessaie de charger les chapitres manquants.
+
 ## v133 — lire et parcourir les formules mathématiques
 
 - Dans les cours, les problèmes, les corrigés et le formulaire des examens, les formules utilisent le même rendu MathML. Les fractions et les racines conservent leur structure pour le lecteur d’écran. L’aperçu du cahier expose aussi le MathML natif.
