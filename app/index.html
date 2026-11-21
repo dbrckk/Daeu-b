@@ -56,6 +56,10 @@
         <button id="resumePausedRound" type="button" class="subtle" hidden>Revenir à la séance mise en pause</button>
         <a id="quizHistoryLink" class="first-action" href="#quizHistory" hidden>Historique des quiz</a>
         <a id="recurringReviewsLink" class="first-action" href="#recurringReviewsTitle" hidden>Erreurs récurrentes</a>
+        <details id="studyBookmarks" class="reader-outline" hidden>
+          <summary id="studyBookmarksTitle">Mes signets</summary>
+          <ul id="studyBookmarkList"></ul>
+        </details>
       </section>
       <section id="recurringReviews" class="exam-revision" aria-labelledby="recurringReviewsTitle" hidden>
         <h2 id="recurringReviewsTitle" tabindex="-1">Erreurs récurrentes</h2>
@@ -293,7 +297,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">128</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">129</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

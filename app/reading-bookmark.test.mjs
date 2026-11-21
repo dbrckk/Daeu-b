@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {bookmarkKey,readBookmark,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
+import {bookmarkKey,readBookmark,readBookmarkEntry,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
 const storage=()=>{const m=new Map();return {
  getItem:k=>m.has(k)?m.get(k):null,
  setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)
@@ -16,10 +16,18 @@ test("signet propre à chaque cours et indépendant des copies",()=>{
  assert.equal(clearBookmark(s,"cours:07-limites-asymptotes"),true);
  assert.equal(readBookmark(s,"cours:07-limites-asymptotes"),null);
  assert.equal(readBookmark(s,"problemes:sujets"),"lecture-section-2");
+ assert.deepEqual(readBookmarkEntry(s,"problemes:sujets"),{sectionId:"lecture-section-2"});
+ assert.equal(saveBookmark(s,"transferts-b:sujets","lecture-section-9",{jalon:9}),true);
+ assert.deepEqual(readBookmarkEntry(s,"transferts-b:sujets"),{sectionId:"lecture-section-9",jalon:9});
+ assert.equal(readBookmark(s,"transferts-b:sujets"),"lecture-section-9");
+ assert.equal(readBookmark(s,"transferts-b:corriges"),null);
+ assert.equal(readBookmark(s,"transferts-c:sujets"),null);
+ assert.equal(clearBookmark(s,"transferts-b:sujets"),true);
+ assert.equal(readBookmarkEntry(s,"transferts-b:sujets"),null);
 });
 test("identifiants invalides refusés et valeurs corrompues ignorées",()=>{
  const s=storage();
- for(const doc of ["","cours:../../secret","cours:99-evil","problemes:other","__proto__"]){
+ for(const doc of ["","cours:../../secret","cours:99-evil","problemes:other","transferts-d:sujets","__proto__"]){
    assert.equal(bookmarkKey(doc),null);
    assert.equal(saveBookmark(s,doc,"lecture-section-1"),false);
    assert.equal(clearBookmark(s,doc),false);

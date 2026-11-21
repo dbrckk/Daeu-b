@@ -45,6 +45,7 @@ for(const [id,diff] of [["coursePrevious",-1],["courseNext",1]]){
 }
 const updateOutline=initReadingTools(byId("courseBody"),byId("courseTextSize"),byId("courseToc"),{
   documentId:"cours:"+slug,
+  jalon:jalon?.id,
   saveButton:byId("courseBookmarkSave"),resumeButton:byId("courseBookmarkResume"),
   clearButton:byId("courseBookmarkClear"),status:byId("courseBookmarkStatus")
 });

@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v129 — reprendre une section depuis l’accueil
+
+- « Mes signets » ouvre directement les sections marquées dans un cours, un problème guidé ou un transfert, en ligne comme hors connexion.
+- Les signets de transfert sont enregistrés par série et par type de document. Une reprise conserve le jalon sélectionné pour retrouver les exercices ou le cahier correspondant.
+
 ## v128 — savoir quand l’application est prête hors connexion
 
 - L’accueil, les cours et les problèmes indiquent quand toutes les ressources nécessaires sont disponibles hors connexion.

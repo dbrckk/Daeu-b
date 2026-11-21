@@ -2,6 +2,7 @@ import {TOPICS} from "./questions.mjs";
 import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
 import {COURSES,courseUrl} from "./course-catalog.mjs";
+import {BOOKMARK_PREFIX,readBookmarkEntry} from "./reading-bookmark.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
 import {sanitizeWorkbook,emptyWorkbook} from "./workbook.mjs";
@@ -294,6 +295,39 @@ function renderCourseLibrary(){
     link.textContent=label;
     area.append(link);
   }
+}
+
+function renderStudyBookmarks(){
+  let storage;
+  try{storage=window.localStorage;}catch{return;}
+  const list=el("studyBookmarkList"),items=document.createDocumentFragment();
+  function add(title,url,entry){
+    const link=document.createElement("a");
+    link.href=url+"&signet=1#"+encodeURIComponent(entry.sectionId);
+    link.textContent=title;
+    const item=document.createElement("li");item.append(link);items.append(item);
+  }
+  for(const [slug,title] of COURSES){
+    const entry=readBookmarkEntry(storage,"cours:"+slug);
+    if(entry)add(title,courseUrl(slug,entry),entry);
+  }
+  for(const [id,title,parameters] of [
+    ["problemes","Problèmes guidés",""],
+    ["transferts","Transferts A","set=transferts&"],
+    ["transferts-b","Transferts B","set=transferts&variante=b&"],
+    ["transferts-c","Transferts C","set=transferts&variante=c&"]
+  ]){
+    for(const mode of ["sujets","corriges"]){
+      const entry=readBookmarkEntry(storage,id+":"+mode);
+      if(!entry)continue;
+      const url="./problems.html?"+parameters+"mode="+mode+(entry.jalon?"&jalon="+entry.jalon:"");
+      add(title+" · "+(mode==="sujets"?"sujets":"corrigés"),url,entry);
+    }
+  }
+  const count=items.childElementCount;
+  list.replaceChildren(items);
+  el("studyBookmarks").hidden=count===0;
+  el("studyBookmarksTitle").textContent="Mes signets ("+count+")";
 }
 function buildTopicSelector() {
   for(const topic of fullTopics) {
@@ -819,6 +853,7 @@ if(requestedJalon){
   el("restart").textContent="Nouvelle séance sur ce jalon";
 }
 renderCourseLibrary();
+renderStudyBookmarks();
 renderRoundHistory();
 refreshOverview();
 initExams(dataStore,conflictWarning);
@@ -899,8 +934,9 @@ document.addEventListener("daeu:before-update",event=>{
   if(!saveAnswerDraft())event.preventDefault();
 });
 window.addEventListener("pageshow",event=>{
-  if(event.persisted)refreshSchedule();
+  if(event.persisted){refreshSchedule();renderStudyBookmarks();}
 });
 window.addEventListener("storage",event=>{
   if((event.key===DATA_KEY||event.key===null)&&dataStore.isStale())conflictWarning();
+  if(event.key===null||event.key.startsWith(BOOKMARK_PREFIX))renderStudyBookmarks();
 });
