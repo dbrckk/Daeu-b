@@ -114,6 +114,10 @@
           <button type="button" id="start" class="primary">Démarrer · 10 questions</button>
           <a id="practiceAll" href="./#practice-title" hidden>Choisir un autre chapitre</a>
         </div>
+        <div id="practiceSavedSession" class="quiz-actions" hidden>
+          <button type="button" id="practiceResumeTarget" class="subtle" hidden>Reprendre la séance de cette notion</button>
+          <a id="practiceResumeOther" href="./#practice-title" hidden>Retrouver ma séance en cours</a>
+        </div>
         <p class="helper">Les variantes changent les données des exercices. Une réussite après indice aide à apprendre, mais ne valide pas la maîtrise. La confirmation exige une réussite sans indice sur une autre date.</p>
         <div id="notification" class="notice" role="status" aria-live="polite" hidden></div>
         <section id="quiz" class="quiz" aria-label="Exercice en cours" hidden>
@@ -298,7 +302,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">130</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">131</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

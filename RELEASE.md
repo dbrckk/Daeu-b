@@ -1,5 +1,10 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v131 — retrouver le bon entraînement en quittant un cours
+
+- Le lien d’un cours prépare le quiz du chapitre ou du jalon demandé. Une séance déjà enregistrée s’ouvre automatiquement si ses questions correspondent à la notion.
+- Une séance en pause sur cette notion peut être reprise directement. Une autre séance ou le dernier bilan restent accessibles depuis le même écran. Démarrer un quiz ciblé place le focus sur sa première question au clavier et conserve le brouillon précédent selon les règles habituelles de mise en pause.
+
 ## v130 — reprendre la dernière lecture
 
 - L’application mémorise automatiquement la dernière section atteinte dans un cours, un problème ou un transfert sur cet appareil.
