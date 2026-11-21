@@ -76,7 +76,7 @@ async function displayCourse(){
     renderMathMarkdown(target,src,markdown);
     sanitizeLinks(target);
     updateOutline();
-    byId("courseStatus").textContent="Cours "+(index+1)+"/18 · Contenu intégral et formules mathématiques · Cache PWA hors connexion";
+    byId("courseStatus").textContent="Cours "+(index+1)+"/18 · Contenu intégral et formules mathématiques";
   }catch(error){
     byId("courseBody").textContent="Cours indisponible. Ouvre l'Atelier avec une connexion au moins une fois pour télécharger la bibliothèque hors connexion.";
     byId("courseStatus").textContent="Échec du chargement du cours : "+(error.message||error);

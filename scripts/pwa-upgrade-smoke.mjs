@@ -145,6 +145,49 @@ async function verifyKeyboardContinuity(browser,profile,origin,publishNext){
   }finally{await context.close();}
 }
 
+async function verifyOfflineReadiness(browser,origin,allowDownload){
+  const context=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const page=await context.newPage();
+    await page.goto(origin+"/#commencer",{waitUntil:"domcontentloaded"});
+    await page.locator('#offlineStatus[data-state="failed"]').waitFor();
+    await page.locator("#examSelect").selectOption("blanc-2");
+    await page.locator("#examStart").click();
+    await page.locator("#exam-answer-b01").fill("5");
+    const snapshot=()=>page.evaluate(key=>localStorage.getItem(key),DATA_KEY);
+    const saved=await snapshot();
+
+    allowDownload();
+    await page.locator("#offlineRetry").press("Enter");
+    await page.locator('#offlineStatus[data-state="ready"]').waitFor();
+    assert.equal(await snapshot(),saved,"L’installation du cache ne touche pas à la copie");
+
+    await page.evaluate(async()=>{
+      const version=document.getElementById("appVersion").textContent;
+      const cache=await caches.open("daeu-b-maths-v"+version);
+      if(!await cache.delete(new URL("./cours/17-raisonnement-modelisation.md",location.href)))
+        throw Error("Le cours à retirer est absent du cache");
+    });
+    await page.reload({waitUntil:"domcontentloaded"});
+    await page.locator('#offlineStatus[data-state="failed"]').waitFor();
+    await page.locator("#offlineRetry").press("Enter");
+    await page.locator('#offlineStatus[data-state="ready"]').waitFor();
+    assert.equal(await snapshot(),saved,"La réparation du cache ne touche pas à la copie");
+
+    await context.setOffline(true);
+    await page.goto(origin+"/course.html?course=17-raisonnement-modelisation",{waitUntil:"domcontentloaded"});
+    await page.locator('#offlineStatus[data-state="ready"]').waitFor();
+    await page.waitForFunction(()=>document.querySelector("#courseStatus")?.textContent.includes("Cours 18/18"));
+    await page.goto(origin+"/problems.html?set=transferts&jalon=18&variante=b",{waitUntil:"domcontentloaded"});
+    await page.locator('#offlineStatus[data-state="ready"]').waitFor();
+    await page.waitForFunction(()=>document.querySelector("#problemStatus")?.textContent.includes("20 problèmes de transfert"));
+    await page.goto(origin+"/#exam-title",{waitUntil:"domcontentloaded"});
+    await page.waitForFunction(()=>document.getElementById("exam-answer-b01")?.value==="5");
+    assert.equal(await snapshot(),saved);
+    console.log("OK Téléchargement incomplet détecté, relance réussie, cours réparé et copie retrouvés hors connexion à 320 px");
+  }finally{await context.close();}
+}
+
 export async function verifyPwaUpgrade(browser){
   const oldRoot=await mkdtemp(join(tmpdir(),"daeu-v62-"));
   const newRoot=resolve("app");
@@ -160,9 +203,10 @@ export async function verifyPwaUpgrade(browser){
     const archive=execFileSync("git",["archive",BASELINE,"app"],{maxBuffer:16*1024*1024});
     execFileSync("tar",["-xf","-","-C",oldRoot],{input:archive});
     let root=join(oldRoot,"app");
-    let nextRelease=false,staleAsset=false;
+    let nextRelease=false,staleAsset=false,offlineAssetMissing=false;
     const server=createServer(async(req,res)=>{
       const pathname=new URL(req.url,"http://127.0.0.1").pathname;
+      if(offlineAssetMissing&&pathname==="/cours/17-raisonnement-modelisation.md"){res.writeHead(503).end();return;}
       const path=resolve(root,"."+ (pathname==="/"?"/index.html":pathname));
       if(!path.startsWith(root+sep)){res.writeHead(404).end();return;}
       try{
@@ -298,6 +342,8 @@ export async function verifyPwaUpgrade(browser){
         console.log("OK Mise à niveau du cache v62, reprise hors ligne et retour clavier à la copie");
       }finally{await context.close();}
       nextRelease=false;
+      offlineAssetMissing=true;
+      await verifyOfflineReadiness(browser,origin,()=>{offlineAssetMissing=false;});
       await verifyKeyboardContinuity(browser,join(oldRoot,"profil-clavier"),origin,()=>{nextRelease=true;});
     }finally{await new Promise(ok=>server.close(ok));}
   }finally{await rm(oldRoot,{recursive:true,force:true});}

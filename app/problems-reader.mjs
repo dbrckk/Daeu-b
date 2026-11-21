@@ -228,7 +228,7 @@ async function load(){
       }
     }
     const details=transfers?(mode==="sujets"?"20 problèmes de transfert · 20 jalons":"20 corrigés et grilles de raisonnement"):(mode==="sujets"?"37 questions · 8 problèmes · 3 niveaux":"37 corrections détaillées · 8 problèmes");
-    el("problemStatus").textContent=details+" · Lecture hors connexion";
+    el("problemStatus").textContent=details;
   }catch(error){
     el("problemBody").textContent="Contenu indisponible. Charge une fois l'application en ligne pour installer les sujets et leurs corrections.";
     el("problemStatus").textContent="Erreur de chargement : "+error.message;

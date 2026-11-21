@@ -3,16 +3,16 @@
  * Aucune requête extérieure n'est mise en cache. Les données d'étude restent
  * exclusivement dans localStorage et ne passent jamais dans le service worker.
  */
-const CACHE="daeu-b-maths-v127";
+const CACHE="daeu-b-maths-v128";
 const PREFIX="daeu-b-maths-";
 const ASSETS=["./","./index.html","./style.css","./start.mjs","./app-update.mjs","./auto-backup.mjs","./math-notebook.mjs","./ink-eraser.mjs","./ink-transcript.mjs","./ink-drafts.mjs","./numeric-ink.mjs","./equation-ink.mjs","./math-step-checker.mjs","./constraint-solver.mjs","./quadratic-checker.mjs","./derivative-checker.mjs","./polynomial-derivative.mjs","./elementary-derivative.mjs","./math-preview.mjs","./workbook.mjs","./reader-start.mjs","./cloud-sync.mjs","./app.mjs","./engine.mjs","./questions.mjs","./variants.mjs","./exams.mjs","./exam-engine.mjs","./exam-ui.mjs","./math-markdown.mjs","./fiches/formulaire.md","./exam-generator.mjs","./exam-alternative.mjs","./exam-applied.mjs","./exam-recommendation.mjs","./exam-remediation.mjs","./reasoning.mjs","./exam-analytics.mjs","./exam-blueprint.mjs","./exam-readiness.mjs","./persistence.mjs","./round.mjs","./jalons.mjs","./jalon-progress.mjs","./prerequisites.mjs","./transfer-progress.mjs","./transferts/sujets.md","./transferts/corriges.md","./transferts/sujets-b.md","./transferts/corriges-b.md","./transferts/sujets-c.md","./transferts/corriges-c.md","./manifest.json","./icon.svg","./course.html","./problems.html","./problems-reader.mjs","./problemes/sujets.md","./problemes/corriges.md","./course-reader.mjs","./course-catalog.mjs","./reading-tools.mjs","./reading-bookmark.mjs","./course-search.mjs","./vendor/showdown-2.1.0.min.js","./vendor/dompurify.min.js","./vendor/temml.min.js","./cours/00-positionnement.md","./cours/01-calcul-numerique.md","./cours/02-calcul-litteral.md","./cours/03-equations-inequations-systemes.md","./cours/04-second-degre.md","./cours/05-fonctions.md","./cours/06-derivation.md","./cours/07-limites-asymptotes.md","./cours/08-continuite-tvi.md","./cours/09-exponentielle-logarithme.md","./cours/10-suites.md","./cours/11-statistiques.md","./cours/12-probabilites.md","./cours/13-trigonometrie.md","./cours/14-geometrie-vectorielle.md","./cours/15-primitives-integrales.md","./cours/16-complexes-complements.md","./cours/17-raisonnement-modelisation.md"];
 // Empreintes générées par scripts/sync_pwa_integrity.py.
 const INTEGRITY={
-  "./": "sha256-2uWwL6DGtgV3/a+rNZFHcPN0TSN54vG3K0V1Fz1sND4=",
-  "./index.html": "sha256-2uWwL6DGtgV3/a+rNZFHcPN0TSN54vG3K0V1Fz1sND4=",
-  "./style.css": "sha256-Mocxs76Qy/XJt5vzqhe5aSHR8NQGT4oMvGuUorGB880=",
+  "./": "sha256-AeeODuZsit6EYlVsNQcBDWHBmkzoNH5VSKONdf0rdZk=",
+  "./index.html": "sha256-AeeODuZsit6EYlVsNQcBDWHBmkzoNH5VSKONdf0rdZk=",
+  "./style.css": "sha256-gXwNqCwUT9dsBI70udrstu38neOnr2f/4U3+Cpfln0g=",
   "./start.mjs": "sha256-RId2iTu3b/TzBFFV2Tf8mHMtl2fSL9cn+hC49TIqMDY=",
-  "./app-update.mjs": "sha256-g4WUNAy06xmEW5pOBeVFtqV6Nj3Xk/NcOUmpwZFVorc=",
+  "./app-update.mjs": "sha256-wPxKNSmZaxSCmRE+mwx+Ucufm0hszjRKe9AdQ/YzrMI=",
   "./auto-backup.mjs": "sha256-LhxzES0v2LJYdwa9dpG4d8NOGpYyI5gz5dVIO3n4t0I=",
   "./math-notebook.mjs": "sha256-23/rAZdUln01ehH/LrT62IIXeGyeVlMd/6JvRIhB6SE=",
   "./ink-eraser.mjs": "sha256-v2o1TCVD9uPG/Bj29R0UcFdbZ1YSTogn66W8QE5qWl8=",
@@ -62,12 +62,12 @@ const INTEGRITY={
   "./transferts/corriges-c.md": "sha256-Hn/flk0xlq5YZHLiv/gLMP1H6AnUS70otxgZHXekxbI=",
   "./manifest.json": "sha256-00Z1QEW31Y32cv7JByCGGdwpUYv5G9g5rr8VPsJP/YM=",
   "./icon.svg": "sha256-q27cXuIYoZ/KI8gqAtfGFIAKaBktDvBEXgaPm2Pth9A=",
-  "./course.html": "sha256-bfCe6a2thkR3XPpAolfTN5SspP+Gyx5jtvzA7EGNr1M=",
-  "./problems.html": "sha256-F5MDYwTZr7v7oRi/eNW2xkoXOGsVaUmi7rRZTVF6j+U=",
-  "./problems-reader.mjs": "sha256-F8f+WFVSB9D8sNXEA0Pa5ZzRjqyGo+AVuHJ6h9E+htE=",
+  "./course.html": "sha256-Hf3eA/DkZZXDSKfohezrgQLhDn+b8+ORlH1jrbng2w8=",
+  "./problems.html": "sha256-JP0XIyfT5Om/0uJ/q27gawpJZlkg6d53B6op/765Xpw=",
+  "./problems-reader.mjs": "sha256-VVfkENgbO/TlCHXMwxFuJXMg4MxS/M7vwVAxAHths8A=",
   "./problemes/sujets.md": "sha256-mEg8MKGER6ckIYNf3/dBFyVUcQ2ofuK4u36zos/CoFE=",
   "./problemes/corriges.md": "sha256-y9EwWpj5YxphNDQdqybU2oKV689g6TAmm+l2tX7yMME=",
-  "./course-reader.mjs": "sha256-uoLTs7SXkLXZLtZz2jXqgnSWerRCEB9HrfGx1IXQwog=",
+  "./course-reader.mjs": "sha256-+ZjC+bjiuoAJBtBVYVO7DVYq54eCCTA63HqBv/MjBQU=",
   "./course-catalog.mjs": "sha256-Qj96CcBYl7BbAn9kqMlW6MMcXdzdkDGCs6oXy1EHfpA=",
   "./reading-tools.mjs": "sha256-Lc8TbR0xtinYsdmzj3bJYUfzNzT5bTrEeb3DTmQbJEo=",
   "./reading-bookmark.mjs": "sha256-zU0+Mj02Cj4h+zq/FGfYH/QZqBzDEKbU/Yv+HLssYZA=",
@@ -100,18 +100,36 @@ const shell=new URL("./index.html",SCOPE).pathname;
 const courseShell=new URL("./course.html",SCOPE).pathname;
 const problemsShell=new URL("./problems.html",SCOPE).pathname;
 
+async function storeOfflineAssets(){
+  const cache=await caches.open(CACHE);
+  await cache.addAll(ASSETS.map(asset=>new Request(new URL(asset,SCOPE),{cache:"reload",integrity:INTEGRITY[asset]})));
+}
+
 self.addEventListener("install",event=>{
   event.waitUntil((async()=>{
     // Un CDN peut renvoyer un fichier périmé avec un statut 200.
     // Fetch vérifie l’intégrité de chaque réponse avant l’installation du cache.
-    const cache=await caches.open(CACHE);
     try {
-      await cache.addAll(ASSETS.map(asset=>new Request(new URL(asset,SCOPE),{cache:"reload",integrity:INTEGRITY[asset]})));
+      await storeOfflineAssets();
     } catch(error) {
       await caches.delete(CACHE);
       throw error;
     }
     await self.skipWaiting();
+  })());
+});
+
+self.addEventListener("message",event=>{
+  const type=event.data?.type,reply=event.ports[0];
+  if(!reply||!["offline-status","offline-retry"].includes(type))return;
+  event.waitUntil((async()=>{
+    try{
+      if(type==="offline-retry")await storeOfflineAssets();
+      if(!await caches.has(CACHE)){reply.postMessage({complete:false});return;}
+      const cache=await caches.open(CACHE);
+      const cached=new Set((await cache.keys()).map(request=>request.url));
+      reply.postMessage({complete:ASSETS.every(asset=>cached.has(new URL(asset,SCOPE).href))});
+    }catch{reply.postMessage({complete:false});}
   })());
 });
 

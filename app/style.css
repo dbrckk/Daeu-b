@@ -624,6 +624,10 @@
 
 .app-version button{min-height:44px;margin-inline-start:8px}
 #appUpdateStatus:empty{display:none}
+.offline-availability{display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px}
+.offline-availability .helper{margin:4px 0}
+.offline-availability .helper:empty{display:none}
+.offline-availability button{min-height:44px}
 
 
 .math-notebook-paper-navigation{display:flex;align-items:center;justify-content:center;gap:10px;margin:3px 0 5px}
