@@ -2052,7 +2052,27 @@ try {
   assert.equal(new URL(offlineCourse.url()).searchParams.get("jalon"),"12");
   assert.match(await offlineCourse.locator("#coursePractice").getAttribute("href"),/jalon=12/);
   console.log("OK Signets hors ligne depuis l’accueil : anciennes positions, section exacte et entraînement du même jalon");
+  await offlineCourse.bringToFront();
+  const lastRead=await offlineCourse.locator("#courseBody h2").nth(1).evaluate(heading=>{
+    window.scrollBy(0,heading.getBoundingClientRect().top-Math.min(160,innerHeight/4)+2);
+    return heading.dataset.readerBookmarkId;
+  });
+  await offlineCourse.waitForFunction(id=>{
+    const entry=JSON.parse(localStorage.getItem("daeu-b-last-reading-v1"));
+    return entry?.documentId==="cours:06-derivation"&&entry.sectionId===id&&entry.jalon===12;
+  },lastRead);
   await offlineCourse.close();
+  const resumedReading=await context.newPage();
+  await resumedReading.goto(BASE+"/#commencer",{waitUntil:"domcontentloaded"});
+  const resume=resumedReading.locator("#continueReading");
+  await resume.waitFor();
+  assert.match(await resume.textContent(),/Reprendre ma lecture.*Dérivation/);
+  await resume.click();
+  await resumedReading.waitForFunction(id=>document.activeElement?.dataset.readerBookmarkId===id,lastRead);
+  assert.equal(new URL(resumedReading.url()).searchParams.get("jalon"),"12");
+  assert.equal(await resumedReading.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-reader-bookmark-v1:cours:06-derivation")).sectionId),markedCourseId);
+  console.log("OK Reprise automatique de la dernière lecture hors connexion après fermeture, avec le signet manuel conservé");
+  await resumedReading.close();
   const preservedRound=await page.evaluate(()=>
     JSON.parse(localStorage.getItem("daeu-b-data-v1"))?.round??null);
   const offlinePractice=await context.newPage();
