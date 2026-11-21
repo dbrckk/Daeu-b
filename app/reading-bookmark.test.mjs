@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {bookmarkKey,readBookmark,readBookmarkEntry,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
+import {LAST_READING_KEY,bookmarkKey,readBookmark,readBookmarkEntry,saveBookmark,clearBookmark,readLastReading,saveLastReading} from "./reading-bookmark.mjs";
 const storage=()=>{const m=new Map();return {
  getItem:k=>m.has(k)?m.get(k):null,
  setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)
@@ -24,6 +24,11 @@ test("signet propre à chaque cours et indépendant des copies",()=>{
  assert.equal(readBookmark(s,"transferts-c:sujets"),null);
  assert.equal(clearBookmark(s,"transferts-b:sujets"),true);
  assert.equal(readBookmarkEntry(s,"transferts-b:sujets"),null);
+ assert.equal(saveLastReading(s,"problemes:sujets","lecture-section-5"),true);
+ assert.deepEqual(readLastReading(s),{documentId:"problemes:sujets",sectionId:"lecture-section-5"});
+ assert.equal(readBookmark(s,"problemes:sujets"),"lecture-section-2");
+ assert.equal(saveLastReading(s,"transferts-c:corriges","lecture-section-19",19),true);
+ assert.deepEqual(readLastReading(s),{documentId:"transferts-c:corriges",sectionId:"lecture-section-19",jalon:19});
 });
 test("identifiants invalides refusés et valeurs corrompues ignorées",()=>{
  const s=storage();
@@ -37,8 +42,13 @@ test("identifiants invalides refusés et valeurs corrompues ignorées",()=>{
  }
  s.setItem(bookmarkKey("cours:01-calcul-numerique"),"../../corrupted");
  assert.equal(readBookmark(s,"cours:01-calcul-numerique"),null);
+ assert.equal(saveLastReading(s,"problemes:sujets","../../corrupted"),false);
+ s.setItem(LAST_READING_KEY,JSON.stringify({documentId:"../../corrupted",sectionId:"lecture-section-1"}));
+ assert.equal(readLastReading(s),null);
  const denied={getItem(){throw Error("denied");},setItem(){throw Error("denied");},removeItem(){throw Error("denied");}};
  assert.equal(readBookmark(denied,"cours:01-calcul-numerique"),null);
  assert.equal(saveBookmark(denied,"cours:01-calcul-numerique","lecture-section-1"),false);
  assert.equal(clearBookmark(denied,"cours:01-calcul-numerique"),false);
+ assert.equal(readLastReading(denied),null);
+ assert.equal(saveLastReading(denied,"cours:01-calcul-numerique","lecture-section-1"),false);
 });

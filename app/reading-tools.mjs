@@ -2,7 +2,7 @@
  * Contrôles de lecture locaux et accessibles, communs aux cours et problèmes.
  * Préférence de taille volontairement indépendante des copies d'examens.
  */
-import {readBookmark,saveBookmark,clearBookmark} from "./reading-bookmark.mjs";
+import {readBookmark,saveBookmark,clearBookmark,saveLastReading} from "./reading-bookmark.mjs";
 const KEY="daeu-b-reading-size-v1";
 const VALID=new Set(["normal","large","extra"]);
 export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon=()=>undefined,saveButton,resumeButton,clearButton,status}={}){
@@ -11,20 +11,39 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon
     article.dataset.readingSize=size;
     sizeSelect.value=size;
   }
-  let saved="normal";
-  try{saved=localStorage.getItem(KEY)||"normal";}catch{/* navigation privée/quota */ }
+  let storage,saved="normal";
+  try{storage=window.localStorage;saved=storage.getItem(KEY)||"normal";}catch{/* navigation privée/quota */ }
   setSize(saved);
   sizeSelect.addEventListener("change",()=>{
     setSize(sizeSelect.value);
-    try{localStorage.setItem(KEY,sizeSelect.value);}catch{/* lecture toujours utilisable */ }
+    try{storage.setItem(KEY,sizeSelect.value);}catch{/* lecture toujours utilisable */ }
   });
   function goTo(heading){
     heading.focus({preventScroll:true});
     heading.scrollIntoView({block:"start"});
   }
-  const saveAt=heading=>saveBookmark(localStorage,documentId,heading.dataset.readerBookmarkId,{jalon:getJalon(heading)});
+  const saveAt=heading=>saveBookmark(storage,documentId,heading.dataset.readerBookmarkId,{jalon:getJalon(heading)});
+  let headings=[],readingTimer=null;
+  if(documentId&&storage){
+    function recordReading(){
+      clearTimeout(readingTimer);
+      readingTimer=null;
+      const line=Math.min(160,window.innerHeight/4);
+      const bounds=article.getBoundingClientRect();
+      if(bounds.top>line||bounds.bottom<=line)return;
+      const heading=headings.findLast(item=>item.getBoundingClientRect().top<=line);
+      if(heading)saveLastReading(storage,documentId,heading.dataset.readerBookmarkId,getJalon(heading));
+    }
+    window.addEventListener("scroll",()=>{
+      if(!document.hidden&&readingTimer===null)readingTimer=setTimeout(recordReading,200);
+    },{passive:true});
+    const flushReading=()=>{if(readingTimer!==null)recordReading();};
+    window.addEventListener("pagehide",flushReading);
+    document.addEventListener("visibilitychange",()=>{if(document.hidden)flushReading();});
+  }
   return function rebuildOutline(){
-    const headings=[...article.querySelectorAll("h2,h3")],used=new Set();
+    headings=[...article.querySelectorAll("h2,h3")];
+    const used=new Set();
     const list=document.createElement("ol");
     for(const [i,heading] of headings.entries()){
       let id=heading.id && !used.has(heading.id)?heading.id:"lecture-section-"+(i+1);
@@ -44,7 +63,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon
     outline.replaceChildren(list);
     if(documentId&&saveButton&&resumeButton&&clearButton&&status){
       const available=()=>{
-        const saved=readBookmark(localStorage,documentId);
+        const saved=readBookmark(storage,documentId);
         return headings.find(h=>h.dataset.readerBookmarkId===saved||h.id===saved);
       };
       function refresh(){
@@ -74,7 +93,7 @@ export function initReadingTools(article,sizeSelect,outline,{documentId,getJalon
         else {announce("Signet indisponible : cette section n'existe plus.");refresh();}
       };
       clearButton.onclick=()=>{
-        const ok=clearBookmark(localStorage,documentId);
+        const ok=clearBookmark(storage,documentId);
         announce(ok?"Signet supprimé.":"Impossible de supprimer le signet.");
         refresh();
       };

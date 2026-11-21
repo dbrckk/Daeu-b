@@ -3,6 +3,7 @@
  * Seuls l’identifiant de section et le jalon de lecture éventuel sont stockés.
  */
 export const BOOKMARK_PREFIX="daeu-b-reader-bookmark-v1:";
+export const LAST_READING_KEY="daeu-b-last-reading-v1";
 const VALID_DOCUMENT=/^(?:cours:[0-1][0-9]-[a-z0-9-]+|(?:problemes|transferts(?:-[bc])?):(?:sujets|corriges))$/;
 const VALID_SECTION=/^[a-zA-Z][a-zA-Z0-9_-]{0,100}$/;
 const validSection=section=>typeof section==="string"&&VALID_SECTION.test(section);
@@ -34,4 +35,23 @@ export function clearBookmark(storage,documentId){
   const key=bookmarkKey(documentId);
   if(!key)return false;
   try{storage.removeItem(key);return true;}catch{return false;}
+}
+
+export function readLastReading(storage){
+  try{
+    const entry=JSON.parse(storage.getItem(LAST_READING_KEY));
+    if(!entry||!bookmarkKey(entry.documentId)||!validSection(entry.sectionId))return null;
+    const {documentId,sectionId,jalon}=entry;
+    return validJalon(jalon)?{documentId,sectionId,jalon}:{documentId,sectionId};
+  }catch{return null;}
+}
+
+export function saveLastReading(storage,documentId,sectionId,jalon){
+  if(!bookmarkKey(documentId)||!validSection(sectionId))return false;
+  const entry={documentId,sectionId,...(validJalon(jalon)?{jalon}:{})};
+  try{
+    const value=JSON.stringify(entry);
+    if(storage.getItem(LAST_READING_KEY)!==value)storage.setItem(LAST_READING_KEY,value);
+    return true;
+  }catch{return false;}
 }

@@ -1,5 +1,11 @@
 # Rapport de stabilisation — DAEU B mathématiques
 
+## v130 — reprendre la dernière lecture
+
+- L’application mémorise automatiquement la dernière section atteinte dans un cours, un problème ou un transfert sur cet appareil.
+- Le raccourci « Reprendre ma lecture » sur l’accueil ouvre cette section avec son jalon et la série de transfert correspondante, même hors connexion après installation des ressources.
+- Les signets que tu poses restent accessibles dans « Mes signets ».
+
 ## v129 — reprendre une section depuis l’accueil
 
 - « Mes signets » ouvre directement les sections marquées dans un cours, un problème guidé ou un transfert, en ligne comme hors connexion.
