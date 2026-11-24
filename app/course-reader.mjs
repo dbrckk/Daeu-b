@@ -146,3 +146,5 @@ byId("courseSearchForm").addEventListener("submit",async event=>{
       (results.querySelector("a")??input).focus();
   }
 });
+byId("courseSearchStatus").textContent="Recherche prête dans les 18 cours.";
+byId("courseSearchSubmit").disabled=false;
