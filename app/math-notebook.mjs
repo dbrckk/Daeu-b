@@ -19,6 +19,7 @@ export const MATH_TEMPLATES=Object.freeze([
   {label:"Puissance",value:"(base)^(exposant)",selection:"base"},
   {label:"Racine",value:"√(expression)",selection:"expression"},
   {label:"Équation",value:"2x + 5 = 17\n2x = 12\nx = 6",selection:"2x + 5 = 17"},
+  {label:"Inéquation",value:"-2x + 4 ≥ 6\n-2x ≥ 2\nx ≤ -1",selection:"-2x + 4 ≥ 6"},
   {label:"Second degré",value:"x² - 5x + 6 = 0\n(x - 2)(x - 3) = 0",selection:"x² - 5x + 6 = 0"},
   {label:"Système",value:"{\n  2x + y = 7\n  x − y = 2\n}",selection:"2x + y = 7"},
   {label:"Fonction",value:"f(x) = 3x² - 2x + 1\nf'(x) = 6x - 2",selection:"3x² - 2x + 1"},
@@ -251,7 +252,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   correction.setAttribute("aria-label","Correction guidée des lignes");
   const correctionTitle=document.createElement("h5");correctionTitle.textContent="Correction guidée des étapes";
   const explanation=document.createElement("p");explanation.className="helper";
-  explanation.textContent="Vérifie les calculs, les équations du premier et du second degré, certaines équations rationnelles (valeurs interdites), les racines carrées isolées (solutions parasites) et les dérivées polynomiales (degré 0 à 6) ou usuelles : sin(ax+b), cos(ax+b), exp(ax+b), ln(ax+b), multipliées par une constante. Écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont comparés exactement. Les combinaisons plus complexes et les démonstrations ne sont pas vérifiées ; pour ln, respecte le domaine ax+b > 0.";
+  explanation.textContent="Vérifie les calculs, les inéquations affines avec borne exacte (y compris l’inversion du signe si tu divises par un négatif), les équations du premier et du second degré, certaines équations rationnelles (valeurs interdites), les racines carrées isolées (solutions parasites) et les dérivées polynomiales (degré 0 à 6) ou usuelles : sin(ax+b), cos(ax+b), exp(ax+b), ln(ax+b), multipliées par une constante. Écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont comparés exactement. Les combinaisons plus complexes et les démonstrations ne sont pas vérifiées ; pour ln, respecte le domaine ax+b > 0.";
   const verify=document.createElement("button");verify.type="button";verify.className="subtle";
   verify.textContent="Vérifier mes étapes";
   const feedback=document.createElement("div");feedback.className="math-notebook-feedback";feedback.hidden=true;
@@ -261,8 +262,8 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     feedback.replaceChildren();
     const summary=document.createElement("p");
     summary.textContent=review.checked
-      ?review.checked+" ligne(s) analysée(s), "+review.errors+" erreur(s) détectée(s) dans le périmètre pris en charge."
-      :"Aucune égalité exploitable trouvée. Écris par exemple : 2x + 5 = 17, puis 2x = 12, puis x = 6.";
+      ?review.checked+" ligne(s) analysée(s), "+review.errors+" erreur(s) détectée(s), "+review.unsupported+" ligne(s) non vérifiée(s)."
+      :"Aucune équation ni inéquation exploitable. Écris par exemple 2x + 5 = 17, puis x = 6 ; ou 2x < 4, puis x < 2. ("+review.unsupported+" ligne(s) non vérifiée(s).)";
     feedback.append(summary);
     if(review.entries.length){
       const list=document.createElement("ol");list.className="math-notebook-review-list";
@@ -274,7 +275,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       feedback.append(list);
     }
     const caveat=document.createElement("p");caveat.className="helper";
-    caveat.textContent="Ce contrôle ne certifie ni la justesse du raisonnement complet ni la maîtrise de la notion. Les lignes non prises en charge restent à vérifier avec le corrigé.";
+    caveat.textContent="Les équivalences reconnues sont vérifiées sur leur ensemble de solutions, pas sur la qualité de la démonstration. Les textes libres, systèmes et inéquations de degré supérieur restent à comparer au corrigé.";
     feedback.append(caveat);feedback.hidden=false;
     if(review.checked>0)onGuidance();
   });

@@ -459,3 +459,12 @@ Dans les cahiers des cours, quiz et problèmes, le bouton **« Vérifier mes ét
 - Un clavier de seize symboles mathématiques complète la zone de rédaction : racines, puissances, opérateurs et comparaisons se rédigent sans papier.
 - Les anciennes copies conservent leur format. Les copies manuscrites historiques sont préservées. La note automatique n'évalue toujours pas les démonstrations.
 - Validation : scénario Chromium mobile, reprise après navigation et rechargement, contrôle du cache PWA et déploiement Render ; TalkBack physique reste à confirmer.
+
+
+## v136 — contrôle exact des inéquations affines (24 novembre 2026)
+
+- Le cahier au clavier vérifie maintenant les chaînes d'inéquations de degré 1 en `x`, avec `<`, `>`, `≤`, `≥`, `<=` et `>=`. Les expressions sont analysées par le parseur arithmétique rationnel exact existant (BigInt), sans arrondir la borne.
+- Les étapes sont comparées sur l'**ensemble des solutions** : le correcteur distingue bornes ouvertes et fermées, inversions du sens, égalités vraies pour tout réel et inéquations impossibles. Une ligne fausse n'est jamais une référence pour valider la suivante.
+- Le modèle « Inéquation » et des conseils explicites sur la division par un négatif sont ajoutés aux cahiers des cours, quiz et problèmes, hors examens chronométrés (aucune solution révélée durant l'épreuve).
+- Les inéquations du second degré, produits de signes, chaînes doubles, systèmes, annotations et domaines non affines restent **non vérifiés**, jamais déclarés justes. La progression, les copies et les sauvegardes ne changent pas de format.
+- Tests de signes, fractions, frontière, non-régression et parcours Chromium mobile dans le cahier ; mise à jour atomique du cache PWA requise avant publication.

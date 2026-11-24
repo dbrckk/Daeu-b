@@ -60,6 +60,29 @@ async function verifyCourseSearchRecovery(){
   }finally{await mobile.close();}
 }
 
+async function verifyInequalityNotebook(){
+  const mobile=await browser.newContext({viewport:{width:360,height:760},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const tab=await mobile.newPage();
+    await tab.goto(BASE+"/course.html?course=03-equations-inequations-systemes");
+    await tab.locator("#courseNotebookPanel > summary").click();
+    const editor=tab.locator("#courseNotebook .math-notebook-editor");
+    await editor.waitFor();
+    await editor.fill("-2x + 4 ≥ 6\n-2x ≥ 2\nx ≤ -1");
+    const verify=tab.locator("#courseNotebook .math-notebook-checker button").filter({hasText:"Vérifier mes étapes"});
+    await verify.click();
+    const feedback=tab.locator("#courseNotebook .math-notebook-feedback");
+    assert.match(await feedback.textContent(),/3 ligne\(s\) analysée\(s\), 0 erreur\(s\)/);
+    await editor.fill("-2x + 4 ≥ 6\nx ≥ -1");
+    await verify.click();
+    assert.match(await feedback.textContent(),/1 erreur\(s\).*inversion|1 erreur\(s\)[\s\S]*coefficient négatif/);
+    await tab.reload();
+    await tab.locator("#courseNotebookPanel > summary").click();
+    assert.match(await tab.locator("#courseNotebook .math-notebook-editor").inputValue(),/x ≥ -1/);
+    console.log("OK Cahier : inéquation exacte, signe inversé détecté et brouillon restauré");
+  }finally{await mobile.close();}
+}
+
 async function verifyMathNavigation(){
   const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
@@ -390,6 +413,7 @@ async function verifyCompleteKeyboardExam(){
 
 try {
   await verifyCourseSearchRecovery();
+  await verifyInequalityNotebook();
   await verifyAccessibleQuiz();
   await verifyMathNavigation();
   await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});
