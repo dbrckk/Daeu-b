@@ -187,6 +187,52 @@ export function classifyEquality(text){
   return {kind:"unique",solution:formatRational(div(target,coeff)),
     solutionRatio:div(target,coeff),coefficient:formatRational(coeff),target:formatRational(target)};
 }
+
+/**
+ * Inéquations AFFINES exactes sur R : une relation par ligne, en x uniquement.
+ * La frontière est rationnelle ; son inclusion et le sens sont comparés sans flottants.
+ * Les systèmes, produits de signes et inéquations quadratiques restent non vérifiés.
+ */
+export function classifyAffineInequality(text){
+  if(typeof text!=="string"||text.length>2*MAX_LINE)throw Error("ligne trop longue");
+  const match=text.match(/^(.+?)\s*(<=|>=|≤|≥|<|>)\s*(.+)$/u);
+  if(!match||/[<>=≤≥≠]/u.test(match[1]+match[3]))
+    throw Error("une seule inéquation complète est nécessaire (x < a, x ≥ a, etc.)");
+  const lhs=parseAffine(match[1]),rhs=parseAffine(match[3]);
+  const coefficient=sub(lhs.a,rhs.a),target=sub(rhs.b,lhs.b);
+  const originalOperator=match[2]==="<="?"≤":match[2]===">="?"≥":match[2];
+  const base={inequality:true,coefficient:formatRational(coefficient),
+    target:formatRational(target),originalOperator};
+  if(coefficient.n===0n){
+    const valid=originalOperator==="<"?target.n>0n
+      :originalOperator==="≤"?target.n>=0n
+      :originalOperator===">"?target.n<0n:target.n<=0n;
+    return {...base,kind:valid?"all":"none",
+      solution:valid?"tous les réels":"aucune solution",
+      signFlipped:false};
+  }
+  const signFlipped=coefficient.n<0n;
+  const mirror={"<":">","≤":"≥",">":"<","≥":"≤"};
+  const operator=signFlipped?mirror[originalOperator]:originalOperator;
+  const boundary=div(target,coefficient);
+  return {...base,kind:"interval",operator,boundary,signFlipped,
+    solution:"x "+operator+" "+formatRational(boundary)};
+}
+function sameInequalitySolutions(a,b){
+  if(!a?.inequality||!b?.inequality||a.kind!==b.kind)return false;
+  if(a.kind!=="interval")return true;
+  return a.operator===b.operator&&eq(a.boundary,b.boundary);
+}
+function inequalityMethod(result){
+  if(result.kind!=="interval")
+    return "Les termes en x s'annulent : vérifie la vérité de 0 "+result.originalOperator+" "+result.target+
+      ". Ensemble attendu : "+result.solution+".";
+  return "Regroupe les termes : "+result.coefficient+"x "+result.originalOperator+" "+result.target+
+    ". "+(result.signFlipped?"En divisant par un coefficient négatif, inverse le signe de l'inégalité. ":"")+
+    "Ensemble attendu : "+result.solution+
+    ". Vérifie le sens et si la borne est incluse (≤/≥) ou exclue (</>).";
+}
+
 const description=result=>{
   const solutions=result.kind==="two"
     ?result.solutions?"deux solutions réelles : x = "+result.solutions.join(" ou x = ")
@@ -212,7 +258,41 @@ export function checkMathSteps(text){
   for(let i=0;i<lines.length;i++){
     const input=lines[i].trim(),line=i+1;
     if(!input){previous=null;definition=null;continue;}
-    if(!input.includes("=")){previous=null;definition=null;continue;}
+    if(!input.includes("=")&&!/[<>≤≥≠]/u.test(input)){previous=null;definition=null;continue;}
+    if(/[<>≤≥≠]/u.test(input)){
+      definition=null;
+      let result;
+      try{result=classifyAffineInequality(input);}
+      catch(error){
+        previous=null;unsupported++;
+        entries.push({line,kind:"unsupported",message:"Inéquation non vérifiée : "+error.message+
+          ". Utilise une seule inéquation affine en x, sans chaîne ni produit de signes."});
+        continue;
+      }
+      checked++;
+      if(previous&&!previous.inequality){
+        previous=null;unsupported++;
+        entries.push({line,kind:"unsupported",message:"Passage d'une équation à une inéquation : "+
+          "on ne peut pas les déclarer équivalentes. Sépare les deux raisonnements par une ligne vide."});
+        continue;
+      }
+      if(!previous){
+        entries.push({line,kind:"info",message:"Inéquation du premier degré reconnue. "+
+          inequalityMethod(result)});
+        previous=result;previousLine=line;
+      }else if(sameInequalitySolutions(previous,result)){
+        entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+previousLine+
+          " : même ensemble de solutions ("+result.solution+")."});
+        previous=result;previousLine=line;
+      }else{
+        errors++;
+        entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+
+          " : cette ligne donne "+result.solution+", au lieu de "+previous.solution+". "+
+          inequalityMethod(previous)});
+        // Ne jamais prendre une erreur comme référence des lignes suivantes.
+      }
+      continue;
+    }
     if(isFunctionNotation(input)){
       // Conserver la définition valide comme seule référence, y compris
       // après une tentative de dérivation incorrecte.
@@ -246,6 +326,12 @@ export function checkMathSteps(text){
       continue;
     }
     definition=null;
+    if(previous?.inequality){
+      previous=null;unsupported++;
+      entries.push({line,kind:"unsupported",message:"Passage d'une inéquation à une équation : "+
+        "elles ne sont pas équivalentes. Sépare les raisonnements par une ligne vide."});
+      continue;
+    }
     let result;
     try{result=classifyEquality(input);}
     catch(error){

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {classifyEquality,checkMathSteps,parseAffine,formatRational} from "./math-step-checker.mjs";
+import {classifyEquality,checkMathSteps,parseAffine,formatRational,classifyAffineInequality} from "./math-step-checker.mjs";
 
 test("chaîne linéaire correcte : transformation équivalente exacte",()=>{
  const c=checkMathSteps("2x + 5 = 17\n2x = 12\nx = 6");
@@ -193,4 +193,48 @@ test("Une racine de décimal non carré parfait n'est jamais arrondie à un nomb
   assert.equal(result.errors,1);
   assert.equal(result.unsupported,0);
   assert.equal(checkMathSteps("√(0.5)=x").checked,1);
+});
+
+
+test("inéquations affines exactes : sens, parenthèses et rationnels",()=>{
+  assert.deepEqual(checkMathSteps("2x + 1 < 5\n2x < 4\nx < 2").entries.map(e=>e.kind),["info","ok","ok"]);
+  assert.deepEqual(checkMathSteps("-2x + 4 ≥ 6\n-2x ≥ 2\nx ≤ -1").entries.map(e=>e.kind),["info","ok","ok"]);
+  assert.deepEqual(checkMathSteps("-2(x - 1) <= 6\nx >= -2").entries.map(e=>e.kind),["info","ok"]);
+  assert.deepEqual(checkMathSteps("3x ≤ 1\nx ≤ 1/3").entries.map(e=>e.kind),["info","ok"]);
+  assert.deepEqual(checkMathSteps("2 - x > 0\nx < 2").entries.map(e=>e.kind),["info","ok"]);
+  assert.equal(classifyAffineInequality("2x + 5 <= 11").solution,"x ≤ 3");
+  assert.equal(classifyAffineInequality("−4x > 8").solution,"x < -2");
+});
+
+test("inclusion de borne et inversion de signe : erreurs détectées avec méthode",()=>{
+  const wrong=checkMathSteps("-2x + 4 ≥ 6\nx ≥ -1\nx ≤ -1");
+  assert.deepEqual(wrong.entries.map(e=>e.kind),["info","error","ok"]);
+  assert.match(wrong.entries[1].message,/coefficient négatif/);
+  assert.match(wrong.entries[1].message,/x ≤ -1/);
+  assert.deepEqual(checkMathSteps("x < 2\nx ≤ 2").entries.map(e=>e.kind),["info","error"]);
+  assert.deepEqual(checkMathSteps("2x < 4\nx < 2,000000001").entries.map(e=>e.kind),["info","error"]);
+  assert.deepEqual(checkMathSteps("x > 3\nx < 3").entries.map(e=>e.kind),["info","error"]);
+});
+
+test("inéquations tautologiques ou impossibles et frontières exactes",()=>{
+  assert.equal(classifyAffineInequality("x + 2 ≤ x + 3").kind,"all");
+  assert.equal(classifyAffineInequality("x + 2 > x + 3").kind,"none");
+  assert.equal(classifyAffineInequality("2 < 3").kind,"all");
+  assert.equal(classifyAffineInequality("2 ≥ 3").kind,"none");
+  assert.deepEqual(checkMathSteps("x + 2 ≤ x + 3\n0 ≤ 1").entries.map(e=>e.kind),["info","ok"]);
+  assert.deepEqual(checkMathSteps("x + 2 > x + 3\n0 > 1").entries.map(e=>e.kind),["info","ok"]);
+  assert.deepEqual(checkMathSteps("x+2≤x+3\nx<2").entries.map(e=>e.kind),["info","error"]);
+});
+
+test("aucune validation fictive des inéquations complexes, malformées ou des chaînes mélangées",()=>{
+  for(const source of ["x² > 4","x(x-1)≥0","x < y","0 < x < 2","x >= ","x=>2","x ≠ 2","√(x)>1","x < 1/0"]){
+    const review=checkMathSteps(source);
+    assert.equal(review.unsupported,1,source);
+    assert.equal(review.checked,0,source);
+  }
+  assert.deepEqual(checkMathSteps("x < 2\nx = 1").entries.map(e=>e.kind),["info","unsupported"]);
+  assert.deepEqual(checkMathSteps("x = 1\nx < 2").entries.map(e=>e.kind),["info","unsupported"]);
+  assert.deepEqual(checkMathSteps("x < 2\n\nx = 1").entries.map(e=>e.kind),["info","info"]);
+  const unrelated=checkMathSteps("x < 3\nx²>1\nx < 4");
+  assert.deepEqual(unrelated.entries.map(e=>e.kind),["info","unsupported","info"]);
 });
