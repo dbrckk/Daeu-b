@@ -37,6 +37,8 @@ async function verifyCourseSearchRecovery(){
     await tab.goto(BASE+"/course.html?course=08-continuite-tvi");
     await tab.locator("#courseSearchPanel summary").press("Enter");
     const input=tab.locator("#courseSearchInput");
+    await tab.locator("#courseSearchSubmit").waitFor({state:"visible"});
+    await tab.waitForFunction(()=>!document.getElementById("courseSearchSubmit").disabled);
     await input.fill("dichotomie");
     await input.press("Enter");
     const result=tab.locator('#courseSearchResults a[href*="08-continuite-tvi"]').first();
@@ -2018,7 +2020,8 @@ try {
   await page.locator("#examStart").click();
   await check(async()=>await page.locator("#examActive").isVisible()
     &&await page.locator("#examNotes").isVisible()
-    &&await page.locator("#examNotebook canvas").count()===0,
+    &&await page.locator("#examNotebook canvas").count()===0
+    &&await page.locator("#examNotebook .math-notebook-disclosure").count()===1,
     "Examen C au clavier par défaut, réponses et justifications accessibles");
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("0/16 réponses")&&s.includes("0/4 justifications")),
     "Examen C : contrôle pré-remise visible sans solutions");
@@ -2046,6 +2049,14 @@ try {
   await page.locator("#examNotes").fill("Raisonnement géométrique rédigé dans la copie.");
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/4 justifications")),
     "Justifications présentes séparées des réponses automatiques");
+  await page.locator("#examNotebook .math-notebook-disclosure > summary").click();
+  await page.locator("#examNotebook .math-notebook-editor").fill("2x + 5 = 17\n2x = 12\nx = 6");
+  await page.locator("#examNotebook .exam-copy-calculations").click();
+  await check(async()=>await page.locator("#examNotes").inputValue().then(v=>v.includes("géométrique")&&v.includes("2x = 12")),
+    "Examen : calculs tapés et reportés dans les justifications sans recopier");
+  await page.locator("#examNotesSymbols button").filter({hasText:"√"}).click();
+  await check(async()=>await page.locator("#examNotes").inputValue().then(v=>v.endsWith("√")),
+    "Examen : clavier de symboles disponible dans la rédaction");
   await page.locator("#examPrev").click();
   await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="−3/4"),"Réponse conservée à la navigation");
   await page.reload({waitUntil:"networkidle"});
@@ -2053,7 +2064,10 @@ try {
   await check(async()=>await page.locator("#examContext").textContent().then(x=>x===contextText),"Sujet inchangé au rechargement");
   await check(async()=>await page.locator("#examQuestions .exam-input").first().inputValue().then(x=>x==="−3/4"),"Réponse conservée au rechargement");
   await page.locator("#examNext").click();
-  await check(async()=>await page.locator("#examNotes").inputValue().then(x=>x.includes("géométrique")),"Rédaction récupérée");
+  await check(async()=>await page.locator("#examNotes").inputValue().then(x=>x.includes("géométrique")&&x.includes("2x = 12")&&x.endsWith("√")),"Rédaction et calculs récupérés");
+  await page.locator("#examNotebook .math-notebook-disclosure > summary").click();
+  await check(async()=>await page.locator("#examNotebook .math-notebook-editor").inputValue().then(x=>x.includes("2x = 12")),
+    "Brouillon de calcul sauvegardé lors du rechargement de l'examen");
   await check(async()=>await page.locator("#examDraftSummary").textContent().then(s=>s.includes("1/16 réponses")&&s.includes("1/4 justifications")),
     "Résumé de complétude exact après rechargement");
 
