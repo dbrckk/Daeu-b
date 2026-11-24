@@ -270,6 +270,32 @@ function renderDraftProgress(){
     list.append(button);
   }
 }
+function installExamNotesKeyboard(){
+  const notes=byId("examNotes");
+  const panel=element("div","math-notebook-keypad exam-notes-keypad");
+  panel.id="examNotesSymbols";
+  panel.setAttribute("role","group");
+  panel.setAttribute("aria-label","Symboles pour rédiger mes calculs");
+  for(const symbol of ["×","÷","−","√","²","³","π","≤","≥","≠","Δ","∫","∞","→","(",")"]){
+    const button=element("button","subtle small",symbol);
+    button.type="button";
+    button.setAttribute("aria-label","Insérer "+symbol+" dans la rédaction");
+    button.addEventListener("click",()=>{
+      if(!store.active||store.active.paperOnly||hasExpired(store.active)){tick();return;}
+      const start=notes.selectionStart,end=notes.selectionEnd;
+      if(notes.value.length-(end-start)+symbol.length>notes.maxLength){
+        alertExam("Rédaction limitée à 3 500 caractères. Raccourcis ta démonstration avant d'ajouter un symbole.");
+        notes.focus();return;
+      }
+      notes.setRangeText(symbol,start,end,"end");
+      notes.dispatchEvent(new Event("input",{bubbles:true}));
+      notes.focus();
+    });
+    panel.append(button);
+  }
+  notes.after(panel);
+}
+
 function renderExamSection(){
   const session=store.active;
   if(!session)return;
@@ -286,7 +312,41 @@ function renderExamSection(){
       context:sheetKey(session,section.id),adapter,title:"Examen — exercice "+(session.sectionIndex+1)+" : "+section.title,
       checkingEnabled:false,paperOnly:session.paperOnly===true,paperPrompt:session.paperOnly?examPaperPrompt(section):""
     });
-  }else notebook.replaceChildren();
+  }else{
+    const context=sheetKey(session,section.id);
+    mountNotebook(notebook,{
+      context,adapter,title:"Mes calculs — exercice "+(session.sectionIndex+1),
+      textOnly:true,collapsed:true,checkingEnabled:false
+    });
+    const transfer=element("button","subtle small exam-copy-calculations","Reporter mes calculs dans la rédaction");
+    transfer.type="button";
+    transfer.addEventListener("click",()=>{
+      if(!store.active||hasExpired(store.active)){tick();return;}
+      let draft="";
+      try{draft=adapter.snapshot().workbook.entries?.[context]?.text?.trim()||"";}
+      catch{alertExam("Impossible de relire le brouillon sauvegardé.");return;}
+      if(!draft){alertExam("Écris d'abord tes calculs dans le brouillon.");return;}
+      const notes=byId("examNotes");
+      if(notes.value.includes(draft)){
+        alertExam("Ces calculs sont déjà présents dans la rédaction.");notes.focus();return;
+      }
+      const merged=notes.value.trimEnd()+(notes.value.trim()?"\n\n":"")+draft;
+      if(merged.length>3500){
+        alertExam("Le texte dépasse la limite de 3 500 caractères. Raccourcis le brouillon ou la rédaction avant de le reporter.");
+        notes.focus();return;
+      }
+      notes.value=merged;
+      notes.dispatchEvent(new Event("input",{bubbles:true}));
+      if(notes.value!==merged){
+        alertExam("La rédaction n'a pas été enregistrée ; ton brouillon reste sauvegardé.");
+        return;
+      }
+      alertExam("");
+      notes.focus();
+    });
+    const info=element("p","helper","Brouillon enregistré automatiquement. Pour joindre les étapes à la copie, reporte-les dans la rédaction. Aucune correction n'est dévoilée pendant l'examen.");
+    notebook.querySelector(".math-notebook-disclosure").append(transfer,info);
+  }
   const form=byId("examQuestions");form.replaceChildren();
   form.hidden=session.paperOnly===true;
   byId("examNotes").closest(".exam-notes").hidden=session.paperOnly===true;
@@ -690,6 +750,7 @@ export function clearExamProgress(){
 export function initExams(storageAdapter,staleCallback=()=>{}){
   if(initialized)return;
   initialized=true;adapter=storageAdapter;onStale=staleCallback;load();
+  installExamNotesKeyboard();
   const select=byId("examSelect");
   for(const exam of EXAMS){const opt=element("option","",exam.title);opt.value=exam.id;select.append(opt);}
   const generated=element("option","","Examen C — NOUVEAU sujet généré à chaque tentative");

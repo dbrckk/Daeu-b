@@ -450,3 +450,12 @@ Le projet Supabase gratuit `xxypyvzkciowwseldxhq` utilise initialement le SMTP i
 ## v30 — correction guidée des lignes de calcul (12 novembre 2026)
 
 Dans les cahiers des cours, quiz et problèmes, le bouton **« Vérifier mes étapes »** analyse volontairement une rédaction, ligne par ligne. Il prend en charge les calculs numériques et les équations affines en `x` : additions, soustractions, multiplication, divisions par constantes non nulles, fractions et parenthèses. Les transformations sont comparées par solution exacte avec des fractions rationnelles (`BigInt`) : pas de validation par tolérance flottante. Les lignes non reconnues (fonctions, systèmes, puissances de `x`, racines, calculs manuscrits) restent explicitement non vérifiées. Aucune rédaction n'est automatiquement notée. Pendant une **séance de quiz**, consulter la vérification guidée est une **aide**, enregistrée dans la séance et conservée après fermeture : une réussite assistée ne valide pas la maîtrise. La correction automatique n'est pas activée pendant les examens blancs chronométrés.
+
+
+## v135 — examens blancs entièrement réalisables au clavier (24 novembre 2026)
+
+- Chaque exercice d'examen dispose d'un **brouillon de calcul textuel**, avec modèles, aperçu MathML et sauvegarde locale/cloud dans le cahier existant, sans feuille ni reconnaissance manuscrite. La correction guidée des étapes est désactivée pendant le chronomètre.
+- **Reporter mes calculs dans la rédaction** ajoute les lignes du brouillon à la justification de l'exercice, sans écraser la rédaction antérieure ni dépasser la limite. Les reports identiques sont bloqués et un échec d'enregistrement ne supprime pas le brouillon.
+- Un clavier de seize symboles mathématiques complète la zone de rédaction : racines, puissances, opérateurs et comparaisons se rédigent sans papier.
+- Les anciennes copies conservent leur format. Les copies manuscrites historiques sont préservées. La note automatique n'évalue toujours pas les démonstrations.
+- Validation : scénario Chromium mobile, reprise après navigation et rechargement, contrôle du cache PWA et déploiement Render ; TalkBack physique reste à confirmer.
