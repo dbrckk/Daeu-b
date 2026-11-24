@@ -37,6 +37,8 @@ async function verifyCourseSearchRecovery(){
     await tab.goto(BASE+"/course.html?course=08-continuite-tvi");
     await tab.locator("#courseSearchPanel summary").press("Enter");
     const input=tab.locator("#courseSearchInput");
+    await tab.locator("#courseSearchSubmit").waitFor({state:"visible"});
+    await tab.waitForFunction(()=>!document.getElementById("courseSearchSubmit").disabled);
     await input.fill("dichotomie");
     await input.press("Enter");
     const result=tab.locator('#courseSearchResults a[href*="08-continuite-tvi"]').first();
