@@ -484,3 +484,8 @@ Le clavier propose les caractères d'ensembles et un modèle d'inéquation du se
 Le correcteur accepte deux membres polynomiaux ou quotients explicites, avec dénominateurs affines et produit croisé de degré au plus deux. Les signes sont propagés selon les multiplicités des racines ; les pôles sont systématiquement exclus, même en cas de simplification. Le tableau indique « interdit » à ces points. Les expressions ambiguës ou hors périmètre restent non vérifiées.
 
 Les conclusions S acceptent désormais les racines carrées numériques exactes (par exemple -√(2), √(8)/2, (1+√(5))/2) et jusqu'à cinq intervalles ou singletons. Comparaison algébrique et normalisation des unions sans flottants ; aucun arrondi de borne irrationnelle n'est accepté. Deux nouveaux modèles clavier, contrôle en ligne et hors ligne, sauvegardes inchangées. Le contrôle reste désactivé pendant l'examen.
+
+
+## v139 — remédiation personnalisée depuis le cahier
+
+Le cahier regroupe les erreurs réellement détectées en sept notions et propose le cours ainsi qu'une séance de 4 à 7 questions ciblées dans la banque existante, avec exercices paramétriques. Aucun diagnostic fictif à partir d'une ligne non prise en charge. La séance ne démarre qu'à la demande et utilise le moteur de progression, la répétition espacée et la gestion des séances existants. Les recommandations sont recalculées lors d'une nouvelle vérification du brouillon sauvegardé ; elles ne constituent pas un historique autonome. Aucun changement de format de sauvegarde ; aucune correction pendant l'examen.
