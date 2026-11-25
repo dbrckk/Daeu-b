@@ -3,7 +3,7 @@
  * Sauvegarde atomique dans le bundle progression / cloud / IndexedDB.
  * Les traits sont des coordonnées, jamais du HTML, SVG fourni par l'utilisateur ou du code.
  */
-import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES,MAX_WORK_PAGES} from "./workbook.mjs";
+import {blankWork,changeWork,recordWorkbookReview,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES,MAX_WORK_PAGES} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 import {stepReviewRecommendations,courseUrl} from "./course-catalog.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
@@ -143,7 +143,7 @@ export function notebookMode(url=globalThis.location.href){
   return mode==="manuscrit"||mode==="mixte"?mode:"clavier";
 }
 
-export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},handwrittenReview=null,paperOnly=false,paperPrompt="",readOnly=false,showEditor=!paperOnly,textOnly=false,collapsed=false}){
+export function mountNotebook(host,{context,adapter,storage=globalThis.localStorage,title="Mon cahier de calcul",checkingEnabled=true,onGuidance=()=>{},onReviewSaved=()=>{},handwrittenReview=null,paperOnly=false,paperPrompt="",readOnly=false,showEditor=!paperOnly,textOnly=false,collapsed=false}){
   if(!host)throw new Error("Emplacement de cahier absent");
   const legacyKey=notebookKey(context);
   if(!adapter||typeof adapter.snapshot!=="function"||typeof adapter.updateWorkbook!=="function")
@@ -317,7 +317,19 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
     const caveat=document.createElement("p");caveat.className="helper";
     caveat.textContent="Les équivalences reconnues sont vérifiées sur leur ensemble de solutions, pas sur la qualité de la démonstration. Les textes libres, systèmes, inéquations de degré supérieur à 2 et quotients de degré supérieur au périmètre restent à comparer au corrigé.";
     feedback.append(caveat);feedback.hidden=false;
-    if(review.checked>0)onGuidance();
+    if(review.checked>0){
+      onGuidance();
+      if(checkingEnabled&&!readOnly){
+        try{
+          const saved=recordWorkbookReview(adapter.snapshot().workbook,context,field.value,review);
+          if(saved.changed){adapter.updateWorkbook(saved.book);onReviewSaved();}
+        }catch(error){
+          const notice=document.createElement("p");notice.className="helper";
+          notice.textContent="Correction disponible, mais historique non enregistré : "+error.message;
+          feedback.append(notice);
+        }
+      }
+    }
   });
   if(textOnly){
     const scope=document.createElement("details");

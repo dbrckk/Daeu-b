@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {blankWork,emptyWorkbook,sanitizeWorkbook,readWork,changeWork,encodeStroke,parseStroke} from "./workbook.mjs";
+import {blankWork,emptyWorkbook,sanitizeWorkbook,readWork,changeWork,recordWorkbookReview,sanitizeStepReviews,workbookReviewPlan,MAX_STEP_REVIEWS,encodeStroke,parseStroke} from "./workbook.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY} from "./persistence.mjs";
-import {emptyState} from "./engine.mjs";
+import {emptyState,recordAnswer} from "./engine.mjs";
+import {checkMathSteps} from "./math-step-checker.mjs";
 import {emptyExamStore} from "./exam-engine.mjs";
 const known=new Set(["q01","v01"]);
 test("Cahier : traits vectoriels et texte multi-lignes reprennent exactement",()=>{
@@ -61,4 +62,58 @@ test("longues équations : 240 gestes par page et anciens cahiers inchangés",()
  assert.throws(()=>changeWork(emptyWorkbook(),"quiz:longue-equation",{
    text:"",pages:[Array.from({length:241},()=>stroke)]
  }),/Trop de traits/);
+});
+
+
+test("diagnostics : persistance, déduplication, correction et absence d'impact sur les acquis",()=>{
+ const key="cours:03-equations-inequations-systemes",text="-2x<4\nx<-2";
+ const original=changeWork(emptyWorkbook(),key,{...blankWork(),text});
+ const result=recordWorkbookReview(original,key,text,checkMathSteps(text),100);
+ assert.equal(result.changed,true);
+ assert.equal(result.book.stepReviews.length,1);
+ assert.equal(recordWorkbookReview(result.book,key,text,checkMathSteps(text),101).changed,false);
+ assert.equal(recordWorkbookReview(result.book,key,"autre",checkMathSteps(text),101).changed,false);
+ const s=createVolatileStorage(),p=createPersistence(s,known);
+ p.updateWorkbook(result.book);
+ const snapshot=createPersistence(s,known).snapshot();
+ assert.deepEqual(snapshot.practice,emptyState());
+ assert.equal(snapshot.workbook.stepReviews.length,1);
+ assert.equal(workbookReviewPlan(snapshot.workbook,snapshot.practice,200).daily[0].code,"inequality");
+ const correct="-2x<4\nx>-2";
+ const edited=changeWork(snapshot.workbook,key,{...blankWork(),text:correct});
+ assert.equal(edited.stepReviews.length,1);
+ const fixed=recordWorkbookReview(edited,key,correct,checkMathSteps(correct),300).book;
+ assert.equal(fixed.stepReviews.length,2);
+ assert.equal(workbookReviewPlan(fixed,emptyState(),400).daily.length,0);
+ assert.equal(workbookReviewPlan(fixed,emptyState(),400).history.length,2);
+ assert.equal(changeWork(fixed,key,blankWork()).stepReviews.length,2);
+});
+
+test("historique borné, import invalide ignoré et examen exclu",()=>{
+ const key="quiz:e05";
+ let book=emptyWorkbook();
+ for(let i=1;i<=MAX_STEP_REVIEWS+5;i++){
+   const text="x="+i+"\nx="+(i+1);
+   book=changeWork(book,key,{...blankWork(),text});
+   book=recordWorkbookReview(book,key,text,checkMathSteps(text),i).book;
+ }
+ assert.equal(book.stepReviews.length,MAX_STEP_REVIEWS);
+ assert.equal(book.stepReviews[0].at,6);
+ assert.deepEqual(sanitizeStepReviews([{...book.stepReviews[0],context:"exam:a"},{...book.stepReviews[0],skills:[{code:"__proto__",count:1}]}]),[]);
+ const exam=changeWork(book,"exam:a",{...blankWork(),text:"2+2=5"});
+ assert.equal(recordWorkbookReview(exam,"exam:a","2+2=5",checkMathSteps("2+2=5"),100).changed,false);
+ assert.deepEqual(sanitizeWorkbook({...book,stepReviews:[{junk:true}]}).stepReviews,undefined);
+});
+
+test("plan : priorités, succès sans aide et répétition espacée",()=>{
+ const key="quiz:e05",text="-2x<4\nx<-2";
+ let book=changeWork(emptyWorkbook(),key,{...blankWork(),text});
+ book=recordWorkbookReview(book,key,text,checkMathSteps(text),100).book;
+ let practice=recordAnswer(emptyState(),"e05",true,110,{hinted:true});
+ assert.equal(workbookReviewPlan(book,practice,120).rows[0].practiced,0);
+ practice=recordAnswer(practice,"e05",true,130);
+ assert.equal(workbookReviewPlan(book,practice,140).rows[0].practiced,1);
+ practice=recordAnswer(practice,"e04",false,140);
+ assert.equal(workbookReviewPlan(book,practice,150).rows[0].due,1);
+ assert.equal(workbookReviewPlan(book,practice,150).daily[0].remaining,3);
 });
