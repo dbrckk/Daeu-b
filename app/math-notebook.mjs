@@ -5,6 +5,7 @@
  */
 import {blankWork,changeWork,encodeStroke,parseStroke,readWork,PAPER_WIDTH,PAPER_HEIGHT,MAX_PAGE_STROKES,MAX_WORK_PAGES} from "./workbook.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
+import {stepReviewRecommendations,courseUrl} from "./course-catalog.mjs";
 import {renderMathPreview} from "./math-preview.mjs";
 import {recognizeBottomNumericInk,recognizeNumericInk,recognizeStackedFractionInk} from "./numeric-ink.mjs";
 import {recognizeEquationInk,extractFinalNumericAnswer,recognizeFinalEquationInk,recognizeFinalEquationDraft} from "./equation-ink.mjs";
@@ -292,6 +293,26 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         list.append(item);
       }
       feedback.append(list);
+    }
+    const recommendations=stepReviewRecommendations(review.entries);
+    if(recommendations.length){
+      const section=document.createElement("section");section.className="path-next math-step-reviews";
+      const heading=document.createElement("h5");heading.textContent="Réviser mes erreurs";
+      const intro=document.createElement("p");intro.className="helper";
+      intro.textContent="Exercices ciblés sur les notions repérées, avec des variantes. Une nouvelle séance ne démarre qu’à ta demande ; aucune maîtrise n’est attribuée par ce diagnostic.";
+      section.append(heading,intro);
+      const list=document.createElement("ul");
+      for(const item of recommendations){
+        const row=document.createElement("li");
+        const title=document.createElement("strong");title.textContent=item.title;
+        const count=document.createElement("p");count.className="helper";count.textContent=item.count+" erreur(s) détectée(s) · "+item.ids.length+" exercices ciblés";
+        const actions=document.createElement("div");actions.className="path-buttons";
+        const practice=document.createElement("a");practice.className="primary";practice.href=item.url;
+        practice.textContent="M’entraîner : "+item.title;
+        const course=document.createElement("a");course.href=courseUrl(item.lesson);course.textContent="Revoir le cours";
+        actions.append(practice,course);row.append(title,count,actions);list.append(row);
+      }
+      section.append(list);feedback.append(section);
     }
     const caveat=document.createElement("p");caveat.className="helper";
     caveat.textContent="Les équivalences reconnues sont vérifiées sur leur ensemble de solutions, pas sur la qualité de la démonstration. Les textes libres, systèmes, inéquations de degré supérieur à 2 et quotients de degré supérieur au périmètre restent à comparer au corrigé.";

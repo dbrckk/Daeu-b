@@ -112,6 +112,41 @@ async function verifyInequalityNotebook(){
   }finally{await mobile.close();}
 }
 
+async function verifyTargetedRevision(){
+  const mobile=await browser.newContext({viewport:{width:360,height:760},isMobile:true,hasTouch:true,locale:"fr-FR"});
+  try{
+    const tab=await mobile.newPage();
+    await tab.goto(BASE+"/course.html?course=03-equations-inequations-systemes");
+    await tab.locator("#courseNotebookPanel > summary").click();
+    await tab.locator("#courseNotebook .math-notebook-editor").fill("-2x<4\nx<-2");
+    await tab.locator("#courseNotebook .math-notebook-checker button").filter({hasText:"Vérifier mes étapes"}).click();
+    const link=tab.locator(".math-step-reviews a[href*='revision=inequality']");
+    await link.waitFor();
+    await link.click();
+    await tab.waitForURL(/revision=inequality/);
+    await tab.waitForFunction(()=>document.querySelector("#practice-title")?.textContent.includes("Révision ciblée"));
+    assert.match(await tab.locator("#practice-title").textContent(),/Sens des inégalités/);
+    assert.ok(await tab.locator("#quiz").isHidden());
+    await tab.locator("#start").click();
+    await tab.locator("#quiz").waitFor();
+    assert.match(await tab.locator("#quizCount").textContent(),/\/ 4/);
+    const getRound=()=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
+    const round=await getRound();
+    assert.deepEqual([...round.ids].sort(),["e04","e05","v09","v37"]);
+    const prompt=await tab.locator("#questionText").textContent();
+    await tab.reload();
+    await tab.locator("#quiz").waitFor();
+    assert.equal(await tab.locator("#questionText").textContent(),prompt);
+    assert.deepEqual((await getRound()).ids,round.ids);
+    await tab.waitForFunction(()=>!!navigator.serviceWorker.controller);
+    await mobile.setOffline(true);
+    await tab.reload();
+    await tab.locator("#quiz").waitFor();
+    assert.equal(await tab.locator("#questionText").textContent(),prompt);
+    console.log("OK Révision ciblée : erreur réelle, quatre questions dont variantes, reprise et hors ligne");
+  }finally{await mobile.close();}
+}
+
 async function verifyMathNavigation(){
   const mobile=await browser.newContext({viewport:{width:320,height:720},isMobile:true,hasTouch:true,locale:"fr-FR"});
   try{
@@ -443,6 +478,7 @@ async function verifyCompleteKeyboardExam(){
 try {
   await verifyCourseSearchRecovery();
   await verifyInequalityNotebook();
+  await verifyTargetedRevision();
   await verifyAccessibleQuiz();
   await verifyMathNavigation();
   await page.goto(BASE+"/",{waitUntil:"networkidle",timeout:30000});

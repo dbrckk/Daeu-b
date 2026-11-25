@@ -499,6 +499,14 @@ const description=result=>{
   return solutions+(result.domainInfo?" ("+result.domainInfo+")":"")+rejected;
 };
 function sameSolution(a,b){return sameRealSolutions(a,b);}
+function reviewSkill(result){
+  if(result?.rationalInequality||result?.rationalEquation)return "rational";
+  if(result?.radicalEquation)return "radical";
+  if(result?.quadratic)return "quadratic";
+  if(result?.inequality)return "inequality";
+  if(result?.kind==="calculation")return "numeric";
+  return "linear";
+}
 /**
  * Les lignes non mathématiques séparent les chaînes (plusieurs exercices).
  * Les lignes contenant un = inconnu ne servent JAMAIS à confirmer une étape.
@@ -533,7 +541,7 @@ export function checkMathSteps(text){
         entries.push({line,kind:"ok",message:"Conclusion exacte : "+result.solution+"."});
       else{
         errors++;
-        entries.push({line,kind:"error",message:"Ensemble de solutions incorrect : "+result.solution+
+        entries.push({line,kind:"error",skill:reviewSkill(previous),message:"Ensemble de solutions incorrect : "+result.solution+
           ". Attendu : S = "+describeSet(intervalsFor(previous))+". "+inequalityMethod(previous)});
       }
       continue;
@@ -559,7 +567,7 @@ export function checkMathSteps(text){
         if(result.numeric){
           const correct=result.kind==="all";
           if(!correct)errors++;
-          entries.push({line,kind:correct?"ok":"error",message:"Inégalité numérique "+(correct?"vraie.":"fausse. ")+inequalityMethod(result)});
+          entries.push({line,kind:correct?"ok":"error",...(!correct?{skill:"numeric"}:{}),message:"Inégalité numérique "+(correct?"vraie.":"fausse. ")+inequalityMethod(result)});
           continue;
         }
         entries.push({line,kind:"info",message:(result.rationalInequality?"Inéquation rationnelle reconnue. ":"Inéquation du "+(result.quadratic?"second":"premier")+" degré reconnue. ")+
@@ -571,7 +579,7 @@ export function checkMathSteps(text){
         previous=result;previousLine=line;
       }else{
         errors++;
-        entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+
+        entries.push({line,kind:"error",skill:reviewSkill(previous),message:"Étape non équivalente à la ligne "+previousLine+
           " : cette ligne donne "+result.solution+", au lieu de "+previous.solution+". "+
           inequalityMethod(previous)});
         // Ne jamais prendre une erreur comme référence des lignes suivantes.
@@ -605,7 +613,7 @@ export function checkMathSteps(text){
           entries.push({line,kind:"ok",message:"Dérivée exacte : "+review.expected+". "+review.rule});
         else{
           errors++;
-          entries.push({line,kind:"error",message:"Dérivée incorrecte : "+review.actual+". Résultat attendu : "+review.expected+". "+review.rule+" "+review.detail+" Vérifie les exposants, les signes et la dérivée des constantes."});
+          entries.push({line,kind:"error",skill:"derivative",message:"Dérivée incorrecte : "+review.actual+". Résultat attendu : "+review.expected+". "+review.rule+" "+review.detail+" Vérifie les exposants, les signes et la dérivée des constantes."});
         }
       }
       continue;
@@ -632,11 +640,11 @@ export function checkMathSteps(text){
       if(earlier&&earlier.kind===currentKind){
         entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
       }else if(!result.correct){
-        errors++;entries.push({line,kind:"error",message:"Égalité numérique fausse : le membre gauche vaut "+result.left+", le membre droit "+result.right+"."});
+        errors++;entries.push({line,kind:"error",skill:"numeric",message:"Égalité numérique fausse : le membre gauche vaut "+result.left+", le membre droit "+result.right+"."});
       }else if(earlier?.kind==="unique"){
         entries.push({line,kind:"info",message:"Égalité numérique correcte, mais elle ne prouve pas à elle seule l'équivalence avec la ligne "+fromLine+" ("+description(earlier)+"). Une vérification par substitution se rédige à part."});
       }else if(earlier){
-        errors++;entries.push({line,kind:"error",message:"L'égalité numérique n'est pas équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
+        errors++;entries.push({line,kind:"error",skill:reviewSkill(earlier),message:"L'égalité numérique n'est pas équivalente à la ligne "+fromLine+" : "+description(earlier)+"."});
       }else{
         entries.push({line,kind:"ok",message:"Calcul correct : "+result.left+" = "+result.right+"."});
       }
@@ -665,7 +673,7 @@ export function checkMathSteps(text){
         :previous.kind==="unique"
           ?" Méthode depuis la ligne "+previousLine+" : regroupe les termes en x, puis les constantes pour obtenir "+(previous.coefficient==="1"?"x":previous.coefficient+"x")+" = "+previous.target+", et divise par "+previous.coefficient+" pour trouver x = "+previous.solution+"."
           :" Reprends la simplification : une identité doit rester vraie pour tout x et une équation impossible ne doit pas gagner de solution.";
-      entries.push({line,kind:"error",message:"Étape non équivalente à la ligne "+previousLine+" : précédemment "+description(previous)+", maintenant "+description(result)+". Vérifie les signes et les opérations appliquées aux deux membres."+method});
+      entries.push({line,kind:"error",skill:reviewSkill(previous),message:"Étape non équivalente à la ligne "+previousLine+" : précédemment "+description(previous)+", maintenant "+description(result)+". Vérifie les signes et les opérations appliquées aux deux membres."+method});
     }
     // Une étape incorrecte ne devient jamais le nouveau point de référence.
     // Cela évite qu'une seconde ligne cohérente avec une erreur précédente

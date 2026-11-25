@@ -1,7 +1,7 @@
 import {TOPICS} from "./questions.mjs";
 import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
-import {COURSES,courseUrl} from "./course-catalog.mjs";
+import {COURSES,courseUrl,stepReview} from "./course-catalog.mjs";
 import {BOOKMARK_PREFIX,LAST_READING_KEY,readBookmarkEntry,readLastReading} from "./reading-bookmark.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
@@ -25,10 +25,13 @@ if(errors.length) throw new Error("Corpus invalide : "+errors.join("; "));
 
 const practiceParams=new URLSearchParams(location.search);
 const requestedTopic=practiceParams.get("topic");
+const requestedRevision=!practiceParams.has("topic")&&!practiceParams.has("jalon")
+  ?stepReview(practiceParams.get("revision")):null;
 const requestedJalon=JALONS.find(item=>String(item.id)===practiceParams.get("jalon"));
 const hasTopic=fullTopics.some(topic=>topic.slug===requestedTopic);
-const scopedPractice=Boolean(requestedJalon||hasTopic);
-const practiceIds=requestedJalon?jalonIndex.get(requestedJalon.id)
+const scopedPractice=Boolean(requestedJalon||hasTopic||requestedRevision);
+const practiceIds=requestedRevision?new Set(requestedRevision.ids.filter(id=>knownIds.has(id)))
+  :requestedJalon?jalonIndex.get(requestedJalon.id)
   :new Set(questions.filter(question=>question.topic===requestedTopic).map(question=>question.id));
 
 const el=id=>document.getElementById(id);
@@ -384,8 +387,9 @@ function buildTopicSelector() {
 
 function startSession() {
   const mode=el("mode").value;
-  const selected=requestedJalon
-    ?selectJalonQuestions(state,questions,jalonIndex,requestedJalon.id,mode)
+  const selected=requestedRevision
+    ?selectRound(state,questions.filter(q=>practiceIds.has(q.id)),{mode,limit:10})
+    :requestedJalon?selectJalonQuestions(state,questions,jalonIndex,requestedJalon.id,mode)
     :selectRound(state,questions,{topic:el("topic").value,mode,limit:10});
   if(!selected.length){
     notification(el("mode").value==="due"?"Aucune question à réviser actuellement dans ce chapitre. Passe en mode découverte ou reviens à la date d'échéance.":"Aucune question correspondante. Essaie un autre domaine ou mode.");
@@ -905,7 +909,13 @@ if(hasTopic||requestedJalon){
   const requestedMode=practiceParams.get("mode");
   if(["due","wrong"].includes(requestedMode))el("mode").value=requestedMode;
 }
-if(requestedJalon){
+if(requestedRevision){
+  el("practice-title").textContent="Révision ciblée — "+requestedRevision.title;
+  el("topic").closest(".field").hidden=true;
+  el("practiceAll").hidden=false;
+  el("start").textContent="Démarrer · "+practiceIds.size+" exercices ciblés";
+  el("restart").textContent="Nouvelle séance ciblée";
+}else if(requestedJalon){
   el("practice-title").textContent="Jalon "+requestedJalon.id+" — "+requestedJalon.title;
   el("topic").closest(".field").hidden=true;
   el("practiceAll").hidden=false;
