@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {TOPICS} from "./questions.mjs";
-import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse,stepReview,stepReviewUrl,stepReviewRecommendations} from "./course-catalog.mjs";
+import {COURSES,courseInfo,courseUrl,practiceTopicForCourse,practiceUrlForCourse,stepReview,stepReviewUrl,stepReviewRecommendations,stepReviewLevel,selectStepReviewQuestions} from "./course-catalog.mjs";
 import {injectVariants} from "./variants.mjs";
-import {flatten} from "./engine.mjs";
+import {flatten,emptyState,recordAnswer,DAY_MS} from "./engine.mjs";
 import {checkMathSteps} from "./math-step-checker.mjs";
 test("13 liens d'entraînement exacts, sans domaine fictif ni duplication",()=>{
   const slugs=new Set(COURSES.map(([slug])=>slug));
@@ -73,4 +73,22 @@ test("seules les erreurs établies déclenchent une remédiation, regroupées pa
   assert.deepEqual(stepReviewRecommendations(review.entries).map(r=>[r.code,r.count]),[["inequality",2],["numeric",1]]);
   assert.deepEqual(stepReviewRecommendations(checkMathSteps("2x=6\nx=3\n\nx³<1").entries),[]);
   assert.deepEqual(stepReviewRecommendations([{kind:"unsupported",skill:"linear"},{kind:"error",skill:"__proto__"}]),[]);
+});
+
+
+test("révision adaptative : fondamentaux, consolidation, transfert et priorités",()=>{
+  const bank=flatten(injectVariants(TOPICS)),now=Date.UTC(2026,10,25,12);
+  const fresh=selectStepReviewQuestions("inequality",bank,emptyState(),{now});
+  assert.deepEqual(fresh.map(q=>q.id),["e05","v09","v44","v37","e04"]);
+  assert.deepEqual(fresh.map(q=>stepReviewLevel("inequality",q.id)),[1,1,2,2,3]);
+  let state=recordAnswer(emptyState(),"v44",false,now-100);
+  state=recordAnswer(state,"e04",true,now-2*DAY_MS);
+  state=recordAnswer(state,"e04",true,now-DAY_MS);
+  assert.deepEqual(selectStepReviewQuestions("inequality",bank,state,{mode:"wrong",now}).map(q=>q.id),["v44"]);
+  assert.deepEqual(selectStepReviewQuestions("inequality",bank,state,{mode:"due",now}).map(q=>q.id),["v44"]);
+  const chosen=selectStepReviewQuestions("inequality",bank,state,{now,limit:2});
+  assert.ok(chosen.some(q=>q.id==="v44"));
+  assert.ok(!chosen.some(q=>q.id==="e04"));
+  assert.deepEqual(selectStepReviewQuestions("unknown",bank,state),[]);
+  assert.deepEqual(selectStepReviewQuestions("inequality",bank,state,{mode:"invalid"}),[]);
 });

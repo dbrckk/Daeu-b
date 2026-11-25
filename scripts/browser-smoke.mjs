@@ -136,10 +136,12 @@ async function verifyTargetedRevision(){
     assert.ok(await tab.locator("#quiz").isHidden());
     await tab.locator("#start").click();
     await tab.locator("#quiz").waitFor();
-    assert.match(await tab.locator("#quizCount").textContent(),/\/ 4/);
+    assert.match(await tab.locator("#quizCount").textContent(),/\/ 5/);
     const getRound=()=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round);
     const round=await getRound();
-    assert.deepEqual([...round.ids].sort(),["e04","e05","v09","v37"]);
+    assert.deepEqual([...round.ids].sort(),["e04","e05","v09","v37","v44"]);
+    assert.deepEqual(round.ids,["e05","v09","v44","v37","e04"]);
+    assert.match(await tab.locator("#questionHelp").textContent(),/Fondamentaux/);
     const prompt=await tab.locator("#questionText").textContent();
     await tab.reload();
     await tab.locator("#quiz").waitFor();
@@ -152,7 +154,7 @@ async function verifyTargetedRevision(){
     assert.equal(await tab.locator("#questionText").textContent(),prompt);
     assert.match(await tab.locator("#stepReviewDaily").textContent(),/Sens des inégalités/);
     assert.equal((await savedReviews()).length,1);
-    console.log("OK Révision ciblée : historique dédupliqué, tableau de bord, quatre questions, reprise et hors ligne");
+    console.log("OK Révision ciblée : historique dédupliqué, tableau de bord, cinq questions progressives, reprise et hors ligne");
   }finally{await mobile.close();}
 }
 
@@ -1394,7 +1396,7 @@ try {
       &&await advancedInkPage.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).round.completed===0),
       "Android v51 : douze lignes manuscrites séparées sans perte de progression");
   }finally{await advancedInkContext.close();}
-  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"157 questions chargées");
+  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="164"),"164 questions chargées");
   await check(async()=>await page.locator("#topicCards .topic-card").count()===13,"13 domaines chargés");
   await check(async()=>await page.locator("#examSelect option").count()===5,"Examens A/B/C/D/E disponibles");
   await check(async()=>await page.locator("#examRecommendation").textContent().then(t=>t.includes("examen A")&&t.includes("non encore passé")),
@@ -2276,8 +2278,8 @@ try {
   await page.reload({waitUntil:"networkidle"});
   await context.setOffline(true);
   await page.reload({waitUntil:"domcontentloaded",timeout:12000});
-  await page.waitForFunction(()=>document.querySelector("#totalQuestions")?.textContent?.trim()==="157",null,{timeout:10000});
-  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="157"),"Application chargée hors ligne");
+  await page.waitForFunction(()=>document.querySelector("#totalQuestions")?.textContent?.trim()==="164",null,{timeout:10000});
+  await check(async()=>await page.locator("#totalQuestions").textContent().then(t=>t.trim()==="164"),"Application chargée hors ligne");
   await check(async()=>await page.locator("#examHistory .exam-history-row").count()===1,"Copies accessibles hors ligne");
   // La PWA doit aussi conserver les modules des examens et les nouvelles
   // variantes hors ligne, sans tenter de charger les cours GitHub.

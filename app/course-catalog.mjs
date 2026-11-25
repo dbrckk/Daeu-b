@@ -59,13 +59,13 @@ export function practiceUrlForCourse(filename,{jalon}={}){
 
 /** Correspondance éditoriale entre erreurs établies et exercices existants. */
 const STEP_REVIEWS=new Map([
- ["numeric",{title:"Calculs, fractions et signes",lesson:"01-calcul-numerique",ids:["n01","n06","n09","v01","v02","v33"]}],
- ["linear",{title:"Équations et transformations",lesson:"03-equations-inequations-systemes",ids:["e01","e09","v07","v35"]}],
- ["inequality",{title:"Sens des inégalités et bornes",lesson:"03-equations-inequations-systemes",ids:["e05","e04","v09","v37"]}],
- ["quadratic",{title:"Second degré, racines et signes",lesson:"04-second-degre",ids:["s01","s02","s05","s06","e04","v10"]}],
- ["rational",{title:"Quotients et valeurs interdites",lesson:"03-equations-inequations-systemes",ids:["e06","e10","a06","f02","v19"]}],
- ["radical",{title:"Racines et conditions de définition",lesson:"05-fonctions",ids:["n03","n11","f03","f06","v04"]}],
- ["derivative",{title:"Règles de dérivation",lesson:"06-derivation",ids:["d01","d02","d03","d06","l12","v17","v18"]}]
+ ["numeric",{title:"Calculs, fractions et signes",lesson:"01-calcul-numerique",ids:["n06","v01","n01","v02","n09","v33","v42"]}],
+ ["linear",{title:"Équations et transformations",lesson:"03-equations-inequations-systemes",ids:["v07","e01","v43","e09","v35"]}],
+ ["inequality",{title:"Sens des inégalités et bornes",lesson:"03-equations-inequations-systemes",ids:["e05","v09","v44","v37","e04"]}],
+ ["quadratic",{title:"Second degré, racines et signes",lesson:"04-second-degre",ids:["s01","v10","s02","s06","s05","e04","v45"]}],
+ ["rational",{title:"Quotients et valeurs interdites",lesson:"03-equations-inequations-systemes",ids:["f02","a06","e10","v19","e06","v46"]}],
+ ["radical",{title:"Racines et conditions de définition",lesson:"05-fonctions",ids:["v04","n03","n11","f03","f06","v47"]}],
+ ["derivative",{title:"Règles de dérivation",lesson:"06-derivation",ids:["d01","v17","v18","d03","d02","d06","v48","l12"]}]
 ]);
 export function stepReview(code){
   const record=STEP_REVIEWS.get(code);
@@ -82,4 +82,29 @@ export function stepReviewRecommendations(entries){
   }
   return [...counts].map(([code,count])=>({...stepReview(code),count,url:stepReviewUrl(code)}))
     .sort((a,b)=>b.count-a.count||a.code.localeCompare(b.code,"fr"));
+}
+
+
+/** Three editorial difficulty tiers. For a targeted session, the current
+ * weak questions and due reminders are selected before already-confirmed
+ * questions; delivery is ordered from foundations to transfer. */
+export function stepReviewLevel(code,id){
+  const ids=STEP_REVIEWS.get(code)?.ids;
+  const index=ids?.indexOf(id)??-1;
+  return index<0?null:index<2?1:index<4?2:3;
+}
+export function selectStepReviewQuestions(code,questions,practice,{mode="all",now=Date.now(),limit=6}={}){
+  const item=stepReview(code);
+  if(!item||!["all","due","wrong"].includes(mode)||!Number.isInteger(limit)||limit<1||limit>10)return [];
+  const byId=new Map(questions.map(q=>[q.id,q]));
+  const info=id=>practice?.items?.[id];
+  const due=id=>Boolean(info(id)?.attempts&&info(id).dueAt<=now);
+  const weak=id=>Boolean(info(id)?.attempts&&!info(id).streak);
+  const priority=id=>due(id)?0:weak(id)?1:!info(id)?.attempts?2:!info(id).confirmed?3:4;
+  const candidates=item.ids.filter(id=>byId.has(id)&&(mode==="all"||
+    (mode==="due"?due(id):Boolean(info(id)?.wrong&&!info(id).confirmed))));
+  candidates.sort((a,b)=>priority(a)-priority(b)||stepReviewLevel(code,a)-stepReviewLevel(code,b)
+    ||(info(a)?.lastAt??0)-(info(b)?.lastAt??0)||item.ids.indexOf(a)-item.ids.indexOf(b));
+  return candidates.slice(0,limit).sort((a,b)=>stepReviewLevel(code,a)-stepReviewLevel(code,b)
+    ||priority(a)-priority(b)||item.ids.indexOf(a)-item.ids.indexOf(b)).map(id=>byId.get(id));
 }

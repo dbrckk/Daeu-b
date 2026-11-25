@@ -1,7 +1,7 @@
 import {TOPICS} from "./questions.mjs";
 import {mountNotebook,notebookMode} from "./math-notebook.mjs";
 import {backedStorage,onAutoBackupStatus} from "./auto-backup.mjs";
-import {COURSES,courseUrl,stepReview} from "./course-catalog.mjs";
+import {COURSES,courseUrl,stepReview,stepReviewLevel,selectStepReviewQuestions} from "./course-catalog.mjs";
 import {BOOKMARK_PREFIX,LAST_READING_KEY,readBookmarkEntry,readLastReading} from "./reading-bookmark.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
@@ -435,7 +435,7 @@ function buildTopicSelector() {
 function startSession() {
   const mode=el("mode").value;
   const selected=requestedRevision
-    ?selectRound(state,questions.filter(q=>practiceIds.has(q.id)),{mode,limit:10})
+    ?selectStepReviewQuestions(requestedRevision.code,questions,state,{mode})
     :requestedJalon?selectJalonQuestions(state,questions,jalonIndex,requestedJalon.id,mode)
     :selectRound(state,questions,{topic:el("topic").value,mode,limit:10});
   if(!selected.length){
@@ -616,7 +616,9 @@ function renderQuestion() {
       }
     }
   });
-  el("questionHelp").textContent=q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.";
+  const revisionLevel=requestedRevision?stepReviewLevel(requestedRevision.code,q.id):null;
+  const levelLabel=revisionLevel?["","Fondamentaux","Consolidation","Transfert"][revisionLevel]+" · ":"";
+  el("questionHelp").textContent=levelLabel+(q.isVariant?"Exercice à valeurs variables : un autre énoncé sera proposé au prochain rappel.":"Réponds sans consulter le cours. Les étapes importantes sont dans la correction.");
   el("feedback").hidden=true;
   el("hint").textContent="";
   el("answerForm").hidden=false;el("submit").disabled=false;
@@ -960,7 +962,7 @@ if(requestedRevision){
   el("practice-title").textContent="Révision ciblée — "+requestedRevision.title;
   el("topic").closest(".field").hidden=true;
   el("practiceAll").hidden=false;
-  el("start").textContent="Démarrer · "+practiceIds.size+" exercices ciblés";
+  el("start").textContent="Démarrer · jusqu’à "+Math.min(6,practiceIds.size)+" exercices ciblés";
   el("restart").textContent="Nouvelle séance ciblée";
 }else if(requestedJalon){
   el("practice-title").textContent="Jalon "+requestedJalon.id+" — "+requestedJalon.title;

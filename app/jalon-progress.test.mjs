@@ -7,8 +7,8 @@ import {JALONS,FIXED_IDS_BY_JALON} from "./jalons.mjs";
 import {buildJalonIndex,jalonProgress,recommendJalon,selectDiagnosticQuestions,selectJalonQuestions} from "./jalon-progress.mjs";
 const bank=flatten(injectVariants(TOPICS));
 const index=buildJalonIndex(bank);const t=Date.UTC(2026,10,11,12);
-test("20 jalons avec classification exhaustive et unique des 157 entrées",()=>{
-  assert.equal(JALONS.length,20);assert.equal(bank.length,157);assert.equal(index.size,20);
+test("20 jalons avec classification exhaustive et unique des 164 entrées",()=>{
+  assert.equal(JALONS.length,20);assert.equal(bank.length,164);assert.equal(index.size,20);
   assert.equal(index.get(12).has("l12"),true);
   assert.equal(index.get(19).has("v30"),true);assert.equal(index.get(20).has("v30"),true);
   assert.equal(index.has(21),false);

@@ -494,3 +494,8 @@ Le cahier regroupe les erreurs réellement détectées en sept notions et propos
 ## v140 — historique des diagnostics et révisions du jour
 
 Les diagnostics réels du cahier sont sauvegardés dans le bundle existant (60 derniers, sans duplication du brouillon). Les clics identiques ne sont pas comptés plusieurs fois. Un nouveau diagnostic sans erreur remplace l'indication de lacune de ce cahier, sans attribuer de maîtrise ; les lignes hors périmètre restent signalées. Le tableau de bord agrège le dernier diagnostic par cahier, indique les réussites indépendantes depuis le diagnostic et propose jusqu'à trois notions à retravailler, derrière les rappels échus. Les 10 derniers diagnostics sont consultables. La sauvegarde cloud/IndexedDB, l'export et la remise à zéro réutilisent le cahier unifié ; aucun champ obligatoire ni stockage distinct, aucune correction d'examen. Les anciennes sauvegardes restent compatibles.
+
+
+## v141 — exercices adaptatifs et difficulté progressive
+
+Sept nouvelles familles paramétriques (fractions signées, équations à deux membres, inéquations strictes/inclusives, comptage de solutions entières du second degré et des quotients, domaine de racine, dérivée composée), soit 48 modèles et 164 entrées interactives. Les révisions du cahier sélectionnent jusqu'à six exercices en donnant la priorité aux échéances et aux notions fragiles, puis ordonnent les exercices sélectionnés en trois niveaux éditoriaux : fondamentaux, consolidation et transfert. Les exercices déjà confirmés ne sont pas supprimés mais passent après les besoins actuels. Les graines et les IDs historiques sont conservés, sans migration de la progression. Les niveaux ne sont pas une mesure calibrée de difficulté ou une garantie de maîtrise.
