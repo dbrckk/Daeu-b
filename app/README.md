@@ -489,3 +489,8 @@ Les conclusions S acceptent désormais les racines carrées numériques exactes 
 ## v139 — remédiation personnalisée depuis le cahier
 
 Le cahier regroupe les erreurs réellement détectées en sept notions et propose le cours ainsi qu'une séance de 4 à 7 questions ciblées dans la banque existante, avec exercices paramétriques. Aucun diagnostic fictif à partir d'une ligne non prise en charge. La séance ne démarre qu'à la demande et utilise le moteur de progression, la répétition espacée et la gestion des séances existants. Les recommandations sont recalculées lors d'une nouvelle vérification du brouillon sauvegardé ; elles ne constituent pas un historique autonome. Aucun changement de format de sauvegarde ; aucune correction pendant l'examen.
+
+
+## v140 — historique des diagnostics et révisions du jour
+
+Les diagnostics réels du cahier sont sauvegardés dans le bundle existant (60 derniers, sans duplication du brouillon). Les clics identiques ne sont pas comptés plusieurs fois. Un nouveau diagnostic sans erreur remplace l'indication de lacune de ce cahier, sans attribuer de maîtrise ; les lignes hors périmètre restent signalées. Le tableau de bord agrège le dernier diagnostic par cahier, indique les réussites indépendantes depuis le diagnostic et propose jusqu'à trois notions à retravailler, derrière les rappels échus. Les 10 derniers diagnostics sont consultables. La sauvegarde cloud/IndexedDB, l'export et la remise à zéro réutilisent le cahier unifié ; aucun champ obligatoire ni stockage distinct, aucune correction d'examen. Les anciennes sauvegardes restent compatibles.

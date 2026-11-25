@@ -122,8 +122,15 @@ async function verifyTargetedRevision(){
     await tab.locator("#courseNotebook .math-notebook-checker button").filter({hasText:"Vérifier mes étapes"}).click();
     const link=tab.locator(".math-step-reviews a[href*='revision=inequality']");
     await link.waitFor();
+    const savedReviews=()=>tab.evaluate(()=>JSON.parse(localStorage.getItem("daeu-b-data-v1")).workbook.stepReviews);
+    assert.equal((await savedReviews()).length,1);
+    await tab.locator("#courseNotebook .math-notebook-checker button").filter({hasText:"Vérifier mes étapes"}).click();
+    assert.equal((await savedReviews()).length,1);
     await link.click();
     await tab.waitForURL(/revision=inequality/);
+    await tab.locator("#stepReviewDashboard").waitFor();
+    assert.match(await tab.locator("#stepReviewDaily").textContent(),/Sens des inégalités/);
+    assert.match(await tab.locator("#stepReviewHistorySummary").textContent(),/1 diagnostic/);
     await tab.waitForFunction(()=>document.querySelector("#practice-title")?.textContent.includes("Révision ciblée"));
     assert.match(await tab.locator("#practice-title").textContent(),/Sens des inégalités/);
     assert.ok(await tab.locator("#quiz").isHidden());
@@ -143,7 +150,9 @@ async function verifyTargetedRevision(){
     await tab.reload();
     await tab.locator("#quiz").waitFor();
     assert.equal(await tab.locator("#questionText").textContent(),prompt);
-    console.log("OK Révision ciblée : erreur réelle, quatre questions dont variantes, reprise et hors ligne");
+    assert.match(await tab.locator("#stepReviewDaily").textContent(),/Sens des inégalités/);
+    assert.equal((await savedReviews()).length,1);
+    console.log("OK Révision ciblée : historique dédupliqué, tableau de bord, quatre questions, reprise et hors ligne");
   }finally{await mobile.close();}
 }
 

@@ -100,6 +100,15 @@
           </details>
         </section>
         <div id="pathNext" class="path-next" aria-live="polite"></div>
+        <section id="stepReviewDashboard" class="path-next" aria-labelledby="stepReviewTitle" hidden>
+          <h3 id="stepReviewTitle">Mes lacunes et révisions du jour</h3>
+          <p id="stepReviewSummary" class="helper" role="status"></p>
+          <ol id="stepReviewDaily" class="jalon-grid"></ol>
+          <details><summary id="stepReviewHistorySummary">Historique des diagnostics du cahier</summary>
+            <ol id="stepReviewHistory"></ol>
+          </details>
+          <p class="helper">Les diagnostics portent uniquement sur les lignes prises en charge. Ils sont sauvegardés avec le cahier, sans modifier les scores ni certifier la maîtrise. Les rappels du quiz restent prioritaires.</p>
+        </section>
         <div class="path-diagnostic">
           <button type="button" class="subtle" id="diagnosticStart">Repérage initial · jusqu’à 10 jalons</button>
           <p class="helper">Une première question par notion non encore abordée, en blocs de dix. Ce repérage aide à choisir les prochaines révisions, sans certifier les acquis.</p>
@@ -303,7 +312,7 @@
           <button type="button" id="reset" class="danger">Effacer mon progrès</button></div>
       </section>
     </main>
-    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">139</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
+    <footer><p>Outil indépendant de préparation, non affilié à l’université. Le diplôme est délivré uniquement par un établissement habilité. <a href="https://github.com/dbrckk/Daeu-b/blob/main/PROGRAMME.md">Sources et programme</a>.</p><p class="app-version">Version <strong id="appVersion">140</strong> <button type="button" class="subtle small" id="appUpdate" hidden>Vérifier la mise à jour</button></p><p id="appUpdateStatus" role="status"></p></footer>
   </div>
   <script type="module" src="./start.mjs"></script>
 </body>

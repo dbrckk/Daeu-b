@@ -5,7 +5,7 @@ import {COURSES,courseUrl,stepReview} from "./course-catalog.mjs";
 import {BOOKMARK_PREFIX,LAST_READING_KEY,readBookmarkEntry,readLastReading} from "./reading-bookmark.mjs";
 import {initExams,getExamBackup,restoreExamBackup,clearExamProgress} from "./exam-ui.mjs";
 import {sanitizeExamStore,emptyExamStore} from "./exam-engine.mjs";
-import {sanitizeWorkbook,emptyWorkbook} from "./workbook.mjs";
+import {sanitizeWorkbook,emptyWorkbook,workbookReviewPlan} from "./workbook.mjs";
 import {createPersistence,createVolatileStorage,DATA_KEY,StaleDataError} from "./persistence.mjs";
 import {VARIANTS,injectVariants,validateVariants} from "./variants.mjs";
 import {buildRound,restoreRound,advanceRound,MAX_ANSWER_DRAFT_LENGTH} from "./round.mjs";
@@ -187,6 +187,53 @@ function refreshOverview() {
   el("transferSummary").textContent=t.started+"/20 problèmes rédigés · "+t.due+" rappel(s) J+7/J+30 à effectuer · "+t.completed+" parcours de rappels déclarés terminés (non certifiés).";
   renderTransferQueue();
   renderRecurringReviews();
+  renderStepReviewDashboard();
+}
+function renderStepReviewDashboard(){
+  const panel=el("stepReviewDashboard"),daily=el("stepReviewDaily"),history=el("stepReviewHistory");
+  daily.replaceChildren();history.replaceChildren();
+  let plan;
+  try{plan=workbookReviewPlan(dataStore.snapshot().workbook,state);}
+  catch{panel.hidden=true;return;}
+  panel.hidden=!plan.history.length;
+  if(panel.hidden)return;
+  const remaining=plan.rows.filter(row=>row.remaining>0||row.due>0);
+  el("stepReviewSummary").textContent=remaining.length
+    ?remaining.length+" notion(s) à retravailler d’après les derniers diagnostics."
+    :"Les exercices ciblés ont été retravaillés ou aucun problème récent n’a été détecté ; continue les rappels habituels.";
+  const due=getMetrics(state,questions).due;
+  if(due){
+    const line=document.createElement("li"),link=document.createElement("a");
+    link.href="./#practice-title";link.textContent="Faire d’abord les "+due+" rappel(s) déjà à échéance";
+    const action=document.createElement("button");action.type="button";action.className="subtle small";action.textContent="Démarrer les rappels";
+    action.addEventListener("click",()=>{if(startSelectedSession(selectRound(state,questions,{mode:"due",limit:10})))focusCurrentQuiz();});
+    line.append(link,action);daily.append(line);
+  }
+  for(const row of plan.daily){
+    const li=document.createElement("li");
+    const title=document.createElement("strong");title.textContent=row.title;
+    const detail=document.createElement("p");detail.className="helper";
+    detail.textContent=row.count+" erreur(s) au dernier contrôle de "+row.contexts+" cahier(s) · "+
+      row.practiced+"/"+row.ids.length+" exercices réussis sans aide depuis ce diagnostic"+
+      (row.due?" · "+row.due+" rappel(s) à échéance":"");
+    const actions=document.createElement("div");actions.className="path-buttons";
+    const link=document.createElement("a");link.href=row.url;link.textContent="Révision ciblée";
+    const course=document.createElement("a");course.href=courseUrl(row.lesson);course.textContent="Relire le cours";
+    actions.append(link,course);li.append(title,detail,actions);daily.append(li);
+  }
+  if(!daily.children.length){const li=document.createElement("li");li.textContent="Pas de révision ciblée prioritaire actuellement.";daily.append(li);}
+  for(const record of plan.history.slice(0,10)){
+    const li=document.createElement("li");
+    const date=new Date(record.at).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"});
+    const context=record.context.startsWith("cours:")?COURSES.find(([slug])=>slug===record.context.slice(6))?.[1]??"Cours"
+      :record.context.startsWith("quiz:")?"Quiz "+record.context.slice(5):"Problème rédigé";
+    li.textContent=date+" — "+context+" · "+(record.skills.length
+      ?record.skills.map(skill=>stepReview(skill.code).title+" ("+skill.count+")").join(" ; ")
+      :"aucune erreur détectée dans les lignes vérifiées")+
+      (record.unsupported?" · "+record.unsupported+" non vérifiée(s)":"");
+    history.append(li);
+  }
+  el("stepReviewHistorySummary").textContent="Historique · "+plan.history.length+" diagnostic(s) conservé(s), 10 derniers affichés";
 }
 function renderTransferQueue(){
   const pending=pendingTransferReviews(transfers);
@@ -543,7 +590,7 @@ function renderQuestion() {
     context:"quiz:"+q.id,adapter:dataStore,title:mode==="clavier"?"Brouillon de calcul (facultatif)":"Ma feuille de réponse — "+q.topicTitle,
     textOnly:mode==="clavier",collapsed:true,
     paperOnly,paperPrompt:q.prompt+(q.type==="choice"?"\n\n"+q.options.map((option,i)=>(i+1)+". "+option).join("\n")+"\n\nÉcris le numéro du choix retenu sur la feuille.":"\n\nÉcris tes étapes, puis laisse une ligne vide avant le résultat."),
-    onGuidance:markGuidedQuestion,
+    onGuidance:markGuidedQuestion,onReviewSaved:renderStepReviewDashboard,
     handwrittenReview:{
       expected:q.type==="number"?fmt(q.answer):String(q.answer),
       explanation:q.explanation,
