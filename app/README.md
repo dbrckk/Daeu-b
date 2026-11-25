@@ -477,3 +477,10 @@ Le cahier clavier vérifie maintenant les inéquations polynomiales de degré au
 La conclusion `S = ...` est vérifiée après une inéquation : intervalles français à bornes rationnelles, union de deux intervalles, singleton, ℝ et ∅. Les bornes infinies sont ouvertes ; les unions sont normalisées. La saisie de bornes irrationnelles dans S reste explicitement non vérifiée, mais l'équivalence entre deux inéquations polynomiales irrationnelles est exacte. Les quotients à dénominateur variable et les degrés supérieurs à 2 ne sont pas couverts.
 
 Le clavier propose les caractères d'ensembles et un modèle d'inéquation du second degré. Le contrôle reste désactivé en examen, ne juge pas une démonstration et ne modifie pas le format de progression. Vérification mobile incluant la restauration du brouillon et la correction hors connexion.
+
+
+## v138 — inéquations rationnelles et bornes algébriques exactes
+
+Le correcteur accepte deux membres polynomiaux ou quotients explicites, avec dénominateurs affines et produit croisé de degré au plus deux. Les signes sont propagés selon les multiplicités des racines ; les pôles sont systématiquement exclus, même en cas de simplification. Le tableau indique « interdit » à ces points. Les expressions ambiguës ou hors périmètre restent non vérifiées.
+
+Les conclusions S acceptent désormais les racines carrées numériques exactes (par exemple -√(2), √(8)/2, (1+√(5))/2) et jusqu'à cinq intervalles ou singletons. Comparaison algébrique et normalisation des unions sans flottants ; aucun arrondi de borne irrationnelle n'est accepté. Deux nouveaux modèles clavier, contrôle en ligne et hors ligne, sauvegardes inchangées. Le contrôle reste désactivé pendant l'examen.

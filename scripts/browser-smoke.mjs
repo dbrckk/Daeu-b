@@ -98,6 +98,17 @@ async function verifyInequalityNotebook(){
     assert.match(await feedback.textContent(),/Ensemble de solutions incorrect/);
     assert.ok(await tab.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     console.log("OK Second degré : tableau de signes, conclusion ouverte/fermée et contrôle hors ligne");
+    await restoredEditor.fill("(x-2)/(x+1)≥0\nS=]-∞;-1[ ∪ [2;+∞[");
+    await verify.click();
+    assert.match(await feedback.textContent(),/2 ligne\(s\) analysée\(s\), 0 erreur\(s\)/);
+    assert.deepEqual(await feedback.locator("table.math-sign-table tbody td").allTextContents(),["+","interdit","−","0","+"]);
+    await restoredEditor.fill("(x-2)/(x+1)≥0\nS=]-∞;-1] ∪ [2;+∞[");
+    await verify.click();
+    assert.match(await feedback.textContent(),/1 erreur\(s\)/);
+    await restoredEditor.fill("x²≤2\nS=[-√(8)/2;√(2)]");
+    await verify.click();
+    assert.match(await feedback.textContent(),/2 ligne\(s\) analysée\(s\), 0 erreur\(s\)/);
+    console.log("OK Quotients et bornes irrationnelles exactes hors ligne, valeurs interdites conservées");
   }finally{await mobile.close();}
 }
 
@@ -472,10 +483,10 @@ try {
       "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
     await firstPage.locator("#quizNotebook .math-notebook-keypad button").filter({hasText:"√"}).click();
-    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===16
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===18
       &&await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:/^Inéquation$/}).count()===1
       &&await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Inéquation du second degré"}).count()===1,
-      "Seize modèles mathématiques dont les deux inéquations, utilisables sans clavier physique");
+      "Dix-huit modèles mathématiques utilisables sans clavier physique");
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");

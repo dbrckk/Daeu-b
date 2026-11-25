@@ -12,7 +12,7 @@ import {INK_EDIT_SYMBOLS,validateInkTranscript,editInkTranscript} from "./ink-tr
 import {nearestInkStroke} from "./ink-eraser.mjs";
 import {pageInkFingerprint} from "./ink-drafts.mjs";
 
-const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/","[","]",";","∞","∪","ℝ","∅","{","}"];
+const SYMBOLS=["+","−","×","÷","=","(",")","²","√","π","≤","≥","≠","→","^","/","<",">","[","]",";","∞","∪","ℝ","∅","{","}"];
 /** Modèles de rédaction éditables, utilisables sans clavier physique. */
 export const MATH_TEMPLATES=Object.freeze([
   {label:"Fraction",value:"(numérateur)/(dénominateur)",selection:"numérateur"},
@@ -22,6 +22,8 @@ export const MATH_TEMPLATES=Object.freeze([
   {label:"Inéquation",value:"-2x + 4 ≥ 6\n-2x ≥ 2\nx ≤ -1",selection:"-2x + 4 ≥ 6"},
   {label:"Second degré",value:"x² - 5x + 6 = 0\n(x - 2)(x - 3) = 0",selection:"x² - 5x + 6 = 0"},
   {label:"Inéquation du second degré",value:"x² - 5x + 6 ≤ 0\n(x - 2)(x - 3) ≤ 0\nS = [2 ; 3]",selection:"x² - 5x + 6 ≤ 0"},
+  {label:"Inéquation rationnelle",value:"(x-2)/(x+1) ≥ 0\nS = ]-∞ ; -1[ ∪ [2 ; +∞[",selection:"(x-2)/(x+1) ≥ 0"},
+  {label:"Bornes irrationnelles",value:"x² ≤ 2\nS = [-√(2) ; √(2)]",selection:"x² ≤ 2"},
   {label:"Système",value:"{\n  2x + y = 7\n  x − y = 2\n}",selection:"2x + y = 7"},
   {label:"Fonction",value:"f(x) = 3x² - 2x + 1\nf'(x) = 6x - 2",selection:"3x² - 2x + 1"},
   {label:"Dérivée avancée",value:"f(x) = (x+1)^3\nf'(x) = 3x² + 6x + 3",selection:"(x+1)^3"},
@@ -253,7 +255,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
   correction.setAttribute("aria-label","Correction guidée des lignes");
   const correctionTitle=document.createElement("h5");correctionTitle.textContent="Correction guidée des étapes";
   const explanation=document.createElement("p");explanation.className="helper";
-  explanation.textContent="Vérifie les calculs, les inéquations du premier et du second degré avec tableau de signes guidé, y compris la conclusion S = [2 ; 3] ou S = ]−∞ ; 2[ ∪ ]3 ; +∞[ (bornes rationnelles), les équations du premier et du second degré, certaines équations rationnelles (valeurs interdites), les racines carrées isolées (solutions parasites) et les dérivées polynomiales (degré 0 à 6) ou usuelles : sin(ax+b), cos(ax+b), exp(ax+b), ln(ax+b), multipliées par une constante. Écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont comparés exactement. Les combinaisons plus complexes et les démonstrations ne sont pas vérifiées ; pour ln, respecte le domaine ax+b > 0.";
+  explanation.textContent="Vérifie les calculs, les inéquations du premier et du second degré avec tableau de signes guidé, y compris la conclusion S = [2 ; 3] ou S = ]−∞ ; 2[ ∪ ]3 ; +∞[ (bornes rationnelles ou racines carrées exactes), les inéquations rationnelles à dénominateur affine avec valeurs interdites, les équations du premier et du second degré, certaines équations rationnelles (valeurs interdites), les racines carrées isolées (solutions parasites) et les dérivées polynomiales (degré 0 à 6) ou usuelles : sin(ax+b), cos(ax+b), exp(ax+b), ln(ax+b), multipliées par une constante. Écris f(x) = ... puis f'(x) = ... sans ligne vide. Les coefficients sont comparés exactement. Les combinaisons plus complexes et les démonstrations ne sont pas vérifiées ; pour ln, respecte le domaine ax+b > 0.";
   const verify=document.createElement("button");verify.type="button";verify.className="subtle";
   verify.textContent="Vérifier mes étapes";
   const feedback=document.createElement("div");feedback.className="math-notebook-feedback";feedback.hidden=true;
@@ -273,7 +275,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
         item.textContent=(entry.line?"Ligne "+entry.line+" — ":"")+entry.message;
         if(entry.signTable?.length){
           const table=document.createElement("table");table.className="math-sign-table";
-          const caption=document.createElement("caption");caption.textContent="Tableau de signes du polynôme";table.append(caption);
+          const caption=document.createElement("caption");caption.textContent="Tableau de signes et valeurs interdites";table.append(caption);
           const head=document.createElement("thead"),headingRow=document.createElement("tr");
           for(const label of ["Intervalle ou racine","Signe"]){
             const th=document.createElement("th");th.scope="col";th.textContent=label;headingRow.append(th);
@@ -292,7 +294,7 @@ export function mountNotebook(host,{context,adapter,storage=globalThis.localStor
       feedback.append(list);
     }
     const caveat=document.createElement("p");caveat.className="helper";
-    caveat.textContent="Les équivalences reconnues sont vérifiées sur leur ensemble de solutions, pas sur la qualité de la démonstration. Les textes libres, systèmes, inéquations de degré supérieur à 2 et conclusions avec bornes irrationnelles restent à comparer au corrigé.";
+    caveat.textContent="Les équivalences reconnues sont vérifiées sur leur ensemble de solutions, pas sur la qualité de la démonstration. Les textes libres, systèmes, inéquations de degré supérieur à 2 et quotients de degré supérieur au périmètre restent à comparer au corrigé.";
     feedback.append(caveat);feedback.hidden=false;
     if(review.checked>0)onGuidance();
   });

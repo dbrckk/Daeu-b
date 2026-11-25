@@ -8,7 +8,7 @@
  * sont signalées comme non vérifiées et JAMAIS validées par approximation.
  */
 import {classifyPolynomialEquality,classifyPolynomialDifference,parsePolynomial,sameRealSolutions} from "./quadratic-checker.mjs";
-import {classifyConstrainedEquality} from "./constraint-solver.mjs";
+import {classifyConstrainedEquality,rationalSide} from "./constraint-solver.mjs";
 import {isFunctionNotation,parseFunctionLine,checkDerivativeCandidate} from "./derivative-checker.mjs";
 
 const MAX_LINE=180;
@@ -227,6 +227,53 @@ const ALL_INTERVALS=[interval()];
 const rootPoint=r=>interval(r,r,true,true);
 const sameEndpoint=(a,b)=>a===null?b===null:b!==null&&a.key===b.key;
 const compareRat=(a,b)=>a.n*b.d<b.n*a.d?-1:a.n*b.d>b.n*a.d?1:0;
+const signRat=a=>a.n<0n?-1:a.n>0n?1:0;
+function signSurd(a,b,d){
+  const sa=signRat(a),sb=signRat(b);
+  if(!sb)return sa;
+  if(!sa||sa===sb)return sb;
+  return sa*compareRat(mul(a,a),mul(mul(b,b),d));
+}
+function surdEndpoint(center,coefficient,radicand,label){
+  if(radicand.n<0n)throw Error("racine carrée non réelle");
+  if(!coefficient.n||!radicand.n)return endpoint(center);
+  const n=integerSquareRoot(radicand.n),d=integerSquareRoot(radicand.d);
+  if(n*n===radicand.n&&d*d===radicand.d)
+    return endpoint(add(center,mul(coefficient,rat(n,d))));
+  const b=neg(mul(rat(2n),center));
+  const c=sub(mul(center,center),mul(mul(coefficient,coefficient),radicand));
+  return {key:"q:"+formatRational(b)+":"+formatRational(c)+":"+(coefficient.n<0n?"lower":"upper"),
+    label,center,coefficient,radicand};
+}
+function compareEndpoint(left,right){
+  if(sameEndpoint(left,right))return 0;
+  if(left.value&&right.value)return compareRat(left.value,right.value);
+  if(right.value)return signSurd(sub(left.center,right.value),left.coefficient,left.radicand);
+  if(left.value)return -compareEndpoint(right,left);
+  // Compare u = a+b√D and v = e√F. When signs agree, compare
+  // their squares, retaining the common sign. No numerical approximation.
+  const a=sub(left.center,right.center),b=left.coefficient,e=right.coefficient;
+  const u=signSurd(a,b,left.radicand),v=signRat(e);
+  if(!u||u!==v)return u||-v;
+  const constant=sub(add(mul(a,a),mul(mul(b,b),left.radicand)),mul(mul(e,e),right.radicand));
+  return u*signSurd(constant,mul(rat(2n),mul(a,b)),left.radicand);
+}
+function normalizeIntervals(source){
+  const sorted=[...source].sort((a,b)=>!a.lo?(!b.lo?Number(b.lc)-Number(a.lc):-1)
+    :!b.lo?1:compareEndpoint(a.lo,b.lo)||Number(b.lc)-Number(a.lc));
+  const out=[];
+  for(const b of sorted){
+    const a=out.at(-1);
+    if(!a){out.push(b);continue;}
+    const overlap=!a.hi||!b.lo?1:compareEndpoint(a.hi,b.lo);
+    if(overlap>0||overlap===0&&(a.hc||b.lc)){
+      const upper=!a.hi||!b.hi?null:compareEndpoint(a.hi,b.hi)>=0?a.hi:b.hi;
+      const hc=upper!==null&&(sameEndpoint(upper,a.hi)&&a.hc||sameEndpoint(upper,b.hi)&&b.hc);
+      out[out.length-1]=interval(a.lo,upper,a.lc,hc);
+    }else out.push(b);
+  }
+  return out;
+}
 function intervalsFor(result){
   if(result.intervals)return result.intervals;
   if(result.kind==="all")return ALL_INTERVALS;
@@ -250,21 +297,40 @@ function rationalEndpoint(text){
   if(poly[1].n!==0n||poly[2].n!==0n)throw Error("borne rationnelle attendue");
   return endpoint(poly[0]);
 }
+function parseEndpoint(text){
+  if(!text.includes("√"))return rationalEndpoint(text);
+  if(/[xX]/.test(text)||/\d\s+\d/.test(text))throw Error("borne numérique exacte attendue");
+  const source=text.replace(/[−–]/g,"-").trim();
+  // Exactly one radical occurrence; the polynomial parser verifies the
+  // surrounding rational expression as an affine expression in √D.
+  const normalized=source.replace(/√\s*(\d+(?:[.,]\d+)?)(?![\d.,])/g,"√($1)");
+  const matches=[...normalized.matchAll(/√\s*\(([^()]*)\)/g)];
+  if(matches.length!==1||normalized.split("√").length!==2)
+    throw Error("utilise une racine isolée : √(2), -√(2) ou (1+√(5))/2");
+  const match=matches[0],radicand=rationalEndpoint(match[1]).value;
+  const expr=normalized.slice(0,match.index)+"x"+normalized.slice(match.index+match[0].length);
+  const [center,coefficient,quadratic]=parsePolynomial(expr);
+  if(quadratic.n)throw Error("borne non affine en une racine carrée");
+  return surdEndpoint(center,coefficient,radicand,source);
+}
 function quadraticRoots(result){
-  if(result.kind==="none")return [];
+  if(result.kind==="none"||result.kind==="all")return [];
   if(result.kind==="unique")return [endpoint(result.solutionRatio)];
   if(result.solutions)return result.solutions.map(rationalEndpoint);
   const b=result.normalizedB,c=result.normalizedC,D=sub(mul(b,b),mul(rat(4n),c));
-  return ["lower","upper"].map((branch,i)=>({
-    key:"q:"+formatRational(b)+":"+formatRational(c)+":"+branch,
-    label:"("+formatRational(neg(b))+(i===0?" − ":" + ")+"√("+formatRational(D)+"))/2"
-  }));
+  return [-1n,1n].map((sign,i)=>surdEndpoint(div(neg(b),rat(2n)),rat(sign,2n),D,
+    "("+formatRational(neg(b))+(i===0?" − ":" + ")+"√("+formatRational(D)+"))/2"));
 }
 function classifyPolynomialInequality(text){
   if(typeof text!=="string"||text.length>2*MAX_LINE)throw Error("ligne trop longue");
   const match=text.match(/^(.+?)\s*(<=|>=|≤|≥|<|>)\s*(.+)$/u);
   if(!match||/[<>=≤≥≠]/u.test(match[1]+match[3]))throw Error("une seule inéquation complète est nécessaire");
-  const left=parsePolynomial(match[1]),right=parsePolynomial(match[3]);
+  let left,right;
+  try{left=parsePolynomial(match[1]);right=parsePolynomial(match[3]);}
+  catch(error){
+    if(!/[\/÷]/.test(text))throw error;
+    return classifyRationalInequality(match[1],match[2],match[3]);
+  }
   const poly=left.map((v,i)=>sub(v,right[i]));
   const [c,b,a]=poly;
   if(a.n===0n){
@@ -302,8 +368,70 @@ function classifyPolynomialInequality(text){
     coefficient:formatRational(a),originalOperator:operator,signTable,positiveOutside,
     rootCount:bounds.length,includeZero};
 }
+/**
+ * Rational inequalities: two sides, each a polynomial or a single
+ * explicitly delimited quotient P(x)/Q(x), Q affine. Cross numerator
+ * and denominator product must remain degree <= 2. Never multiply
+ * an inequality by a variable denominator without tracking its sign.
+ */
+const degreeOf=p=>p[2].n?2:p[1].n?1:0;
+const zeroPoly=p=>p.every(v=>!v.n);
+function productPoly(a,b){
+  const result=[ZERO,ZERO,ZERO];
+  for(let i=0;i<=2;i++)for(let j=0;j<=2;j++){
+    if(!a[i].n||!b[j].n)continue;
+    if(i+j>2)throw Error("produit croisé de degré supérieur à 2");
+    result[i+j]=add(result[i+j],mul(a[i],b[j]));
+  }
+  return result;
+}
+function polynomialEvents(poly){
+  const degree=degreeOf(poly),roots=quadraticRoots(classifyPolynomialDifference(poly));
+  return {roots,flip:degree===1||roots.length===2,
+    initial:zeroPoly(poly)?0:signRat(poly[degree])*(degree%2?-1:1)};
+}
+function classifyRationalInequality(lhs,rawOp,rhs){
+  const a=rationalSide(lhs),b=rationalSide(rhs);
+  if(!a.excluded.length&&!b.excluded.length)throw Error("quotient non vérifié");
+  const numerator=productPoly(a.numerator,b.denominator)
+    .map((v,i)=>sub(v,productPoly(b.numerator,a.denominator)[i]));
+  const denominator=productPoly(a.denominator,b.denominator);
+  const n=polynomialEvents(numerator),d=polynomialEvents(denominator);
+  const events=[...n.roots,...d.roots].sort(compareEndpoint)
+    .filter((r,i,all)=>i===0||!sameEndpoint(r,all[i-1]));
+  const operator=rawOp==="<="?"≤":rawOp===">="?"≥":rawOp;
+  const accept=s=>operator==="<"?s<0:operator==="≤"?s<=0:operator===">"?s>0:s>=0;
+  const selected=[],signTable=[];
+  let ns=n.initial,ds=d.initial,lo=null;
+  function segment(hi){
+    const current=interval(lo,hi),s=ns*ds;
+    signTable.push({range:describeSet([current]),sign:s<0?"−":s>0?"+":"0"});
+    if(accept(s))selected.push(current);
+  }
+  for(const root of events){
+    segment(root);
+    const forbidden=d.roots.some(r=>sameEndpoint(r,root));
+    const isZero=n.roots.some(r=>sameEndpoint(r,root))||zeroPoly(numerator);
+    if(!forbidden&&!isZero)throw Error("événement de signe incohérent");
+    signTable.push({range:root.label,sign:forbidden?"interdit":"0"});
+    if(!forbidden&&accept(0))selected.push(rootPoint(root));
+    if(n.flip&&n.roots.some(r=>sameEndpoint(r,root)))ns=-ns;
+    if(d.flip&&forbidden)ds=-ds;
+    lo=root;
+  }
+  segment(null);
+  const intervals=normalizeIntervals(selected);
+  const forbidden=d.roots.map(r=>r.label);
+  return {inequality:true,rationalInequality:true,kind:intervals.length?"set":"none",
+    intervals,solution:"S = "+describeSet(intervals),signTable,
+    originalOperator:operator,forbidden,
+    method:"Tout ramener à un quotient et étudier séparément le signe du numérateur et du dénominateur. "+
+      "Valeur(s) interdite(s) : "+forbidden.join(" ; ")+
+      ". Elles restent exclues même si un facteur se simplifie. "+
+      "Ne multiplie jamais par un dénominateur de signe inconnu."};
+}
 /** Une conclusion S = ... accepte les intervalles français à bornes
- * rationnelles, ℝ/R, ∅, un singleton et l'union de deux intervalles.
+ * rationnelles ou quadratiques exactes, ℝ/R, ∅ et des unions.
  * Les intervalles sont normalisés avant toute comparaison. */
 export function parseInequalitySet(text){
   if(typeof text!=="string"||text.length>2*MAX_LINE)throw Error("ensemble trop long");
@@ -313,33 +441,23 @@ export function parseInequalitySet(text){
   if(/^(?:ℝ|R)$/u.test(source))return {inequality:true,intervals:ALL_INTERVALS,solution:"S = ℝ"};
   if(source==="∅")return {inequality:true,intervals:[],solution:"S = ∅"};
   const parts=source.split(/\s*(?:∪|\\cup)\s*/u);
-  if(parts.length>2)throw Error("deux intervalles au maximum");
+  if(parts.length>5)throw Error("cinq intervalles au maximum");
   let intervals=parts.map(part=>{
     const point=part.match(/^\{\s*(.+?)\s*\}$/u);
-    if(point)return rootPoint(rationalEndpoint(point[1]));
+    if(point)return rootPoint(parseEndpoint(point[1]));
     const match=part.match(/^([\[\]])\s*([^;]+?)\s*;\s*([^;]+?)\s*([\[\]])$/u);
     if(!match)throw Error("notation attendue : ]−∞ ; 2] ou [2 ; 3[ ou {2}");
     const lower=match[2].trim(),upper=match[3].trim(),lc=match[1]==="[",hc=match[4]==="]";
-    const lo=/^[-−](?:∞|inf)$/i.test(lower)?null:rationalEndpoint(lower);
-    const hi=/^\+?(?:∞|inf)$/i.test(upper)?null:rationalEndpoint(upper);
+    const lo=/^[-−](?:∞|inf)$/i.test(lower)?null:parseEndpoint(lower);
+    const hi=/^\+?(?:∞|inf)$/i.test(upper)?null:parseEndpoint(upper);
     if((!lo&&lc)||(!hi&&hc))throw Error("une borne infinie est toujours ouverte");
     if(lo&&hi){
-      const cmp=compareRat(lo.value,hi.value);
+      const cmp=compareEndpoint(lo,hi);
       if(cmp>0||cmp===0&&!(lc&&hc))throw Error("intervalle vide ou bornes dans le mauvais ordre ; écris ∅ si nécessaire");
     }
     return interval(lo,hi,lc,hc);
   });
-  intervals.sort((a,b)=>!a.lo?(!b.lo?Number(b.lc)-Number(a.lc):-1)
-    :!b.lo?1:compareRat(a.lo.value,b.lo.value)||Number(b.lc)-Number(a.lc));
-  if(intervals.length===2){
-    const [a,b]=intervals;
-    const overlap=!a.hi||!b.lo?1:compareRat(a.hi.value,b.lo.value);
-    if(overlap>0||overlap===0&&(a.hc||b.lc)){
-      const upper=!a.hi||!b.hi?null:compareRat(a.hi.value,b.hi.value)>=0?a.hi:b.hi;
-      const hc=upper!==null&&(sameEndpoint(upper,a.hi)&&a.hc||sameEndpoint(upper,b.hi)&&b.hc);
-      intervals=[interval(a.lo,upper,a.lc,hc)];
-    }
-  }
+  intervals=normalizeIntervals(intervals);
   return {inequality:true,intervals,solution:"S = "+describeSet(intervals)};
 }
 function sameInequalitySolutions(a,b){
@@ -349,6 +467,7 @@ function sameInequalitySolutions(a,b){
     sameEndpoint(v.hi,right[i].hi)&&v.lc===right[i].lc&&v.hc===right[i].hc);
 }
 function inequalityMethod(result){
+  if(result.rationalInequality)return result.method+" Ensemble attendu : "+result.solution+".";
   if(result.quadratic){
     const rule=result.rootCount===0?"Aucune racine réelle : signe constant de a."
       :result.rootCount===1?"Une racine double : le signe de a ne change pas en la traversant."
@@ -404,7 +523,7 @@ export function checkMathSteps(text){
       try{result=parseInequalitySet(input);}
       catch(error){
         unsupported++;
-        entries.push({line,kind:"unsupported",message:"Ensemble non vérifié : "+error.message+". Les bornes irrationnelles ne sont pas encore saisissables en notation d'intervalle."});
+        entries.push({line,kind:"unsupported",message:"Ensemble non vérifié : "+error.message+". Utilise des bornes rationnelles ou une racine exacte telle que (1+√(5))/2."});
         continue;
       }
       // Une écriture rationnelle ne peut pas certifier un intervalle à bornes
@@ -426,7 +545,7 @@ export function checkMathSteps(text){
       catch(error){
         previous=null;unsupported++;
         entries.push({line,kind:"unsupported",message:"Inéquation non vérifiée : "+error.message+
-          ". Utilise une seule inéquation polynomiale de degré 1 ou 2 en x, sans chaîne ni quotient variable."});
+          ". Utilise une inéquation de degré 1 ou 2 ou un quotient explicite à dénominateur affine, sans chaîne."});
         continue;
       }
       if(previous&&!previous.inequality){
@@ -443,7 +562,7 @@ export function checkMathSteps(text){
           entries.push({line,kind:correct?"ok":"error",message:"Inégalité numérique "+(correct?"vraie.":"fausse. ")+inequalityMethod(result)});
           continue;
         }
-        entries.push({line,kind:"info",message:"Inéquation du "+(result.quadratic?"second":"premier")+" degré reconnue. "+
+        entries.push({line,kind:"info",message:(result.rationalInequality?"Inéquation rationnelle reconnue. ":"Inéquation du "+(result.quadratic?"second":"premier")+" degré reconnue. ")+
           inequalityMethod(result),...(result.signTable?{signTable:result.signTable}:{})});
         previous=result;previousLine=line;
       }else if(sameInequalitySolutions(previous,result)){
