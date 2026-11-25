@@ -266,7 +266,7 @@ test("racines irrationnelles : équivalence canonique sans arrondi",()=>{
   assert.deepEqual(checkMathSteps("x²>2\n-2x²<-4\n3x²-6>0").entries.map(e=>e.kind),["info","ok","ok"]);
   assert.equal(checkMathSteps("x²≤2\nS=[-1,41421356;1,41421356]").errors,1);
   assert.equal(checkMathSteps("x²≤2\nx²<2").errors,1);
-  assert.equal(checkMathSteps("x²≤2\nS=[-√(2);√(2)]").unsupported,1);
+  assert.deepEqual(checkMathSteps("x²≤2\nS=[-√(2);√(2)]").entries.map(e=>e.kind),["info","ok"]);
   assert.match(checkMathSteps("x²>2").entries[0].message,/√/);
 });
 
@@ -280,10 +280,57 @@ test("conclusions : normalisation d'unions, fractions et garde-fous",()=>{
   ];
   for(const [a,b] of checks.slice(0,-1))assert.equal(checkMathSteps(a+"\n"+b).errors,0,a);
   assert.equal(checkMathSteps(checks[4].join("\n")).unsupported,1);
-  for(const bad of ["S=[-∞;1]","S=]2;1]","S=]1;1[","S=[0;∞]","S=[x;2]","S=[0;1] ∪ [2;3] ∪ [4;5]"])
+  for(const bad of ["S=[-∞;1]","S=]2;1]","S=]1;1[","S=[0;∞]","S=[x;2]","S=[0;1] ∪ [2;3] ∪ [4;5] ∪ [6;7] ∪ [8;9] ∪ [10;11]"])
     assert.throws(()=>parseInequalitySet(bad),undefined,bad);
   assert.equal(checkMathSteps("S=[1;3]").unsupported,1);
   assert.equal(checkMathSteps("2<3").entries[0].kind,"ok");
   assert.equal(checkMathSteps("2>3").entries[0].kind,"error");
   assert.deepEqual(checkMathSteps("x²+2x < x²+4\nx<2").entries.map(e=>e.kind),["info","ok"]);
+});
+
+
+test("bornes irrationnelles exactes : racines équivalentes et ordre algébrique",()=>{
+  for(const [a,b] of [
+    ["x²≤2","S=[-√(8)/2;√(8)/2]"],
+    ["x²-x-1≤0","S=[(1-√(5))/2;(1+√(5))/2]"],
+    ["x²>2","S=]√2;+∞[ ∪ ]-∞;-√2["],
+    ["x²≤2","S=[-√(2);0] ∪ ]0;√(2)]"],
+    ["x²≤4","S=[-√(4);√(4)]"]
+  ])assert.deepEqual(checkMathSteps(a+"\n"+b).entries.map(e=>e.kind),["info","ok"],a+" "+b);
+  assert.throws(()=>parseInequalitySet("S=[√(3);√(2)]"));
+  assert.throws(()=>parseInequalitySet("S=[√(-2);3]"));
+  assert.throws(()=>parseInequalitySet("S=[√(2)+√(3);5]"));
+  assert.equal(checkMathSteps("x²≤2\nS=[-√(3);√(3)]").errors,1);
+  assert.equal(checkMathSteps("x²≤2\nS=[-1,414213562;1,414213562]").errors,1);
+  assert.equal(parseInequalitySet("S=[√(2);√(3)] ∪ [√(3);2]").intervals.length,1);
+});
+
+test("quotients : signe du dénominateur, zéros inclus et valeurs interdites",()=>{
+  for(const [a,b] of [
+    ["(x-2)/(x+1)≥0","S=]-∞;-1[ ∪ [2;+∞["],
+    ["(x-2)/(x+1)<0","S=]-1;2["],
+    ["1/x>0","S=]0;+∞["],
+    ["1/x≤0","S=]-∞;0["],
+    ["(x-1)/(x-1)≥0","S=]-∞;1[ ∪ ]1;+∞["],
+    ["(x-1)/(x-1)<0","S=∅"],
+    ["0/(x-1)≥0","S=]-∞;1[ ∪ ]1;+∞["],
+    ["0/(x-1)>0","S=∅"],
+    ["x/(x-1)≥1/(x-1)","S=]-∞;1[ ∪ ]1;+∞["],
+    ["1/(x-1)>1/(x+1)","S=]-∞;-1[ ∪ ]1;+∞["],
+    ["(x²-2)/(x-1)≥0","S=[-√(2);1[ ∪ [√(2);+∞["],
+    ["(x-1)^2/(x+1)≤0","S=]-∞;-1[ ∪ {1}"]
+  ])assert.deepEqual(checkMathSteps(a+"\n"+b).entries.map(e=>e.kind),["info","ok"],a+" "+b);
+  const r=checkMathSteps("(x-2)/(x+1)≥0\nS=]-∞;-1] ∪ [2;+∞[\nS=]-∞;-1[ ∪ [2;+∞[");
+  assert.deepEqual(r.entries.map(e=>e.kind),["info","error","ok"]);
+  assert.deepEqual(r.entries[0].signTable.map(x=>x.sign),["+","interdit","−","0","+"]);
+  assert.match(r.entries[0].message,/Valeur\(s\) interdite\(s\)/);
+  assert.equal(checkMathSteps("(x-1)/(x-1)≥0\nS=R").errors,1);
+  assert.deepEqual(checkMathSteps("1/x>0\nx>0").entries.map(e=>e.kind),["info","ok"]);
+});
+
+test("refus des quotients ambigus ou hors degré sans faux verdict",()=>{
+  for(const a of ["x−1/(x-1)>0","x+1/(x-1)>0","1/(x-1)+1>0",
+    "1/(x²-1)>0","x²/(x-1)>x²","1/(x-x)>0","1/x/2>0","1/(x-1)>1/(x²+1)"]){
+    const r=checkMathSteps(a);assert.equal(r.unsupported,1,a);assert.equal(r.checked,0,a);
+  }
 });

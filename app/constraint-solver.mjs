@@ -88,7 +88,8 @@ function quotientIndex(expression){
   if(depth!==0)throw Error("parenthèses déséquilibrées");
   return index;
 }
-function rationalSide(source){
+export function rationalSide(source){
+  source=source.replace(/[−–]/g,"-").replace(/÷/g,"/");
   // La lecture polynomiale en premier conserve les fractions de constantes,
   // les expressions ordinaires et les polynômes existants.
   try{return {numerator:parsePolynomial(source),denominator:constant(one),excluded:[]};}
