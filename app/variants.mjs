@@ -210,6 +210,55 @@ export const VARIANTS=[
       "Utilise n ln(a)=ln(aⁿ) pour a>0, puis exp(ln(t))=t.",
       "Comme "+base+">0, exp("+n+"ln("+base+"))=exp(ln("+base+"^"+n+"))="+base+"^"+n+"="+value+".",
       {base,n,kind:"exponential_log_power"});
+  }),
+  v("v42","nombres",[2],r=>{
+    const a=pick(r,1,8),b=pick(r,2,9),c=pick(r,1,7),d=pick(r,2,10);
+    return num("Calculer −"+a+"/"+b+" + "+c+"/"+d+" (fraction ou décimal).",(c*b-a*d)/(b*d),
+      "Choisis un dénominateur commun et conserve le signe du premier numérateur.",
+      "−"+a+"/"+b+" + "+c+"/"+d+" = ("+c+"×"+b+"−"+a+"×"+d+")/("+b+"×"+d+") = "+(c*b-a*d)+"/"+(b*d)+".",
+      {a,b,c,d,kind:"signed_fraction_sum"});
+  }),
+  v("v43","equations",[5],r=>{
+    const a=pick(r,2,7),b=pick(r,1,a-1),x=pick(r,-7,7),c=pick(r,-9,9),d=(a-b)*x+c;
+    return num("Résoudre "+a+"x+("+c+") = "+b+"x+("+d+"). Donner x.",x,
+      "Regroupe les termes en x à gauche, les constantes à droite.",
+      "("+a+"−"+b+")x = "+d+"−("+c+") = "+(d-c)+" ; x = "+(d-c)+"/"+(a-b)+" = "+x+".",
+      {a,b,c,d,kind:"two_sided_linear"});
+  }),
+  v("v44","equations",[8],r=>{
+    const a=pick(r,2,9),k=pick(r,-8,8),b=pick(r,-7,7),c=b-a*k;
+    return num("Résoudre −"+a+"x+("+b+") ≤ "+c+". Quelle est la plus petite solution entière ?",k,
+      "Divise par un nombre négatif : le sens change, mais l'égalité reste autorisée.",
+      "−"+a+"x ≤ "+(c-b)+" ; x ≥ "+k+". La borne est incluse, donc le plus petit entier vaut "+k+".",
+      {a,b,c,kind:"negative_inclusive"});
+  }),
+  v("v45","second",[7],r=>{
+    const p=pick(r,-7,3),q=p+pick(r,2,7),a=pick(r,1,5);
+    return num("Combien d'entiers vérifient "+a+"(x−("+p+"))(x−("+q+")) < 0 ?",q-p-1,
+      "Le signe est négatif entre les deux racines et les bornes sont exclues.",
+      "Le produit est négatif sur ]"+p+" ; "+q+"[. Les entiers vont de "+(p+1)+" à "+(q-1)+" : il y en a "+(q-p-1)+".",
+      {p,q,a,kind:"quadratic_integer_count"});
+  }),
+  v("v46","equations",[8],r=>{
+    const p=pick(r,-7,3),q=p+pick(r,2,7);
+    return num("Combien d'entiers vérifient (x−("+p+"))/(x−("+q+")) ≤ 0 ?",q-p,
+      "Le zéro du numérateur est inclus ; le zéro du dénominateur est interdit.",
+      "Le quotient est négatif entre "+p+" et "+q+", nul en "+p+" et interdit en "+q+". S = ["+p+" ; "+q+"[. Il y a "+(q-p)+" entiers.",
+      {p,q,kind:"rational_integer_count"});
+  }),
+  v("v47","fonctions",[10],r=>{
+    const a=pick(r,2,8),b=pick(r,-9,9);
+    return num("Domaine de f(x)=√("+a+"x+("+b+")). Quelle est la borne inférieure exacte ?",-b/a,
+      "Le radicande doit être positif ou nul. Le coefficient de x est positif.",
+      a+"x+("+b+") ≥ 0 ; x ≥ "+(-b)+"/"+a+". La borne est incluse.",
+      {a,b,kind:"radical_domain_boundary"});
+  }),
+  v("v48","derivation",[12],r=>{
+    const a=pick(r,2,5),b=pick(r,-6,6),x=pick(r,-3,3);
+    return num("f(x)=("+a+"x+("+b+"))³. Calculer f′("+x+").",3*a*(a*x+b)**2,
+      "La dérivée de u³ est 3u²×u′. N'oublie pas le coefficient intérieur.",
+      "f′(x)=3×"+a+"×("+a+"x+("+b+"))² ; f′("+x+")="+3*a+"×("+ (a*x+b)+")²="+3*a*(a*x+b)**2+".",
+      {a,b,x,kind:"chain_derivative"});
   })
 ];
 

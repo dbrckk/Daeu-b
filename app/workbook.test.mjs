@@ -115,5 +115,5 @@ test("plan : priorités, succès sans aide et répétition espacée",()=>{
  assert.equal(workbookReviewPlan(book,practice,140).rows[0].practiced,1);
  practice=recordAnswer(practice,"e04",false,140);
  assert.equal(workbookReviewPlan(book,practice,150).rows[0].due,1);
- assert.equal(workbookReviewPlan(book,practice,150).daily[0].remaining,3);
+ assert.equal(workbookReviewPlan(book,practice,150).daily[0].remaining,4);
 });

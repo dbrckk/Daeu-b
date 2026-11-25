@@ -6,16 +6,16 @@ import {VARIANTS} from "../app/variants.mjs";
 import {COURSES} from "../app/course-catalog.mjs";
 import {FIXED_IDS_BY_JALON} from "./coverage-map.mjs";
 import {readFileSync} from "node:fs";
-test("v24 : attribution exacte et distincte des 157 entrées",()=>{
+test("v24 : attribution exacte et distincte des 164 entrées",()=>{
  const a=currentAudit();
  assert.deepEqual(a.errors,[]);
  assert.equal(a.totals.fixedUnique,116);
- assert.equal(a.totals.variantUnique,41);
- assert.equal(a.totals.interactiveUnique,157);
+ assert.equal(a.totals.variantUnique,48);
+ assert.equal(a.totals.interactiveUnique,164);
  assert.equal(a.totals.fixedAttributed,116);
  assert.equal(a.totals.requiredJalons,20);
  assert.equal(a.totals.optionalJalons,3);
- assert.equal(a.totals.variantJalonAssignments,43);
+ assert.equal(a.totals.variantJalonAssignments,50);
  assert.deepEqual(a.totals.crossTopic,[]);
  assert.ok(a.jalons[11].fixedIds.includes("l12"));
  assert.ok(TOPICS.find(topic=>topic.slug==="derivation").questions.some(question=>question.id==="l12"));

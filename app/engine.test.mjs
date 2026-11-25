@@ -100,9 +100,9 @@ test("chaque jalon accepte une réponse calculée et rejette un piège du même 
   }
 });
 
-test("banque paramétrique: IDs uniques, 20 jalons, 41 modèles",()=>{
+test("banque paramétrique: IDs uniques, 20 jalons, 48 modèles",()=>{
   assert.deepEqual(validateVariants(TOPICS,100),[]);
-  assert.equal(VARIANTS.length,41);
+  assert.equal(VARIANTS.length,48);
   const merged=flatten(injectVariants(TOPICS));
   assert.equal(merged.length,questions.length+VARIANTS.length);
   assert.equal(new Set(merged.map(q=>q.id)).size,merged.length);
@@ -145,7 +145,7 @@ test("validation complète de plusieurs valeurs et équations",()=>{
 });
 
 
-test("contrôle indépendant des 41 familles de calculs sur 3 280 énoncés",()=>{
+test("contrôle indépendant des 48 familles de calculs sur 3 840 énoncés",()=>{
   const reference={
     priority:m=>m.a+m.b*m.c,
     fractions:m=>(m.a+m.b)/m.d,
@@ -187,7 +187,14 @@ test("contrôle indépendant des 41 familles de calculs sur 3 280 énoncés",()=
     removable_limit:m=>2*m.a,
     horizontal_asymptote:m=>m.a/m.c,
     log_exp_product:m=>Math.log(Math.exp(m.a)*Math.exp(m.b)),
-    exponential_log_power:m=>Math.pow(m.base,m.n)
+    exponential_log_power:m=>Math.pow(m.base,m.n),
+    signed_fraction_sum:m=>-m.a/m.b+m.c/m.d,
+    two_sided_linear:m=>(m.d-m.c)/(m.a-m.b),
+    negative_inclusive:m=>Math.ceil((m.b-m.c)/m.a),
+    quadratic_integer_count:m=>Array.from({length:31},(_,i)=>i-15).filter(x=>m.a*(x-m.p)*(x-m.q)<0).length,
+    rational_integer_count:m=>Array.from({length:31},(_,i)=>i-15).filter(x=>x!==m.q&&(x-m.p)/(x-m.q)<=0).length,
+    radical_domain_boundary:m=>-m.b/m.a,
+    chain_derivative:m=>3*m.a*(m.a*m.x+m.b)**2
   };
   assert.equal(Object.keys(reference).length,VARIANTS.length);
   for(const t of VARIANTS){
@@ -220,7 +227,7 @@ test("16 exercices approfondis : exactitude et compatibilité des données local
     assert.equal(gradeAnswer(q,answer).correct,true,"mauvaise correction "+id);
     assert.ok(q.hint.length>=15&&q.explanation.length>=65,"explication trop brève "+id);
   }
-  assert.equal(flatten(injectVariants(TOPICS)).length,157);
+  assert.equal(flatten(injectVariants(TOPICS)).length,164);
   const prev=recordAnswer(emptyState(),"st05",true,Date.UTC(2026,10,9));
   const compatible=sanitizeState(JSON.parse(JSON.stringify(prev)),new Set(flatten(injectVariants(TOPICS)).map(q=>q.id)));
   assert.equal(compatible.items.st05.correct,1,"progrès antérieur inchangé");
