@@ -7,7 +7,7 @@
  * Périmètre volontairement limité : les expressions non affines ou ambiguës
  * sont signalées comme non vérifiées et JAMAIS validées par approximation.
  */
-import {classifyPolynomialEquality,sameRealSolutions} from "./quadratic-checker.mjs";
+import {classifyPolynomialEquality,classifyPolynomialDifference,parsePolynomial,sameRealSolutions} from "./quadratic-checker.mjs";
 import {classifyConstrainedEquality} from "./constraint-solver.mjs";
 import {isFunctionNotation,parseFunctionLine,checkDerivativeCandidate} from "./derivative-checker.mjs";
 
@@ -218,12 +218,146 @@ export function classifyAffineInequality(text){
   return {...base,kind:"interval",operator,boundary,signFlipped,
     solution:"x "+operator+" "+formatRational(boundary)};
 }
+// Ensembles de solutions : intervalles ordonnés, bornes rationnelles ou
+// racines algébriques canoniques. Les clés des racines irrationnelles
+// utilisent le polynôme monique et leur ordre, jamais un nombre flottant.
+const endpoint=value=>({key:"r:"+formatRational(value),label:formatRational(value),value});
+const interval=(lo=null,hi=null,lc=false,hc=false)=>({lo,hi,lc:!!lo&&lc,hc:!!hi&&hc});
+const ALL_INTERVALS=[interval()];
+const rootPoint=r=>interval(r,r,true,true);
+const sameEndpoint=(a,b)=>a===null?b===null:b!==null&&a.key===b.key;
+const compareRat=(a,b)=>a.n*b.d<b.n*a.d?-1:a.n*b.d>b.n*a.d?1:0;
+function intervalsFor(result){
+  if(result.intervals)return result.intervals;
+  if(result.kind==="all")return ALL_INTERVALS;
+  if(result.kind==="none")return [];
+  const r=endpoint(result.boundary);
+  return result.operator.startsWith("<")||result.operator==="≤"
+    ?[interval(null,r,false,result.operator==="≤")]
+    :[interval(r,null,result.operator==="≥",false)];
+}
+function describeSet(intervals){
+  if(!intervals.length)return "∅";
+  if(intervals.length===1&&!intervals[0].lo&&!intervals[0].hi)return "ℝ";
+  return intervals.map(({lo,hi,lc,hc})=>{
+    if(lo&&hi&&sameEndpoint(lo,hi)&&lc&&hc)return "{"+lo.label+"}";
+    return (lc?"[":"]")+(lo?.label??"−∞")+" ; "+(hi?.label??"+∞")+(hc?"]":"[");
+  }).join(" ∪ ");
+}
+function rationalEndpoint(text){
+  if(!text.trim()||/[xX]/.test(text))throw Error("borne rationnelle attendue");
+  const poly=parsePolynomial(text);
+  if(poly[1].n!==0n||poly[2].n!==0n)throw Error("borne rationnelle attendue");
+  return endpoint(poly[0]);
+}
+function quadraticRoots(result){
+  if(result.kind==="none")return [];
+  if(result.kind==="unique")return [endpoint(result.solutionRatio)];
+  if(result.solutions)return result.solutions.map(rationalEndpoint);
+  const b=result.normalizedB,c=result.normalizedC,D=sub(mul(b,b),mul(rat(4n),c));
+  return ["lower","upper"].map((branch,i)=>({
+    key:"q:"+formatRational(b)+":"+formatRational(c)+":"+branch,
+    label:"("+formatRational(neg(b))+(i===0?" − ":" + ")+"√("+formatRational(D)+"))/2"
+  }));
+}
+function classifyPolynomialInequality(text){
+  if(typeof text!=="string"||text.length>2*MAX_LINE)throw Error("ligne trop longue");
+  const match=text.match(/^(.+?)\s*(<=|>=|≤|≥|<|>)\s*(.+)$/u);
+  if(!match||/[<>=≤≥≠]/u.test(match[1]+match[3]))throw Error("une seule inéquation complète est nécessaire");
+  const left=parsePolynomial(match[1]),right=parsePolynomial(match[3]);
+  const poly=left.map((v,i)=>sub(v,right[i]));
+  const [c,b,a]=poly;
+  if(a.n===0n){
+    // La simplification de termes quadratiques peut ramener au degré 1.
+    const coeff=formatRational(b),target=formatRational(neg(c));
+    const result=classifyAffineInequality(coeff+"*x "+match[2]+" "+target);
+    return {...result,numeric:!/[xX]/.test(text)};
+  }
+  const roots=classifyPolynomialDifference(poly),bounds=quadraticRoots(roots);
+  const operator=match[2]==="<="?"≤":match[2]===">="?"≥":match[2];
+  const wantsPositive=operator===">"||operator==="≥";
+  const includeZero=operator==="≤"||operator==="≥";
+  const positiveOutside=a.n>0n,selectOutside=wantsPositive===positiveOutside;
+  let intervals;
+  if(bounds.length===0)intervals=selectOutside?ALL_INTERVALS:[];
+  else if(bounds.length===1){
+    const [r]=bounds;
+    intervals=selectOutside?(includeZero?ALL_INTERVALS:[interval(null,r),interval(r,null)])
+      :(includeZero?[rootPoint(r)]:[]);
+  }else{
+    const [r,s]=bounds;
+    intervals=selectOutside?[interval(null,r,false,includeZero),interval(s,null,includeZero,false)]
+      :[interval(r,s,includeZero,includeZero)];
+  }
+  const sign=positiveOutside?"+":"−",opposite=positiveOutside?"−":"+";
+  const range=(lo,hi)=>describeSet([interval(lo,hi)]);
+  const signTable=bounds.length===0?[{range:"ℝ",sign}]:
+    bounds.length===1?[{range:range(null,bounds[0]),sign},
+      {range:bounds[0].label,sign:"0"},{range:range(bounds[0],null),sign}]:
+    [{range:range(null,bounds[0]),sign},{range:bounds[0].label,sign:"0"},
+      {range:range(bounds[0],bounds[1]),sign:opposite},{range:bounds[1].label,sign:"0"},
+      {range:range(bounds[1],null),sign}];
+  return {inequality:true,quadratic:true,kind:intervals.length?"set":"none",intervals,
+    solution:"S = "+describeSet(intervals),discriminant:roots.discriminant,
+    coefficient:formatRational(a),originalOperator:operator,signTable,positiveOutside,
+    rootCount:bounds.length,includeZero};
+}
+/** Une conclusion S = ... accepte les intervalles français à bornes
+ * rationnelles, ℝ/R, ∅, un singleton et l'union de deux intervalles.
+ * Les intervalles sont normalisés avant toute comparaison. */
+export function parseInequalitySet(text){
+  if(typeof text!=="string"||text.length>2*MAX_LINE)throw Error("ensemble trop long");
+  const m=text.match(/^S\s*=\s*(.+)$/i);
+  if(!m)throw Error("écris S = suivi de l'ensemble des solutions");
+  const source=m[1].trim();
+  if(/^(?:ℝ|R)$/u.test(source))return {inequality:true,intervals:ALL_INTERVALS,solution:"S = ℝ"};
+  if(source==="∅")return {inequality:true,intervals:[],solution:"S = ∅"};
+  const parts=source.split(/\s*(?:∪|\\cup)\s*/u);
+  if(parts.length>2)throw Error("deux intervalles au maximum");
+  let intervals=parts.map(part=>{
+    const point=part.match(/^\{\s*(.+?)\s*\}$/u);
+    if(point)return rootPoint(rationalEndpoint(point[1]));
+    const match=part.match(/^([\[\]])\s*([^;]+?)\s*;\s*([^;]+?)\s*([\[\]])$/u);
+    if(!match)throw Error("notation attendue : ]−∞ ; 2] ou [2 ; 3[ ou {2}");
+    const lower=match[2].trim(),upper=match[3].trim(),lc=match[1]==="[",hc=match[4]==="]";
+    const lo=/^[-−](?:∞|inf)$/i.test(lower)?null:rationalEndpoint(lower);
+    const hi=/^\+?(?:∞|inf)$/i.test(upper)?null:rationalEndpoint(upper);
+    if((!lo&&lc)||(!hi&&hc))throw Error("une borne infinie est toujours ouverte");
+    if(lo&&hi){
+      const cmp=compareRat(lo.value,hi.value);
+      if(cmp>0||cmp===0&&!(lc&&hc))throw Error("intervalle vide ou bornes dans le mauvais ordre ; écris ∅ si nécessaire");
+    }
+    return interval(lo,hi,lc,hc);
+  });
+  intervals.sort((a,b)=>!a.lo?(!b.lo?Number(b.lc)-Number(a.lc):-1)
+    :!b.lo?1:compareRat(a.lo.value,b.lo.value)||Number(b.lc)-Number(a.lc));
+  if(intervals.length===2){
+    const [a,b]=intervals;
+    const overlap=!a.hi||!b.lo?1:compareRat(a.hi.value,b.lo.value);
+    if(overlap>0||overlap===0&&(a.hc||b.lc)){
+      const upper=!a.hi||!b.hi?null:compareRat(a.hi.value,b.hi.value)>=0?a.hi:b.hi;
+      const hc=upper!==null&&(sameEndpoint(upper,a.hi)&&a.hc||sameEndpoint(upper,b.hi)&&b.hc);
+      intervals=[interval(a.lo,upper,a.lc,hc)];
+    }
+  }
+  return {inequality:true,intervals,solution:"S = "+describeSet(intervals)};
+}
 function sameInequalitySolutions(a,b){
-  if(!a?.inequality||!b?.inequality||a.kind!==b.kind)return false;
-  if(a.kind!=="interval")return true;
-  return a.operator===b.operator&&eq(a.boundary,b.boundary);
+  if(!a?.inequality||!b?.inequality)return false;
+  const left=intervalsFor(a),right=intervalsFor(b);
+  return left.length===right.length&&left.every((v,i)=>sameEndpoint(v.lo,right[i].lo)&&
+    sameEndpoint(v.hi,right[i].hi)&&v.lc===right[i].lc&&v.hc===right[i].hc);
 }
 function inequalityMethod(result){
+  if(result.quadratic){
+    const rule=result.rootCount===0?"Aucune racine réelle : signe constant de a."
+      :result.rootCount===1?"Une racine double : le signe de a ne change pas en la traversant."
+      :"Deux racines : signe de a à l'extérieur, signe opposé entre elles.";
+    return "Mets tout dans un membre : ax² + bx + c "+result.originalOperator+" 0. Δ = "+
+      result.discriminant+". "+rule+" Ici a "+(result.positiveOutside?">":"<")+" 0. "+
+      (result.includeZero?"Inclure les zéros. ":"Exclure les zéros. ")+
+      "Ensemble attendu : "+result.solution+".";
+  }
   if(result.kind!=="interval")
     return "Les termes en x s'annulent : vérifie la vérité de 0 "+result.originalOperator+" "+result.target+
       ". Ensemble attendu : "+result.solution+".";
@@ -259,26 +393,58 @@ export function checkMathSteps(text){
     const input=lines[i].trim(),line=i+1;
     if(!input){previous=null;definition=null;continue;}
     if(!input.includes("=")&&!/[<>≤≥≠]/u.test(input)){previous=null;definition=null;continue;}
+    if(/^S\s*=/i.test(input)){
+      definition=null;
+      if(!previous?.inequality){
+        previous=null;unsupported++;
+        entries.push({line,kind:"unsupported",message:"Conclusion non vérifiée : écris d'abord l'inéquation, sans ligne vide."});
+        continue;
+      }
+      let result;
+      try{result=parseInequalitySet(input);}
+      catch(error){
+        unsupported++;
+        entries.push({line,kind:"unsupported",message:"Ensemble non vérifié : "+error.message+". Les bornes irrationnelles ne sont pas encore saisissables en notation d'intervalle."});
+        continue;
+      }
+      // Une écriture rationnelle ne peut pas certifier un intervalle à bornes
+      // irrationnelles ; une approximation n'est jamais acceptée.
+      checked++;
+      if(sameInequalitySolutions(previous,result))
+        entries.push({line,kind:"ok",message:"Conclusion exacte : "+result.solution+"."});
+      else{
+        errors++;
+        entries.push({line,kind:"error",message:"Ensemble de solutions incorrect : "+result.solution+
+          ". Attendu : S = "+describeSet(intervalsFor(previous))+". "+inequalityMethod(previous)});
+      }
+      continue;
+    }
     if(/[<>≤≥≠]/u.test(input)){
       definition=null;
       let result;
-      try{result=classifyAffineInequality(input);}
+      try{result=classifyPolynomialInequality(input);}
       catch(error){
         previous=null;unsupported++;
         entries.push({line,kind:"unsupported",message:"Inéquation non vérifiée : "+error.message+
-          ". Utilise une seule inéquation affine en x, sans chaîne ni produit de signes."});
+          ". Utilise une seule inéquation polynomiale de degré 1 ou 2 en x, sans chaîne ni quotient variable."});
         continue;
       }
-      checked++;
       if(previous&&!previous.inequality){
         previous=null;unsupported++;
         entries.push({line,kind:"unsupported",message:"Passage d'une équation à une inéquation : "+
           "on ne peut pas les déclarer équivalentes. Sépare les deux raisonnements par une ligne vide."});
         continue;
       }
+      checked++;
       if(!previous){
-        entries.push({line,kind:"info",message:"Inéquation du premier degré reconnue. "+
-          inequalityMethod(result)});
+        if(result.numeric){
+          const correct=result.kind==="all";
+          if(!correct)errors++;
+          entries.push({line,kind:correct?"ok":"error",message:"Inégalité numérique "+(correct?"vraie.":"fausse. ")+inequalityMethod(result)});
+          continue;
+        }
+        entries.push({line,kind:"info",message:"Inéquation du "+(result.quadratic?"second":"premier")+" degré reconnue. "+
+          inequalityMethod(result),...(result.signTable?{signTable:result.signTable}:{})});
         previous=result;previousLine=line;
       }else if(sameInequalitySolutions(previous,result)){
         entries.push({line,kind:"ok",message:"Étape équivalente à la ligne "+previousLine+

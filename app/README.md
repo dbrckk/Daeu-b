@@ -468,3 +468,12 @@ Dans les cahiers des cours, quiz et problèmes, le bouton **« Vérifier mes ét
 - Le modèle « Inéquation » et des conseils explicites sur la division par un négatif sont ajoutés aux cahiers des cours, quiz et problèmes, hors examens chronométrés (aucune solution révélée durant l'épreuve).
 - Les inéquations du second degré, produits de signes, chaînes doubles, systèmes, annotations et domaines non affines restent **non vérifiés**, jamais déclarés justes. La progression, les copies et les sauvegardes ne changent pas de format.
 - Tests de signes, fractions, frontière, non-régression et parcours Chromium mobile dans le cahier ; mise à jour atomique du cache PWA requise avant publication.
+
+
+## v137 — inéquations du second degré et ensembles de solutions
+
+Le cahier clavier vérifie maintenant les inéquations polynomiales de degré au plus 2 en x. Les racines réelles, le signe de a et le discriminant sont traités exactement ; le tableau de signes est présenté dans un tableau accessible. Les transformations sont comparées sur des ensembles canoniques, y compris les racines irrationnelles (identité du polynôme monique et branche), et non par échantillonnage ou arrondi.
+
+La conclusion `S = ...` est vérifiée après une inéquation : intervalles français à bornes rationnelles, union de deux intervalles, singleton, ℝ et ∅. Les bornes infinies sont ouvertes ; les unions sont normalisées. La saisie de bornes irrationnelles dans S reste explicitement non vérifiée, mais l'équivalence entre deux inéquations polynomiales irrationnelles est exacte. Les quotients à dénominateur variable et les degrés supérieurs à 2 ne sont pas couverts.
+
+Le clavier propose les caractères d'ensembles et un modèle d'inéquation du second degré. Le contrôle reste désactivé en examen, ne juge pas une démonstration et ne modifie pas le format de progression. Vérification mobile incluant la restauration du brouillon et la correction hors connexion.

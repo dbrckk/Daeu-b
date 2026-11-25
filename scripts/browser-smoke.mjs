@@ -80,6 +80,24 @@ async function verifyInequalityNotebook(){
     await tab.locator("#courseNotebookPanel > summary").click();
     assert.match(await tab.locator("#courseNotebook .math-notebook-editor").inputValue(),/x ≥ -1/);
     console.log("OK Cahier : inéquation exacte, signe inversé détecté et brouillon restauré");
+    const restoredEditor=tab.locator("#courseNotebook .math-notebook-editor");
+    await restoredEditor.fill("x²-5x+6≤0\n(x-2)(x-3)≤0\nS=[2;3]");
+    await verify.click();
+    assert.match(await feedback.textContent(),/3 ligne\(s\) analysée\(s\), 0 erreur\(s\)/);
+    assert.equal(await feedback.locator("table.math-sign-table tbody tr").count(),5);
+    assert.deepEqual(await feedback.locator("table.math-sign-table tbody td").allTextContents(),["+","0","−","0","+"]);
+    await restoredEditor.fill("x²-5x+6≤0\nS=]2;3[");
+    await verify.click();
+    assert.match(await feedback.textContent(),/1 erreur\(s\)/);
+    await tab.waitForFunction(()=>!!navigator.serviceWorker.controller);
+    await mobile.setOffline(true);
+    await tab.reload();
+    await tab.locator("#courseNotebookPanel > summary").click();
+    assert.match(await restoredEditor.inputValue(),/S=\]2;3\[/);
+    await verify.click();
+    assert.match(await feedback.textContent(),/Ensemble de solutions incorrect/);
+    assert.ok(await tab.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    console.log("OK Second degré : tableau de signes, conclusion ouverte/fermée et contrôle hors ligne");
   }finally{await mobile.close();}
 }
 
@@ -454,9 +472,10 @@ try {
       "Aperçu sur Android : fractions superposées, puissances et racines en MathML");
     await firstPage.locator("#quizNotebook textarea").fill("2x + 5 = 17\n2x = 12\nx = 6");
     await firstPage.locator("#quizNotebook .math-notebook-keypad button").filter({hasText:"√"}).click();
-    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===15
-      &&await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Inéquation"}).count()===1,
-      "Quinze modèles mathématiques dont l’inéquation, utilisables sans clavier physique");
+    await check(async()=>await firstPage.locator("#quizNotebook .math-notebook-templates button").count()===16
+      &&await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:/^Inéquation$/}).count()===1
+      &&await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Inéquation du second degré"}).count()===1,
+      "Seize modèles mathématiques dont les deux inéquations, utilisables sans clavier physique");
     await firstPage.locator("#quizNotebook .math-notebook-templates button").filter({hasText:"Fraction"}).click();
     await check(async()=>await firstPage.locator("#quizNotebook textarea").inputValue().then(t=>t.includes("(numérateur)/(dénominateur)")),
       "Modèle de fraction inséré et sauvegardé");

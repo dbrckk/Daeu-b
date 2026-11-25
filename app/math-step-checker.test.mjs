@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {classifyEquality,checkMathSteps,parseAffine,formatRational,classifyAffineInequality} from "./math-step-checker.mjs";
+import {classifyEquality,checkMathSteps,parseAffine,formatRational,classifyAffineInequality,parseInequalitySet} from "./math-step-checker.mjs";
 
 test("chaîne linéaire correcte : transformation équivalente exacte",()=>{
  const c=checkMathSteps("2x + 5 = 17\n2x = 12\nx = 6");
@@ -227,7 +227,7 @@ test("inéquations tautologiques ou impossibles et frontières exactes",()=>{
 });
 
 test("aucune validation fictive des inéquations complexes, malformées ou des chaînes mélangées",()=>{
-  for(const source of ["x² > 4","x(x-1)≥0","x < y","0 < x < 2","x >= ","x=>2","x ≠ 2","√(x)>1","x < 1/0"]){
+  for(const source of ["x^3 > 4","x(x-1)(x+1)≥0","x < y","0 < x < 2","x >= ","x=>2","x ≠ 2","√(x)>1","x < 1/0"]){
     const review=checkMathSteps(source);
     assert.equal(review.unsupported,1,source);
     assert.equal(review.checked,0,source);
@@ -235,6 +235,55 @@ test("aucune validation fictive des inéquations complexes, malformées ou des c
   assert.deepEqual(checkMathSteps("x < 2\nx = 1").entries.map(e=>e.kind),["info","unsupported"]);
   assert.deepEqual(checkMathSteps("x = 1\nx < 2").entries.map(e=>e.kind),["info","unsupported"]);
   assert.deepEqual(checkMathSteps("x < 2\n\nx = 1").entries.map(e=>e.kind),["info","info"]);
-  const unrelated=checkMathSteps("x < 3\nx²>1\nx < 4");
+  const unrelated=checkMathSteps("x < 3\nx^3>1\nx < 4");
   assert.deepEqual(unrelated.entries.map(e=>e.kind),["info","unsupported","info"]);
+});
+
+
+test("second degré : racines rationnelles, factorisation, signe de a et conclusion",()=>{
+  const review=checkMathSteps("x² - 5x + 6 ≤ 0\n(x-2)(x-3) ≤ 0\nS = [2 ; 3]");
+  assert.deepEqual(review.entries.map(e=>e.kind),["info","ok","ok"]);
+  assert.match(review.entries[0].message,/Δ = 1/);
+  assert.deepEqual(review.entries[0].signTable.map(c=>c.sign),["+","0","−","0","+"]);
+  assert.deepEqual(checkMathSteps("-x²+5x-6≥0\nx²-5x+6≤0\nS = [2;3]").entries.map(e=>e.kind),["info","ok","ok"]);
+  assert.deepEqual(checkMathSteps("x(x-1)>0\nS = ]-∞;0[ ∪ ]1;+∞[").entries.map(e=>e.kind),["info","ok"]);
+  assert.deepEqual(checkMathSteps("x²-4≤0\nS = ]-2;2]\nS = [-2;2]").entries.map(e=>e.kind),["info","error","ok"]);
+});
+
+test("second degré : discriminant nul ou négatif, racine double",()=>{
+  for(const [source,solution] of [
+    ["x²+1>0","ℝ"],["-x²-1≥0","∅"],["(x-2)^2≤0","{2}"],
+    ["(x-2)^2<0","∅"],["(x-2)^2≥0","R"],["(x-2)^2>0","]-∞;2[ ∪ ]2;+∞["],
+    ["-(x-2)^2≥0","{2}"],["-(x-2)^2<0","]-∞;2[ ∪ ]2;+∞["]
+  ])assert.deepEqual(checkMathSteps(source+"\nS = "+solution).entries.map(e=>e.kind),["info","ok"],source);
+  const r=checkMathSteps("(x-2)^2>0\nS=R");
+  assert.equal(r.errors,1);
+  assert.match(r.entries[0].message,/racine double/);
+  assert.deepEqual(r.entries[0].signTable.map(x=>x.sign),["+","0","+"]);
+});
+
+test("racines irrationnelles : équivalence canonique sans arrondi",()=>{
+  assert.deepEqual(checkMathSteps("x²>2\n-2x²<-4\n3x²-6>0").entries.map(e=>e.kind),["info","ok","ok"]);
+  assert.equal(checkMathSteps("x²≤2\nS=[-1,41421356;1,41421356]").errors,1);
+  assert.equal(checkMathSteps("x²≤2\nx²<2").errors,1);
+  assert.equal(checkMathSteps("x²≤2\nS=[-√(2);√(2)]").unsupported,1);
+  assert.match(checkMathSteps("x²>2").entries[0].message,/√/);
+});
+
+test("conclusions : normalisation d'unions, fractions et garde-fous",()=>{
+  const checks=[
+    ["x>1/3","S=]1/3;+∞["],
+    ["x≤2","S=]-∞;1] ∪ ]1;2]"],
+    ["x²>4","S=]2;+∞[ ∪ ]-∞;-2["],
+    ["x²+1>0","S=]-∞;0] ∪ ]0;+∞["],
+    ["x²=1","S={1}"]
+  ];
+  for(const [a,b] of checks.slice(0,-1))assert.equal(checkMathSteps(a+"\n"+b).errors,0,a);
+  assert.equal(checkMathSteps(checks[4].join("\n")).unsupported,1);
+  for(const bad of ["S=[-∞;1]","S=]2;1]","S=]1;1[","S=[0;∞]","S=[x;2]","S=[0;1] ∪ [2;3] ∪ [4;5]"])
+    assert.throws(()=>parseInequalitySet(bad),undefined,bad);
+  assert.equal(checkMathSteps("S=[1;3]").unsupported,1);
+  assert.equal(checkMathSteps("2<3").entries[0].kind,"ok");
+  assert.equal(checkMathSteps("2>3").entries[0].kind,"error");
+  assert.deepEqual(checkMathSteps("x²+2x < x²+4\nx<2").entries.map(e=>e.kind),["info","ok"]);
 });
